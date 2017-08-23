@@ -1,0 +1,111 @@
+<!-- dDiscordBot build file -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.denizenscript</groupId>
+    <artifactId>ddiscordbot</artifactId>
+    <packaging>jar</packaging>
+    <version>0.1</version>
+    <name>dDiscordBot</name>
+    <description>Adds a Discord to Denizen</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <build.number>Unknown</build.number>
+        <BUILD_NUMBER>Unknown</BUILD_NUMBER>
+        <bukkit.version>1.12.1-R0.1-SNAPSHOT</bukkit.version>
+		<denizen.version>1.0.2-SNAPSHOT</denizen.version>
+    </properties>
+
+    <!-- Repositories -->
+    <repositories>
+        <repository>
+            <id>everything</id>
+            <url>http://repo.citizensnpcs.co</url>
+        </repository>
+        <repository>
+            <id>jcenter</id>
+            <url>http://jcenter.bintray.com</url>
+            </repository>
+            <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <!-- Dependencies -->
+    <dependencies>
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>${bukkit.version}</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.aufdemrand</groupId>
+            <artifactId>denizen</artifactId>
+            <version>${denizen.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.austinv11</groupId>
+            <artifactId>Discord4J</artifactId>
+            <version>2.8.4</version>
+            <classifier>shaded</classifier>
+        </dependency>
+
+    </dependencies>
+
+    <ciManagement>
+        <system>jenkins</system>
+        <url>http://ci.citizensnpcs.co</url>
+    </ciManagement>
+    <scm>
+        <connection>scm:git:git://github.com/DenizenScript/dDiscordBot.git</connection>
+        <developerConnection>scm:git:git:@github.com:DenizenScript/dDiscordBot.git</developerConnection>
+        <url>https://github.com/DenizenScript/dDiscordBot/tree/master/</url>
+    </scm>
+
+    <build>
+        <defaultGoal>clean package install</defaultGoal>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources</directory>
+                <includes>
+                    <include>*.yml</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>Denizen/lib/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
