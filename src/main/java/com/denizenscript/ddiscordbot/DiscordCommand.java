@@ -15,11 +15,13 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IRole;
 
+import java.util.Objects;
+
 public class DiscordCommand extends AbstractCommand implements Holdable {
 
     // <--[command]
     // @Name discord
-    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message channel:<channel> <message>/setrole user:<usercode> role:<rolecode> guild:<guildcode>]
+    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message channel:<channel> <message>/role <add/remove/set> user:<usercode> role:<rolecode> guild:<guildcode>]
     // @Required 2
     // @Stable unstable
     // @Short Connects to and interacts with Discord.
@@ -31,13 +33,14 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // Connects to and interacts with Discord.
     //
     // Enables interactions with Discord that allows your bot to send messages and listen in chat.
-    // Useful for making communication between the server and Discord.
-    // You can get role ids by typing '\@Rank' in a discord chat replacing 'Rank' with your rank name.
-    // This will give a string where the role id is between '<@&' and '>'
-    // Other ids are by just right-clicking a user or channel and then on 'Copy ID' in developer mode.
+    // Useful for communicating between the server and Discord.
     // This command requires a Discord bot connected to a guild which can be created on the Discord developer page.
     // The developer page also explains on how to get your token to allow connection.
     // It is recommended to load the token, use it to connect, then unload it for security reasons. This can be done using the yaml command.
+    // Specify the role argument for group management in a guild on Discord. This requires the bot to have permission for setting roles.
+    // You can get role ids by typing '\@Rank' in a discord chat replacing 'Rank' with your rank name.
+    // This will give a string where the role id is between '<@&' and '>'
+    // Other ids can be seen by just right-clicking a user or channel and then on 'Copy ID' in developer mode.
 
     // @Tags
     // TODO: Make tags
@@ -56,11 +59,19 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     // @Usage
     // Use to set a role on a user in a Discord guild.
-    // - discord id:mybot setrole user:123412341234 role:234523452345 guild:345634563456
+    // - discord id:mybot role set user:123412341234 role:234523452345 guild:345634563456
+
+    // @Usage
+    // Use to add a role on a user in a Discord guild.
+    // - discord id:mybot role add user:345893475890 role:324782895 guild:345763789345
+
+    // @Usage
+    // Use to remove a role on a user in a Discord guild.
+    // - discord id:mybot role remove user:3426543543 role:435345436457656 guild:45756756343
 
     // -->
 
-    public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, SETROLE }
+    public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, ROLE }
 
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
@@ -83,12 +94,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     && arg.matchesPrefix("channel")) {
                 scriptEntry.addObject("channel", arg.asElement());
             }
-            else if (!scriptEntry.hasObject("message")) {
-                scriptEntry.addObject("message", arg.asElement());
-            }
             else if (!scriptEntry.hasObject("user")
                     && arg.matchesPrefix("user")) {
-                scriptEntry.addObject("channel", arg.asElement());
+                scriptEntry.addObject("user", arg.asElement());
             }
             else if (!scriptEntry.hasObject("guild")
                     && arg.matchesPrefix("guild")) {
@@ -97,6 +105,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             else if (!scriptEntry.hasObject("role")
                     && arg.matchesPrefix("role")) {
                 scriptEntry.addObject("role", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("message")) {
+                scriptEntry.addObject("message", arg.asElement());
             }
             else {
                 arg.reportUnhandled();
@@ -156,7 +167,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         dB.report(scriptEntry, getName(), id.debug()
                 + (channel != null ? channel.debug(): "")
                 + instruction.debug()
-                + (message != null ? message.debug(): ""));
+                + (message != null ? message.debug(): "")
+                + (user != null ? user.debug(): "")
+                + (guild != null ? guild.debug(): "")
+                + (role != null ? role.debug(): ""));
 
         switch (DiscordInstruction.valueOf(instruction.asString().toUpperCase())) {
             case CONNECT:
@@ -199,27 +213,45 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 dDiscordBot.instance.connections.get(id.asString()).client.getChannelByID(channel.asLong()).sendMessage(message.asString());
                 break;
-            case SETROLE:
+            case ROLE:
                 if (user == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to setrole: no user given!");
+                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: no user given!");
                     return;
                 }
                 if (guild == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to setrole: no guild given!");
+                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: no guild given!");
                     return;
                 }
                 if (role == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to setrole: no role given!");
+                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: no role given!");
+                    return;
+                }
+                if (message == null) {
+                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: no action given!");
                     return;
                 }
                 if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to setrole: unknown ID!");
+                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: unknown ID!");
                     return;
                 }
                 IDiscordClient client_d = dDiscordBot.instance.connections.get(id.asString()).client;
                 IGuild guild_d = client_d.getGuildByID(guild.asLong());
-                guild_d.editUserRoles(client_d.getUserByID(user.asLong()), new IRole[]{guild_d.getRoleByID(role.asLong())});
+                switch (message.toString().toLowerCase()) {
+                    case "remove":
+                        client_d.getUserByID(user.asLong()).removeRole(guild_d.getRoleByID(role.asLong()));
+                        break;
+                    case "add":
+                        client_d.getUserByID(user.asLong()).addRole(guild_d.getRoleByID(role.asLong()));
+                        break;
+                    case "set":
+                        guild_d.editUserRoles(client_d.getUserByID(user.asLong()), new IRole[]{guild_d.getRoleByID(role.asLong())});
+                        break;
+                    default:
+                        dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: Invalid action given - " + message.toString());
+                        return;
+                }
                 break;
+
         }
     }
 }
