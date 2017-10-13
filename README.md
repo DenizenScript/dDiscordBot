@@ -1,4 +1,4 @@
-dDiscordBOt: Adds a Discord Bot to Denizen!
+dDiscordBot: Adds a Discord Bot to Denizen!
 -------------------------------------------
 
 
