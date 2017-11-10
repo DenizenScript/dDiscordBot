@@ -71,7 +71,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 scriptEntry.addObject("channel", arg.asElement());
             }
             else if (!scriptEntry.hasObject("message")) {
-                scriptEntry.addObject("message", arg.asElement());
+                scriptEntry.addObject("message", new Element(arg.raw_value));
             }
             else {
                 arg.reportUnhandled();
