@@ -2,10 +2,12 @@ package com.denizenscript.ddiscordbot;
 
 import net.aufdemrand.denizencore.events.ScriptEvent;
 import net.aufdemrand.denizencore.objects.Element;
+import net.aufdemrand.denizencore.objects.dList;
 import net.aufdemrand.denizencore.objects.dObject;
 import net.aufdemrand.denizencore.scripts.containers.ScriptContainer;
 import net.aufdemrand.denizencore.utilities.CoreUtilities;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.obj.IUser;
 
 public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
 
@@ -22,15 +24,19 @@ public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
     // @Plugin dDiscordBot
     //
     // @Context
-    // <context.bot> returns the ID of the bot.
+    // <context.bot> returns the Denizen ID of the bot.
     // <context.channel> returns the channel ID.
     // <context.channel_name> returns the channel name.
     // <context.group> returns the group ID.
     // <context.group_name> returns the group name.
-    // <context.message> returns the message sent.
-    // <context.formatted_message> returns the formatted message sent.
+    // <context.message> returns the message sent (raw).
+    // <context.no_mention_message> returns the message with all user mentions stripped.
+    // <context.formatted_message> returns the formatted message sent (mentions/etc. are written cleanly).
     // <context.author_id> returns the author's internal ID.
-    // <context.author_name> return's the author's name.
+    // <context.author_name> returns the author's name.
+    // <context.mentions> returns a list of all mentioned user IDs.
+    // <context.mention_names> returns a list of all mentioned user names.
+    // <context.self> returns the bots own Discord user ID.
     //
     // -->
 
@@ -60,6 +66,9 @@ public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
         if (name.equals("bot")) {
             return new Element(botID);
         }
+        else if (name.equals("self")) {
+            return new Element(mre.getClient().getOurUser().getLongID());
+        }
         else if (name.equals("channel")) {
             return new Element(mre.getChannel().getLongID());
         }
@@ -75,6 +84,14 @@ public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
         else if (name.equals("message")) {
             return new Element(mre.getMessage().getContent());
         }
+        else if (name.equals("no_mention_message")) {
+            String res = mre.getMessage().getContent();
+            for (IUser user : mre.getMessage().getMentions()) {
+                res = res.replace(user.mention(true), "")
+                         .replace(user.mention(false), "");
+            }
+            return new Element(res);
+        }
         else if (name.equals("formatted_message")) {
             return new Element(mre.getMessage().getFormattedContent());
         }
@@ -83,6 +100,20 @@ public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
         }
         else if (name.equals("author_name")) {
             return new Element(mre.getAuthor().getName());
+        }
+        else if (name.equals("mentions")) {
+            dList list = new dList();
+            for (IUser user : mre.getMessage().getMentions()) {
+                list.add(String.valueOf(user.getLongID()));
+            }
+            return list;
+        }
+        else if (name.equals("mention_names")) {
+            dList list = new dList();
+            for (IUser user : mre.getMessage().getMentions()) {
+                list.add(String.valueOf(user.getName()));
+            }
+            return list;
         }
         return super.getContext(name);
     }
