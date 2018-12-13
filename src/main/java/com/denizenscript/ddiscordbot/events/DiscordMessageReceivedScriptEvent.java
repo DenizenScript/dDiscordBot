@@ -1,4 +1,4 @@
-package com.denizenscript.ddiscordbot;
+package com.denizenscript.ddiscordbot.events;
 
 import net.aufdemrand.denizencore.events.ScriptEvent;
 import net.aufdemrand.denizencore.objects.Element;
@@ -37,6 +37,7 @@ public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
     // <context.mentions> returns a list of all mentioned user IDs.
     // <context.mention_names> returns a list of all mentioned user names.
     // <context.self> returns the bots own Discord user ID.
+    // <context.is_private> returns true if the message was received in a private channel.
     //
     // -->
 
@@ -114,6 +115,9 @@ public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
                 list.add(String.valueOf(user.getName()));
             }
             return list;
+        }
+        else if (name.equals("is_private")) {
+            return new Element(mre.getChannel().isPrivate());
         }
         return super.getContext(name);
     }

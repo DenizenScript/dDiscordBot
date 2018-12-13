@@ -1,5 +1,6 @@
 package com.denizenscript.ddiscordbot;
 
+import com.denizenscript.ddiscordbot.events.DiscordMessageReceivedScriptEvent;
 import net.aufdemrand.denizen.utilities.debugging.dB;
 import net.aufdemrand.denizencore.DenizenCore;
 import net.aufdemrand.denizencore.events.ScriptEvent;

@@ -1,5 +1,6 @@
 package com.denizenscript.ddiscordbot;
 
+import com.denizenscript.ddiscordbot.events.DiscordMessageReceivedScriptEvent;
 import org.bukkit.Bukkit;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.IListener;
@@ -13,9 +14,6 @@ public class DiscordConnection implements IListener<MessageReceivedEvent> {
 
     @Override
     public void handle(MessageReceivedEvent messageReceivedEvent) {
-        if (messageReceivedEvent.getChannel().isPrivate()) {
-            return;
-        }
         Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
             DiscordMessageReceivedScriptEvent mrse = DiscordMessageReceivedScriptEvent.instance;
             mrse.botID = botID;
