@@ -12,20 +12,24 @@ public class DiscordModifiedMessageScriptEvent extends ScriptEvent {
 
     // <--[event]
     // @Events
-    // discord modified message (by <bot>)
+    // discord message modified (for <bot>)
     //
-    // @Regex ^on discord modified message(by [^\s]+)?$
+    // @Regex ^on discord message modified(for [^\s]+)?$
     //
     // @Triggers when a Discord user modified a message.
     //
     // @Plugin dDiscordBot
     //
     // @Context
-    // <context.bot> returns the ID of the bot.
+    // <context.bot> returns the Denizen ID of the bot.
+    // <context.channel> returns the channel ID.
+    // <context.channel_name> returns the channel name.
     // <context.group> returns the group ID.
     // <context.group_name> returns the group name.
     // <context.author_id> returns the author's internal ID.
-    // <context.author_name> return's the author's name.
+    // <context.author_name> returns the author's name.
+    // <context.self> returns the bots own Discord user ID.
+    // <context.is_private> returns true if the message was received in a private channel.
     // <context.new_message> return's the new message.
     // <context.old_message> return's the old message.
     //
@@ -33,13 +37,13 @@ public class DiscordModifiedMessageScriptEvent extends ScriptEvent {
 
     @Override
     public boolean couldMatch(ScriptContainer scriptContainer, String s) {
-        return CoreUtilities.toLowerCase(s).startsWith("discord modified message");
+        return CoreUtilities.toLowerCase(s).startsWith("discord message modified");
     }
 
     @Override
     public boolean matches(ScriptContainer scriptContainer, String s) {
         String lower = CoreUtilities.toLowerCase(s);
-        if (lower.equals("discord modified message")) {
+        if (lower.equals("discord message modified")) {
             return true;
         }
         else if (CoreUtilities.xthArgEquals(4, lower, botID)) {
@@ -56,6 +60,9 @@ public class DiscordModifiedMessageScriptEvent extends ScriptEvent {
     public dObject getContext(String name) {
         if (name.equals("bot")) {
             return new Element(botID);
+        }
+        else if (name.equals("self")) {
+            return new Element(mre.getClient().getOurUser().getLongID());
         }
         else if (name.equals("channel")) {
             return new Element(mre.getChannel().getLongID());
@@ -80,6 +87,9 @@ public class DiscordModifiedMessageScriptEvent extends ScriptEvent {
         }
         else if (name.equals("author_name")) {
             return new Element(mre.getAuthor().getName());
+        }
+        else if (name.equals("is_private")) {
+            return new Element(mre.getChannel().isPrivate());
         }
         return super.getContext(name);
     }

@@ -5,6 +5,7 @@ import com.denizenscript.ddiscordbot.listeners.DiscordLeaveUser;
 import com.denizenscript.ddiscordbot.listeners.DiscordModifiedMessage;
 import com.denizenscript.ddiscordbot.listeners.DiscordNewUser;
 import net.aufdemrand.denizen.utilities.debugging.dB;
+import net.aufdemrand.denizencore.exceptions.CommandExecutionException;
 import net.aufdemrand.denizencore.exceptions.InvalidArgumentsException;
 import net.aufdemrand.denizencore.objects.Element;
 import net.aufdemrand.denizencore.objects.aH;
@@ -145,11 +146,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     public static class DiscordConnectThread extends Thread {
 
-        String code;
+        public String code;
 
-        DiscordConnection conn;
+        public DiscordConnection conn;
 
-        Runnable ender;
+        public Runnable ender;
 
         @Override
         public void run() {
@@ -172,7 +173,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     }
 
     @Override
-    public void execute(ScriptEntry scriptEntry) {
+    public void execute(ScriptEntry scriptEntry) throws CommandExecutionException {
 
         // Fetch required objects
         Element id = scriptEntry.getElement("id");

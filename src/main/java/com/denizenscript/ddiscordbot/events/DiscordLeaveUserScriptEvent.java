@@ -12,9 +12,9 @@ public class DiscordLeaveUserScriptEvent extends ScriptEvent {
 
     // <--[event]
     // @Events
-    // discord user leaves (by <bot>)
+    // discord user leaves (for <bot>)
     //
-    // @Regex ^on discord user leaves(by [^\s]+)?$
+    // @Regex ^on discord user leaves(for [^\s]+)?$
     //
     // @Triggers when a Discord user leaves a guild.
     //

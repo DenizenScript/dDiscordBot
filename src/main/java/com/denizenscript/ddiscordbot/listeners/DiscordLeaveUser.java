@@ -22,4 +22,3 @@ public class DiscordLeaveUser implements IListener<UserLeaveEvent> {
         });
     }
 }
-
