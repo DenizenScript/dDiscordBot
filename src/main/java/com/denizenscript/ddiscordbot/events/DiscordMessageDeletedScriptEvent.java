@@ -9,14 +9,14 @@ import net.aufdemrand.denizencore.utilities.CoreUtilities;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageDeleteEvent;
 import sx.blah.discord.handle.obj.IUser;
 
-public class DiscordMessageDeleteScriptEvent extends ScriptEvent {
-    public static DiscordMessageDeleteScriptEvent instance;
+public class DiscordMessageDeletedScriptEvent extends ScriptEvent {
+    public static DiscordMessageDeletedScriptEvent instance;
 
     // <--[event]
     // @Events
     // discord message deleted (for <bot>)
     //
-    // @Regex ^on discord message deleted(for [^\s]+)?$
+    // @Regex ^on discord message deleted( for [^\s]+)?$
     //
     // @Triggers when a Discord user deletes a message.
     //
@@ -46,12 +46,14 @@ public class DiscordMessageDeleteScriptEvent extends ScriptEvent {
     }
 
     @Override
-    public boolean matches(ScriptContainer scriptContainer, String s) {
-        String lower = CoreUtilities.toLowerCase(s);
-        if (lower.equals("discord message deleted")) {
+    public boolean matches(ScriptPath path) {
+        if (!CoreUtilities.xthArgEquals(3, path.eventLower, "for")) {
             return true;
         }
-        else return CoreUtilities.xthArgEquals(4, lower, botID);
+        if (CoreUtilities.xthArgEquals(4, path.eventLower, botID)) {
+            return true;
+        }
+        return false;
     }
 
     public String botID;
@@ -123,15 +125,16 @@ public class DiscordMessageDeleteScriptEvent extends ScriptEvent {
         return "MessageDeleteEvent";
     }
 
-    boolean enab = false;
+    public boolean enabled = false;
 
     @Override
     public void init() {
-        enab = true;
+        enabled = true;
     }
 
     @Override
     public void destroy() {
-        enab = false;
+        enabled = false;
     }
+
 }

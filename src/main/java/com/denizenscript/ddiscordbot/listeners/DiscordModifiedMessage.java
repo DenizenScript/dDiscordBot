@@ -1,6 +1,6 @@
 package com.denizenscript.ddiscordbot.listeners;
 
-import com.denizenscript.ddiscordbot.events.DiscordModifiedMessageScriptEvent;
+import com.denizenscript.ddiscordbot.events.DiscordMessageModifiedScriptEvent;
 import com.denizenscript.ddiscordbot.dDiscordBot;
 import org.bukkit.Bukkit;
 import sx.blah.discord.api.events.EventSubscriber;
@@ -14,11 +14,14 @@ public class DiscordModifiedMessage implements IListener<MessageEditEvent> {
     @EventSubscriber
     public void handle(MessageEditEvent messageEditEvent) {
         Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
-            DiscordModifiedMessageScriptEvent mrse = DiscordModifiedMessageScriptEvent.instance;
-            mrse.botID = botID;
-            mrse.mre = messageEditEvent;
-            mrse.cancelled = false;
-            mrse.fire();
+            DiscordMessageModifiedScriptEvent mese = DiscordMessageModifiedScriptEvent.instance;
+            if (!mese.enabled) {
+                return;
+            }
+            mese.botID = botID;
+            mese.mre = messageEditEvent;
+            mese.cancelled = false;
+            mese.fire();
         });
     }
 }

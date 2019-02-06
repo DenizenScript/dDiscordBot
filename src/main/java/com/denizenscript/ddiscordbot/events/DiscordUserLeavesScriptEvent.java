@@ -5,18 +5,18 @@ import net.aufdemrand.denizencore.objects.Element;
 import net.aufdemrand.denizencore.objects.dObject;
 import net.aufdemrand.denizencore.scripts.containers.ScriptContainer;
 import net.aufdemrand.denizencore.utilities.CoreUtilities;
-import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
+import sx.blah.discord.handle.impl.events.guild.member.UserLeaveEvent;
 
-public class DiscordNewUserScriptEvent extends ScriptEvent {
-    public static DiscordNewUserScriptEvent instance;
+public class DiscordUserLeavesScriptEvent extends ScriptEvent {
+    public static DiscordUserLeavesScriptEvent instance;
 
     // <--[event]
     // @Events
-    // discord user joined (for <bot>)
+    // discord user leaves (for <bot>)
     //
-    // @Regex ^on discord user join(for [^\s]+)?$
+    // @Regex ^on discord user leaves( for [^\s]+)?$
     //
-    // @Triggers when a Discord user joins a guild.
+    // @Triggers when a Discord user leaves a guild.
     //
     // @Plugin dDiscordBot
     //
@@ -25,22 +25,21 @@ public class DiscordNewUserScriptEvent extends ScriptEvent {
     // <context.group> returns the group ID.
     // <context.group_name> returns the group name.
     // <context.user_id> returns the author's internal ID.
-    // <context.user_name> return's the author's name.
+    // <context.user_name> returns the author's name.
     //
     // -->
 
     @Override
     public boolean couldMatch(ScriptContainer scriptContainer, String s) {
-        return CoreUtilities.toLowerCase(s).startsWith("discord user joined");
+        return CoreUtilities.toLowerCase(s).startsWith("discord user leaves");
     }
 
     @Override
-    public boolean matches(ScriptContainer scriptContainer, String s) {
-        String lower = CoreUtilities.toLowerCase(s);
-        if (lower.equals("discord user joined")) {
+    public boolean matches(ScriptPath path) {
+        if (!CoreUtilities.xthArgEquals(3, path.eventLower, "for")) {
             return true;
         }
-        else if (CoreUtilities.xthArgEquals(4, lower, botID)) {
+        if (CoreUtilities.xthArgEquals(4, path.eventLower, botID)) {
             return true;
         }
         return false;
@@ -48,7 +47,7 @@ public class DiscordNewUserScriptEvent extends ScriptEvent {
 
     public String botID;
 
-    public UserJoinEvent mre;
+    public UserLeaveEvent mre;
 
     @Override
     public dObject getContext(String name) {
@@ -72,18 +71,19 @@ public class DiscordNewUserScriptEvent extends ScriptEvent {
 
     @Override
     public String getName() {
-        return "DiscordNewUser";
+        return "DiscordLeaveUser";
     }
 
-    boolean enab = false;
+    public boolean enabled = false;
 
     @Override
     public void init() {
-        enab = true;
+        enabled = true;
     }
 
     @Override
     public void destroy() {
-        enab = false;
+        enabled = false;
     }
+
 }
