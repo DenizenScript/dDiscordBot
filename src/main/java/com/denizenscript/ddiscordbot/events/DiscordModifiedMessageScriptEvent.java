@@ -14,7 +14,7 @@ public class DiscordModifiedMessageScriptEvent extends ScriptEvent {
     // @Events
     // discord message modified (for <bot>)
     //
-    // @Regex ^on discord message modified(for [^\s]+)?$
+    // @Regex ^on discord message modified( for [^\s]+)?$
     //
     // @Triggers when a Discord user modified a message.
     //
@@ -30,8 +30,8 @@ public class DiscordModifiedMessageScriptEvent extends ScriptEvent {
     // <context.author_name> returns the author's name.
     // <context.self> returns the bots own Discord user ID.
     // <context.is_private> returns true if the message was received in a private channel.
-    // <context.new_message> return's the new message.
-    // <context.old_message> return's the old message.
+    // <context.new_message> returns the new message.
+    // <context.old_message> returns the old message.
     //
     // -->
 
@@ -41,12 +41,11 @@ public class DiscordModifiedMessageScriptEvent extends ScriptEvent {
     }
 
     @Override
-    public boolean matches(ScriptContainer scriptContainer, String s) {
-        String lower = CoreUtilities.toLowerCase(s);
-        if (lower.equals("discord message modified")) {
+    public boolean matches(ScriptPath path) {
+        if (!CoreUtilities.xthArgEquals(3, path.eventLower, "for")) {
             return true;
         }
-        else if (CoreUtilities.xthArgEquals(4, lower, botID)) {
+        if (CoreUtilities.xthArgEquals(4, path.eventLower, botID)) {
             return true;
         }
         return false;

@@ -14,11 +14,11 @@ public class DiscordDeleteMessage implements IListener<MessageDeleteEvent> {
     @EventSubscriber
     public void handle(MessageDeleteEvent messageDeleteEvent) {
         Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
-            DiscordMessageDeleteScriptEvent mrse = DiscordMessageDeleteScriptEvent.instance;
-            mrse.botID = botID;
-            mrse.mre = messageDeleteEvent;
-            mrse.cancelled = false;
-            mrse.fire();
+            DiscordMessageDeleteScriptEvent mdse = DiscordMessageDeleteScriptEvent.instance;
+            mdse.botID = botID;
+            mdse.mre = messageDeleteEvent;
+            mdse.cancelled = false;
+            mdse.fire();
         });
     }
 }

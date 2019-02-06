@@ -14,11 +14,11 @@ public class DiscordNewUser implements IListener<UserJoinEvent> {
     @EventSubscriber
     public void handle(UserJoinEvent userJoinEvent) {
         Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
-            DiscordNewUserScriptEvent mrse = DiscordNewUserScriptEvent.instance;
-            mrse.botID = botID;
-            mrse.mre = userJoinEvent;
-            mrse.cancelled = false;
-            mrse.fire();
+            DiscordNewUserScriptEvent nuse = DiscordNewUserScriptEvent.instance;
+            nuse.botID = botID;
+            nuse.mre = userJoinEvent;
+            nuse.cancelled = false;
+            nuse.fire();
         });
     }
 }

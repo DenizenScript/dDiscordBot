@@ -14,11 +14,11 @@ public class DiscordModifiedMessage implements IListener<MessageEditEvent> {
     @EventSubscriber
     public void handle(MessageEditEvent messageEditEvent) {
         Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
-            DiscordModifiedMessageScriptEvent mrse = DiscordModifiedMessageScriptEvent.instance;
-            mrse.botID = botID;
-            mrse.mre = messageEditEvent;
-            mrse.cancelled = false;
-            mrse.fire();
+            DiscordModifiedMessageScriptEvent mese = DiscordModifiedMessageScriptEvent.instance;
+            mese.botID = botID;
+            mese.mre = messageEditEvent;
+            mese.cancelled = false;
+            mese.fire();
         });
     }
 }

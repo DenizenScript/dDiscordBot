@@ -14,11 +14,11 @@ public class DiscordLeaveUser implements IListener<UserLeaveEvent> {
     @EventSubscriber
     public void handle(UserLeaveEvent userJoinEvent) {
         Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
-            DiscordLeaveUserScriptEvent mrse = DiscordLeaveUserScriptEvent.instance;
-            mrse.botID = botID;
-            mrse.mre = userJoinEvent;
-            mrse.cancelled = false;
-            mrse.fire();
+            DiscordLeaveUserScriptEvent luse = DiscordLeaveUserScriptEvent.instance;
+            luse.botID = botID;
+            luse.mre = userJoinEvent;
+            luse.cancelled = false;
+            luse.fire();
         });
     }
 }
