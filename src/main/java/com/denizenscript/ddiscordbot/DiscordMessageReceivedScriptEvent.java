@@ -17,7 +17,7 @@ public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
     // @Events
     // discord message received (by <bot>)
     //
-    // @Regex ^on discord message received(by [^\s]+)?$
+    // @Regex ^on discord message received( by [^\s]+)?$
     //
     // @Triggers when a Discord bot receives a message.
     //
@@ -37,6 +37,7 @@ public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
     // <context.mentions> returns a list of all mentioned user IDs.
     // <context.mention_names> returns a list of all mentioned user names.
     // <context.self> returns the bots own Discord user ID.
+    // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
     //
     // -->
 
@@ -46,12 +47,11 @@ public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
     }
 
     @Override
-    public boolean matches(ScriptContainer scriptContainer, String s) {
-        String lower = CoreUtilities.toLowerCase(s);
-        if (lower.equals("discord message received")) {
+    public boolean matches(ScriptPath path) {
+        if (!CoreUtilities.xthArgEquals(3, path.eventLower, "for")) {
             return true;
         }
-        else if (CoreUtilities.xthArgEquals(4, lower, botID)) {
+        if (CoreUtilities.xthArgEquals(4, path.eventLower, botID)) {
             return true;
         }
         return false;
@@ -80,6 +80,9 @@ public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
         }
         else if (name.equals("group_name")) {
             return new Element(mre.getGuild().getName());
+        }
+        else if (name.equals("is_direct")) {
+            return new Element(false); // TODO
         }
         else if (name.equals("message")) {
             return new Element(mre.getMessage().getContent());
@@ -123,16 +126,16 @@ public class DiscordMessageReceivedScriptEvent extends ScriptEvent {
         return "DiscordMessageReceived";
     }
 
-    boolean enab = false;
+    public boolean enabled = false;
 
     @Override
     public void init() {
-        enab = true;
+        enabled = true;
     }
 
     @Override
     public void destroy() {
-        enab = false;
+        enabled = false;
     }
 
 }

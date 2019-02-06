@@ -18,6 +18,9 @@ public class DiscordConnection implements IListener<MessageReceivedEvent> {
         }
         Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
             DiscordMessageReceivedScriptEvent mrse = DiscordMessageReceivedScriptEvent.instance;
+            if (!mrse.enabled) {
+                return;
+            }
             mrse.botID = botID;
             mrse.mre = messageReceivedEvent;
             mrse.cancelled = false;
