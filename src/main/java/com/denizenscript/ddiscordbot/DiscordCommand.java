@@ -1,6 +1,6 @@
 package com.denizenscript.ddiscordbot;
 
-import com.denizenscript.ddiscordbot.listeners.DiscordDeleteMessage;
+import com.denizenscript.ddiscordbot.listeners.DiscordMessageDelete;
 import com.denizenscript.ddiscordbot.listeners.DiscordLeaveUser;
 import com.denizenscript.ddiscordbot.listeners.DiscordModifiedMessage;
 import com.denizenscript.ddiscordbot.listeners.DiscordNewUser;
@@ -161,7 +161,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 cb.registerListener(new DiscordNewUser());
                 cb.registerListener(new DiscordLeaveUser());
                 cb.registerListener(new DiscordModifiedMessage());
-                cb.registerListener(new DiscordDeleteMessage());
+                cb.registerListener(new DiscordMessageDelete());
                 IDiscordClient idc = cb.login();
                 conn.client = idc;
                 idc.getDispatcher().registerListener(conn);

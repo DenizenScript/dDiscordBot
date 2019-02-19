@@ -7,8 +7,8 @@ import net.aufdemrand.denizencore.scripts.containers.ScriptContainer;
 import net.aufdemrand.denizencore.utilities.CoreUtilities;
 import sx.blah.discord.handle.impl.events.guild.member.UserLeaveEvent;
 
-public class DiscordLeaveUserScriptEvent extends ScriptEvent {
-    public static DiscordLeaveUserScriptEvent instance;
+public class DiscordUserLeavesScriptEvent extends ScriptEvent {
+    public static DiscordUserLeavesScriptEvent instance;
 
     // <--[event]
     // @Events
@@ -74,15 +74,16 @@ public class DiscordLeaveUserScriptEvent extends ScriptEvent {
         return "DiscordLeaveUser";
     }
 
-    boolean enab = false;
+    public boolean enabled = false;
 
     @Override
     public void init() {
-        enab = true;
+        enabled = true;
     }
 
     @Override
     public void destroy() {
-        enab = false;
+        enabled = false;
     }
+
 }

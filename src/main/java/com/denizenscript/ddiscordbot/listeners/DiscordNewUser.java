@@ -1,6 +1,6 @@
 package com.denizenscript.ddiscordbot.listeners;
 
-import com.denizenscript.ddiscordbot.events.DiscordNewUserScriptEvent;
+import com.denizenscript.ddiscordbot.events.DiscordUserJoinsScriptEvent;
 import com.denizenscript.ddiscordbot.dDiscordBot;
 import org.bukkit.Bukkit;
 import sx.blah.discord.api.events.EventSubscriber;
@@ -14,7 +14,10 @@ public class DiscordNewUser implements IListener<UserJoinEvent> {
     @EventSubscriber
     public void handle(UserJoinEvent userJoinEvent) {
         Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
-            DiscordNewUserScriptEvent nuse = DiscordNewUserScriptEvent.instance;
+            DiscordUserJoinsScriptEvent nuse = DiscordUserJoinsScriptEvent.instance;
+            if (!nuse.enabled) {
+                return;
+            }
             nuse.botID = botID;
             nuse.mre = userJoinEvent;
             nuse.cancelled = false;

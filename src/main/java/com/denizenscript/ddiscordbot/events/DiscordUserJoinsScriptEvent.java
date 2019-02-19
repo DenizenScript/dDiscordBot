@@ -7,12 +7,12 @@ import net.aufdemrand.denizencore.scripts.containers.ScriptContainer;
 import net.aufdemrand.denizencore.utilities.CoreUtilities;
 import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
 
-public class DiscordNewUserScriptEvent extends ScriptEvent {
-    public static DiscordNewUserScriptEvent instance;
+public class DiscordUserJoinsScriptEvent extends ScriptEvent {
+    public static DiscordUserJoinsScriptEvent instance;
 
     // <--[event]
     // @Events
-    // discord user join (for <bot>)
+    // discord user joins (for <bot>)
     //
     // @Regex ^on discord user join( for [^\s]+)?$
     //
@@ -31,7 +31,7 @@ public class DiscordNewUserScriptEvent extends ScriptEvent {
 
     @Override
     public boolean couldMatch(ScriptContainer scriptContainer, String s) {
-        return CoreUtilities.toLowerCase(s).startsWith("discord user join");
+        return CoreUtilities.toLowerCase(s).startsWith("discord user joins");
     }
 
     @Override
@@ -46,7 +46,6 @@ public class DiscordNewUserScriptEvent extends ScriptEvent {
     }
 
     public String botID;
-
     public UserJoinEvent mre;
 
     @Override
@@ -74,15 +73,16 @@ public class DiscordNewUserScriptEvent extends ScriptEvent {
         return "DiscordNewUser";
     }
 
-    boolean enab = false;
+    public boolean enabled = false;
 
     @Override
     public void init() {
-        enab = true;
+        enabled = true;
     }
 
     @Override
     public void destroy() {
-        enab = false;
+        enabled = false;
     }
+
 }
