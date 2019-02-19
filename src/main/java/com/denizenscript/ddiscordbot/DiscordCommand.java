@@ -242,8 +242,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     dB.echoError(scriptEntry.getResidingQueue(), "Failed to send message: unknown ID!");
                     return;
                 }
+                client = dDiscordBot.instance.connections.get(id.asString()).client;
                 RequestBuffer.request(() -> {
-                    dDiscordBot.instance.connections.get(id.asString()).client.getChannelByID(channel.asLong()).sendMessage(message.asString());
+                    client.getChannelByID(channel.asLong()).sendMessage(message.asString());
                 });
                 break;
             case PRIVATE:
