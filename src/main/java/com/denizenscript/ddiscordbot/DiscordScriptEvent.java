@@ -38,7 +38,7 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
             else if (name.equals("channel_name")) {
                 return new Element(((ChannelEvent) event).getChannel().getName());
             }
-            else if (name.equals("is_private")) {
+            else if (name.equals("is_direct")) {
                 return new Element(((ChannelEvent) event).getChannel().isPrivate());
             }
         }
