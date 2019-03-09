@@ -1,11 +1,6 @@
 package com.denizenscript.ddiscordbot;
 
-import com.denizenscript.ddiscordbot.listeners.DiscordMessageDelete;
-import com.denizenscript.ddiscordbot.listeners.DiscordLeaveUser;
-import com.denizenscript.ddiscordbot.listeners.DiscordModifiedMessage;
-import com.denizenscript.ddiscordbot.listeners.DiscordNewUser;
 import net.aufdemrand.denizen.utilities.debugging.dB;
-import net.aufdemrand.denizencore.exceptions.CommandExecutionException;
 import net.aufdemrand.denizencore.exceptions.InvalidArgumentsException;
 import net.aufdemrand.denizencore.objects.Element;
 import net.aufdemrand.denizencore.objects.aH;
@@ -21,70 +16,74 @@ import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.StatusType;
 import sx.blah.discord.util.RequestBuffer;
 
-import static sx.blah.discord.handle.obj.ActivityType.PLAYING;
-import static sx.blah.discord.handle.obj.StatusType.ONLINE;
-
 public class DiscordCommand extends AbstractCommand implements Holdable {
 
     // <--[command]
     // @Name discord
-    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message channel:<channel> <message>]
+    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/addrole/removerole/status (status:<status>) (activity:<activity>)/rename] (<message>) (channel:<channel>) (user:<user>) (guild:<guild>) (role:<role>)
     // @Required 2
     // @Stable unstable
     // @Short Connects to and interacts with Discord.
     // @Author mcmonkey
     // @Plugin dDiscordBot
     // @Group external
-
+    //
+    // @Warning tags are not yet implemented!
+    //
     // @Description
     // Connects to and interacts with Discord.
     //
-    // TODO: Document Command Details
-    // When setting the status of the Discord bot, the status argument can either be ONLINE, DND, IDLE, INVISIBLE, OFFLINE or UNKNOWN.
-    // The activity argument can either be PLAYING, STREAMING, LISTENING or WATCHING.
-
+    // Commands may fail if the bot does not have permission within the Discord group to perform them.
+    //
+    // When setting the status of the Discord bot, the status argument can be: ONLINE, DND, IDLE, INVISIBLE, OFFLINE or UNKNOWN,
+    // and the activity argument can be: PLAYING, STREAMING, LISTENING or WATCHING.
+    //
     // @Tags
     // TODO: Make tags
-
+    //
     // @Usage
     // Use to connect to Discord via a bot code.
     // - discord id:mybot connect code:<def[code]>
-
+    //
     // @Usage
     // Use to disconnect from Discord.
     // - discord id:mybot disconnect
-
+    //
     // @Usage
     // Use to message a Discord channel.
     // - discord id:mybot message channel:<discord[mybot].server[Denizen].channel[bot-spam]> "Hello world!"
-
+    //
+    // @Usage
+    // Use to send a message to a user through a private channel.
+    // - discord id:mybot message user:<def[user_id]> "Hello world!"
+    //
     // @Usage
     // Use to add a role on a user in a Discord guild.
     // - discord id:mybot addrole user:<def[user_id]> role:<def[role_id]> guild:<def[guild_id]>
-
+    //
     // @Usage
     // Use to remove a role on a user in a Discord guild.
     // - discord id:mybot removerole user:<def[user_id]> role:<def[role_id]> guild:<def[guild_id]>
-
+    //
     // @Usage
-    // Use to set the status of the bot.
+    // Use to set the online status of the bot, and clear the game status.
+    // - discord id:mybot status "Minecraft" "status:ONLINE"
+    //
+    // @Usage
+    // Use to set the game status of the bot.
     // - discord id:mybot status "Minecraft" "status:ONLINE" "activity:PLAYING"
-
+    //
     // @Usage
-    // Use to clear the status of the bot.
-    // - discord id:mybot status
-
+    // Use to change the bot's nickname.
+    // - discord id:mybot rename "<def[nickname]>" guild:<def[guild_id]>
+    //
     // @Usage
     // Use to give a user a new nickname.
     // - discord id:mybot rename "<def[nickname]>" user:<def[user_id]> guild:<def[guild_id]>
 
-    // @Usage
-    // Use to send a message to a user through a private channel.
-    // - discord id:mybot private user:<def[user_id]> "Hello world!"
-
     // -->
 
-    public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, ADDROLE, REMOVEROLE, PRIVATE, STATUS, RENAME }
+    public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, ADDROLE, REMOVEROLE, STATUS, RENAME }
 
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
@@ -158,13 +157,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         public void run() {
             try {
                 ClientBuilder cb = new ClientBuilder().withToken(code);
-                cb.registerListener(new DiscordNewUser());
-                cb.registerListener(new DiscordLeaveUser());
-                cb.registerListener(new DiscordModifiedMessage());
-                cb.registerListener(new DiscordMessageDelete());
-                IDiscordClient idc = cb.login();
-                conn.client = idc;
-                idc.getDispatcher().registerListener(conn);
+                cb.registerListener(conn);
+                conn.client = cb.login();
             }
             catch (Exception ex) {
                 Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
@@ -177,7 +171,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     }
 
     @Override
-    public void execute(ScriptEntry scriptEntry) throws CommandExecutionException {
+    public void execute(ScriptEntry scriptEntry) {
 
         // Fetch required objects
         Element id = scriptEntry.getElement("id");
@@ -201,7 +195,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 + (role != null ? role.debug(): ""));
 
         IDiscordClient client;
-        IGuild iguild;
 
         switch (DiscordInstruction.valueOf(instruction.asString().toUpperCase())) {
             case CONNECT:
@@ -230,7 +223,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 dDiscordBot.instance.connections.remove(id.asString()).client.logout();
                 break;
             case MESSAGE:
-                if (channel == null) {
+                if (channel == null && user == null) {
                     dB.echoError(scriptEntry.getResidingQueue(), "Failed to send message: no channel given!");
                     return;
                 }
@@ -244,25 +237,12 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
                 RequestBuffer.request(() -> {
-                    client.getChannelByID(channel.asLong()).sendMessage(message.asString());
-                });
-                break;
-            case PRIVATE:
-                if (user == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to send private message: no user given!");
-                    return;
-                }
-                if (message == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to send private message: no message given!");
-                    return;
-                }
-                if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to send private message: unknown ID!");
-                    return;
-                }
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
-                RequestBuffer.request(() -> {
-                    client.getOrCreatePMChannel(client.getUserByID(user.asLong())).sendMessage(message.asString());
+                    if (channel == null) {
+                        client.getOrCreatePMChannel(client.getUserByID(user.asLong())).sendMessage(message.asString());
+                    }
+                    else {
+                        client.getChannelByID(channel.asLong()).sendMessage(message.asString());
+                    }
                 });
                 break;
             case ADDROLE:
@@ -283,8 +263,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
-                iguild = client.getGuildByID(guild.asLong());
-                client.getUserByID(user.asLong()).addRole(iguild.getRoleByID(role.asLong()));
+                RequestBuffer.request(() -> {
+                    IGuild iguild = client.getGuildByID(guild.asLong());
+                    iguild.getUserByID(user.asLong()).addRole(iguild.getRoleByID(role.asLong()));
+                });
                 break;
             case REMOVEROLE:
                 if (user == null) {
@@ -304,13 +286,19 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
-                iguild = client.getGuildByID(guild.asLong());
-                client.getUserByID(user.asLong()).removeRole(iguild.getRoleByID(role.asLong()));
+                RequestBuffer.request(() -> {
+                    IGuild iguild = client.getGuildByID(guild.asLong());
+                    iguild.getUserByID(user.asLong()).removeRole(iguild.getRoleByID(role.asLong()));
+                });
                 break;
             case RENAME:
+                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                long userId;
                 if (user == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no user given!");
-                    return;
+                    userId = client.getOurUser().getLongID();
+                }
+                else {
+                    userId = user.asLong();
                 }
                 if (guild == null) {
                     dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no guild given!");
@@ -324,35 +312,25 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no name given!");
                     return;
                 }
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
-                iguild = client.getGuildByID(guild.asLong());
-                iguild.setUserNickname(client.getUserByID(user.asLong()), message.asString());
+                RequestBuffer.request(() -> {
+                    client.getGuildByID(guild.asLong()).setUserNickname(client.getUserByID(userId), message.asString());
+                });
                 break;
             case STATUS:
-
                 if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
                     dB.echoError(scriptEntry.getResidingQueue(), "Failed to set status: unknown ID!");
                     return;
                 }
-                StatusType st;
-                if (status == null) {
-                    st = ONLINE;
-                }
-                else {
-                    st = StatusType.valueOf(status.asString());
-                }
+                StatusType st = status == null ? StatusType.ONLINE : StatusType.valueOf(status.asString().toUpperCase());
                 if (message == null) {
                     dDiscordBot.instance.connections.get(id.asString()).client.changePresence(st);
                     return;
                 }
-                ActivityType at;
-                if (activity == null) {
-                    at = PLAYING;
-                }
-                else {
-                    at = ActivityType.valueOf(activity.asString());
-                }
-                dDiscordBot.instance.connections.get(id.asString()).client.changePresence(st, at, message.asString());
+                ActivityType at = activity == null ? ActivityType.PLAYING : ActivityType.valueOf(activity.asString().toUpperCase());
+                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                RequestBuffer.request(() -> {
+                    client.changePresence(st, at, message.asString());
+                });
 
                 break;
         }

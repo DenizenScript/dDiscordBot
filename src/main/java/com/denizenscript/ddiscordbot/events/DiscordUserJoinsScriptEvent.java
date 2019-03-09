@@ -1,13 +1,11 @@
 package com.denizenscript.ddiscordbot.events;
 
-import net.aufdemrand.denizencore.events.ScriptEvent;
-import net.aufdemrand.denizencore.objects.Element;
-import net.aufdemrand.denizencore.objects.dObject;
+import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import net.aufdemrand.denizencore.scripts.containers.ScriptContainer;
 import net.aufdemrand.denizencore.utilities.CoreUtilities;
-import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
 
-public class DiscordUserJoinsScriptEvent extends ScriptEvent {
+public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
+
     public static DiscordUserJoinsScriptEvent instance;
 
     // <--[event]
@@ -21,12 +19,12 @@ public class DiscordUserJoinsScriptEvent extends ScriptEvent {
     // @Plugin dDiscordBot
     //
     // @Context
-    // <context.bot> returns the ID of the bot.
+    // <context.bot> returns the Denizen ID of the bot.
     // <context.group> returns the group ID.
     // <context.group_name> returns the group name.
     // <context.user_id> returns the user's internal ID.
     // <context.user_name> returns the user's name.
-    //
+    // <context.self> returns the bots own Discord user ID.
     // -->
 
     @Override
@@ -35,54 +33,7 @@ public class DiscordUserJoinsScriptEvent extends ScriptEvent {
     }
 
     @Override
-    public boolean matches(ScriptPath path) {
-        if (!CoreUtilities.xthArgEquals(3, path.eventLower, "for")) {
-            return true;
-        }
-        if (CoreUtilities.xthArgEquals(4, path.eventLower, botID)) {
-            return true;
-        }
-        return false;
-    }
-
-    public String botID;
-    public UserJoinEvent mre;
-
-    @Override
-    public dObject getContext(String name) {
-        if (name.equals("bot")) {
-            return new Element(botID);
-        }
-        else if (name.equals("group")) {
-            return new Element(mre.getGuild().getLongID());
-        }
-        else if (name.equals("group_name")) {
-            return new Element(mre.getGuild().getName());
-        }
-        else if (name.equals("user_id")) {
-            return new Element(mre.getUser().getLongID());
-        }
-        else if (name.equals("user_name")) {
-            return new Element(mre.getUser().getName());
-        }
-        return super.getContext(name);
-    }
-
-    @Override
     public String getName() {
         return "DiscordNewUser";
     }
-
-    public boolean enabled = false;
-
-    @Override
-    public void init() {
-        enabled = true;
-    }
-
-    @Override
-    public void destroy() {
-        enabled = false;
-    }
-
 }
