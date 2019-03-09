@@ -139,7 +139,7 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
         if (botLabel == null) {
             return true;
         }
-        return botLabel.equals(botID);
+        return botLabel.equalsIgnoreCase(botID);
     }
 
     public boolean enabled = false;
