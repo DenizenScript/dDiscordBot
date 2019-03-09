@@ -10,9 +10,10 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
 
     // <--[event]
     // @Events
-    // discord user joins (for <bot>)
+    // discord user joins
     //
-    // @Regex ^on discord user join( for [^\s]+)?$
+    // @Regex ^on discord user join$
+    // @Switch for <bot>
     //
     // @Triggers when a Discord user joins a guild.
     //

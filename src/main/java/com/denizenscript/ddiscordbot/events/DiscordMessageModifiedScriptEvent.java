@@ -9,9 +9,10 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
 
     // <--[event]
     // @Events
-    // discord message modified (for <bot>)
+    // discord message modified
     //
-    // @Regex ^on discord message modified( for [^\s]+)?$
+    // @Regex ^on discord message modified$
+    // @Switch for <bot>
     //
     // @Triggers when a Discord user modified a message.
     //

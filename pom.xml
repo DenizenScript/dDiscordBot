@@ -13,7 +13,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <build.number>Unknown</build.number>
         <BUILD_NUMBER>Unknown</BUILD_NUMBER>
         <bukkit.version>1.13.2-R0.1-SNAPSHOT</bukkit.version>
 		<denizen.version>1.0.3-SNAPSHOT</denizen.version>

@@ -135,17 +135,11 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
     }
 
     public boolean runBotIDCheck(ScriptPath path, String label) {
-        int index;
-        for (index = 0; index < path.eventArgsLower.length; index++) {
-            if (path.eventArgsLower[index].equals(label)) {
-                break;
-            }
-        }
-        if (index >= path.eventArgsLower.length) {
-            // No 'for ...' specified
+        String botLabel = path.switches.get(label);
+        if (botLabel == null) {
             return true;
         }
-        return CoreUtilities.xthArgEquals(index + 1, path.eventLower, botID);
+        return botLabel.equals(botID);
     }
 
     public boolean enabled = false;

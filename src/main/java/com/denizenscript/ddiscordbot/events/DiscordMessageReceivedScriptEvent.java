@@ -10,9 +10,10 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
 
     // <--[event]
     // @Events
-    // discord message received (for <bot>)
+    // discord message received
     //
-    // @Regex ^on discord message received( for [^\s]+)?$
+    // @Regex ^on discord message received$
+    // @Switch for <bot>
     //
     // @Triggers when a Discord bot receives a message.
     //

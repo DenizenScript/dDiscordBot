@@ -10,9 +10,10 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
 
     // <--[event]
     // @Events
-    // discord message deleted (for <bot>)
+    // discord message deleted
     //
-    // @Regex ^on discord message deleted( for [^\s]+)?$
+    // @Regex ^on discord message deleted$
+    // @Switch for <bot>
     //
     // @Triggers when a Discord user deletes a message.
     //
