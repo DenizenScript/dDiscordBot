@@ -10,6 +10,8 @@ import sx.blah.discord.handle.impl.events.guild.channel.ChannelEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageUpdateEvent;
 import sx.blah.discord.handle.impl.events.guild.member.GuildMemberEvent;
+import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
 public abstract class DiscordScriptEvent extends ScriptEvent {
@@ -44,18 +46,27 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
         }
         if (event instanceof GuildEvent) {
             if (name.equals("group")) {
-                return new Element(((GuildEvent) event).getGuild().getLongID());
+                IGuild guild = ((GuildEvent) event).getGuild();
+                if (guild != null) {
+                    return new Element(guild.getLongID());
+                }
             }
             else if (name.equals("group_name")) {
-                return new Element(((GuildEvent) event).getGuild().getName());
+                IGuild guild = ((GuildEvent) event).getGuild();
+                if (guild != null) {
+                    return new Element(guild.getName());
+                }
             }
         }
         if (event instanceof MessageEvent) {
-            if (name.equals("message")) {
-                return new Element(((MessageEvent) event).getMessage().getContent());
-            }
             if (name.equals("new_message_valid")) {
                 return new Element(((MessageEvent) event).getMessage() != null);
+            }
+            if (name.equals("message")) {
+                IMessage message = ((MessageEvent) event).getMessage();
+                if (message != null) {
+                    return new Element(message.getContent());
+                }
             }
             if (name.equals("no_mention_message")) {
                 String res = ((MessageEvent) event).getMessage().getContent();
@@ -66,7 +77,30 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
                 return new Element(res);
             }
             else if (name.equals("formatted_message")) {
-                return new Element(((MessageEvent) event).getMessage().getFormattedContent());
+                IMessage message = ((MessageEvent) event).getMessage();
+                if (message != null) {
+                    return new Element(message.getFormattedContent());
+                }
+            }
+            else if (name.equals("mentions")) {
+                IMessage message = ((MessageEvent) event).getMessage();
+                if (message != null) {
+                    dList list = new dList();
+                    for (IUser user : message.getMentions()) {
+                        list.add(String.valueOf(user.getLongID()));
+                    }
+                    return list;
+                }
+            }
+            else if (name.equals("mention_names")) {
+                IMessage message = ((MessageEvent) event).getMessage();
+                if (message != null) {
+                    dList list = new dList();
+                    for (IUser user : message.getMentions()) {
+                        list.add(String.valueOf(user.getName()));
+                    }
+                    return list;
+                }
             }
             else if (name.equals("author_id")) {
                 return new Element(((MessageEvent) event).getAuthor().getLongID());
@@ -74,52 +108,53 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
             else if (name.equals("author_name")) {
                 return new Element(((MessageEvent) event).getAuthor().getName());
             }
-            else if (name.equals("mentions")) {
-                dList list = new dList();
-                for (IUser user : ((MessageEvent) event).getMessage().getMentions()) {
-                    list.add(String.valueOf(user.getLongID()));
-                }
-                return list;
-            }
-            else if (name.equals("mention_names")) {
-                dList list = new dList();
-                for (IUser user : ((MessageEvent) event).getMessage().getMentions()) {
-                    list.add(String.valueOf(user.getName()));
-                }
-                return list;
-            }
         }
         if (event instanceof MessageUpdateEvent) {
             if (name.equals("old_message_valid")) {
                 return new Element(((MessageUpdateEvent) event).getOldMessage() != null);
             }
             if (name.equals("old_message")) {
-                return new Element(((MessageUpdateEvent) event).getOldMessage().getContent());
+                IMessage message = ((MessageUpdateEvent) event).getOldMessage();
+                if (message != null) {
+                    return new Element(message.getContent());
+                }
             }
             if (name.equals("old_no_mention_message")) {
-                String res = ((MessageUpdateEvent) event).getOldMessage().getContent();
-                for (IUser user : ((MessageUpdateEvent) event).getOldMessage().getMentions()) {
-                    res = res.replace(user.mention(true), "")
-                            .replace(user.mention(false), "");
+                IMessage message = ((MessageUpdateEvent) event).getOldMessage();
+                if (message != null) {
+                    String res = message.getContent();
+                    for (IUser user : message.getMentions()) {
+                        res = res.replace(user.mention(true), "")
+                                .replace(user.mention(false), "");
+                    }
+                    return new Element(res);
                 }
-                return new Element(res);
             }
             else if (name.equals("old_formatted_message")) {
-                return new Element(((MessageUpdateEvent) event).getOldMessage().getFormattedContent());
+                IMessage message = ((MessageUpdateEvent) event).getOldMessage();
+                if (message != null) {
+                    return new Element(message.getFormattedContent());
+                }
             }
             else if (name.equals("old_mentions")) {
-                dList list = new dList();
-                for (IUser user : ((MessageUpdateEvent) event).getOldMessage().getMentions()) {
-                    list.add(String.valueOf(user.getLongID()));
+                IMessage message = ((MessageUpdateEvent) event).getOldMessage();
+                if (message != null) {
+                    dList list = new dList();
+                    for (IUser user : message.getMentions()) {
+                        list.add(String.valueOf(user.getLongID()));
+                    }
+                    return list;
                 }
-                return list;
             }
             else if (name.equals("old_mention_names")) {
-                dList list = new dList();
-                for (IUser user : ((MessageEvent) event).getMessage().getMentions()) {
-                    list.add(String.valueOf(user.getName()));
+                IMessage message = ((MessageUpdateEvent) event).getOldMessage();
+                if (message != null) {
+                    dList list = new dList();
+                    for (IUser user : message.getMentions()) {
+                        list.add(String.valueOf(user.getName()));
+                    }
+                    return list;
                 }
-                return list;
             }
         }
         if (event instanceof GuildMemberEvent) {
