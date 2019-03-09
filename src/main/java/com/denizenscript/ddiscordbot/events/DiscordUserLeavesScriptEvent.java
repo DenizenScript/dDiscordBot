@@ -35,6 +35,6 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
 
     @Override
     public String getName() {
-        return "DiscordLeaveUser";
+        return "DiscordUserLeaves";
     }
 }

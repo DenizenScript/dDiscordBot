@@ -35,6 +35,6 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
 
     @Override
     public String getName() {
-        return "DiscordNewUser";
+        return "DiscordUserJoins";
     }
 }

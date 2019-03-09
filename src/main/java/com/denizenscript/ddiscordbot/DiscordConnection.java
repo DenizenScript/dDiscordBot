@@ -10,6 +10,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEditEvent
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
 import sx.blah.discord.handle.impl.events.guild.member.UserLeaveEvent;
+import sx.blah.discord.handle.impl.events.guild.member.UserRoleUpdateEvent;
 
 public class DiscordConnection implements IListener {
 
@@ -45,6 +46,9 @@ public class DiscordConnection implements IListener {
         }
         else if (event instanceof UserLeaveEvent) {
             autoHandle(event, DiscordUserLeavesScriptEvent.instance);
+        }
+        else if (event instanceof UserRoleUpdateEvent) {
+            autoHandle(event, DiscordUserRoleChangeScriptEvent.instance);
         }
     }
 }

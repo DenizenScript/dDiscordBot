@@ -45,6 +45,6 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
 
     @Override
     public String getName() {
-        return "MessageDeleteEvent";
+        return "DiscordMessageDeleted";
     }
 }
