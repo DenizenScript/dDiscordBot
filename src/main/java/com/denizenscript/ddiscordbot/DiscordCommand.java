@@ -7,13 +7,12 @@ import net.aufdemrand.denizencore.objects.aH;
 import net.aufdemrand.denizencore.scripts.ScriptEntry;
 import net.aufdemrand.denizencore.scripts.commands.AbstractCommand;
 import net.aufdemrand.denizencore.scripts.commands.Holdable;
+import net.aufdemrand.denizencore.scripts.queues.ScriptQueue;
 import net.aufdemrand.denizencore.utilities.CoreUtilities;
 import org.bukkit.Bukkit;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.obj.ActivityType;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.StatusType;
+import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.RequestBuffer;
 
 public class DiscordCommand extends AbstractCommand implements Holdable {
@@ -170,6 +169,15 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         }
     }
 
+    public static void errorMessage(ScriptQueue queue, String message) {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(dDiscordBot.instance, new Runnable() {
+            @Override
+            public void run() {
+                dB.echoError(queue, message);
+            }
+        }, 0);
+    }
+
     @Override
     public void execute(ScriptEntry scriptEntry) {
 
@@ -238,10 +246,20 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
                 RequestBuffer.request(() -> {
                     if (channel == null) {
-                        client.getOrCreatePMChannel(client.getUserByID(user.asLong())).sendMessage(message.asString());
+                        IUser userObj = client.getUserByID(user.asLong());
+                        if (userObj == null) {
+                            errorMessage(scriptEntry.getResidingQueue(), "User for ID '" + user.asLong() + "' not found.");
+                            return;
+                        }
+                        client.getOrCreatePMChannel(userObj).sendMessage(message.asString());
                     }
                     else {
-                        client.getChannelByID(channel.asLong()).sendMessage(message.asString());
+                        IChannel channelObj = client.getChannelByID(channel.asLong());
+                        if (channelObj == null) {
+                            errorMessage(scriptEntry.getResidingQueue(), "Channel for ID '" + channel.asLong() + "' not found.");
+                            return;
+                        }
+                        channelObj.sendMessage(message.asString());
                     }
                 });
                 break;
@@ -265,7 +283,21 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
                 RequestBuffer.request(() -> {
                     IGuild iguild = client.getGuildByID(guild.asLong());
-                    iguild.getUserByID(user.asLong()).addRole(iguild.getRoleByID(role.asLong()));
+                    if (iguild == null) {
+                        errorMessage(scriptEntry.getResidingQueue(), "Guild for ID '" + guild.asLong() + "' not found.");
+                        return;
+                    }
+                    IUser userObj = client.getUserByID(user.asLong());
+                    if (userObj == null) {
+                        errorMessage(scriptEntry.getResidingQueue(), "User for ID '" + user.asLong() + "' not found.");
+                        return;
+                    }
+                    IRole roleObj = iguild.getRoleByID(role.asLong());
+                    if (roleObj == null) {
+                        errorMessage(scriptEntry.getResidingQueue(), "Role for ID '" + role.asLong() + "' not found.");
+                        return;
+                    }
+                    userObj.addRole(roleObj);
                 });
                 break;
             case REMOVEROLE:
@@ -288,7 +320,21 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
                 RequestBuffer.request(() -> {
                     IGuild iguild = client.getGuildByID(guild.asLong());
-                    iguild.getUserByID(user.asLong()).removeRole(iguild.getRoleByID(role.asLong()));
+                    if (iguild == null) {
+                        errorMessage(scriptEntry.getResidingQueue(), "Guild for ID '" + guild.asLong() + "' not found.");
+                        return;
+                    }
+                    IUser userObj = client.getUserByID(user.asLong());
+                    if (userObj == null) {
+                        errorMessage(scriptEntry.getResidingQueue(), "User for ID '" + user.asLong() + "' not found.");
+                        return;
+                    }
+                    IRole roleObj = iguild.getRoleByID(role.asLong());
+                    if (roleObj == null) {
+                        errorMessage(scriptEntry.getResidingQueue(), "Role for ID '" + role.asLong() + "' not found.");
+                        return;
+                    }
+                    userObj.removeRole(roleObj);
                 });
                 break;
             case RENAME:
@@ -313,7 +359,17 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     return;
                 }
                 RequestBuffer.request(() -> {
-                    client.getGuildByID(guild.asLong()).setUserNickname(client.getUserByID(userId), message.asString());
+                    IGuild iguild = client.getGuildByID(guild.asLong());
+                    if (iguild == null) {
+                        errorMessage(scriptEntry.getResidingQueue(), "Guild for ID '" + guild.asLong() + "' not found.");
+                        return;
+                    }
+                    IUser userObj = client.getUserByID(userId);
+                    if (userObj == null) {
+                        errorMessage(scriptEntry.getResidingQueue(), "User for ID '" + userId + "' not found.");
+                        return;
+                    }
+                    iguild.setUserNickname(userObj, message.asString());
                 });
                 break;
             case STATUS:
