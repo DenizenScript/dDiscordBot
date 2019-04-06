@@ -244,6 +244,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
+                if (client == null) {
+                    dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                    return;
+                }
                 RequestBuffer.request(() -> {
                     if (channel == null) {
                         IUser userObj = client.getUserByID(user.asLong());
@@ -281,6 +285,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
+                if (client == null) {
+                    dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                    return;
+                }
                 RequestBuffer.request(() -> {
                     IGuild iguild = client.getGuildByID(guild.asLong());
                     if (iguild == null) {
@@ -318,6 +326,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
+                if (client == null) {
+                    dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                    return;
+                }
                 RequestBuffer.request(() -> {
                     IGuild iguild = client.getGuildByID(guild.asLong());
                     if (iguild == null) {
@@ -338,7 +350,15 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 });
                 break;
             case RENAME:
+                if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
+                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: unknown ID!");
+                    return;
+                }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
+                if (client == null) {
+                    dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                    return;
+                }
                 long userId;
                 if (user == null) {
                     userId = client.getOurUser().getLongID();
@@ -348,10 +368,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 if (guild == null) {
                     dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no guild given!");
-                    return;
-                }
-                if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: unknown ID!");
                     return;
                 }
                 if (message == null) {
@@ -377,13 +393,17 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     dB.echoError(scriptEntry.getResidingQueue(), "Failed to set status: unknown ID!");
                     return;
                 }
+                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                if (client == null) {
+                    dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                    return;
+                }
                 StatusType st = status == null ? StatusType.ONLINE : StatusType.valueOf(status.asString().toUpperCase());
                 if (message == null) {
-                    dDiscordBot.instance.connections.get(id.asString()).client.changePresence(st);
+                    client.changePresence(st);
                     return;
                 }
                 ActivityType at = activity == null ? ActivityType.PLAYING : ActivityType.valueOf(activity.asString().toUpperCase());
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
                 RequestBuffer.request(() -> {
                     client.changePresence(st, at, message.asString());
                 });
