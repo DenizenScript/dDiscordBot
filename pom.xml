@@ -7,30 +7,30 @@
     <groupId>com.denizenscript</groupId>
     <artifactId>ddiscordbot</artifactId>
     <packaging>jar</packaging>
-    <version>0.5</version>
+    <version>0.6</version>
     <name>dDiscordBot</name>
     <description>Adds a Discord bot to Denizen</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <BUILD_NUMBER>Unknown</BUILD_NUMBER>
-        <bukkit.version>1.13.2-R0.1-SNAPSHOT</bukkit.version>
-		<denizen.version>1.0.3-SNAPSHOT</denizen.version>
+        <bukkit.version>1.14-R0.1-SNAPSHOT</bukkit.version>
+		<denizen.version>1.0.5-SNAPSHOT</denizen.version>
     </properties>
 
     <!-- Repositories -->
     <repositories>
         <repository>
-            <id>everything</id>
-            <url>http://repo.citizensnpcs.co</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>Maven Repository Switchboard</name>
+            <url>http://repo1.maven.org/maven2</url>
         </repository>
         <repository>
-            <id>jcenter</id>
-            <url>http://jcenter.bintray.com</url>
-            </repository>
-            <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>everything</id>
+            <url>http://repo.citizensnpcs.co</url>
         </repository>
     </repositories>
 
@@ -52,9 +52,8 @@
         </dependency>
         <dependency>
             <groupId>com.discord4j</groupId>
-            <artifactId>Discord4J</artifactId>
-            <version>2.10.1</version>
-            <classifier>shaded</classifier>
+            <artifactId>discord4j-core</artifactId>
+            <version>3.0.4</version>
         </dependency>
 
     </dependencies>
@@ -84,7 +83,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.1</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -92,14 +91,23 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <minimizeJar>true</minimizeJar>
                             <artifactSet>
                                 <includes>
-                                    <include>com.discord4j:Discord4J</include>
+                                    <include>com.discord4j:**</include>
+                                    <include>io.projectreactor:**</include>
+                                    <include>io.projectreactor.addons:**</include>
+                                    <include>io.projectreactor.netty:**</include>
+                                    <include>io.netty:**</include>
+                                    <include>com.austinv11.servicer:**</include>
+                                    <include>com.fasterxml.jackson.core:**</include>
+                                    <include>com.fasterxml.jackson.datatype:**</include>
+                                    <include>org.reactivestreams:**</include>
                                 </includes>
                             </artifactSet>
                             <filters>
                                 <filter>
-                                    <artifact>com.discord4j:Discord4J</artifact>
+                                    <artifact>com.discord4j:**</artifact>
                                     <includes>
                                         <include>**</include>
                                     </includes>
@@ -113,7 +121,7 @@
         <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.2</version>
+                <version>3.1.0</version>
                 <configuration>
                     <finalName>dDiscordBot-${version}-b${BUILD_NUMBER}</finalName>
                     <archive>
@@ -128,7 +136,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>3.8.0</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>

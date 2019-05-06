@@ -1,5 +1,13 @@
 package com.denizenscript.ddiscordbot;
 
+import discord4j.core.DiscordClient;
+import discord4j.core.DiscordClientBuilder;
+import discord4j.core.object.entity.TextChannel;
+import discord4j.core.object.entity.User;
+import discord4j.core.object.presence.Activity;
+import discord4j.core.object.presence.Presence;
+import discord4j.core.object.util.Snowflake;
+import discord4j.core.spec.UserEditSpec;
 import net.aufdemrand.denizen.utilities.debugging.dB;
 import net.aufdemrand.denizencore.exceptions.InvalidArgumentsException;
 import net.aufdemrand.denizencore.objects.Element;
@@ -10,16 +18,12 @@ import net.aufdemrand.denizencore.scripts.commands.Holdable;
 import net.aufdemrand.denizencore.scripts.queues.ScriptQueue;
 import net.aufdemrand.denizencore.utilities.CoreUtilities;
 import org.bukkit.Bukkit;
-import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.obj.*;
-import sx.blah.discord.util.RequestBuffer;
 
 public class DiscordCommand extends AbstractCommand implements Holdable {
 
     // <--[command]
     // @Name discord
-    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/addrole/removerole/status (status:<status>) (activity:<activity>)/rename] (<message>) (channel:<channel>) (user:<user>) (guild:<guild>) (role:<role>)
+    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/addrole/removerole/status (status:<status>) (activity:<activity>)/rename] (<message>) (channel:<channel>) (user:<user>) (guild:<guild>) (role:<role>) (url:<url>)
     // @Required 2
     // @Stable unstable
     // @Short Connects to and interacts with Discord.
@@ -34,8 +38,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // Commands may fail if the bot does not have permission within the Discord group to perform them.
     //
-    // When setting the status of the Discord bot, the status argument can be: ONLINE, DND, IDLE, INVISIBLE, OFFLINE or UNKNOWN,
-    // and the activity argument can be: PLAYING, STREAMING, LISTENING or WATCHING.
+    // When setting the status of the Discord bot, the status argument can be: ONLINE, DND, IDLE, or INVISIBLE,
+    // and the activity argument can be: PLAYING, STREAMING, LISTENING, or WATCHING.
+    // Streaming activity requires a 'url:' input.
     //
     // @Tags
     // TODO: Make tags
@@ -105,6 +110,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     && arg.matchesPrefix("channel")) {
                 scriptEntry.addObject("channel", arg.asElement());
             }
+            else if (!scriptEntry.hasObject("url")
+                    && arg.matchesPrefix("url")) {
+                scriptEntry.addObject("url", arg.asElement());
+            }
             else if (!scriptEntry.hasObject("user")
                     && arg.matchesPrefix("user")) {
                 scriptEntry.addObject("user", arg.asElement());
@@ -155,9 +164,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         @Override
         public void run() {
             try {
-                ClientBuilder cb = new ClientBuilder().withToken(code);
-                cb.registerListener(conn);
-                conn.client = cb.login();
+                DiscordClient client = new DiscordClientBuilder(code).build();
+                conn.client = client;
+                conn.registerHandlers();
+                client.login().block();
             }
             catch (Exception ex) {
                 Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
@@ -184,7 +194,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         // Fetch required objects
         Element id = scriptEntry.getElement("id");
         Element instruction = scriptEntry.getElement("instruction");
-        Element code = scriptEntry.getElement("code");
+        Element code = scriptEntry.getElement("code"); // Intentionally do not debug this value.
         Element channel = scriptEntry.getElement("channel");
         Element message = scriptEntry.getElement("message");
         Element status = scriptEntry.getElement("status");
@@ -192,6 +202,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Element user = scriptEntry.getElement("user");
         Element guild = scriptEntry.getElement("guild");
         Element role = scriptEntry.getElement("role");
+        Element url = scriptEntry.getElement("url");
 
         // Debug the execution
         dB.report(scriptEntry, getName(), id.debug()
@@ -200,9 +211,12 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 + (message != null ? message.debug(): "")
                 + (user != null ? user.debug(): "")
                 + (guild != null ? guild.debug(): "")
-                + (role != null ? role.debug(): ""));
+                + (role != null ? role.debug(): "")
+                + (status != null ? status.debug(): "")
+                + (activity != null ? activity.debug(): "")
+                + (url != null ? url.debug(): ""));
 
-        IDiscordClient client;
+        DiscordClient client;
 
         switch (DiscordInstruction.valueOf(instruction.asString().toUpperCase())) {
             case CONNECT:
@@ -248,24 +262,16 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
-                RequestBuffer.request(() -> {
-                    if (channel == null) {
-                        IUser userObj = client.getUserByID(user.asLong());
-                        if (userObj == null) {
-                            errorMessage(scriptEntry.getResidingQueue(), "User for ID '" + user.asLong() + "' not found.");
-                            return;
-                        }
-                        client.getOrCreatePMChannel(userObj).sendMessage(message.asString());
-                    }
-                    else {
-                        IChannel channelObj = client.getChannelByID(channel.asLong());
-                        if (channelObj == null) {
-                            errorMessage(scriptEntry.getResidingQueue(), "Channel for ID '" + channel.asLong() + "' not found.");
-                            return;
-                        }
-                        channelObj.sendMessage(message.asString());
-                    }
-                });
+                if (channel == null) {
+                    client.getUserById(Snowflake.of(user.asLong())).map(User::getPrivateChannel).flatMap(chanBork -> chanBork.flatMap(
+                            chan -> chan.createMessage(message.asString())))
+                            .doOnError(dB::echoError).subscribe();
+                }
+                else {
+                    client.getChannelById(Snowflake.of(channel.asLong()))
+                            .flatMap(chan -> ((TextChannel) chan).createMessage(message.asString()))
+                            .doOnError(dB::echoError).subscribe();
+                }
                 break;
             case ADDROLE:
                 if (user == null) {
@@ -289,24 +295,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
-                RequestBuffer.request(() -> {
-                    IGuild iguild = client.getGuildByID(guild.asLong());
-                    if (iguild == null) {
-                        errorMessage(scriptEntry.getResidingQueue(), "Guild for ID '" + guild.asLong() + "' not found.");
-                        return;
-                    }
-                    IUser userObj = client.getUserByID(user.asLong());
-                    if (userObj == null) {
-                        errorMessage(scriptEntry.getResidingQueue(), "User for ID '" + user.asLong() + "' not found.");
-                        return;
-                    }
-                    IRole roleObj = iguild.getRoleByID(role.asLong());
-                    if (roleObj == null) {
-                        errorMessage(scriptEntry.getResidingQueue(), "Role for ID '" + role.asLong() + "' not found.");
-                        return;
-                    }
-                    userObj.addRole(roleObj);
-                });
+                client.getGuildById(Snowflake.of(guild.asLong())).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.asLong())))
+                        .flatMap(memberBork -> memberBork.flatMap(member -> member.addRole(Snowflake.of(role.asLong()))))
+                        .doOnError(dB::echoError).subscribe();
                 break;
             case REMOVEROLE:
                 if (user == null) {
@@ -330,24 +321,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
-                RequestBuffer.request(() -> {
-                    IGuild iguild = client.getGuildByID(guild.asLong());
-                    if (iguild == null) {
-                        errorMessage(scriptEntry.getResidingQueue(), "Guild for ID '" + guild.asLong() + "' not found.");
-                        return;
-                    }
-                    IUser userObj = client.getUserByID(user.asLong());
-                    if (userObj == null) {
-                        errorMessage(scriptEntry.getResidingQueue(), "User for ID '" + user.asLong() + "' not found.");
-                        return;
-                    }
-                    IRole roleObj = iguild.getRoleByID(role.asLong());
-                    if (roleObj == null) {
-                        errorMessage(scriptEntry.getResidingQueue(), "Role for ID '" + role.asLong() + "' not found.");
-                        return;
-                    }
-                    userObj.removeRole(roleObj);
-                });
+                client.getGuildById(Snowflake.of(guild.asLong())).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.asLong())))
+                        .flatMap(memberBork -> memberBork.flatMap(member -> member.removeRole(Snowflake.of(role.asLong()))))
+                        .doOnError(dB::echoError).subscribe();
                 break;
             case RENAME:
                 if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
@@ -361,7 +337,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 long userId;
                 if (user == null) {
-                    userId = client.getOurUser().getLongID();
+                    userId = client.getSelfId().get().asLong();
                 }
                 else {
                     userId = user.asLong();
@@ -374,19 +350,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no name given!");
                     return;
                 }
-                RequestBuffer.request(() -> {
-                    IGuild iguild = client.getGuildByID(guild.asLong());
-                    if (iguild == null) {
-                        errorMessage(scriptEntry.getResidingQueue(), "Guild for ID '" + guild.asLong() + "' not found.");
-                        return;
-                    }
-                    IUser userObj = client.getUserByID(userId);
-                    if (userObj == null) {
-                        errorMessage(scriptEntry.getResidingQueue(), "User for ID '" + userId + "' not found.");
-                        return;
-                    }
-                    iguild.setUserNickname(userObj, message.asString());
-                });
+                client.getGuildById(Snowflake.of(guild.asLong())).map(guildObj -> guildObj.getMemberById(Snowflake.of(userId)))
+                        .flatMap(memberBork -> memberBork.flatMap(member -> member.edit(spec -> spec.setNickname(message.asString()))))
+                        .doOnError(dB::echoError).subscribe();
                 break;
             case STATUS:
                 if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
@@ -398,16 +364,35 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
-                StatusType st = status == null ? StatusType.ONLINE : StatusType.valueOf(status.asString().toUpperCase());
-                if (message == null) {
-                    client.changePresence(st);
-                    return;
+                Activity.Type at = activity == null ? Activity.Type.PLAYING : Activity.Type.valueOf(activity.asString().toUpperCase());
+                Activity activityObject;
+                if (at == Activity.Type.WATCHING) {
+                    activityObject = Activity.watching(message.asString());
                 }
-                ActivityType at = activity == null ? ActivityType.PLAYING : ActivityType.valueOf(activity.asString().toUpperCase());
-                RequestBuffer.request(() -> {
-                    client.changePresence(st, at, message.asString());
-                });
-
+                else if (at == Activity.Type.STREAMING) {
+                    activityObject = Activity.streaming(message.asString(), url.asString());
+                }
+                else if (at == Activity.Type.LISTENING) {
+                    activityObject = Activity.listening(message.asString());
+                }
+                else {
+                    activityObject = Activity.playing(message.asString());
+                }
+                String statusLower = status == null ? "online" : CoreUtilities.toLowerCase(status.asString());
+                Presence presence;
+                if (statusLower.equals("idle")) {
+                    presence = Presence.idle(activityObject);
+                }
+                else if (statusLower.equals("dnd")) {
+                    presence = Presence.doNotDisturb(activityObject);
+                }
+                else if (statusLower.equals("invisible")) {
+                    presence = Presence.invisible();
+                }
+                else {
+                    presence = Presence.online(activityObject);
+                }
+                client.updatePresence(presence).subscribe();
                 break;
         }
     }

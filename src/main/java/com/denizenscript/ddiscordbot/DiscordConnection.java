@@ -1,22 +1,38 @@
 package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.events.*;
+import discord4j.core.DiscordClient;
+import discord4j.core.event.EventDispatcher;
+import discord4j.core.event.domain.Event;
+import discord4j.core.event.domain.guild.MemberJoinEvent;
+import discord4j.core.event.domain.guild.MemberLeaveEvent;
+import discord4j.core.event.domain.guild.MemberUpdateEvent;
+import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.event.domain.message.MessageDeleteEvent;
+import discord4j.core.event.domain.message.MessageUpdateEvent;
 import org.bukkit.Bukkit;
-import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.api.events.Event;
-import sx.blah.discord.api.events.IListener;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageDeleteEvent;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEditEvent;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
-import sx.blah.discord.handle.impl.events.guild.member.UserLeaveEvent;
-import sx.blah.discord.handle.impl.events.guild.member.UserRoleUpdateEvent;
 
-public class DiscordConnection implements IListener {
+public class DiscordConnection {
 
     public String botID;
 
-    public IDiscordClient client;
+    public DiscordClient client;
+
+    public void registerHandlers() {
+        EventDispatcher events = client.getEventDispatcher();
+        events.on(MessageCreateEvent.class).subscribe(event ->
+            autoHandle(event, DiscordMessageReceivedScriptEvent.instance));
+        events.on(MessageUpdateEvent.class).subscribe(event ->
+                autoHandle(event, DiscordMessageModifiedScriptEvent.instance));
+        events.on(MessageDeleteEvent.class).subscribe(event ->
+                autoHandle(event, DiscordMessageDeletedScriptEvent.instance));
+        events.on(MemberJoinEvent.class).subscribe(event ->
+                autoHandle(event, DiscordUserJoinsScriptEvent.instance));
+        events.on(MemberLeaveEvent.class).subscribe(event ->
+                autoHandle(event, DiscordUserLeavesScriptEvent.instance));
+        events.on(MemberUpdateEvent.class).subscribe(event ->
+            autoHandle(event, DiscordUserRoleChangeScriptEvent.instance));
+    }
 
     public void autoHandle(Event event, DiscordScriptEvent scriptEvent) {
         Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
@@ -28,27 +44,5 @@ public class DiscordConnection implements IListener {
             scriptEvent.cancelled = false;
             scriptEvent.fire();
         });
-    }
-
-    @Override
-    public void handle(Event event) {
-        if (event instanceof MessageReceivedEvent) {
-            autoHandle(event, DiscordMessageReceivedScriptEvent.instance);
-        }
-        else if (event instanceof MessageEditEvent) {
-            autoHandle(event, DiscordMessageModifiedScriptEvent.instance);
-        }
-        else if (event instanceof MessageDeleteEvent) {
-            autoHandle(event, DiscordMessageDeletedScriptEvent.instance);
-        }
-        else if (event instanceof UserJoinEvent) {
-            autoHandle(event, DiscordUserJoinsScriptEvent.instance);
-        }
-        else if (event instanceof UserLeaveEvent) {
-            autoHandle(event, DiscordUserLeavesScriptEvent.instance);
-        }
-        else if (event instanceof UserRoleUpdateEvent) {
-            autoHandle(event, DiscordUserRoleChangeScriptEvent.instance);
-        }
     }
 }
