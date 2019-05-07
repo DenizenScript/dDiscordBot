@@ -1,5 +1,9 @@
 package com.denizenscript.ddiscordbot;
 
+import com.denizenscript.ddiscordbot.objects.dDiscordChannel;
+import com.denizenscript.ddiscordbot.objects.dDiscordGroup;
+import com.denizenscript.ddiscordbot.objects.dDiscordRole;
+import com.denizenscript.ddiscordbot.objects.dDiscordUser;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.object.entity.TextChannel;
@@ -7,7 +11,6 @@ import discord4j.core.object.entity.User;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import discord4j.core.object.util.Snowflake;
-import discord4j.core.spec.UserEditSpec;
 import net.aufdemrand.denizen.utilities.debugging.dB;
 import net.aufdemrand.denizencore.exceptions.InvalidArgumentsException;
 import net.aufdemrand.denizencore.objects.Element;
@@ -23,15 +26,13 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     // <--[command]
     // @Name discord
-    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/addrole/removerole/status (status:<status>) (activity:<activity>)/rename] (<message>) (channel:<channel>) (user:<user>) (guild:<guild>) (role:<role>) (url:<url>)
+    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/addrole/removerole/status (status:<status>) (activity:<activity>)/rename] (<message>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
     // @Required 2
     // @Stable unstable
     // @Short Connects to and interacts with Discord.
     // @Author mcmonkey
     // @Plugin dDiscordBot
     // @Group external
-    //
-    // @Warning tags are not yet implemented!
     //
     // @Description
     // Connects to and interacts with Discord.
@@ -43,7 +44,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // Streaming activity requires a 'url:' input.
     //
     // @Tags
-    // TODO: Make tags
+    // <discord[<bot_id>]>
     //
     // @Usage
     // Use to connect to Discord via a bot code.
@@ -55,19 +56,19 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to message a Discord channel.
-    // - discord id:mybot message channel:<discord[mybot].server[Denizen].channel[bot-spam]> "Hello world!"
+    // - discord id:mybot message channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!"
     //
     // @Usage
     // Use to send a message to a user through a private channel.
-    // - discord id:mybot message user:<def[user_id]> "Hello world!"
+    // - discord id:mybot message user:<def[user]> "Hello world!"
     //
     // @Usage
     // Use to add a role on a user in a Discord guild.
-    // - discord id:mybot addrole user:<def[user_id]> role:<def[role_id]> guild:<def[guild_id]>
+    // - discord id:mybot addrole user:<def[user]> role:<def[role]> group:<def[group]>
     //
     // @Usage
     // Use to remove a role on a user in a Discord guild.
-    // - discord id:mybot removerole user:<def[user_id]> role:<def[role_id]> guild:<def[guild_id]>
+    // - discord id:mybot removerole user:<def[user]> role:<def[role]> group:<def[group]>
     //
     // @Usage
     // Use to set the online status of the bot, and clear the game status.
@@ -79,11 +80,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to change the bot's nickname.
-    // - discord id:mybot rename "<def[nickname]>" guild:<def[guild_id]>
+    // - discord id:mybot rename "<def[nickname]>" group:<def[group]>
     //
     // @Usage
     // Use to give a user a new nickname.
-    // - discord id:mybot rename "<def[nickname]>" user:<def[user_id]> guild:<def[guild_id]>
+    // - discord id:mybot rename "<def[nickname]>" user:<def[user]> group:<def[group]>
 
     // -->
 
@@ -107,24 +108,28 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 scriptEntry.addObject("code", arg.asElement());
             }
             else if (!scriptEntry.hasObject("channel")
-                    && arg.matchesPrefix("channel")) {
-                scriptEntry.addObject("channel", arg.asElement());
+                    && arg.matchesPrefix("channel")
+                    && arg.matchesArgumentType(dDiscordChannel.class)) {
+                scriptEntry.addObject("channel", arg.asType(dDiscordChannel.class));
             }
             else if (!scriptEntry.hasObject("url")
                     && arg.matchesPrefix("url")) {
                 scriptEntry.addObject("url", arg.asElement());
             }
             else if (!scriptEntry.hasObject("user")
-                    && arg.matchesPrefix("user")) {
-                scriptEntry.addObject("user", arg.asElement());
+                    && arg.matchesPrefix("user")
+                    && arg.matchesArgumentType(dDiscordUser.class)) {
+                scriptEntry.addObject("user", arg.asType(dDiscordUser.class));
             }
-            else if (!scriptEntry.hasObject("guild")
-                    && arg.matchesPrefix("guild")) {
-                scriptEntry.addObject("guild", arg.asElement());
+            else if (!scriptEntry.hasObject("group")
+                    && arg.matchesPrefix("group")
+                    && arg.matchesArgumentType(dDiscordGroup.class)) {
+                scriptEntry.addObject("group", arg.asType(dDiscordGroup.class));
             }
             else if (!scriptEntry.hasObject("role")
-                    && arg.matchesPrefix("role")) {
-                scriptEntry.addObject("role", arg.asElement());
+                    && arg.matchesPrefix("role")
+                    && arg.matchesArgumentType(dDiscordRole.class)) {
+                scriptEntry.addObject("role", arg.asType(dDiscordRole.class));
             }
             else if (!scriptEntry.hasObject("status")
                     && arg.matchesPrefix("status")) {
@@ -195,13 +200,13 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Element id = scriptEntry.getElement("id");
         Element instruction = scriptEntry.getElement("instruction");
         Element code = scriptEntry.getElement("code"); // Intentionally do not debug this value.
-        Element channel = scriptEntry.getElement("channel");
+        dDiscordChannel channel = scriptEntry.getdObject("channel");
         Element message = scriptEntry.getElement("message");
         Element status = scriptEntry.getElement("status");
         Element activity = scriptEntry.getElement("activity");
-        Element user = scriptEntry.getElement("user");
-        Element guild = scriptEntry.getElement("guild");
-        Element role = scriptEntry.getElement("role");
+        dDiscordUser user = scriptEntry.getdObject("user");
+        dDiscordGroup guild = scriptEntry.getdObject("guild");
+        dDiscordRole role = scriptEntry.getdObject("role");
         Element url = scriptEntry.getElement("url");
 
         // Debug the execution
@@ -263,12 +268,12 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     return;
                 }
                 if (channel == null) {
-                    client.getUserById(Snowflake.of(user.asLong())).map(User::getPrivateChannel).flatMap(chanBork -> chanBork.flatMap(
+                    client.getUserById(Snowflake.of(user.user_id)).map(User::getPrivateChannel).flatMap(chanBork -> chanBork.flatMap(
                             chan -> chan.createMessage(message.asString())))
                             .doOnError(dB::echoError).subscribe();
                 }
                 else {
-                    client.getChannelById(Snowflake.of(channel.asLong()))
+                    client.getChannelById(Snowflake.of(channel.channel_id))
                             .flatMap(chan -> ((TextChannel) chan).createMessage(message.asString()))
                             .doOnError(dB::echoError).subscribe();
                 }
@@ -295,8 +300,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
-                client.getGuildById(Snowflake.of(guild.asLong())).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.asLong())))
-                        .flatMap(memberBork -> memberBork.flatMap(member -> member.addRole(Snowflake.of(role.asLong()))))
+                client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
+                        .flatMap(memberBork -> memberBork.flatMap(member -> member.addRole(Snowflake.of(role.role_id))))
                         .doOnError(dB::echoError).subscribe();
                 break;
             case REMOVEROLE:
@@ -321,8 +326,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
-                client.getGuildById(Snowflake.of(guild.asLong())).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.asLong())))
-                        .flatMap(memberBork -> memberBork.flatMap(member -> member.removeRole(Snowflake.of(role.asLong()))))
+                client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
+                        .flatMap(memberBork -> memberBork.flatMap(member -> member.removeRole(Snowflake.of(role.role_id))))
                         .doOnError(dB::echoError).subscribe();
                 break;
             case RENAME:
@@ -340,7 +345,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     userId = client.getSelfId().get().asLong();
                 }
                 else {
-                    userId = user.asLong();
+                    userId = user.user_id;
                 }
                 if (guild == null) {
                     dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no guild given!");
@@ -350,7 +355,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no name given!");
                     return;
                 }
-                client.getGuildById(Snowflake.of(guild.asLong())).map(guildObj -> guildObj.getMemberById(Snowflake.of(userId)))
+                client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(userId)))
                         .flatMap(memberBork -> memberBork.flatMap(member -> member.edit(spec -> spec.setNickname(message.asString()))))
                         .doOnError(dB::echoError).subscribe();
                 break;
