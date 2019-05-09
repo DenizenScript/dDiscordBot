@@ -70,7 +70,7 @@ public class dDiscordConnection implements dObject {
         // @attribute <discord@bot.groups>
         // @returns dList(DiscordGroup)
         // @description
-        // Returns the a list of all groups (aka 'guilds' or 'servers') that this Discord bot has access to.
+        // Returns a list of all groups (aka 'guilds' or 'servers') that this Discord bot has access to.
         // -->
         registerTag("groups", new TagRunnable() {
             @Override

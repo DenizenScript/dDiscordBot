@@ -5,6 +5,7 @@ import com.denizenscript.ddiscordbot.dDiscordBot;
 import discord4j.core.object.entity.Channel;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.GuildChannel;
+import discord4j.core.object.entity.Role;
 import discord4j.core.object.util.Snowflake;
 import net.aufdemrand.denizencore.objects.*;
 import net.aufdemrand.denizencore.tags.Attribute;
@@ -26,7 +27,7 @@ public class dDiscordGroup implements dObject {
         int comma = string.indexOf(',');
         String bot = null;
         if (comma > 0) {
-            bot = string.substring(0, comma);
+            bot = CoreUtilities.toLowerCase(string.substring(0, comma));
             string = string.substring(comma + 1);
         }
         long grpId = aH.getLongFrom(string);
@@ -59,7 +60,7 @@ public class dDiscordGroup implements dObject {
         if (bot != null) {
             DiscordConnection conn = dDiscordBot.instance.connections.get(bot);
             if (conn != null) {
-                conn.client.getGuildById(Snowflake.of(guild_id)).block();
+                guild = conn.client.getGuildById(Snowflake.of(guild_id)).block();
             }
         }
     }
@@ -101,13 +102,47 @@ public class dDiscordGroup implements dObject {
         registerTag("id", new TagRunnable() {
             @Override
             public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordGroup) object).guild.getId().asLong())
+                return new Element(((dDiscordGroup) object).guild_id)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discord@bot.channel[<name>]>
+        // @attribute <discordgroup@group.channels>
+        // @returns dList(DiscordChannel)
+        // @description
+        // Returns a list of all channels in the group.
+        // -->
+        registerTag("channels", new TagRunnable() {
+            @Override
+            public String run(Attribute attribute, dObject object) {
+                dList list = new dList();
+                for (GuildChannel chan : ((dDiscordGroup) object).guild.getChannels().toIterable()) {
+                    list.addObject(new dDiscordChannel(((dDiscordGroup) object).bot, chan));
+                }
+                return list.getAttribute(attribute.fulfill(1));
+            }
+        });
+
+        // <--[tag]
+        // @attribute <discordgroup@group.roles>
+        // @returns dList(DiscordRole)
+        // @description
+        // Returns a list of all roles in the group.
+        // -->
+        registerTag("roles", new TagRunnable() {
+            @Override
+            public String run(Attribute attribute, dObject object) {
+                dList list = new dList();
+                for (Role role : ((dDiscordGroup) object).guild.getRoles().toIterable()) {
+                    list.addObject(new dDiscordRole(((dDiscordGroup) object).bot, role));
+                }
+                return list.getAttribute(attribute.fulfill(1));
+            }
+        });
+
+        // <--[tag]
+        // @attribute <discordgroup@group.channel[<name>]>
         // @returns DiscordChannel
         // @description
         // Returns the channel that best matches the input name, or null if there's no match.

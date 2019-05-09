@@ -74,13 +74,16 @@ public class dDiscordRole implements dObject {
     }
 
     public dDiscordRole(String bot, long guildId, long roleId) {
+        if (bot != null) {
+            bot = CoreUtilities.toLowerCase(bot);
+        }
         this.bot = bot;
         this.guild_id = guildId;
         this.role_id = roleId;
         if (bot != null) {
             DiscordConnection conn = dDiscordBot.instance.connections.get(bot);
             if (conn != null) {
-                conn.client.getRoleById(Snowflake.of(guild_id), Snowflake.of(role_id)).block();
+                role = conn.client.getRoleById(Snowflake.of(guild_id), Snowflake.of(role_id)).block();
             }
         }
     }
@@ -125,14 +128,14 @@ public class dDiscordRole implements dObject {
         registerTag("id", new TagRunnable() {
             @Override
             public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordRole) object).role.getId().asLong())
+                return new Element(((dDiscordRole) object).role_id)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discordrole@role.mention>
-        // @returns Element(Number)
+        // @returns Element
         // @description
         // Returns the raw mention string the role.
         // -->

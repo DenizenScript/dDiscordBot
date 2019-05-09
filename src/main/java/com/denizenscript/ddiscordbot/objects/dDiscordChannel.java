@@ -24,7 +24,7 @@ public class dDiscordChannel implements dObject {
         int comma = string.indexOf(',');
         String bot = null;
         if (comma > 0) {
-            bot = string.substring(0, comma);
+            bot = CoreUtilities.toLowerCase(string.substring(0, comma));
             string = string.substring(comma + 1);
         }
         long chanID = aH.getLongFrom(string);
@@ -57,7 +57,7 @@ public class dDiscordChannel implements dObject {
         if (bot != null) {
             DiscordConnection conn = dDiscordBot.instance.connections.get(bot);
             if (conn != null) {
-                conn.client.getChannelById(Snowflake.of(channel_id)).block();
+                channel = conn.client.getChannelById(Snowflake.of(channel_id)).block();
             }
         }
     }
@@ -125,7 +125,7 @@ public class dDiscordChannel implements dObject {
         registerTag("id", new TagRunnable() {
             @Override
             public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordChannel) object).channel.getId().asLong())
+                return new Element(((dDiscordChannel) object).channel_id)
                         .getAttribute(attribute.fulfill(1));
             }
         });

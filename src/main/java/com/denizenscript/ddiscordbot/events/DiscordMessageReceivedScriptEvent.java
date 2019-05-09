@@ -77,14 +77,14 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
             }
         }
         else if (name.equals("message")) {
-            return new Element(getEvent().getMessage().getContent().get());
+            return new Element(getEvent().getMessage().getContent().orElse(""));
         }
         else if (name.equals("no_mention_message")) {
-            return new Element(stripMentions(getEvent().getMessage().getContent().get(),
+            return new Element(stripMentions(getEvent().getMessage().getContent().orElse(""),
                     getEvent().getMessage().getUserMentions()));
         }
         else if (name.equals("formatted_message")) {
-            return new Element(getEvent().getMessage().getContent().get());
+            return new Element(getEvent().getMessage().getContent().orElse(""));
         }
         else if (name.equals("author_id")) {
             return new Element(getEvent().getMessage().getAuthor().get().getId().asLong());

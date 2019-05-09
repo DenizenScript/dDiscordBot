@@ -2,6 +2,7 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.dDiscordBot;
+import discord4j.core.object.entity.Role;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Snowflake;
 import net.aufdemrand.denizencore.objects.*;
@@ -24,7 +25,7 @@ public class dDiscordUser implements dObject {
         int comma = string.indexOf(',');
         String bot = null;
         if (comma > 0) {
-            bot = string.substring(0, comma);
+            bot = CoreUtilities.toLowerCase(string.substring(0, comma));
             string = string.substring(comma + 1);
         }
         long usrId = aH.getLongFrom(string);
@@ -57,7 +58,7 @@ public class dDiscordUser implements dObject {
         if (bot != null) {
             DiscordConnection conn = dDiscordBot.instance.connections.get(bot);
             if (conn != null) {
-                conn.client.getUserById(Snowflake.of(user_id)).block();
+                user = conn.client.getUserById(Snowflake.of(user_id)).block();
             }
         }
     }
@@ -99,14 +100,14 @@ public class dDiscordUser implements dObject {
         registerTag("id", new TagRunnable() {
             @Override
             public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordUser) object).user.getId().asLong())
+                return new Element(((dDiscordUser) object).user_id)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discorduser@user.mention>
-        // @returns Element(Number)
+        // @returns Element
         // @description
         // Returns the raw mention string for the user.
         // -->
@@ -115,6 +116,30 @@ public class dDiscordUser implements dObject {
             public String run(Attribute attribute, dObject object) {
                 return new Element(((dDiscordUser) object).user.getMention())
                         .getAttribute(attribute.fulfill(1));
+            }
+        });
+
+        // <--[tag]
+        // @attribute <discorduser@user.roles[<group>]>
+        // @returns dList(DiscordRole)
+        // @description
+        // Returns a list of all roles the user has in the given group.
+        // -->
+        registerTag("roles", new TagRunnable() {
+            @Override
+            public String run(Attribute attribute, dObject object) {
+                if (!attribute.hasContext(1)) {
+                    return null;
+                }
+                dDiscordGroup group = dDiscordGroup.valueOf(attribute.getContext(1), attribute.context);
+                if (group == null) {
+                    return null;
+                }
+                dList list = new dList();
+                for (Role role : ((dDiscordUser) object).user.asMember(Snowflake.of(group.guild_id)).block().getRoles().toIterable()) {
+                    list.addObject(new dDiscordRole(((dDiscordUser) object).bot, role));
+                }
+                return list.getAttribute(attribute.fulfill(1));
             }
         });
     }
