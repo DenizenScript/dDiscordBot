@@ -205,7 +205,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Element status = scriptEntry.getElement("status");
         Element activity = scriptEntry.getElement("activity");
         dDiscordUser user = scriptEntry.getdObject("user");
-        dDiscordGroup guild = scriptEntry.getdObject("guild");
+        dDiscordGroup guild = scriptEntry.getdObject("group");
         dDiscordRole role = scriptEntry.getdObject("role");
         Element url = scriptEntry.getElement("url");
 
