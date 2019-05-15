@@ -79,6 +79,7 @@ public class dDiscordChannel implements dObject {
         // <--[tag]
         // @attribute <discordchannel@channel.name>
         // @returns Element
+        // @plugin dDiscordBot
         // @description
         // Returns the name of the channel.
         // -->
@@ -104,6 +105,7 @@ public class dDiscordChannel implements dObject {
         // <--[tag]
         // @attribute <discordchannel@channel.type>
         // @returns Element
+        // @plugin dDiscordBot
         // @description
         // Returns the type of the channel.
         // Will be any of: GUILD_TEXT, DM, GUILD_VOICE, GROUP_DM, GUILD_CATEGORY
@@ -119,6 +121,7 @@ public class dDiscordChannel implements dObject {
         // <--[tag]
         // @attribute <discordchannel@channel.id>
         // @returns Element(Number)
+        // @plugin dDiscordBot
         // @description
         // Returns the ID number of the channel.
         // -->
@@ -133,6 +136,7 @@ public class dDiscordChannel implements dObject {
         // <--[tag]
         // @attribute <discordchannel@channel.mention>
         // @returns Element
+        // @plugin dDiscordBot
         // @description
         // Returns the raw mention string for the channel.
         // -->
@@ -147,6 +151,7 @@ public class dDiscordChannel implements dObject {
         // <--[tag]
         // @attribute <discordchannel@channel.group>
         // @returns DiscordGroup
+        // @plugin dDiscordBot
         // @description
         // Returns the group that owns this channel.
         // -->

@@ -55,6 +55,7 @@ public class dDiscordConnection implements dObject {
         // <--[tag]
         // @attribute <discord@bot.name>
         // @returns Element
+        // @plugin dDiscordBot
         // @description
         // Returns the name of the bot.
         // -->
@@ -69,6 +70,7 @@ public class dDiscordConnection implements dObject {
         // <--[tag]
         // @attribute <discord@bot.groups>
         // @returns dList(DiscordGroup)
+        // @plugin dDiscordBot
         // @description
         // Returns a list of all groups (aka 'guilds' or 'servers') that this Discord bot has access to.
         // -->
@@ -90,6 +92,7 @@ public class dDiscordConnection implements dObject {
         // <--[tag]
         // @attribute <discord@bot.group[<name>]>
         // @returns DiscordGroup
+        // @plugin dDiscordBot
         // @description
         // Returns the Discord group (aka 'guild' or 'server') that best matches the input name, or null if there's no match.
         // -->

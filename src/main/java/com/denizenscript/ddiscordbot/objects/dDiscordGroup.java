@@ -82,6 +82,7 @@ public class dDiscordGroup implements dObject {
         // <--[tag]
         // @attribute <discordgroup@group.name>
         // @returns Element
+        // @plugin dDiscordBot
         // @description
         // Returns the name of the group.
         // -->
@@ -96,6 +97,7 @@ public class dDiscordGroup implements dObject {
         // <--[tag]
         // @attribute <discordgroup@group.id>
         // @returns Element(Number)
+        // @plugin dDiscordBot
         // @description
         // Returns the ID number of the group.
         // -->
@@ -110,6 +112,7 @@ public class dDiscordGroup implements dObject {
         // <--[tag]
         // @attribute <discordgroup@group.channels>
         // @returns dList(DiscordChannel)
+        // @plugin dDiscordBot
         // @description
         // Returns a list of all channels in the group.
         // -->
@@ -127,6 +130,7 @@ public class dDiscordGroup implements dObject {
         // <--[tag]
         // @attribute <discordgroup@group.roles>
         // @returns dList(DiscordRole)
+        // @plugin dDiscordBot
         // @description
         // Returns a list of all roles in the group.
         // -->
@@ -144,6 +148,7 @@ public class dDiscordGroup implements dObject {
         // <--[tag]
         // @attribute <discordgroup@group.channel[<name>]>
         // @returns DiscordChannel
+        // @plugin dDiscordBot
         // @description
         // Returns the channel that best matches the input name, or null if there's no match.
         // -->

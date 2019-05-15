@@ -108,6 +108,7 @@ public class dDiscordRole implements dObject {
         // <--[tag]
         // @attribute <discordrole@role.name>
         // @returns Element
+        // @plugin dDiscordBot
         // @description
         // Returns the name of the role.
         // -->
@@ -122,6 +123,7 @@ public class dDiscordRole implements dObject {
         // <--[tag]
         // @attribute <discordrole@role.id>
         // @returns Element(Number)
+        // @plugin dDiscordBot
         // @description
         // Returns the ID number of the role.
         // -->
@@ -136,6 +138,7 @@ public class dDiscordRole implements dObject {
         // <--[tag]
         // @attribute <discordrole@role.mention>
         // @returns Element
+        // @plugin dDiscordBot
         // @description
         // Returns the raw mention string the role.
         // -->
@@ -150,6 +153,7 @@ public class dDiscordRole implements dObject {
         // <--[tag]
         // @attribute <discordrole@role.group>
         // @returns DiscordGroup
+        // @plugin dDiscordBot
         // @description
         // Returns the group that owns this role.
         // -->

@@ -80,6 +80,7 @@ public class dDiscordUser implements dObject {
         // <--[tag]
         // @attribute <discorduser@user.name>
         // @returns Element
+        // @plugin dDiscordBot
         // @description
         // Returns the user name of the user.
         // -->
@@ -94,6 +95,7 @@ public class dDiscordUser implements dObject {
         // <--[tag]
         // @attribute <discorduser@user.id>
         // @returns Element(Number)
+        // @plugin dDiscordBot
         // @description
         // Returns the ID number of the user.
         // -->
@@ -108,6 +110,7 @@ public class dDiscordUser implements dObject {
         // <--[tag]
         // @attribute <discorduser@user.mention>
         // @returns Element
+        // @plugin dDiscordBot
         // @description
         // Returns the raw mention string for the user.
         // -->
@@ -122,6 +125,7 @@ public class dDiscordUser implements dObject {
         // <--[tag]
         // @attribute <discorduser@user.roles[<group>]>
         // @returns dList(DiscordRole)
+        // @plugin dDiscordBot
         // @description
         // Returns a list of all roles the user has in the given group.
         // -->
