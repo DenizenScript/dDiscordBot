@@ -5,6 +5,7 @@ import com.denizenscript.ddiscordbot.objects.*;
 import net.aufdemrand.denizen.utilities.debugging.dB;
 import net.aufdemrand.denizencore.DenizenCore;
 import net.aufdemrand.denizencore.events.ScriptEvent;
+import net.aufdemrand.denizencore.objects.Element;
 import net.aufdemrand.denizencore.objects.ObjectFetcher;
 import net.aufdemrand.denizencore.objects.TagRunnable;
 import net.aufdemrand.denizencore.tags.Attribute;
@@ -67,11 +68,30 @@ public class dDiscordBot extends JavaPlugin {
             bot = dDiscordConnection.valueOf(event.getNameContext(), event.getAttributes().context);
         }
 
-        if (bot == null) {
+        Attribute attribute = event.getAttributes().fulfill(1);
+
+        // <--[tag]
+        // @attribute <discord[<bot-id>].exists>
+        // @returns Element(Boolean)
+        // @plugin dDiscordBot
+        // @description
+        // Returns whether a Discord bot exists with the given bot ID.
+        // -->
+        if (attribute.startsWith("exists")) {
+            event.setReplacedObject(CoreUtilities.autoAttrib(new Element(bot != null), attribute.fulfill(1)));
             return;
         }
 
-        Attribute attribute = event.getAttributes();
-        event.setReplacedObject(CoreUtilities.autoAttrib(bot, attribute.fulfill(1)));
+        // <--[tag]
+        // @attribute <discord[<bot-id>]>
+        // @returns Discord
+        // @plugin dDiscordBot
+        // @description
+        // Returns the Discord bot for the given bot ID.
+        // -->
+        if (bot == null) {
+            return;
+        }
+        event.setReplacedObject(CoreUtilities.autoAttrib(bot, attribute));
     }
 }
