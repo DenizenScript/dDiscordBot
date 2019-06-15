@@ -1,35 +1,3 @@
-dDiscordBot: Adds a Discord Bot to Denizen!
--------------------------------------------
-
-
-**Download (Dev builds)**: https://ci.citizensnpcs.co/job/dDiscordBot/
-
-Only works if you know how to operate a Discord bot, of course! https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token
-
-#### Need help using dDiscordBot? Try one of these places:
-
-**Discord:** https://discord.gg/Q6pZGSR
-
-#### Made For:
-
-**Denizen For Bukkit**: https://github.com/DenizenScript/Denizen-For-Bukkit
-
-### Licensing pre-note:
-
-This is an open source project, provided entirely freely, for everyone to use and contribute to.
-
-If you make any changes that could benefit the community as a whole, please contribute upstream.
-
-### The short of the license is:
-
-You can do basically whatever you want, except you may not hold any developer liable for what you do with the software.
-
-### Previous License
-
-Copyright (C) 2017-2019 The Denizen Script Team, All Rights Reserved.
-
-### The long version of the license follows:
-
 The MIT License (MIT)
 
 Copyright (c) 2019 The Denizen Script Team
