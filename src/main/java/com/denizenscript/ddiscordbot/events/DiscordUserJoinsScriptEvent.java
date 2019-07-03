@@ -16,7 +16,9 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
     // discord user joins
     //
     // @Regex ^on discord user join$
+    //
     // @Switch for <bot>
+    // @Switch group <group_id>
     //
     // @Triggers when a Discord user joins a guild.
     //
@@ -33,6 +35,14 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
 
     public MemberJoinEvent getEvent() {
         return (MemberJoinEvent) event;
+    }
+
+    @Override
+    public boolean matches(ScriptPath path) {
+        if (!path.checkSwitch("group", String.valueOf(getEvent().getGuildId().asLong()))) {
+            return false;
+        }
+        return super.matches(path);
     }
 
     @Override

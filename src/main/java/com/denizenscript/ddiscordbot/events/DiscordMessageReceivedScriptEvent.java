@@ -2,7 +2,6 @@ package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.event.domain.message.MessageUpdateEvent;
 import discord4j.core.object.entity.GuildChannel;
 import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
@@ -22,7 +21,10 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     // discord message received
     //
     // @Regex ^on discord message received$
+    //
     // @Switch for <bot>
+    // @Switch channel <channel_id>
+    // @Switch group <group_id>
     //
     // @Triggers when a Discord bot receives a message.
     //
@@ -53,6 +55,17 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     @Override
     public boolean couldMatch(ScriptContainer scriptContainer, String s) {
         return CoreUtilities.toLowerCase(s).startsWith("discord message received");
+    }
+
+    @Override
+    public boolean matches(ScriptPath path) {
+        if (!path.checkSwitch("channel", String.valueOf(getEvent().getMessage().getChannelId().asLong()))) {
+            return false;
+        }
+        if (getEvent().getGuildId().isPresent() && !path.checkSwitch("group", String.valueOf(getEvent().getGuildId().get().asLong()))) {
+            return false;
+        }
+        return super.matches(path);
     }
 
     @Override

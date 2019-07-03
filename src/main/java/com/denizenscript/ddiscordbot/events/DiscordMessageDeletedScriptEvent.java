@@ -21,7 +21,10 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     // discord message deleted
     //
     // @Regex ^on discord message deleted$
+    //
     // @Switch for <bot>
+    // @Switch channel <channel_id>
+    // @Switch group <group_id>
     //
     // @Triggers when a Discord user deletes a message.
     //
@@ -53,6 +56,18 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     @Override
     public boolean couldMatch(ScriptContainer scriptContainer, String s) {
         return CoreUtilities.toLowerCase(s).startsWith("discord message deleted");
+    }
+
+    @Override
+    public boolean matches(ScriptPath path) {
+        if (!path.checkSwitch("channel", String.valueOf(getEvent().getChannelId().asLong()))) {
+            return false;
+        }
+        if (getEvent().getChannel().block() instanceof GuildChannel
+                && !path.checkSwitch("group", String.valueOf(((GuildChannel) getEvent().getChannel().block()).getGuildId().asLong()))) {
+            return false;
+        }
+        return super.matches(path);
     }
 
     @Override

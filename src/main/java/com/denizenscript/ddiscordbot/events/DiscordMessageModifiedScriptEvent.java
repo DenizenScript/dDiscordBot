@@ -20,7 +20,10 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
     // discord message modified
     //
     // @Regex ^on discord message modified$
+    //
     // @Switch for <bot>
+    // @Switch channel <channel_id>
+    // @Switch group <group_id>
     //
     // @Triggers when a Discord user modified a message.
     //
@@ -56,6 +59,17 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
     @Override
     public boolean couldMatch(ScriptContainer scriptContainer, String s) {
         return CoreUtilities.toLowerCase(s).startsWith("discord message modified");
+    }
+
+    @Override
+    public boolean matches(ScriptPath path) {
+        if (!path.checkSwitch("channel", String.valueOf(getEvent().getChannelId().asLong()))) {
+            return false;
+        }
+        if (getEvent().getGuildId().isPresent() && !path.checkSwitch("group", String.valueOf(getEvent().getGuildId().get().asLong()))) {
+            return false;
+        }
+        return super.matches(path);
     }
 
     @Override

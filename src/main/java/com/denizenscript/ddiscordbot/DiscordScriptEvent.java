@@ -16,7 +16,7 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
 
     @Override
     public boolean matches(ScriptPath path) {
-        return runBotIDCheck(path, "for");
+        return path.checkSwitch("for", botID);
     }
 
     @Override
@@ -37,14 +37,6 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
                     .replace("<@!" +user.getId().asLong() + ">", "");
         }
         return message;
-    }
-
-    public boolean runBotIDCheck(ScriptPath path, String label) {
-        String botLabel = path.switches.get(label);
-        if (botLabel == null) {
-            return true;
-        }
-        return botLabel.equalsIgnoreCase(botID);
     }
 
     public boolean enabled = false;

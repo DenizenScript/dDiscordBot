@@ -16,7 +16,9 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
     // discord user leaves
     //
     // @Regex ^on discord user leaves$
+    //
     // @Switch for <bot>
+    // @Switch group <group_id>
     //
     // @Triggers when a Discord user leaves a guild.
     //
@@ -33,6 +35,14 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
 
     public MemberLeaveEvent getEvent() {
         return (MemberLeaveEvent) event;
+    }
+
+    @Override
+    public boolean matches(ScriptPath path) {
+        if (!path.checkSwitch("group", String.valueOf(getEvent().getGuildId().asLong()))) {
+            return false;
+        }
+        return super.matches(path);
     }
 
     @Override

@@ -20,7 +20,9 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
     // discord user role changes
     //
     // @Regex ^on discord role changes$
+    //
     // @Switch for <bot>
+    // @Switch group <group_id>
     //
     // @Triggers when a Discord user's roles change.
     //
@@ -46,6 +48,14 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
     @Override
     public boolean couldMatch(ScriptContainer scriptContainer, String s) {
         return CoreUtilities.toLowerCase(s).startsWith("discord user role changes");
+    }
+
+    @Override
+    public boolean matches(ScriptPath path) {
+        if (!path.checkSwitch("group", String.valueOf(getEvent().getGuildId().asLong()))) {
+            return false;
+        }
+        return super.matches(path);
     }
 
     public ArrayList<Long> getOldRoles() {
