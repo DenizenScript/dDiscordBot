@@ -2,10 +2,7 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.dDiscordBot;
-import discord4j.core.object.entity.Channel;
-import discord4j.core.object.entity.Guild;
-import discord4j.core.object.entity.GuildChannel;
-import discord4j.core.object.entity.Role;
+import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Snowflake;
 import net.aufdemrand.denizencore.objects.*;
 import net.aufdemrand.denizencore.tags.Attribute;
@@ -142,6 +139,41 @@ public class dDiscordGroup implements dObject {
                     list.addObject(new dDiscordRole(((dDiscordGroup) object).bot, role));
                 }
                 return list.getAttribute(attribute.fulfill(1));
+            }
+        });
+
+        // <--[tag]
+        // @attribute <discordgroup@group.member[<name>]>
+        // @returns DiscordUser
+        // @plugin dDiscordBot
+        // @description
+        // Returns the group member that best matches the input name, or null if there's no match.
+        // For input of username#id, will always only match for the exact user.
+        // For input of only the username, return value might be unexpected if multiple members have the same username
+        // (this happens more often than you might expect - many users accidentally join new Discord groups from the
+        // web on a temporary web account, then rejoin on a local client with their 'real' account).
+        // -->
+        registerTag("member", new TagRunnable() {
+            @Override
+            public String run(Attribute attribute, dObject object) {
+                if (!attribute.hasContext(1)) {
+                    return null;
+                }
+                String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+                int discrimMark = matchString.indexOf('#');
+                String discrimVal = null;
+                if (discrimMark > 0 && discrimMark == matchString.length() - 5) {
+                    discrimVal = matchString.substring(discrimMark + 1);
+                    matchString = matchString.substring(0, discrimMark);
+                }
+                final String discrim = discrimVal;
+                final String matchName = matchString;
+                for (Member member : ((dDiscordGroup) object).guild.getMembers().filter(
+                        m -> matchName.equalsIgnoreCase(m.getUsername()) && (discrim == null || discrim.equals(m.getDiscriminator()))).toIterable()) {
+                    return new dDiscordUser(((dDiscordGroup) object).bot, member.getId().asLong())
+                            .getAttribute(attribute.fulfill(1));
+                }
+                return null;
             }
         });
 
