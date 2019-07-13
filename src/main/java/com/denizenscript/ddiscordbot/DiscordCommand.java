@@ -12,14 +12,14 @@ import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import discord4j.core.object.util.Snowflake;
 import net.aufdemrand.denizen.utilities.debugging.dB;
-import net.aufdemrand.denizencore.exceptions.InvalidArgumentsException;
-import net.aufdemrand.denizencore.objects.Element;
-import net.aufdemrand.denizencore.objects.aH;
-import net.aufdemrand.denizencore.scripts.ScriptEntry;
-import net.aufdemrand.denizencore.scripts.commands.AbstractCommand;
-import net.aufdemrand.denizencore.scripts.commands.Holdable;
-import net.aufdemrand.denizencore.scripts.queues.ScriptQueue;
-import net.aufdemrand.denizencore.utilities.CoreUtilities;
+import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
+import com.denizenscript.denizencore.objects.Element;
+import com.denizenscript.denizencore.objects.aH;
+import com.denizenscript.denizencore.scripts.ScriptEntry;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
+import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.scripts.queues.ScriptQueue;
+import com.denizenscript.denizencore.utilities.CoreUtilities;
 import org.bukkit.Bukkit;
 
 public class DiscordCommand extends AbstractCommand implements Holdable {

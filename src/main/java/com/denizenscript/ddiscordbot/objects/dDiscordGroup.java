@@ -2,12 +2,13 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.dDiscordBot;
+import com.denizenscript.denizencore.objects.*;
+import com.denizenscript.denizencore.utilities.debugging.dB;
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Snowflake;
-import net.aufdemrand.denizencore.objects.*;
-import net.aufdemrand.denizencore.tags.Attribute;
-import net.aufdemrand.denizencore.tags.TagContext;
-import net.aufdemrand.denizencore.utilities.CoreUtilities;
+import com.denizenscript.denizencore.tags.Attribute;
+import com.denizenscript.denizencore.tags.TagContext;
+import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 import java.util.HashMap;
 
@@ -231,7 +232,7 @@ public class dDiscordGroup implements dObject {
         TagRunnable tr = registeredTags.get(attrLow);
         if (tr != null) {
             if (!tr.name.equals(attrLow)) {
-                net.aufdemrand.denizencore.utilities.debugging.dB.echoError(attribute.getScriptEntry() != null ? attribute.getScriptEntry().getResidingQueue() : null,
+                dB.echoError(attribute.getScriptEntry() != null ? attribute.getScriptEntry().getResidingQueue() : null,
                         "Using deprecated form of tag '" + tr.name + "': '" + attrLow + "'.");
             }
             return tr.run(attribute, this);

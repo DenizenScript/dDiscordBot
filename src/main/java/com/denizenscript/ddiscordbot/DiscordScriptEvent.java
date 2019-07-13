@@ -2,9 +2,9 @@ package com.denizenscript.ddiscordbot;
 
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.entity.User;
-import net.aufdemrand.denizencore.events.ScriptEvent;
-import net.aufdemrand.denizencore.objects.Element;
-import net.aufdemrand.denizencore.objects.dObject;
+import com.denizenscript.denizencore.events.ScriptEvent;
+import com.denizenscript.denizencore.objects.Element;
+import com.denizenscript.denizencore.objects.dObject;
 import reactor.core.publisher.Flux;
 
 

@@ -6,11 +6,11 @@ import discord4j.core.object.entity.GuildChannel;
 import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Snowflake;
-import net.aufdemrand.denizencore.objects.Element;
-import net.aufdemrand.denizencore.objects.dList;
-import net.aufdemrand.denizencore.objects.dObject;
-import net.aufdemrand.denizencore.scripts.containers.ScriptContainer;
-import net.aufdemrand.denizencore.utilities.CoreUtilities;
+import com.denizenscript.denizencore.objects.Element;
+import com.denizenscript.denizencore.objects.dList;
+import com.denizenscript.denizencore.objects.dObject;
+import com.denizenscript.denizencore.scripts.containers.ScriptContainer;
+import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
 

@@ -3,11 +3,11 @@ package com.denizenscript.ddiscordbot.events;
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import discord4j.core.event.domain.guild.MemberUpdateEvent;
 import discord4j.core.object.util.Snowflake;
-import net.aufdemrand.denizencore.objects.Element;
-import net.aufdemrand.denizencore.objects.dList;
-import net.aufdemrand.denizencore.objects.dObject;
-import net.aufdemrand.denizencore.scripts.containers.ScriptContainer;
-import net.aufdemrand.denizencore.utilities.CoreUtilities;
+import com.denizenscript.denizencore.objects.Element;
+import com.denizenscript.denizencore.objects.dList;
+import com.denizenscript.denizencore.objects.dObject;
+import com.denizenscript.denizencore.scripts.containers.ScriptContainer;
+import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 import java.util.ArrayList;
 

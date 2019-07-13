@@ -2,10 +2,10 @@ package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
-import net.aufdemrand.denizencore.objects.Element;
-import net.aufdemrand.denizencore.objects.dObject;
-import net.aufdemrand.denizencore.scripts.containers.ScriptContainer;
-import net.aufdemrand.denizencore.utilities.CoreUtilities;
+import com.denizenscript.denizencore.objects.Element;
+import com.denizenscript.denizencore.objects.dObject;
+import com.denizenscript.denizencore.scripts.containers.ScriptContainer;
+import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
 
