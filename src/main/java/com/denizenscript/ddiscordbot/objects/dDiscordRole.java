@@ -3,7 +3,7 @@ package com.denizenscript.ddiscordbot.objects;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.dDiscordBot;
 import com.denizenscript.denizencore.objects.*;
-import com.denizenscript.denizencore.utilities.debugging.dB;
+import com.denizenscript.denizencore.utilities.debugging.Debug;
 import discord4j.core.object.entity.Role;
 import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.tags.Attribute;
@@ -25,23 +25,23 @@ public class dDiscordRole implements dObject {
         }
         List<String> input = CoreUtilities.split(string, ',');
         if (input.size() == 1) {
-            long roleId = aH.getLongFrom(input.get(0));
+            long roleId = ArgumentHelper.getLongFrom(input.get(0));
             if (roleId == 0) {
                 return null;
             }
             return new dDiscordRole(null, 0, roleId);
         }
         else if (input.size() == 3) {
-            long guildId = aH.getLongFrom(input.get(1));
-            long roleId = aH.getLongFrom(input.get(2));
+            long guildId = ArgumentHelper.getLongFrom(input.get(1));
+            long roleId = ArgumentHelper.getLongFrom(input.get(2));
             if (guildId == 0 || roleId == 0) {
                 return null;
             }
             return new dDiscordRole(input.get(0), guildId, roleId);
         }
         else if (input.size() == 2) {
-            long guildId = aH.getLongFrom(input.get(0));
-            long roleId = aH.getLongFrom(input.get(1));
+            long guildId = ArgumentHelper.getLongFrom(input.get(0));
+            long roleId = ArgumentHelper.getLongFrom(input.get(1));
             if (guildId == 0 || roleId == 0) {
                 return null;
             }
@@ -66,12 +66,12 @@ public class dDiscordRole implements dObject {
         String after = arg.substring(comma + 1);
         int secondComma = after.indexOf(',');
         if (secondComma == -1) {
-            return aH.matchesInteger(after) && aH.matchesInteger(arg.substring(0, comma));
+            return ArgumentHelper.matchesInteger(after) && ArgumentHelper.matchesInteger(arg.substring(0, comma));
         }
         if (secondComma == after.length() - 1) {
             return false;
         }
-        return aH.matchesInteger(after.substring(secondComma + 1)) && aH.matchesInteger(after.substring(0, secondComma));
+        return ArgumentHelper.matchesInteger(after.substring(secondComma + 1)) && ArgumentHelper.matchesInteger(after.substring(0, secondComma));
     }
 
     public dDiscordRole(String bot, long guildId, long roleId) {
@@ -187,7 +187,7 @@ public class dDiscordRole implements dObject {
         TagRunnable tr = registeredTags.get(attrLow);
         if (tr != null) {
             if (!tr.name.equals(attrLow)) {
-                dB.echoError(attribute.getScriptEntry() != null ? attribute.getScriptEntry().getResidingQueue() : null,
+                Debug.echoError(attribute.getScriptEntry() != null ? attribute.getScriptEntry().getResidingQueue() : null,
                         "Using deprecated form of tag '" + tr.name + "': '" + attrLow + "'.");
             }
             return tr.run(attribute, this);

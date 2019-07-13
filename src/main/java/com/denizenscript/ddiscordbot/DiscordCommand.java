@@ -4,6 +4,7 @@ import com.denizenscript.ddiscordbot.objects.dDiscordChannel;
 import com.denizenscript.ddiscordbot.objects.dDiscordGroup;
 import com.denizenscript.ddiscordbot.objects.dDiscordRole;
 import com.denizenscript.ddiscordbot.objects.dDiscordUser;
+import com.denizenscript.denizencore.objects.Argument;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.object.entity.TextChannel;
@@ -11,10 +12,10 @@ import discord4j.core.object.entity.User;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import discord4j.core.object.util.Snowflake;
-import com.denizenscript.denizencore.utilities.debugging.dB;
+import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Element;
-import com.denizenscript.denizencore.objects.aH;
+import com.denizenscript.denizencore.objects.ArgumentHelper;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
@@ -93,7 +94,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         // Interpret arguments
-        for (aH.Argument arg : aH.interpret(scriptEntry.getArguments())) {
+        for (Argument arg : ArgumentHelper.interpret(scriptEntry.getArguments())) {
 
             if (!scriptEntry.hasObject("id")
                     && arg.matchesPrefix("id")) {
@@ -178,7 +179,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
                     dDiscordBot.instance.connections.remove(conn.botID);
                 });
-                dB.echoError(ex);
+                Debug.echoError(ex);
             }
             Bukkit.getScheduler().runTask(dDiscordBot.instance, ender);
         }
@@ -188,7 +189,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Bukkit.getScheduler().scheduleSyncDelayedTask(dDiscordBot.instance, new Runnable() {
             @Override
             public void run() {
-                dB.echoError(queue, message);
+                Debug.echoError(queue, message);
             }
         }, 0);
     }
@@ -210,7 +211,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Element url = scriptEntry.getElement("url");
 
         // Debug the execution
-        dB.report(scriptEntry, getName(), id.debug()
+        Debug.report(scriptEntry, getName(), id.debug()
                 + (channel != null ? channel.debug(): "")
                 + instruction.debug()
                 + (message != null ? message.debug(): "")
@@ -226,11 +227,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         switch (DiscordInstruction.valueOf(instruction.asString().toUpperCase())) {
             case CONNECT:
                 if (code == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to connect: no code given!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: no code given!");
                     return;
                 }
                 if (dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
                     return;
                 }
                 DiscordConnection dc = new DiscordConnection();
@@ -244,100 +245,100 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 break;
             case DISCONNECT:
                 if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to disconnect: unknown ID!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to disconnect: unknown ID!");
                     return;
                 }
                 dDiscordBot.instance.connections.remove(id.asString()).client.logout();
                 break;
             case MESSAGE:
                 if (channel == null && user == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to send message: no channel given!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to send message: no channel given!");
                     return;
                 }
                 if (message == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to send message: no message given!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to send message: no message given!");
                     return;
                 }
                 if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to send message: unknown ID!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to send message: unknown ID!");
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
                 if (client == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
                 if (channel == null) {
                     client.getUserById(Snowflake.of(user.user_id)).map(User::getPrivateChannel).flatMap(chanBork -> chanBork.flatMap(
                             chan -> chan.createMessage(message.asString())))
-                            .doOnError(dB::echoError).subscribe();
+                            .doOnError(Debug::echoError).subscribe();
                 }
                 else {
                     client.getChannelById(Snowflake.of(channel.channel_id))
                             .flatMap(chan -> ((TextChannel) chan).createMessage(message.asString()))
-                            .doOnError(dB::echoError).subscribe();
+                            .doOnError(Debug::echoError).subscribe();
                 }
                 break;
             case ADDROLE:
                 if (user == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: no user given!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no user given!");
                     return;
                 }
                 if (guild == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: no guild given!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no guild given!");
                     return;
                 }
                 if (role == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: no role given!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no role given!");
                     return;
                 }
                 if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: unknown ID!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: unknown ID!");
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
                 if (client == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
                 client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
                         .flatMap(memberBork -> memberBork.flatMap(member -> member.addRole(Snowflake.of(role.role_id))))
-                        .doOnError(dB::echoError).subscribe();
+                        .doOnError(Debug::echoError).subscribe();
                 break;
             case REMOVEROLE:
                 if (user == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: no user given!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no user given!");
                     return;
                 }
                 if (guild == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: no guild given!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no guild given!");
                     return;
                 }
                 if (role == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: no role given!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no role given!");
                     return;
                 }
                 if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to role: unknown ID!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: unknown ID!");
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
                 if (client == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
                 client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
                         .flatMap(memberBork -> memberBork.flatMap(member -> member.removeRole(Snowflake.of(role.role_id))))
-                        .doOnError(dB::echoError).subscribe();
+                        .doOnError(Debug::echoError).subscribe();
                 break;
             case RENAME:
                 if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: unknown ID!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to rename: unknown ID!");
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
                 if (client == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
                 long userId;
@@ -348,25 +349,25 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     userId = user.user_id;
                 }
                 if (guild == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no guild given!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no guild given!");
                     return;
                 }
                 if (message == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no name given!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no name given!");
                     return;
                 }
                 client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(userId)))
                         .flatMap(memberBork -> memberBork.flatMap(member -> member.edit(spec -> spec.setNickname(message.asString()))))
-                        .doOnError(dB::echoError).subscribe();
+                        .doOnError(Debug::echoError).subscribe();
                 break;
             case STATUS:
                 if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "Failed to set status: unknown ID!");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to set status: unknown ID!");
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
                 if (client == null) {
-                    dB.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                    Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
                 Activity.Type at = activity == null ? Activity.Type.PLAYING : Activity.Type.valueOf(activity.asString().toUpperCase());

@@ -3,7 +3,7 @@ package com.denizenscript.ddiscordbot.objects;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.dDiscordBot;
 import com.denizenscript.denizencore.objects.*;
-import com.denizenscript.denizencore.utilities.debugging.dB;
+import com.denizenscript.denizencore.utilities.debugging.Debug;
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.tags.Attribute;
@@ -28,7 +28,7 @@ public class dDiscordGroup implements dObject {
             bot = CoreUtilities.toLowerCase(string.substring(0, comma));
             string = string.substring(comma + 1);
         }
-        long grpId = aH.getLongFrom(string);
+        long grpId = ArgumentHelper.getLongFrom(string);
         if (grpId == 0) {
             return null;
         }
@@ -44,12 +44,12 @@ public class dDiscordGroup implements dObject {
         }
         int comma = arg.indexOf(',');
         if (comma == -1) {
-            return aH.matchesInteger(arg);
+            return ArgumentHelper.matchesInteger(arg);
         }
         if (comma == arg.length() - 1) {
             return false;
         }
-        return aH.matchesInteger(arg.substring(comma + 1));
+        return ArgumentHelper.matchesInteger(arg.substring(comma + 1));
     }
 
     public dDiscordGroup(String bot, long guildId) {
@@ -232,7 +232,7 @@ public class dDiscordGroup implements dObject {
         TagRunnable tr = registeredTags.get(attrLow);
         if (tr != null) {
             if (!tr.name.equals(attrLow)) {
-                dB.echoError(attribute.getScriptEntry() != null ? attribute.getScriptEntry().getResidingQueue() : null,
+                Debug.echoError(attribute.getScriptEntry() != null ? attribute.getScriptEntry().getResidingQueue() : null,
                         "Using deprecated form of tag '" + tr.name + "': '" + attrLow + "'.");
             }
             return tr.run(attribute, this);

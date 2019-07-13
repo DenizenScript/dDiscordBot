@@ -2,7 +2,7 @@ package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.events.*;
 import com.denizenscript.ddiscordbot.objects.*;
-import com.denizenscript.denizencore.utilities.debugging.dB;
+import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.events.ScriptEvent;
 import com.denizenscript.denizencore.objects.Element;
@@ -24,7 +24,7 @@ public class dDiscordBot extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        dB.log("dDiscordBot loaded!");
+        Debug.log("dDiscordBot loaded!");
         instance = this;
         try {
             DenizenCore.getCommandRegistry().registerCoreMember(DiscordCommand.class, "DISCORD", "DISCORD [read(the<meta>)]", 2);
@@ -53,7 +53,7 @@ public class dDiscordBot extends JavaPlugin {
             }, "discord");
         }
         catch (Throwable ex) {
-            dB.echoError(ex);
+            Debug.echoError(ex);
         }
     }
 
