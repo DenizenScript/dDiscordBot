@@ -14,7 +14,7 @@ import discord4j.core.object.presence.Presence;
 import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
-import com.denizenscript.denizencore.objects.Element;
+import com.denizenscript.denizencore.objects.ElementTag;
 import com.denizenscript.denizencore.objects.ArgumentHelper;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
@@ -98,7 +98,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
             if (!scriptEntry.hasObject("id")
                     && arg.matchesPrefix("id")) {
-                scriptEntry.addObject("id", new Element(CoreUtilities.toLowerCase(arg.getValue())));
+                scriptEntry.addObject("id", new ElementTag(CoreUtilities.toLowerCase(arg.getValue())));
             }
             else if (!scriptEntry.hasObject("instruction")
                     && arg.matchesEnum(DiscordInstruction.values())) {
@@ -141,7 +141,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 scriptEntry.addObject("activity", arg.asElement());
             }
             else if (!scriptEntry.hasObject("message")) {
-                scriptEntry.addObject("message", new Element(arg.raw_value));
+                scriptEntry.addObject("message", new ElementTag(arg.raw_value));
             }
             else {
                 arg.reportUnhandled();
@@ -198,17 +198,17 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     public void execute(ScriptEntry scriptEntry) {
 
         // Fetch required objects
-        Element id = scriptEntry.getElement("id");
-        Element instruction = scriptEntry.getElement("instruction");
-        Element code = scriptEntry.getElement("code"); // Intentionally do not debug this value.
+        ElementTag id = scriptEntry.getElement("id");
+        ElementTag instruction = scriptEntry.getElement("instruction");
+        ElementTag code = scriptEntry.getElement("code"); // Intentionally do not debug this value.
         dDiscordChannel channel = scriptEntry.getdObject("channel");
-        Element message = scriptEntry.getElement("message");
-        Element status = scriptEntry.getElement("status");
-        Element activity = scriptEntry.getElement("activity");
+        ElementTag message = scriptEntry.getElement("message");
+        ElementTag status = scriptEntry.getElement("status");
+        ElementTag activity = scriptEntry.getElement("activity");
         dDiscordUser user = scriptEntry.getdObject("user");
         dDiscordGroup guild = scriptEntry.getdObject("group");
         dDiscordRole role = scriptEntry.getdObject("role");
-        Element url = scriptEntry.getElement("url");
+        ElementTag url = scriptEntry.getElement("url");
 
         // Debug the execution
         Debug.report(scriptEntry, getName(), id.debug()

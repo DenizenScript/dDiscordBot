@@ -13,7 +13,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 import java.util.HashMap;
 
-public class dDiscordUser implements dObject {
+public class dDiscordUser implements ObjectTag {
 
     @Fetchable("discorduser")
     public static dDiscordUser valueOf(String string, TagContext context) {
@@ -80,59 +80,59 @@ public class dDiscordUser implements dObject {
 
         // <--[tag]
         // @attribute <discorduser@user.name>
-        // @returns Element
+        // @returns ElementTag
         // @plugin dDiscordBot
         // @description
         // Returns the user name of the user.
         // -->
         registerTag("name", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordUser) object).user.getUsername())
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordUser) object).user.getUsername())
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discorduser@user.id>
-        // @returns Element(Number)
+        // @returns ElementTag(Number)
         // @plugin dDiscordBot
         // @description
         // Returns the ID number of the user.
         // -->
         registerTag("id", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordUser) object).user_id)
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordUser) object).user_id)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discorduser@user.mention>
-        // @returns Element
+        // @returns ElementTag
         // @plugin dDiscordBot
         // @description
         // Returns the raw mention string for the user.
         // -->
         registerTag("mention", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordUser) object).user.getMention())
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordUser) object).user.getMention())
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discorduser@user.roles[<group>]>
-        // @returns dList(DiscordRole)
+        // @returns ListTag(DiscordRole)
         // @plugin dDiscordBot
         // @description
         // Returns a list of all roles the user has in the given group.
         // -->
         registerTag("roles", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
+            public String run(Attribute attribute, ObjectTag object) {
                 if (!attribute.hasContext(1)) {
                     return null;
                 }
@@ -140,7 +140,7 @@ public class dDiscordUser implements dObject {
                 if (group == null) {
                     return null;
                 }
-                dList list = new dList();
+                ListTag list = new ListTag();
                 for (Role role : ((dDiscordUser) object).user.asMember(Snowflake.of(group.guild_id)).block().getRoles().toIterable()) {
                     list.addObject(new dDiscordRole(((dDiscordUser) object).bot, role));
                 }
@@ -175,7 +175,7 @@ public class dDiscordUser implements dObject {
             return tr.run(attribute, this);
         }
 
-        return new Element(identify()).getAttribute(attribute);
+        return new ElementTag(identify()).getAttribute(attribute);
     }
 
     String prefix = "discorduser";
@@ -219,7 +219,7 @@ public class dDiscordUser implements dObject {
     }
 
     @Override
-    public dObject setPrefix(String prefix) {
+    public ObjectTag setPrefix(String prefix) {
         if (prefix != null) {
             this.prefix = prefix;
         }

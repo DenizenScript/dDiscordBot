@@ -12,7 +12,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 import java.util.HashMap;
 
-public class dDiscordChannel implements dObject {
+public class dDiscordChannel implements ObjectTag {
 
     @Fetchable("discordchannel")
     public static dDiscordChannel valueOf(String string, TagContext context) {
@@ -79,14 +79,14 @@ public class dDiscordChannel implements dObject {
 
         // <--[tag]
         // @attribute <discordchannel@channel.name>
-        // @returns Element
+        // @returns ElementTag
         // @plugin dDiscordBot
         // @description
         // Returns the name of the channel.
         // -->
         registerTag("name", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
+            public String run(Attribute attribute, ObjectTag object) {
                 Channel chan = ((dDiscordChannel) object).channel;
                 String name;
                 if (chan instanceof GuildChannel) {
@@ -98,14 +98,14 @@ public class dDiscordChannel implements dObject {
                 else {
                     name = "unknown";
                 }
-                return new Element(name)
+                return new ElementTag(name)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discordchannel@channel.type>
-        // @returns Element
+        // @returns ElementTag
         // @plugin dDiscordBot
         // @description
         // Returns the type of the channel.
@@ -113,38 +113,38 @@ public class dDiscordChannel implements dObject {
         // -->
         registerTag("type", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordChannel) object).channel.getType().name())
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordChannel) object).channel.getType().name())
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discordchannel@channel.id>
-        // @returns Element(Number)
+        // @returns ElementTag(Number)
         // @plugin dDiscordBot
         // @description
         // Returns the ID number of the channel.
         // -->
         registerTag("id", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordChannel) object).channel_id)
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordChannel) object).channel_id)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discordchannel@channel.mention>
-        // @returns Element
+        // @returns ElementTag
         // @plugin dDiscordBot
         // @description
         // Returns the raw mention string for the channel.
         // -->
         registerTag("mention", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordChannel) object).channel.getMention())
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordChannel) object).channel.getMention())
                         .getAttribute(attribute.fulfill(1));
             }
         });
@@ -158,7 +158,7 @@ public class dDiscordChannel implements dObject {
         // -->
         registerTag("group", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
+            public String run(Attribute attribute, ObjectTag object) {
                 Channel chan = ((dDiscordChannel) object).channel;
                 Guild guild;
                 if (chan instanceof GuildChannel) {
@@ -199,7 +199,7 @@ public class dDiscordChannel implements dObject {
             return tr.run(attribute, this);
         }
 
-        return new Element(identify()).getAttribute(attribute);
+        return new ElementTag(identify()).getAttribute(attribute);
     }
 
     String prefix = "discordchannel";
@@ -243,7 +243,7 @@ public class dDiscordChannel implements dObject {
     }
 
     @Override
-    public dObject setPrefix(String prefix) {
+    public ObjectTag setPrefix(String prefix) {
         if (prefix != null) {
             this.prefix = prefix;
         }

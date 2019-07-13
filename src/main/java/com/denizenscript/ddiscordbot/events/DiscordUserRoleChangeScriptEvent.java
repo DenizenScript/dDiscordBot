@@ -3,9 +3,9 @@ package com.denizenscript.ddiscordbot.events;
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import discord4j.core.event.domain.guild.MemberUpdateEvent;
 import discord4j.core.object.util.Snowflake;
-import com.denizenscript.denizencore.objects.Element;
-import com.denizenscript.denizencore.objects.dList;
-import com.denizenscript.denizencore.objects.dObject;
+import com.denizenscript.denizencore.objects.ElementTag;
+import com.denizenscript.denizencore.objects.ListTag;
+import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.scripts.containers.ScriptContainer;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 
@@ -74,53 +74,53 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
         return newRoles;
     }
 
-    public dList getAddedRoles() {
-        dList addedRoles = new dList();
+    public ListTag getAddedRoles() {
+        ListTag addedRoles = new ListTag();
         ArrayList<Long> oldRoles = getOldRoles();
         for (Long role : getNewRoles()) {
             if (!oldRoles.contains(role)) {
-                addedRoles.addObject(new Element(role));
+                addedRoles.addObject(new ElementTag(role));
             }
         }
         return addedRoles;
     }
 
-    public dList getRemovedRoles() {
-        dList removedRoles = new dList();
+    public ListTag getRemovedRoles() {
+        ListTag removedRoles = new ListTag();
         ArrayList<Long> newRoles = getNewRoles();
         for (Long role : getOldRoles()) {
             if (!newRoles.contains(role)) {
-                removedRoles.addObject(new Element(role));
+                removedRoles.addObject(new ElementTag(role));
             }
         }
         return removedRoles;
     }
 
     @Override
-    public dObject getContext(String name) {
+    public ObjectTag getContext(String name) {
         if (name.equals("group")) {
-            return new Element(getEvent().getGuildId().asLong());
+            return new ElementTag(getEvent().getGuildId().asLong());
         }
         else if (name.equals("group_name")) {
-            return new Element(getEvent().getGuild().block().getName());
+            return new ElementTag(getEvent().getGuild().block().getName());
         }
         else if (name.equals("user_id")) {
-            return new Element(getEvent().getMember().block().getId().asLong());
+            return new ElementTag(getEvent().getMember().block().getId().asLong());
         }
         else if (name.equals("user_name")) {
-            return new Element(getEvent().getMember().block().getUsername());
+            return new ElementTag(getEvent().getMember().block().getUsername());
         }
         if (name.equals("old_role_ids")) {
-            dList oldRoles = new dList();
+            ListTag oldRoles = new ListTag();
             for (Long role : getOldRoles()) {
-                oldRoles.addObject(new Element(role));
+                oldRoles.addObject(new ElementTag(role));
             }
             return oldRoles;
         }
         else if (name.equals("new_role_ids")) {
-            dList newRoles = new dList();
+            ListTag newRoles = new ListTag();
             for (Long role : getNewRoles()) {
-                newRoles.addObject(new Element(role));
+                newRoles.addObject(new ElementTag(role));
             }
             return newRoles;
         }

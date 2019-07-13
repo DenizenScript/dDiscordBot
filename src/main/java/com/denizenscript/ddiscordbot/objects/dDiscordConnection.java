@@ -11,7 +11,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 import java.util.HashMap;
 
-public class dDiscordConnection implements dObject {
+public class dDiscordConnection implements ObjectTag {
 
     @Fetchable("discord")
     public static dDiscordConnection valueOf(String string, TagContext context) {
@@ -55,34 +55,34 @@ public class dDiscordConnection implements dObject {
 
         // <--[tag]
         // @attribute <discord@bot.name>
-        // @returns Element
+        // @returns ElementTag
         // @plugin dDiscordBot
         // @description
         // Returns the name of the bot.
         // -->
         registerTag("name", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordConnection) object).bot)
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordConnection) object).bot)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discord@bot.groups>
-        // @returns dList(DiscordGroup)
+        // @returns ListTag(DiscordGroup)
         // @plugin dDiscordBot
         // @description
         // Returns a list of all groups (aka 'guilds' or 'servers') that this Discord bot has access to.
         // -->
         registerTag("groups", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
+            public String run(Attribute attribute, ObjectTag object) {
                 DiscordConnection connection = dDiscordBot.instance.connections.get(((dDiscordConnection) object).bot);
                 if (connection == null) {
                     return null;
                 }
-                dList list = new dList();
+                ListTag list = new ListTag();
                 for (Guild guild : connection.client.getGuilds().toIterable()) {
                     list.addObject(new dDiscordGroup(((dDiscordConnection) object).bot, guild));
                 }
@@ -99,7 +99,7 @@ public class dDiscordConnection implements dObject {
         // -->
         registerTag("group", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
+            public String run(Attribute attribute, ObjectTag object) {
                 if (!attribute.hasContext(1)) {
                     return null;
                 }
@@ -154,7 +154,7 @@ public class dDiscordConnection implements dObject {
             return tr.run(attribute, this);
         }
 
-        return new Element(identify()).getAttribute(attribute);
+        return new ElementTag(identify()).getAttribute(attribute);
     }
 
     String prefix = "discord";
@@ -195,7 +195,7 @@ public class dDiscordConnection implements dObject {
     }
 
     @Override
-    public dObject setPrefix(String prefix) {
+    public ObjectTag setPrefix(String prefix) {
         if (prefix != null) {
             this.prefix = prefix;
         }

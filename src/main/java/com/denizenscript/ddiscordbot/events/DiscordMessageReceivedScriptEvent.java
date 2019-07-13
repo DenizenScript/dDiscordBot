@@ -6,9 +6,9 @@ import discord4j.core.object.entity.GuildChannel;
 import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Snowflake;
-import com.denizenscript.denizencore.objects.Element;
-import com.denizenscript.denizencore.objects.dList;
-import com.denizenscript.denizencore.objects.dObject;
+import com.denizenscript.denizencore.objects.ElementTag;
+import com.denizenscript.denizencore.objects.ListTag;
+import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.scripts.containers.ScriptContainer;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 
@@ -69,58 +69,58 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     }
 
     @Override
-    public dObject getContext(String name) {
+    public ObjectTag getContext(String name) {
         if (name.equals("channel")) {
-            return new Element(getEvent().getMessage().getChannelId().asLong());
+            return new ElementTag(getEvent().getMessage().getChannelId().asLong());
         }
         else if (name.equals("channel_name")) {
             MessageChannel channel = getEvent().getMessage().getChannel().block();
             if (channel instanceof GuildChannel) {
-                return new Element(((GuildChannel) channel).getName());
+                return new ElementTag(((GuildChannel) channel).getName());
             }
         }
         else if (name.equals("group")) {
             if (getEvent().getGuildId().isPresent()) {
-                return new Element(getEvent().getGuildId().get().asLong());
+                return new ElementTag(getEvent().getGuildId().get().asLong());
             }
         }
         else if (name.equals("group_name")) {
             if (getEvent().getGuildId().isPresent()) {
-                return new Element(getEvent().getGuild().block().getName());
+                return new ElementTag(getEvent().getGuild().block().getName());
             }
         }
         else if (name.equals("message")) {
-            return new Element(getEvent().getMessage().getContent().orElse(""));
+            return new ElementTag(getEvent().getMessage().getContent().orElse(""));
         }
         else if (name.equals("no_mention_message")) {
-            return new Element(stripMentions(getEvent().getMessage().getContent().orElse(""),
+            return new ElementTag(stripMentions(getEvent().getMessage().getContent().orElse(""),
                     getEvent().getMessage().getUserMentions()));
         }
         else if (name.equals("formatted_message")) {
-            return new Element(getEvent().getMessage().getContent().orElse(""));
+            return new ElementTag(getEvent().getMessage().getContent().orElse(""));
         }
         else if (name.equals("author_id")) {
-            return new Element(getEvent().getMessage().getAuthor().get().getId().asLong());
+            return new ElementTag(getEvent().getMessage().getAuthor().get().getId().asLong());
         }
         else if (name.equals("author_name")) {
-            return new Element(getEvent().getMessage().getAuthor().get().getUsername());
+            return new ElementTag(getEvent().getMessage().getAuthor().get().getUsername());
         }
         else if (name.equals("mentions")) {
-            dList list = new dList();
+            ListTag list = new ListTag();
             for (Snowflake user : getEvent().getMessage().getUserMentionIds()) {
                 list.add(String.valueOf(user.asLong()));
             }
             return list;
         }
         else if (name.equals("mention_names")) {
-            dList list = new dList();
+            ListTag list = new ListTag();
             for (User user : getEvent().getMessage().getUserMentions().toIterable()) {
                 list.add(String.valueOf(user.getUsername()));
             }
             return list;
         }
         else if (name.equals("is_direct")) {
-            return new Element(!(getEvent().getMessage().getChannel().block() instanceof GuildChannel));
+            return new ElementTag(!(getEvent().getMessage().getChannel().block() instanceof GuildChannel));
         }
         return super.getContext(name);
     }

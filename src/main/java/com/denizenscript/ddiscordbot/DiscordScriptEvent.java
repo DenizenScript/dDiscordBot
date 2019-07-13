@@ -3,8 +3,8 @@ package com.denizenscript.ddiscordbot;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.entity.User;
 import com.denizenscript.denizencore.events.ScriptEvent;
-import com.denizenscript.denizencore.objects.Element;
-import com.denizenscript.denizencore.objects.dObject;
+import com.denizenscript.denizencore.objects.ElementTag;
+import com.denizenscript.denizencore.objects.ObjectTag;
 import reactor.core.publisher.Flux;
 
 
@@ -20,12 +20,12 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
     }
 
     @Override
-    public dObject getContext(String name) {
+    public ObjectTag getContext(String name) {
         if (name.equals("bot")) {
-            return new Element(botID);
+            return new ElementTag(botID);
         }
         else if (name.equals("self")) {
-            return new Element(event.getClient().getSelf().block().getId().asLong());
+            return new ElementTag(event.getClient().getSelf().block().getId().asLong());
         }
         return super.getContext(name);
     }

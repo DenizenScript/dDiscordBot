@@ -12,7 +12,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 import java.util.HashMap;
 
-public class dDiscordGroup implements dObject {
+public class dDiscordGroup implements ObjectTag {
 
     @Fetchable("discordgroup")
     public static dDiscordGroup valueOf(String string, TagContext context) {
@@ -79,45 +79,45 @@ public class dDiscordGroup implements dObject {
 
         // <--[tag]
         // @attribute <discordgroup@group.name>
-        // @returns Element
+        // @returns ElementTag
         // @plugin dDiscordBot
         // @description
         // Returns the name of the group.
         // -->
         registerTag("name", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordGroup) object).guild.getName())
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordGroup) object).guild.getName())
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discordgroup@group.id>
-        // @returns Element(Number)
+        // @returns ElementTag(Number)
         // @plugin dDiscordBot
         // @description
         // Returns the ID number of the group.
         // -->
         registerTag("id", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordGroup) object).guild_id)
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordGroup) object).guild_id)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discordgroup@group.channels>
-        // @returns dList(DiscordChannel)
+        // @returns ListTag(DiscordChannel)
         // @plugin dDiscordBot
         // @description
         // Returns a list of all channels in the group.
         // -->
         registerTag("channels", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                dList list = new dList();
+            public String run(Attribute attribute, ObjectTag object) {
+                ListTag list = new ListTag();
                 for (GuildChannel chan : ((dDiscordGroup) object).guild.getChannels().toIterable()) {
                     list.addObject(new dDiscordChannel(((dDiscordGroup) object).bot, chan));
                 }
@@ -127,15 +127,15 @@ public class dDiscordGroup implements dObject {
 
         // <--[tag]
         // @attribute <discordgroup@group.roles>
-        // @returns dList(DiscordRole)
+        // @returns ListTag(DiscordRole)
         // @plugin dDiscordBot
         // @description
         // Returns a list of all roles in the group.
         // -->
         registerTag("roles", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                dList list = new dList();
+            public String run(Attribute attribute, ObjectTag object) {
+                ListTag list = new ListTag();
                 for (Role role : ((dDiscordGroup) object).guild.getRoles().toIterable()) {
                     list.addObject(new dDiscordRole(((dDiscordGroup) object).bot, role));
                 }
@@ -156,7 +156,7 @@ public class dDiscordGroup implements dObject {
         // -->
         registerTag("member", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
+            public String run(Attribute attribute, ObjectTag object) {
                 if (!attribute.hasContext(1)) {
                     return null;
                 }
@@ -187,7 +187,7 @@ public class dDiscordGroup implements dObject {
         // -->
         registerTag("channel", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
+            public String run(Attribute attribute, ObjectTag object) {
                 if (!attribute.hasContext(1)) {
                     return null;
                 }
@@ -238,7 +238,7 @@ public class dDiscordGroup implements dObject {
             return tr.run(attribute, this);
         }
 
-        return new Element(identify()).getAttribute(attribute);
+        return new ElementTag(identify()).getAttribute(attribute);
     }
 
     String prefix = "discordgroup";
@@ -282,7 +282,7 @@ public class dDiscordGroup implements dObject {
     }
 
     @Override
-    public dObject setPrefix(String prefix) {
+    public ObjectTag setPrefix(String prefix) {
         if (prefix != null) {
             this.prefix = prefix;
         }

@@ -13,7 +13,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import java.util.HashMap;
 import java.util.List;
 
-public class dDiscordRole implements dObject {
+public class dDiscordRole implements ObjectTag {
 
     @Fetchable("discordrole")
     public static dDiscordRole valueOf(String string, TagContext context) {
@@ -108,45 +108,45 @@ public class dDiscordRole implements dObject {
 
         // <--[tag]
         // @attribute <discordrole@role.name>
-        // @returns Element
+        // @returns ElementTag
         // @plugin dDiscordBot
         // @description
         // Returns the name of the role.
         // -->
         registerTag("name", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordRole) object).role.getName())
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordRole) object).role.getName())
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discordrole@role.id>
-        // @returns Element(Number)
+        // @returns ElementTag(Number)
         // @plugin dDiscordBot
         // @description
         // Returns the ID number of the role.
         // -->
         registerTag("id", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordRole) object).role_id)
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordRole) object).role_id)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
         // @attribute <discordrole@role.mention>
-        // @returns Element
+        // @returns ElementTag
         // @plugin dDiscordBot
         // @description
         // Returns the raw mention string the role.
         // -->
         registerTag("mention", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
-                return new Element(((dDiscordRole) object).role.getMention())
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((dDiscordRole) object).role.getMention())
                         .getAttribute(attribute.fulfill(1));
             }
         });
@@ -160,7 +160,7 @@ public class dDiscordRole implements dObject {
         // -->
         registerTag("group", new TagRunnable() {
             @Override
-            public String run(Attribute attribute, dObject object) {
+            public String run(Attribute attribute, ObjectTag object) {
                 return new dDiscordGroup(((dDiscordRole) object).bot, ((dDiscordRole) object).role.getGuild().block())
                         .getAttribute(attribute.fulfill(1));
             }
@@ -193,7 +193,7 @@ public class dDiscordRole implements dObject {
             return tr.run(attribute, this);
         }
 
-        return new Element(identify()).getAttribute(attribute);
+        return new ElementTag(identify()).getAttribute(attribute);
     }
 
     String prefix = "discordrole";
@@ -237,7 +237,7 @@ public class dDiscordRole implements dObject {
     }
 
     @Override
-    public dObject setPrefix(String prefix) {
+    public ObjectTag setPrefix(String prefix) {
         if (prefix != null) {
             this.prefix = prefix;
         }

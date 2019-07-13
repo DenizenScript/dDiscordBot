@@ -2,8 +2,8 @@ package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
-import com.denizenscript.denizencore.objects.Element;
-import com.denizenscript.denizencore.objects.dObject;
+import com.denizenscript.denizencore.objects.ElementTag;
+import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.scripts.containers.ScriptContainer;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 
@@ -51,18 +51,18 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
     }
 
     @Override
-    public dObject getContext(String name) {
+    public ObjectTag getContext(String name) {
         if (name.equals("group")) {
-            return new Element(getEvent().getGuildId().asLong());
+            return new ElementTag(getEvent().getGuildId().asLong());
         }
         else if (name.equals("group_name")) {
-            return new Element(getEvent().getGuild().block().getName());
+            return new ElementTag(getEvent().getGuild().block().getName());
         }
         else if (name.equals("user_id")) {
-            return new Element(getEvent().getMember().get().getId().asLong());
+            return new ElementTag(getEvent().getMember().get().getId().asLong());
         }
         else if (name.equals("user_name")) {
-            return new Element(getEvent().getMember().get().getUsername());
+            return new ElementTag(getEvent().getMember().get().getUsername());
         }
         return super.getContext(name);
     }

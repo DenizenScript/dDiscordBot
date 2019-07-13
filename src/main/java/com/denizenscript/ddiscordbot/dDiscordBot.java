@@ -5,7 +5,7 @@ import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.events.ScriptEvent;
-import com.denizenscript.denizencore.objects.Element;
+import com.denizenscript.denizencore.objects.ElementTag;
 import com.denizenscript.denizencore.objects.ObjectFetcher;
 import com.denizenscript.denizencore.objects.TagRunnable;
 import com.denizenscript.denizencore.tags.Attribute;
@@ -72,13 +72,13 @@ public class dDiscordBot extends JavaPlugin {
 
         // <--[tag]
         // @attribute <discord[<bot-id>].exists>
-        // @returns Element(Boolean)
+        // @returns ElementTag(Boolean)
         // @plugin dDiscordBot
         // @description
         // Returns whether a Discord bot exists with the given bot ID.
         // -->
         if (attribute.startsWith("exists")) {
-            event.setReplacedObject(CoreUtilities.autoAttrib(new Element(bot != null), attribute.fulfill(1)));
+            event.setReplacedObject(CoreUtilities.autoAttrib(new ElementTag(bot != null), attribute.fulfill(1)));
             return;
         }
 
