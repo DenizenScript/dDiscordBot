@@ -5,7 +5,7 @@ import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.events.ScriptEvent;
-import com.denizenscript.denizencore.objects.ElementTag;
+import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.ObjectFetcher;
 import com.denizenscript.denizencore.objects.TagRunnable;
 import com.denizenscript.denizencore.tags.Attribute;

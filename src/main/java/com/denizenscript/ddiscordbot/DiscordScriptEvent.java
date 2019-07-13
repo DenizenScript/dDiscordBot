@@ -3,7 +3,7 @@ package com.denizenscript.ddiscordbot;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.entity.User;
 import com.denizenscript.denizencore.events.ScriptEvent;
-import com.denizenscript.denizencore.objects.ElementTag;
+import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import reactor.core.publisher.Flux;
 

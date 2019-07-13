@@ -3,6 +3,7 @@ package com.denizenscript.ddiscordbot.objects;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.dDiscordBot;
 import com.denizenscript.denizencore.objects.*;
+import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import discord4j.core.object.entity.Role;
 import discord4j.core.object.util.Snowflake;
