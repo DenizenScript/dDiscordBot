@@ -34,16 +34,16 @@ public class dDiscordBot extends JavaPlugin {
             ScriptEvent.registerScriptEvent(DiscordUserJoinsScriptEvent.instance = new DiscordUserJoinsScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserLeavesScriptEvent.instance = new DiscordUserLeavesScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserRoleChangeScriptEvent.instance = new DiscordUserRoleChangeScriptEvent());
-            ObjectFetcher.registerWithObjectFetcher(dDiscordChannel.class);
-            dDiscordChannel.registerTags();
-            ObjectFetcher.registerWithObjectFetcher(dDiscordConnection.class);
-            dDiscordConnection.registerTags();
-            ObjectFetcher.registerWithObjectFetcher(dDiscordGroup.class);
-            dDiscordGroup.registerTags();
-            ObjectFetcher.registerWithObjectFetcher(dDiscordRole.class);
-            dDiscordRole.registerTags();
-            ObjectFetcher.registerWithObjectFetcher(dDiscordUser.class);
-            dDiscordUser.registerTags();
+            ObjectFetcher.registerWithObjectFetcher(DiscordChannelTag.class);
+            DiscordChannelTag.registerTags();
+            ObjectFetcher.registerWithObjectFetcher(DiscordBotTag.class);
+            DiscordBotTag.registerTags();
+            ObjectFetcher.registerWithObjectFetcher(DiscordGroupTag.class);
+            DiscordGroupTag.registerTags();
+            ObjectFetcher.registerWithObjectFetcher(DiscordRoleTag.class);
+            DiscordRoleTag.registerTags();
+            ObjectFetcher.registerWithObjectFetcher(DiscordUserTag.class);
+            DiscordUserTag.registerTags();
             ObjectFetcher._initialize();
             TagManager.registerTagHandler(new TagRunnable.RootForm() {
                 @Override
@@ -62,10 +62,10 @@ public class dDiscordBot extends JavaPlugin {
             return;
         }
 
-        dDiscordConnection bot = null;
+        DiscordBotTag bot = null;
 
         if (event.hasNameContext()) {
-            bot = dDiscordConnection.valueOf(event.getNameContext(), event.getAttributes().context);
+            bot = DiscordBotTag.valueOf(event.getNameContext(), event.getAttributes().context);
         }
 
         Attribute attribute = event.getAttributes().fulfill(1);

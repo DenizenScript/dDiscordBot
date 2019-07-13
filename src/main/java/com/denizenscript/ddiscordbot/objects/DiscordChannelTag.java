@@ -4,10 +4,8 @@ import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.dDiscordBot;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
-import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
-import discord4j.core.object.entity.Role;
-import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
@@ -15,12 +13,12 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 import java.util.HashMap;
 
-public class dDiscordUser implements ObjectTag {
+public class DiscordChannelTag implements ObjectTag {
 
-    @Fetchable("discorduser")
-    public static dDiscordUser valueOf(String string, TagContext context) {
-        if (string.startsWith("discorduser@")) {
-            string = string.substring("discorduser@".length());
+    @Fetchable("discordchannel")
+    public static DiscordChannelTag valueOf(String string, TagContext context) {
+        if (string.startsWith("discordchannel@")) {
+            string = string.substring("discordchannel@".length());
         }
         if (string.contains("@")) {
             return null;
@@ -31,15 +29,15 @@ public class dDiscordUser implements ObjectTag {
             bot = CoreUtilities.toLowerCase(string.substring(0, comma));
             string = string.substring(comma + 1);
         }
-        long usrId = ArgumentHelper.getLongFrom(string);
-        if (usrId == 0) {
+        long chanID = ArgumentHelper.getLongFrom(string);
+        if (chanID == 0) {
             return null;
         }
-        return new dDiscordUser(bot, usrId);
+        return new DiscordChannelTag(bot, chanID);
     }
 
     public static boolean matches(String arg) {
-        if (arg.startsWith("discorduser@")) {
+        if (arg.startsWith("discordchannel@")) {
             return true;
         }
         if (arg.contains("@")) {
@@ -55,98 +53,123 @@ public class dDiscordUser implements ObjectTag {
         return ArgumentHelper.matchesInteger(arg.substring(comma + 1));
     }
 
-    public dDiscordUser(String bot, long userId) {
+    public DiscordChannelTag(String bot, long channelId) {
         this.bot = bot;
-        this.user_id = userId;
+        this.channel_id = channelId;
         if (bot != null) {
             DiscordConnection conn = dDiscordBot.instance.connections.get(bot);
             if (conn != null) {
-                user = conn.client.getUserById(Snowflake.of(user_id)).block();
+                channel = conn.client.getChannelById(Snowflake.of(channel_id)).block();
             }
         }
     }
 
-    public dDiscordUser(String bot, User user) {
+    public DiscordChannelTag(String bot, Channel channel) {
         this.bot = bot;
-        this.user = user;
-        user_id = user.getId().asLong();
+        this.channel = channel;
+        channel_id = channel.getId().asLong();
     }
 
-    public User user;
+    public Channel channel;
 
     public String bot;
 
-    public long user_id;
+    public long channel_id;
 
     public static void registerTags() {
 
         // <--[tag]
-        // @attribute <discorduser@user.name>
+        // @attribute <DiscordChannelTag.name>
         // @returns ElementTag
         // @plugin dDiscordBot
         // @description
-        // Returns the user name of the user.
+        // Returns the name of the channel.
         // -->
         registerTag("name", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((dDiscordUser) object).user.getUsername())
+                Channel chan = ((DiscordChannelTag) object).channel;
+                String name;
+                if (chan instanceof GuildChannel) {
+                    name = ((GuildChannel) chan).getName();
+                }
+                else if (chan instanceof PrivateChannel) {
+                    name = "private";
+                }
+                else {
+                    name = "unknown";
+                }
+                return new ElementTag(name)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discorduser@user.id>
+        // @attribute <DiscordChannelTag.type>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the type of the channel.
+        // Will be any of: GUILD_TEXT, DM, GUILD_VOICE, GROUP_DM, GUILD_CATEGORY
+        // -->
+        registerTag("type", new TagRunnable() {
+            @Override
+            public String run(Attribute attribute, ObjectTag object) {
+                return new ElementTag(((DiscordChannelTag) object).channel.getType().name())
+                        .getAttribute(attribute.fulfill(1));
+            }
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.id>
         // @returns ElementTag(Number)
         // @plugin dDiscordBot
         // @description
-        // Returns the ID number of the user.
+        // Returns the ID number of the channel.
         // -->
         registerTag("id", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((dDiscordUser) object).user_id)
+                return new ElementTag(((DiscordChannelTag) object).channel_id)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discorduser@user.mention>
+        // @attribute <DiscordChannelTag.mention>
         // @returns ElementTag
         // @plugin dDiscordBot
         // @description
-        // Returns the raw mention string for the user.
+        // Returns the raw mention string for the channel.
         // -->
         registerTag("mention", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((dDiscordUser) object).user.getMention())
+                return new ElementTag(((DiscordChannelTag) object).channel.getMention())
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discorduser@user.roles[<group>]>
-        // @returns ListTag(DiscordRole)
+        // @attribute <DiscordChannelTag.group>
+        // @returns DiscordGroupTag
         // @plugin dDiscordBot
         // @description
-        // Returns a list of all roles the user has in the given group.
+        // Returns the group that owns this channel.
         // -->
-        registerTag("roles", new TagRunnable() {
+        registerTag("group", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                if (!attribute.hasContext(1)) {
+                Channel chan = ((DiscordChannelTag) object).channel;
+                Guild guild;
+                if (chan instanceof GuildChannel) {
+                    guild = ((GuildChannel) chan).getGuild().block();
+                }
+                else {
                     return null;
                 }
-                dDiscordGroup group = dDiscordGroup.valueOf(attribute.getContext(1), attribute.context);
-                if (group == null) {
-                    return null;
-                }
-                ListTag list = new ListTag();
-                for (Role role : ((dDiscordUser) object).user.asMember(Snowflake.of(group.guild_id)).block().getRoles().toIterable()) {
-                    list.addObject(new dDiscordRole(((dDiscordUser) object).bot, role));
-                }
-                return list.getAttribute(attribute.fulfill(1));
+                return new DiscordGroupTag(((DiscordChannelTag) object).bot, guild)
+                        .getAttribute(attribute.fulfill(1));
             }
         });
     }
@@ -180,7 +203,7 @@ public class dDiscordUser implements ObjectTag {
         return new ElementTag(identify()).getAttribute(attribute);
     }
 
-    String prefix = "discorduser";
+    String prefix = "discordchannel";
 
     @Override
     public String getPrefix() {
@@ -199,15 +222,15 @@ public class dDiscordUser implements ObjectTag {
 
     @Override
     public String getObjectType() {
-        return "DiscordUser";
+        return "DiscordChannel";
     }
 
     @Override
     public String identify() {
         if (bot != null) {
-            return "discorduser@" + bot + "," + user_id;
+            return "discordchannel@" + bot + "," + channel_id;
         }
-        return "discorduser@" + user_id;
+        return "discordchannel@" + channel_id;
     }
 
     @Override

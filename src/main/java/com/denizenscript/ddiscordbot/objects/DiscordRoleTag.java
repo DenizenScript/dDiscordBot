@@ -14,10 +14,10 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import java.util.HashMap;
 import java.util.List;
 
-public class dDiscordRole implements ObjectTag {
+public class DiscordRoleTag implements ObjectTag {
 
     @Fetchable("discordrole")
-    public static dDiscordRole valueOf(String string, TagContext context) {
+    public static DiscordRoleTag valueOf(String string, TagContext context) {
         if (string.startsWith("discordrole@")) {
             string = string.substring("discordrole@".length());
         }
@@ -30,7 +30,7 @@ public class dDiscordRole implements ObjectTag {
             if (roleId == 0) {
                 return null;
             }
-            return new dDiscordRole(null, 0, roleId);
+            return new DiscordRoleTag(null, 0, roleId);
         }
         else if (input.size() == 3) {
             long guildId = ArgumentHelper.getLongFrom(input.get(1));
@@ -38,7 +38,7 @@ public class dDiscordRole implements ObjectTag {
             if (guildId == 0 || roleId == 0) {
                 return null;
             }
-            return new dDiscordRole(input.get(0), guildId, roleId);
+            return new DiscordRoleTag(input.get(0), guildId, roleId);
         }
         else if (input.size() == 2) {
             long guildId = ArgumentHelper.getLongFrom(input.get(0));
@@ -46,7 +46,7 @@ public class dDiscordRole implements ObjectTag {
             if (guildId == 0 || roleId == 0) {
                 return null;
             }
-            return new dDiscordRole(null, guildId, roleId);
+            return new DiscordRoleTag(null, guildId, roleId);
         }
         else {
             return null;
@@ -75,7 +75,7 @@ public class dDiscordRole implements ObjectTag {
         return ArgumentHelper.matchesInteger(after.substring(secondComma + 1)) && ArgumentHelper.matchesInteger(after.substring(0, secondComma));
     }
 
-    public dDiscordRole(String bot, long guildId, long roleId) {
+    public DiscordRoleTag(String bot, long guildId, long roleId) {
         if (bot != null) {
             bot = CoreUtilities.toLowerCase(bot);
         }
@@ -90,7 +90,7 @@ public class dDiscordRole implements ObjectTag {
         }
     }
 
-    public dDiscordRole(String bot, Role role) {
+    public DiscordRoleTag(String bot, Role role) {
         this.bot = bot;
         this.role = role;
         role_id = role.getId().asLong();
@@ -108,7 +108,7 @@ public class dDiscordRole implements ObjectTag {
     public static void registerTags() {
 
         // <--[tag]
-        // @attribute <discordrole@role.name>
+        // @attribute <DiscordRoleTag.name>
         // @returns ElementTag
         // @plugin dDiscordBot
         // @description
@@ -117,13 +117,13 @@ public class dDiscordRole implements ObjectTag {
         registerTag("name", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((dDiscordRole) object).role.getName())
+                return new ElementTag(((DiscordRoleTag) object).role.getName())
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discordrole@role.id>
+        // @attribute <DiscordRoleTag.id>
         // @returns ElementTag(Number)
         // @plugin dDiscordBot
         // @description
@@ -132,13 +132,13 @@ public class dDiscordRole implements ObjectTag {
         registerTag("id", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((dDiscordRole) object).role_id)
+                return new ElementTag(((DiscordRoleTag) object).role_id)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discordrole@role.mention>
+        // @attribute <DiscordRoleTag.mention>
         // @returns ElementTag
         // @plugin dDiscordBot
         // @description
@@ -147,14 +147,14 @@ public class dDiscordRole implements ObjectTag {
         registerTag("mention", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((dDiscordRole) object).role.getMention())
+                return new ElementTag(((DiscordRoleTag) object).role.getMention())
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discordrole@role.group>
-        // @returns DiscordGroup
+        // @attribute <DiscordRoleTag.group>
+        // @returns DiscordGroupTag
         // @plugin dDiscordBot
         // @description
         // Returns the group that owns this role.
@@ -162,7 +162,7 @@ public class dDiscordRole implements ObjectTag {
         registerTag("group", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                return new dDiscordGroup(((dDiscordRole) object).bot, ((dDiscordRole) object).role.getGuild().block())
+                return new DiscordGroupTag(((DiscordRoleTag) object).bot, ((DiscordRoleTag) object).role.getGuild().block())
                         .getAttribute(attribute.fulfill(1));
             }
         });

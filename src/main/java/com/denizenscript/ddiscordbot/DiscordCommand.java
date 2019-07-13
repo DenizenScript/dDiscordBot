@@ -1,9 +1,9 @@
 package com.denizenscript.ddiscordbot;
 
-import com.denizenscript.ddiscordbot.objects.dDiscordChannel;
-import com.denizenscript.ddiscordbot.objects.dDiscordGroup;
-import com.denizenscript.ddiscordbot.objects.dDiscordRole;
-import com.denizenscript.ddiscordbot.objects.dDiscordUser;
+import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
+import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
+import com.denizenscript.ddiscordbot.objects.DiscordRoleTag;
+import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.objects.Argument;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
@@ -110,8 +110,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             }
             else if (!scriptEntry.hasObject("channel")
                     && arg.matchesPrefix("channel")
-                    && arg.matchesArgumentType(dDiscordChannel.class)) {
-                scriptEntry.addObject("channel", arg.asType(dDiscordChannel.class));
+                    && arg.matchesArgumentType(DiscordChannelTag.class)) {
+                scriptEntry.addObject("channel", arg.asType(DiscordChannelTag.class));
             }
             else if (!scriptEntry.hasObject("url")
                     && arg.matchesPrefix("url")) {
@@ -119,18 +119,18 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             }
             else if (!scriptEntry.hasObject("user")
                     && arg.matchesPrefix("user")
-                    && arg.matchesArgumentType(dDiscordUser.class)) {
-                scriptEntry.addObject("user", arg.asType(dDiscordUser.class));
+                    && arg.matchesArgumentType(DiscordUserTag.class)) {
+                scriptEntry.addObject("user", arg.asType(DiscordUserTag.class));
             }
             else if (!scriptEntry.hasObject("group")
                     && arg.matchesPrefix("group")
-                    && arg.matchesArgumentType(dDiscordGroup.class)) {
-                scriptEntry.addObject("group", arg.asType(dDiscordGroup.class));
+                    && arg.matchesArgumentType(DiscordGroupTag.class)) {
+                scriptEntry.addObject("group", arg.asType(DiscordGroupTag.class));
             }
             else if (!scriptEntry.hasObject("role")
                     && arg.matchesPrefix("role")
-                    && arg.matchesArgumentType(dDiscordRole.class)) {
-                scriptEntry.addObject("role", arg.asType(dDiscordRole.class));
+                    && arg.matchesArgumentType(DiscordRoleTag.class)) {
+                scriptEntry.addObject("role", arg.asType(DiscordRoleTag.class));
             }
             else if (!scriptEntry.hasObject("status")
                     && arg.matchesPrefix("status")) {
@@ -201,13 +201,13 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         ElementTag id = scriptEntry.getElement("id");
         ElementTag instruction = scriptEntry.getElement("instruction");
         ElementTag code = scriptEntry.getElement("code"); // Intentionally do not debug this value.
-        dDiscordChannel channel = scriptEntry.getdObject("channel");
+        DiscordChannelTag channel = scriptEntry.getdObject("channel");
         ElementTag message = scriptEntry.getElement("message");
         ElementTag status = scriptEntry.getElement("status");
         ElementTag activity = scriptEntry.getElement("activity");
-        dDiscordUser user = scriptEntry.getdObject("user");
-        dDiscordGroup guild = scriptEntry.getdObject("group");
-        dDiscordRole role = scriptEntry.getdObject("role");
+        DiscordUserTag user = scriptEntry.getdObject("user");
+        DiscordGroupTag guild = scriptEntry.getdObject("group");
+        DiscordRoleTag role = scriptEntry.getdObject("role");
         ElementTag url = scriptEntry.getElement("url");
 
         // Debug the execution

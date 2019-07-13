@@ -13,10 +13,10 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 import java.util.HashMap;
 
-public class dDiscordConnection implements ObjectTag {
+public class DiscordBotTag implements ObjectTag {
 
     @Fetchable("discord")
-    public static dDiscordConnection valueOf(String string, TagContext context) {
+    public static DiscordBotTag valueOf(String string, TagContext context) {
         if (string.startsWith("discord@")) {
             string = string.substring("discord@".length());
         }
@@ -27,7 +27,7 @@ public class dDiscordConnection implements ObjectTag {
         if (!dDiscordBot.instance.connections.containsKey(string)) {
             return null;
         }
-        return new dDiscordConnection(string);
+        return new DiscordBotTag(string);
     }
 
     public static boolean matches(String arg) {
@@ -47,7 +47,7 @@ public class dDiscordConnection implements ObjectTag {
         return ArgumentHelper.matchesInteger(arg.substring(comma + 1));
     }
 
-    public dDiscordConnection(String bot) {
+    public DiscordBotTag(String bot) {
         this.bot = bot;
     }
 
@@ -56,7 +56,7 @@ public class dDiscordConnection implements ObjectTag {
     public static void registerTags() {
 
         // <--[tag]
-        // @attribute <discord@bot.name>
+        // @attribute <DiscordBotTag.name>
         // @returns ElementTag
         // @plugin dDiscordBot
         // @description
@@ -65,14 +65,14 @@ public class dDiscordConnection implements ObjectTag {
         registerTag("name", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((dDiscordConnection) object).bot)
+                return new ElementTag(((DiscordBotTag) object).bot)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discord@bot.groups>
-        // @returns ListTag(DiscordGroup)
+        // @attribute <DiscordBotTag.groups>
+        // @returns ListTag(DiscordGroupTag)
         // @plugin dDiscordBot
         // @description
         // Returns a list of all groups (aka 'guilds' or 'servers') that this Discord bot has access to.
@@ -80,21 +80,21 @@ public class dDiscordConnection implements ObjectTag {
         registerTag("groups", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                DiscordConnection connection = dDiscordBot.instance.connections.get(((dDiscordConnection) object).bot);
+                DiscordConnection connection = dDiscordBot.instance.connections.get(((DiscordBotTag) object).bot);
                 if (connection == null) {
                     return null;
                 }
                 ListTag list = new ListTag();
                 for (Guild guild : connection.client.getGuilds().toIterable()) {
-                    list.addObject(new dDiscordGroup(((dDiscordConnection) object).bot, guild));
+                    list.addObject(new DiscordGroupTag(((DiscordBotTag) object).bot, guild));
                 }
                 return list.getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discord@bot.group[<name>]>
-        // @returns DiscordGroup
+        // @attribute <DiscordBotTag.group[<name>]>
+        // @returns DiscordGroupTag
         // @plugin dDiscordBot
         // @description
         // Returns the Discord group (aka 'guild' or 'server') that best matches the input name, or null if there's no match.
@@ -105,7 +105,7 @@ public class dDiscordConnection implements ObjectTag {
                 if (!attribute.hasContext(1)) {
                     return null;
                 }
-                DiscordConnection connection = dDiscordBot.instance.connections.get(((dDiscordConnection) object).bot);
+                DiscordConnection connection = dDiscordBot.instance.connections.get(((DiscordBotTag) object).bot);
                 if (connection == null) {
                     return null;
                 }
@@ -124,7 +124,7 @@ public class dDiscordConnection implements ObjectTag {
                 if (bestMatch == null) {
                     return null;
                 }
-                return new dDiscordGroup(((dDiscordConnection) object).bot, bestMatch)
+                return new DiscordGroupTag(((DiscordBotTag) object).bot, bestMatch)
                         .getAttribute(attribute.fulfill(1));
             }
         });

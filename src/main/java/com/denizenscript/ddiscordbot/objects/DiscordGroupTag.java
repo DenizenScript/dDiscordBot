@@ -14,10 +14,10 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 import java.util.HashMap;
 
-public class dDiscordGroup implements ObjectTag {
+public class DiscordGroupTag implements ObjectTag {
 
     @Fetchable("discordgroup")
-    public static dDiscordGroup valueOf(String string, TagContext context) {
+    public static DiscordGroupTag valueOf(String string, TagContext context) {
         if (string.startsWith("discordgroup@")) {
             string = string.substring("discordgroup@".length());
         }
@@ -34,7 +34,7 @@ public class dDiscordGroup implements ObjectTag {
         if (grpId == 0) {
             return null;
         }
-        return new dDiscordGroup(bot, grpId);
+        return new DiscordGroupTag(bot, grpId);
     }
 
     public static boolean matches(String arg) {
@@ -54,7 +54,7 @@ public class dDiscordGroup implements ObjectTag {
         return ArgumentHelper.matchesInteger(arg.substring(comma + 1));
     }
 
-    public dDiscordGroup(String bot, long guildId) {
+    public DiscordGroupTag(String bot, long guildId) {
         this.bot = bot;
         this.guild_id = guildId;
         if (bot != null) {
@@ -65,7 +65,7 @@ public class dDiscordGroup implements ObjectTag {
         }
     }
 
-    public dDiscordGroup(String bot, Guild guild) {
+    public DiscordGroupTag(String bot, Guild guild) {
         this.bot = bot;
         this.guild = guild;
         guild_id = guild.getId().asLong();
@@ -80,7 +80,7 @@ public class dDiscordGroup implements ObjectTag {
     public static void registerTags() {
 
         // <--[tag]
-        // @attribute <discordgroup@group.name>
+        // @attribute <DiscordGroupTag.name>
         // @returns ElementTag
         // @plugin dDiscordBot
         // @description
@@ -89,13 +89,13 @@ public class dDiscordGroup implements ObjectTag {
         registerTag("name", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((dDiscordGroup) object).guild.getName())
+                return new ElementTag(((DiscordGroupTag) object).guild.getName())
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discordgroup@group.id>
+        // @attribute <DiscordGroupTag.id>
         // @returns ElementTag(Number)
         // @plugin dDiscordBot
         // @description
@@ -104,14 +104,14 @@ public class dDiscordGroup implements ObjectTag {
         registerTag("id", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((dDiscordGroup) object).guild_id)
+                return new ElementTag(((DiscordGroupTag) object).guild_id)
                         .getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discordgroup@group.channels>
-        // @returns ListTag(DiscordChannel)
+        // @attribute <DiscordGroupTag.channels>
+        // @returns ListTag(DiscordChannelTag)
         // @plugin dDiscordBot
         // @description
         // Returns a list of all channels in the group.
@@ -120,16 +120,16 @@ public class dDiscordGroup implements ObjectTag {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
                 ListTag list = new ListTag();
-                for (GuildChannel chan : ((dDiscordGroup) object).guild.getChannels().toIterable()) {
-                    list.addObject(new dDiscordChannel(((dDiscordGroup) object).bot, chan));
+                for (GuildChannel chan : ((DiscordGroupTag) object).guild.getChannels().toIterable()) {
+                    list.addObject(new DiscordChannelTag(((DiscordGroupTag) object).bot, chan));
                 }
                 return list.getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discordgroup@group.roles>
-        // @returns ListTag(DiscordRole)
+        // @attribute <DiscordGroupTag.roles>
+        // @returns ListTag(DiscordRoleTag)
         // @plugin dDiscordBot
         // @description
         // Returns a list of all roles in the group.
@@ -138,16 +138,16 @@ public class dDiscordGroup implements ObjectTag {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
                 ListTag list = new ListTag();
-                for (Role role : ((dDiscordGroup) object).guild.getRoles().toIterable()) {
-                    list.addObject(new dDiscordRole(((dDiscordGroup) object).bot, role));
+                for (Role role : ((DiscordGroupTag) object).guild.getRoles().toIterable()) {
+                    list.addObject(new DiscordRoleTag(((DiscordGroupTag) object).bot, role));
                 }
                 return list.getAttribute(attribute.fulfill(1));
             }
         });
 
         // <--[tag]
-        // @attribute <discordgroup@group.member[<name>]>
-        // @returns DiscordUser
+        // @attribute <DiscordGroupTag.member[<name>]>
+        // @returns DiscordUserTag
         // @plugin dDiscordBot
         // @description
         // Returns the group member that best matches the input name, or null if there's no match.
@@ -171,9 +171,9 @@ public class dDiscordGroup implements ObjectTag {
                 }
                 final String discrim = discrimVal;
                 final String matchName = matchString;
-                for (Member member : ((dDiscordGroup) object).guild.getMembers().filter(
+                for (Member member : ((DiscordGroupTag) object).guild.getMembers().filter(
                         m -> matchName.equalsIgnoreCase(m.getUsername()) && (discrim == null || discrim.equals(m.getDiscriminator()))).toIterable()) {
-                    return new dDiscordUser(((dDiscordGroup) object).bot, member.getId().asLong())
+                    return new DiscordUserTag(((DiscordGroupTag) object).bot, member.getId().asLong())
                             .getAttribute(attribute.fulfill(1));
                 }
                 return null;
@@ -181,8 +181,8 @@ public class dDiscordGroup implements ObjectTag {
         });
 
         // <--[tag]
-        // @attribute <discordgroup@group.channel[<name>]>
-        // @returns DiscordChannel
+        // @attribute <DiscordGroupTag.channel[<name>]>
+        // @returns DiscordChannelTag
         // @plugin dDiscordBot
         // @description
         // Returns the channel that best matches the input name, or null if there's no match.
@@ -195,7 +195,7 @@ public class dDiscordGroup implements ObjectTag {
                 }
                 String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
                 Channel bestMatch = null;
-                for (GuildChannel chan : ((dDiscordGroup) object).guild.getChannels().toIterable()) {
+                for (GuildChannel chan : ((DiscordGroupTag) object).guild.getChannels().toIterable()) {
                     String chanName = CoreUtilities.toLowerCase(chan.getName());
                     if (matchString.equals(chanName)) {
                         bestMatch = chan;
@@ -208,7 +208,7 @@ public class dDiscordGroup implements ObjectTag {
                 if (bestMatch == null) {
                     return null;
                 }
-                return new dDiscordChannel(((dDiscordGroup) object).bot, bestMatch)
+                return new DiscordChannelTag(((DiscordGroupTag) object).bot, bestMatch)
                         .getAttribute(attribute.fulfill(1));
             }
         });
