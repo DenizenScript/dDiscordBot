@@ -2,7 +2,7 @@ package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.events.*;
 import com.denizenscript.ddiscordbot.objects.*;
-import net.aufdemrand.denizen.utilities.debugging.dB;
+import com.denizenscript.denizencore.utilities.debugging.dB;
 import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.events.ScriptEvent;
 import com.denizenscript.denizencore.objects.Element;
