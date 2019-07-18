@@ -201,13 +201,13 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         ElementTag id = scriptEntry.getElement("id");
         ElementTag instruction = scriptEntry.getElement("instruction");
         ElementTag code = scriptEntry.getElement("code"); // Intentionally do not debug this value.
-        DiscordChannelTag channel = scriptEntry.getdObject("channel");
+        DiscordChannelTag channel = scriptEntry.getObjectTag("channel");
         ElementTag message = scriptEntry.getElement("message");
         ElementTag status = scriptEntry.getElement("status");
         ElementTag activity = scriptEntry.getElement("activity");
-        DiscordUserTag user = scriptEntry.getdObject("user");
-        DiscordGroupTag guild = scriptEntry.getdObject("group");
-        DiscordRoleTag role = scriptEntry.getdObject("role");
+        DiscordUserTag user = scriptEntry.getObjectTag("user");
+        DiscordGroupTag guild = scriptEntry.getObjectTag("group");
+        DiscordRoleTag role = scriptEntry.getObjectTag("role");
         ElementTag url = scriptEntry.getElement("url");
 
         // Debug the execution
