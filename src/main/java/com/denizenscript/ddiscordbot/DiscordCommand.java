@@ -94,7 +94,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         // Interpret arguments
-        for (Argument arg : ArgumentHelper.interpret(scriptEntry.getArguments())) {
+        for (Argument arg : scriptEntry.getProcessedArgs()) {
 
             if (!scriptEntry.hasObject("id")
                     && arg.matchesPrefix("id")) {
