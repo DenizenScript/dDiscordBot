@@ -15,7 +15,6 @@ import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
-import com.denizenscript.denizencore.objects.ArgumentHelper;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
@@ -49,7 +48,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to connect to Discord via a bot code.
-    // - discord id:mybot connect code:<def[code]>
+    // - discord id:mybot connect code:<[code]>
     //
     // @Usage
     // Use to disconnect from Discord.
@@ -61,15 +60,15 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to send a message to a user through a private channel.
-    // - discord id:mybot message user:<def[user]> "Hello world!"
+    // - discord id:mybot message user:<[user]> "Hello world!"
     //
     // @Usage
     // Use to add a role on a user in a Discord guild.
-    // - discord id:mybot addrole user:<def[user]> role:<def[role]> group:<def[group]>
+    // - discord id:mybot addrole user:<[user]> role:<[role]> group:<[group]>
     //
     // @Usage
     // Use to remove a role on a user in a Discord guild.
-    // - discord id:mybot removerole user:<def[user]> role:<def[role]> group:<def[group]>
+    // - discord id:mybot removerole user:<[user]> role:<[role]> group:<[group]>
     //
     // @Usage
     // Use to set the online status of the bot, and clear the game status.
@@ -81,11 +80,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to change the bot's nickname.
-    // - discord id:mybot rename "<def[nickname]>" group:<def[group]>
+    // - discord id:mybot rename "<[nickname]>" group:<[group]>
     //
     // @Usage
     // Use to give a user a new nickname.
-    // - discord id:mybot rename "<def[nickname]>" user:<def[user]> group:<def[group]>
+    // - discord id:mybot rename "<[nickname]>" user:<[user]> group:<[group]>
 
     // -->
 
