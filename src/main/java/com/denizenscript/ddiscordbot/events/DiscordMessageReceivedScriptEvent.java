@@ -1,6 +1,7 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
+import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.GuildChannel;
 import discord4j.core.object.entity.MessageChannel;
@@ -40,8 +41,7 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     // <context.message> returns the message (raw).
     // <context.no_mention_message> returns the message with all user mentions stripped.
     // <context.formatted_message> returns the formatted message (mentions/etc. are written cleanly). CURRENTLY NON-FUNCTIONAL.
-    // <context.author_id> returns the author's internal ID.
-    // <context.author_name> returns the author's name.
+    // <context.author> returns the user that authored the message.
     // <context.mentions> returns a list of all mentioned user IDs.
     // <context.mention_names> returns a list of all mentioned user names.
     // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
@@ -99,10 +99,13 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
         else if (name.equals("formatted_message")) {
             return new ElementTag(getEvent().getMessage().getContent().orElse(""));
         }
-        else if (name.equals("author_id")) {
+        else if (name.equals("author")) {
+            return new DiscordUserTag(botID, getEvent().getMessage().getAuthor().get());
+        }
+        else if (name.equals("author_id")) { // Deprecated
             return new ElementTag(getEvent().getMessage().getAuthor().get().getId().asLong());
         }
-        else if (name.equals("author_name")) {
+        else if (name.equals("author_name")) { // Deprecated
             return new ElementTag(getEvent().getMessage().getAuthor().get().getUsername());
         }
         else if (name.equals("mentions")) {

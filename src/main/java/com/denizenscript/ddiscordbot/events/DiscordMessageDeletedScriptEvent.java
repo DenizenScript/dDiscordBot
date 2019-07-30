@@ -1,6 +1,7 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
+import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.object.entity.GuildChannel;
 import discord4j.core.object.entity.MessageChannel;
@@ -37,8 +38,7 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     // <context.channel_name> returns the channel name.
     // <context.group> returns the group ID.
     // <context.group_name> returns the group name.
-    // <context.author_id> returns the author's internal ID.
-    // <context.author_name> returns the author's name.
+    // <context.author> returns the user that authored the message.
     // <context.mentions> returns a list of all mentioned user IDs.
     // <context.mention_names> returns a list of all mentioned user names.
     // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
@@ -110,12 +110,15 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
                 return new ElementTag(getEvent().getMessage().get().getContent().get());
             }
         }
-        else if (name.equals("author_id")) {
+        else if (name.equals("author")) {
+            return new DiscordUserTag(botID, getEvent().getMessage().get().getAuthor().get());
+        }
+        else if (name.equals("author_id")) { // Deprecated
             if (getEvent().getMessage().isPresent()) {
                 return new ElementTag(getEvent().getMessage().get().getAuthor().get().getId().asLong());
             }
         }
-        else if (name.equals("author_name")) {
+        else if (name.equals("author_name")) { // Deprecated
             if (getEvent().getMessage().isPresent()) {
                 return new ElementTag(getEvent().getMessage().get().getAuthor().get().getUsername());
             }

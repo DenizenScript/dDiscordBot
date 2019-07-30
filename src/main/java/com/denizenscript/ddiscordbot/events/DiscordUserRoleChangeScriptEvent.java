@@ -1,6 +1,7 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
+import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.guild.MemberUpdateEvent;
 import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.objects.core.ElementTag;
@@ -33,8 +34,7 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
     // <context.self> returns the bots own Discord user ID.
     // <context.group> returns the group ID.
     // <context.group_name> returns the group name.
-    // <context.user_id> returns the user's internal ID.
-    // <context.user_name> returns the user's name.
+    // <context.user> returns the user.
     // <context.old_roles_ids> returns a list of the user's previous role set.
     // <context.new_role_ids> returns a list of the user's new role set.
     // <context.added_role_ids> returns a list of the user's added role set.
@@ -104,10 +104,13 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
         else if (name.equals("group_name")) {
             return new ElementTag(getEvent().getGuild().block().getName());
         }
-        else if (name.equals("user_id")) {
+        else if (name.equals("user")) {
+            return new DiscordUserTag(botID, getEvent().getMember().block());
+        }
+        else if (name.equals("user_id")) { // Deprecated
             return new ElementTag(getEvent().getMember().block().getId().asLong());
         }
-        else if (name.equals("user_name")) {
+        else if (name.equals("user_name")) { // Deprecated
             return new ElementTag(getEvent().getMember().block().getUsername());
         }
         if (name.equals("old_role_ids")) {
