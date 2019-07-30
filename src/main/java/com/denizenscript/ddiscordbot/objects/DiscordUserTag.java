@@ -14,6 +14,7 @@ import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 public class DiscordUserTag implements ObjectTag {
 
@@ -91,6 +92,32 @@ public class DiscordUserTag implements ObjectTag {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
                 return new ElementTag(((DiscordUserTag) object).user.getUsername())
+                        .getAttribute(attribute.fulfill(1));
+            }
+        });
+
+        // <--[tag]
+        // @attribute <DiscordUserTag.nickname[<group>]>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the group-specific nickname of the user (if any).
+        // -->
+        registerTag("nickname", new TagRunnable() {
+            @Override
+            public String run(Attribute attribute, ObjectTag object) {
+                if (!attribute.hasContext(1)) {
+                    return null;
+                }
+                DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+                if (group == null) {
+                    return null;
+                }
+                Optional<String> nickname = ((DiscordUserTag) object).user.asMember(Snowflake.of(group.guild_id)).block().getNickname();
+                if (!nickname.isPresent()) {
+                    return null;
+                }
+                return new ElementTag(nickname.get())
                         .getAttribute(attribute.fulfill(1));
             }
         });
