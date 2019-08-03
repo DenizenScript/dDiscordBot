@@ -28,9 +28,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // @Name discord
     // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/addrole/removerole/status (status:<status>) (activity:<activity>)/rename] (<message>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
     // @Required 2
-    // @Stable unstable
     // @Short Connects to and interacts with Discord.
-    // @Author mcmonkey
     // @Plugin dDiscordBot
     // @Group external
     //
