@@ -22,6 +22,10 @@ import com.denizenscript.denizencore.scripts.queues.ScriptQueue;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import org.bukkit.Bukkit;
 
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+import java.util.function.Function;
+
 public class DiscordCommand extends AbstractCommand implements Holdable {
 
     // <--[command]
@@ -62,11 +66,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to add a role on a user in a Discord guild.
-    // - discord id:mybot addrole user:<[user]> role:<[role]> group:<[group]>
+    // - discord id:mybot add_role user:<[user]> role:<[role]> group:<[group]>
     //
     // @Usage
     // Use to remove a role on a user in a Discord guild.
-    // - discord id:mybot removerole user:<[user]> role:<[role]> group:<[group]>
+    // - discord id:mybot remove_role user:<[user]> role:<[role]> group:<[group]>
     //
     // @Usage
     // Use to set the online status of the bot, and clear the game status.
@@ -100,6 +104,14 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             else if (!scriptEntry.hasObject("instruction")
                     && arg.matchesEnum(DiscordInstruction.values())) {
                 scriptEntry.addObject("instruction", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("instruction")
+                    && arg.matches("addrole")) { // temporary - backsupport
+                scriptEntry.addObject("instruction", new ElementTag("add_role"));
+            }
+            else if (!scriptEntry.hasObject("instruction")
+                    && arg.matches("removerole")) { // temporary - backsupport
+                scriptEntry.addObject("instruction", new ElementTag("remove_role"));
             }
             else if (!scriptEntry.hasObject("code")
                     && arg.matchesPrefix("code")) {
@@ -221,10 +233,35 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
         DiscordClient client;
 
+        Supplier<Boolean> requireClientID = () -> {
+            if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
+                Debug.echoError(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: unknown ID!");
+                return true;
+            }
+            return false;
+        };
+        Function<DiscordClient, Boolean> requireClientObject = (_client) -> {
+            if (_client == null) {
+                Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                return true;
+            }
+            return false;
+        };
+        BiFunction<Object, String, Boolean> requireObject = (obj, name) -> {
+            if (obj == null) {
+                Debug.echoError(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: no " + name + " given!");
+                return true;
+            }
+            return false;
+        };
+        Supplier<Boolean> requireUser = () -> requireObject.apply(user, "user");
+        Supplier<Boolean> requireChannel = () -> requireObject.apply(channel, "channel");
+        Supplier<Boolean> requireMessage = () -> requireObject.apply(message, "message");
+        Supplier<Boolean> requireGuild = () -> requireObject.apply(guild, "guild");
+        Supplier<Boolean> requireRole = () -> requireObject.apply(role, "role");
         switch (DiscordInstruction.valueOf(instruction.asString().toUpperCase())) {
             case CONNECT:
-                if (code == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: no code given!");
+                if (requireObject.apply(code, "code")) {
                     return;
                 }
                 if (dDiscordBot.instance.connections.containsKey(id.asString())) {
@@ -241,28 +278,23 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 dct.start();
                 break;
             case DISCONNECT:
-                if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to disconnect: unknown ID!");
+                if (requireClientID.get()) {
                     return;
                 }
                 dDiscordBot.instance.connections.remove(id.asString()).client.logout();
                 break;
             case MESSAGE:
                 if (channel == null && user == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to send message: no channel given!");
+                    if (!requireChannel.get()) {
+                        requireUser.get();
+                    }
                     return;
                 }
-                if (message == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to send message: no message given!");
-                    return;
-                }
-                if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to send message: unknown ID!");
+                if (requireClientID.get() || requireMessage.get()) {
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
                 if (client == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                     return;
                 }
                 if (channel == null) {
@@ -276,52 +308,24 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                             .doOnError(Debug::echoError).subscribe();
                 }
                 break;
-            case ADDROLE:
-                if (user == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no user given!");
-                    return;
-                }
-                if (guild == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no guild given!");
-                    return;
-                }
-                if (role == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no role given!");
-                    return;
-                }
-                if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: unknown ID!");
+            case ADD_ROLE:
+                if (requireClientID.get() || requireUser.get() || requireGuild.get() || requireRole.get()) {
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
-                if (client == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                if (requireClientObject.apply(client)) {
                     return;
                 }
                 client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
                         .flatMap(memberBork -> memberBork.flatMap(member -> member.addRole(Snowflake.of(role.role_id))))
                         .doOnError(Debug::echoError).subscribe();
                 break;
-            case REMOVEROLE:
-                if (user == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no user given!");
-                    return;
-                }
-                if (guild == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no guild given!");
-                    return;
-                }
-                if (role == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: no role given!");
-                    return;
-                }
-                if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to role: unknown ID!");
+            case REMOVE_ROLE:
+                if (requireClientID.get() || requireUser.get() || requireRole.get() || requireGuild.get()) {
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
-                if (client == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                if (requireClientObject.apply(client)) {
                     return;
                 }
                 client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
@@ -329,13 +333,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         .doOnError(Debug::echoError).subscribe();
                 break;
             case RENAME:
-                if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to rename: unknown ID!");
+                if (requireClientID.get() || requireGuild.get() || requireMessage.get()) {
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
-                if (client == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                if (requireClientObject.apply(client)) {
                     return;
                 }
                 long userId;
@@ -345,26 +347,16 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 else {
                     userId = user.user_id;
                 }
-                if (guild == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no guild given!");
-                    return;
-                }
-                if (message == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to rename: no name given!");
-                    return;
-                }
                 client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(userId)))
                         .flatMap(memberBork -> memberBork.flatMap(member -> member.edit(spec -> spec.setNickname(message.asString()))))
                         .doOnError(Debug::echoError).subscribe();
                 break;
             case STATUS:
-                if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to set status: unknown ID!");
+                if (requireClientID.get()) {
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
-                if (client == null) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                if (requireClientObject.apply(client)) {
                     return;
                 }
                 Activity.Type at = activity == null ? Activity.Type.PLAYING : Activity.Type.valueOf(activity.asString().toUpperCase());
