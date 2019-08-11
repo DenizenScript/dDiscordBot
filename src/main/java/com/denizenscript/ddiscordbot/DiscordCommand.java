@@ -21,6 +21,7 @@ import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.scripts.queues.ScriptQueue;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import org.bukkit.Bukkit;
+import reactor.core.publisher.Mono;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -30,7 +31,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     // <--[command]
     // @Name discord
-    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/addrole/removerole/status (status:<status>) (activity:<activity>)/rename] (<message>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
+    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename] (<message>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
     // @Required 2
     // @Short Connects to and interacts with Discord.
     // @Plugin dDiscordBot
@@ -87,10 +88,18 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // @Usage
     // Use to give a user a new nickname.
     // - discord id:mybot rename "<[nickname]>" user:<[user]> group:<[group]>
-
+    //
+    // @Usage
+    // Use to start typing in a specific channel.
+    // - discord id:mybot start_typing channel:<[channel]>
+    //
+    // @Usage
+    // Use to stop typing in a specific channel.
+    // - discord id:mybot stop_typing channel:<[channel]>
+    //
     // -->
 
-    public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, ADDROLE, REMOVEROLE, STATUS, RENAME }
+    public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, ADD_ROLE, REMOVE_ROLE, STATUS, RENAME, START_TYPING, STOP_TYPING }
 
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
@@ -330,6 +339,30 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
                         .flatMap(memberBork -> memberBork.flatMap(member -> member.removeRole(Snowflake.of(role.role_id))))
+                        .doOnError(Debug::echoError).subscribe();
+                break;
+            case START_TYPING:
+                if (requireClientID.get() || requireChannel.get()) {
+                    return;
+                }
+                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                if (requireClientObject.apply(client)) {
+                    return;
+                }
+                client.getChannelById(Snowflake.of(channel.channel_id))
+                        .flatMap(chan -> ((TextChannel) chan).type())
+                        .doOnError(Debug::echoError).subscribe();
+                break;
+            case STOP_TYPING:
+                if (requireClientID.get() || requireChannel.get()) {
+                    return;
+                }
+                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                if (requireClientObject.apply(client)) {
+                    return;
+                }
+                client.getChannelById(Snowflake.of(channel.channel_id))
+                        .map(chan -> ((TextChannel) chan).typeUntil(Mono.empty()))
                         .doOnError(Debug::echoError).subscribe();
                 break;
             case RENAME:
