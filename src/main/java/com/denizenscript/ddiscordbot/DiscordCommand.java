@@ -46,12 +46,15 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // and the activity argument can be: PLAYING, STREAMING, LISTENING, or WATCHING.
     // Streaming activity requires a 'url:' input.
     //
+    // The command may be ~waited for, but only for 'connect' and 'message' options. No other arguments should be ~waited for.
+    //
     // @Tags
     // <discord[<bot_id>]>
+    // <entry[saveName].message_id> returns the ID of the sent message, when the command is ~waited for, and the 'message' argument is used.
     //
     // @Usage
     // Use to connect to Discord via a bot code.
-    // - discord id:mybot connect code:<[code]>
+    // - ~discord id:mybot connect code:<[code]>
     //
     // @Usage
     // Use to disconnect from Discord.
@@ -60,6 +63,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // @Usage
     // Use to message a Discord channel.
     // - discord id:mybot message channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!"
+    //
+    // @Usage
+    // Use to message a Discord channel and record the ID.
+    // - ~discord id:mybot message channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!" save:sent
+    // - announce "Sent as <entry[sent].message_id>"
     //
     // @Usage
     // Use to send a message to a user through a private channel.
@@ -297,9 +305,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (!requireChannel.get()) {
                         requireUser.get();
                     }
+                    scriptEntry.setFinished(true);
                     return;
                 }
                 if (requireClientID.get() || requireMessage.get()) {
+                    scriptEntry.setFinished(true);
                     return;
                 }
                 client = dDiscordBot.instance.connections.get(id.asString()).client;
@@ -309,11 +319,21 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (channel == null) {
                     client.getUserById(Snowflake.of(user.user_id)).map(User::getPrivateChannel).flatMap(chanBork -> chanBork.flatMap(
                             chan -> chan.createMessage(message.asString())))
+                            .map(m -> {
+                                scriptEntry.addObject("message_id", new ElementTag(m.getId().asString()));
+                                scriptEntry.setFinished(true);
+                                return m;
+                            })
                             .doOnError(Debug::echoError).subscribe();
                 }
                 else {
                     client.getChannelById(Snowflake.of(channel.channel_id))
                             .flatMap(chan -> ((TextChannel) chan).createMessage(message.asString()))
+                            .map(m -> {
+                                scriptEntry.addObject("message_id", new ElementTag(m.getId().asString()));
+                                scriptEntry.setFinished(true);
+                                return m;
+                            })
                             .doOnError(Debug::echoError).subscribe();
                 }
                 break;
