@@ -39,6 +39,7 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     // <context.group> returns the group ID.
     // <context.group_name> returns the group name.
     // <context.message> returns the message (raw).
+    // <context.message_id> returns the message ID.
     // <context.no_mention_message> returns the message with all user mentions stripped.
     // <context.formatted_message> returns the formatted message (mentions/etc. are written cleanly). CURRENTLY NON-FUNCTIONAL.
     // <context.author> returns the user that authored the message.
@@ -91,6 +92,9 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
         }
         else if (name.equals("message")) {
             return new ElementTag(getEvent().getMessage().getContent().orElse(""));
+        }
+        else if (name.equals("message_id")) {
+            return new ElementTag(getEvent().getMessage().getId().asString());
         }
         else if (name.equals("no_mention_message")) {
             return new ElementTag(stripMentions(getEvent().getMessage().getContent().orElse(""),

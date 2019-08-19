@@ -44,6 +44,7 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
     // <context.old_message_valid> returns whether the old message is available (it may be lost due to caching).
     // <context.message> returns the original message (raw).
+    // <context.message_id> returns the message ID.
     // <context.no_mention_message> returns the original message with all user mentions stripped.
     // <context.formatted_message> returns the formatted original message (mentions/etc. are written cleanly). CURRENTLY NON-FUNCTIONAL.
     //
@@ -98,6 +99,9 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
             if (getEvent().getMessage().isPresent()) {
                 return new ElementTag(getEvent().getMessage().get().getContent().get());
             }
+        }
+        else if (name.equals("message_id")) {
+            return new ElementTag(getEvent().getMessageId().asString());
         }
         else if (name.equals("no_mention_message")) {
             if (getEvent().getMessage().isPresent()) {

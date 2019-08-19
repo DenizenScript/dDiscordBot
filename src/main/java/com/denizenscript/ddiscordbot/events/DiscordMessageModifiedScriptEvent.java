@@ -42,6 +42,7 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
     // <context.mention_names> returns a list of all mentioned user names.
     // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
     // <context.message> returns the message (raw).
+    // <context.message_id> returns the message ID.
     // <context.no_mention_message> returns the message with all user mentions stripped.
     // <context.formatted_message> returns the formatted message (mentions/etc. are written cleanly). CURRENTLY NON-FUNCTIONAL.
     // <context.old_message_valid> returns whether the old message is available (it may be lost due to caching).
@@ -114,6 +115,9 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
         }
         else if (name.equals("message")) {
             return new ElementTag(getEvent().getMessage().block().getContent().orElse(""));
+        }
+        else if (name.equals("message_id")) {
+            return new ElementTag(getEvent().getMessageId().asString());
         }
         else if (name.equals("no_mention_message")) {
             return new ElementTag(stripMentions(getEvent().getMessage().block().getContent().orElse(""),
