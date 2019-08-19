@@ -7,6 +7,7 @@ import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.objects.Argument;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.TextChannel;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.presence.Activity;
@@ -31,7 +32,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     // <--[command]
     // @Name discord
-    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename] (<message>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
+    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<message>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
     // @Required 2
     // @Short Connects to and interacts with Discord.
     // @Plugin dDiscordBot
@@ -105,9 +106,17 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // Use to stop typing in a specific channel.
     // - discord id:mybot stop_typing channel:<[channel]>
     //
+    // @Usage
+    // Use to edit a message the bot has already sent.
+    // - discord id:mybot edit_message message_id:<[msg]> "Wow! It got edited!"
+    //
+    // @Usage
+    // Use to delete a message the bot has already sent.
+    // - discord id:mybot delete_message message_id:<[msg]>
+    //
     // -->
 
-    public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, ADD_ROLE, REMOVE_ROLE, STATUS, RENAME, START_TYPING, STOP_TYPING }
+    public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, ADD_ROLE, REMOVE_ROLE, STATUS, RENAME, START_TYPING, STOP_TYPING, EDIT_MESSAGE, DELETE_MESSAGE }
 
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
@@ -121,14 +130,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             else if (!scriptEntry.hasObject("instruction")
                     && arg.matchesEnum(DiscordInstruction.values())) {
                 scriptEntry.addObject("instruction", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("instruction")
-                    && arg.matches("addrole")) { // temporary - backsupport
-                scriptEntry.addObject("instruction", new ElementTag("add_role"));
-            }
-            else if (!scriptEntry.hasObject("instruction")
-                    && arg.matches("removerole")) { // temporary - backsupport
-                scriptEntry.addObject("instruction", new ElementTag("remove_role"));
             }
             else if (!scriptEntry.hasObject("code")
                     && arg.matchesPrefix("code")) {
@@ -165,6 +166,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             else if (!scriptEntry.hasObject("activity")
                     && arg.matchesPrefix("activity")) {
                 scriptEntry.addObject("activity", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("message_id")
+                    && arg.matchesPrefix("message_id")) {
+                scriptEntry.addObject("message_id", arg.asElement());
             }
             else if (!scriptEntry.hasObject("message")) {
                 scriptEntry.addObject("message", new ElementTag(arg.raw_value));
@@ -235,6 +240,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         DiscordGroupTag guild = scriptEntry.getObjectTag("group");
         DiscordRoleTag role = scriptEntry.getObjectTag("role");
         ElementTag url = scriptEntry.getElement("url");
+        ElementTag messageId = scriptEntry.getElement("message_id");
 
         // Debug the execution
         Debug.report(scriptEntry, getName(), id.debug()
@@ -246,7 +252,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 + (role != null ? role.debug(): "")
                 + (status != null ? status.debug(): "")
                 + (activity != null ? activity.debug(): "")
-                + (url != null ? url.debug(): ""));
+                + (url != null ? url.debug(): "")
+                + (messageId != null ? messageId.debug(): ""));
 
         DiscordClient client;
 
@@ -276,8 +283,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Supplier<Boolean> requireMessage = () -> requireObject.apply(message, "message");
         Supplier<Boolean> requireGuild = () -> requireObject.apply(guild, "guild");
         Supplier<Boolean> requireRole = () -> requireObject.apply(role, "role");
+        Supplier<Boolean> requireMessageId = () -> requireObject.apply(messageId, "message_id");
         switch (DiscordInstruction.valueOf(instruction.asString().toUpperCase())) {
-            case CONNECT:
+            case CONNECT: {
                 if (requireObject.apply(code, "code")) {
                     return;
                 }
@@ -294,13 +302,15 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 dct.ender = () -> scriptEntry.setFinished(true);
                 dct.start();
                 break;
-            case DISCONNECT:
+            }
+            case DISCONNECT: {
                 if (requireClientID.get()) {
                     return;
                 }
                 dDiscordBot.instance.connections.remove(id.asString()).client.logout();
                 break;
-            case MESSAGE:
+            }
+            case MESSAGE: {
                 if (channel == null && user == null) {
                     if (!requireChannel.get()) {
                         requireUser.get();
@@ -337,7 +347,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                             .doOnError(Debug::echoError).subscribe();
                 }
                 break;
-            case ADD_ROLE:
+            }
+            case ADD_ROLE: {
                 if (requireClientID.get() || requireUser.get() || requireGuild.get() || requireRole.get()) {
                     return;
                 }
@@ -349,7 +360,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         .flatMap(memberBork -> memberBork.flatMap(member -> member.addRole(Snowflake.of(role.role_id))))
                         .doOnError(Debug::echoError).subscribe();
                 break;
-            case REMOVE_ROLE:
+            }
+            case REMOVE_ROLE: {
                 if (requireClientID.get() || requireUser.get() || requireRole.get() || requireGuild.get()) {
                     return;
                 }
@@ -361,7 +373,42 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         .flatMap(memberBork -> memberBork.flatMap(member -> member.removeRole(Snowflake.of(role.role_id))))
                         .doOnError(Debug::echoError).subscribe();
                 break;
-            case START_TYPING:
+            }
+            case EDIT_MESSAGE: {
+                if (requireClientID.get() || requireClientID.get() || requireMessage.get() || requireMessageId.get()) {
+                    return;
+                }
+                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                if (requireClientObject.apply(client)) {
+                    return;
+                }
+                Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
+                if (mes == null) {
+                    // Not an error as this could happen for reasons the script isn't able to account for.
+                    Debug.echoDebug(scriptEntry, "Message '" + messageId + "' does not exist.");
+                    return;
+                }
+                mes.edit(m -> m.setContent(message.asString())).doOnError(Debug::echoError).subscribe();
+                break;
+            }
+            case DELETE_MESSAGE: {
+                if (requireClientID.get() || requireClientID.get() || requireMessageId.get()) {
+                    return;
+                }
+                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                if (requireClientObject.apply(client)) {
+                    return;
+                }
+                Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
+                if (mes == null) {
+                    // Not an error as this could happen for reasons the script isn't able to account for.
+                    Debug.echoDebug(scriptEntry, "Message '" + messageId + "' does not exist.");
+                    return;
+                }
+                mes.delete().doOnError(Debug::echoError).subscribe();
+                break;
+            }
+            case START_TYPING: {
                 if (requireClientID.get() || requireChannel.get()) {
                     return;
                 }
@@ -373,7 +420,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         .flatMap(chan -> ((TextChannel) chan).type())
                         .doOnError(Debug::echoError).subscribe();
                 break;
-            case STOP_TYPING:
+            }
+            case STOP_TYPING: {
                 if (requireClientID.get() || requireChannel.get()) {
                     return;
                 }
@@ -385,7 +433,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         .map(chan -> ((TextChannel) chan).typeUntil(Mono.empty()))
                         .doOnError(Debug::echoError).subscribe();
                 break;
-            case RENAME:
+            }
+            case RENAME: {
                 if (requireClientID.get() || requireGuild.get() || requireMessage.get()) {
                     return;
                 }
@@ -404,7 +453,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         .flatMap(memberBork -> memberBork.flatMap(member -> member.edit(spec -> spec.setNickname(message.asString()))))
                         .doOnError(Debug::echoError).subscribe();
                 break;
-            case STATUS:
+            }
+            case STATUS: {
                 if (requireClientID.get()) {
                     return;
                 }
@@ -442,6 +492,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 client.updatePresence(presence).subscribe();
                 break;
+            }
         }
     }
 }
