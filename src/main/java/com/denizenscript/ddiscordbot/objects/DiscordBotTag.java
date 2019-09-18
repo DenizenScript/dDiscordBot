@@ -5,13 +5,11 @@ import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
-import com.denizenscript.denizencore.utilities.debugging.Debug;
+import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import discord4j.core.object.entity.Guild;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-
-import java.util.HashMap;
 
 public class DiscordBotTag implements ObjectTag {
 
@@ -85,11 +83,11 @@ public class DiscordBotTag implements ObjectTag {
         // @description
         // Returns the name of the bot.
         // -->
-        registerTag("name", new TagRunnable() {
+        registerTag("name", new TagRunnable.ObjectForm() {
             @Override
-            public String run(Attribute attribute, ObjectTag object) {
+            public ObjectTag run(Attribute attribute, ObjectTag object) {
                 return new ElementTag(((DiscordBotTag) object).bot)
-                        .getAttribute(attribute.fulfill(1));
+                        .getObjectAttribute(attribute.fulfill(1));
             }
         });
 
@@ -100,9 +98,9 @@ public class DiscordBotTag implements ObjectTag {
         // @description
         // Returns a list of all groups (aka 'guilds' or 'servers') that this Discord bot has access to.
         // -->
-        registerTag("groups", new TagRunnable() {
+        registerTag("groups", new TagRunnable.ObjectForm() {
             @Override
-            public String run(Attribute attribute, ObjectTag object) {
+            public ObjectTag run(Attribute attribute, ObjectTag object) {
                 DiscordConnection connection = DenizenDiscordBot.instance.connections.get(((DiscordBotTag) object).bot);
                 if (connection == null) {
                     return null;
@@ -111,7 +109,7 @@ public class DiscordBotTag implements ObjectTag {
                 for (Guild guild : connection.client.getGuilds().toIterable()) {
                     list.addObject(new DiscordGroupTag(((DiscordBotTag) object).bot, guild));
                 }
-                return list.getAttribute(attribute.fulfill(1));
+                return list.getObjectAttribute(attribute.fulfill(1));
             }
         });
 
@@ -122,9 +120,9 @@ public class DiscordBotTag implements ObjectTag {
         // @description
         // Returns the Discord group (aka 'guild' or 'server') that best matches the input name, or null if there's no match.
         // -->
-        registerTag("group", new TagRunnable() {
+        registerTag("group", new TagRunnable.ObjectForm() {
             @Override
-            public String run(Attribute attribute, ObjectTag object) {
+            public ObjectTag run(Attribute attribute, ObjectTag object) {
                 if (!attribute.hasContext(1)) {
                     return null;
                 }
@@ -148,38 +146,20 @@ public class DiscordBotTag implements ObjectTag {
                     return null;
                 }
                 return new DiscordGroupTag(((DiscordBotTag) object).bot, bestMatch)
-                        .getAttribute(attribute.fulfill(1));
+                        .getObjectAttribute(attribute.fulfill(1));
             }
         });
     }
 
-        public static HashMap<String, TagRunnable> registeredTags = new HashMap<>();
+    public static ObjectTagProcessor tagProcessor = new ObjectTagProcessor();
 
-    public static void registerTag(String name, TagRunnable runnable) {
-        if (runnable.name == null) {
-            runnable.name = name;
-        }
-        registeredTags.put(name, runnable);
+    public static void registerTag(String name, TagRunnable.ObjectForm runnable) {
+        tagProcessor.registerTag(name, runnable);
     }
 
     @Override
-    public String getAttribute(Attribute attribute) {
-        if (attribute == null) {
-            return null;
-        }
-
-        // TODO: Scrap getAttribute, make this functionality a core system
-        String attrLow = CoreUtilities.toLowerCase(attribute.getAttributeWithoutContext(1));
-        TagRunnable tr = registeredTags.get(attrLow);
-        if (tr != null) {
-            if (!tr.name.equals(attrLow)) {
-                Debug.echoError(attribute.getScriptEntry() != null ? attribute.getScriptEntry().getResidingQueue() : null,
-                        "Using deprecated form of tag '" + tr.name + "': '" + attrLow + "'.");
-            }
-            return tr.run(attribute, this);
-        }
-
-        return new ElementTag(identify()).getAttribute(attribute);
+    public ObjectTag getObjectAttribute(Attribute attribute) {
+        return tagProcessor.getObjectAttribute(this, attribute);
     }
 
     String prefix = "discord";

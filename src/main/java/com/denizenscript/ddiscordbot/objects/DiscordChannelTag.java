@@ -4,14 +4,12 @@ import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
-import com.denizenscript.denizencore.utilities.debugging.Debug;
+import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-
-import java.util.HashMap;
 
 public class DiscordChannelTag implements ObjectTag {
 
@@ -110,9 +108,9 @@ public class DiscordChannelTag implements ObjectTag {
         // @description
         // Returns the name of the channel.
         // -->
-        registerTag("name", new TagRunnable() {
+        registerTag("name", new TagRunnable.ObjectForm() {
             @Override
-            public String run(Attribute attribute, ObjectTag object) {
+            public ObjectTag run(Attribute attribute, ObjectTag object) {
                 Channel chan = ((DiscordChannelTag) object).channel;
                 String name;
                 if (chan instanceof GuildChannel) {
@@ -125,7 +123,7 @@ public class DiscordChannelTag implements ObjectTag {
                     name = "unknown";
                 }
                 return new ElementTag(name)
-                        .getAttribute(attribute.fulfill(1));
+                        .getObjectAttribute(attribute.fulfill(1));
             }
         });
 
@@ -137,11 +135,11 @@ public class DiscordChannelTag implements ObjectTag {
         // Returns the type of the channel.
         // Will be any of: GUILD_TEXT, DM, GUILD_VOICE, GROUP_DM, GUILD_CATEGORY
         // -->
-        registerTag("type", new TagRunnable() {
+        registerTag("type", new TagRunnable.ObjectForm() {
             @Override
-            public String run(Attribute attribute, ObjectTag object) {
+            public ObjectTag run(Attribute attribute, ObjectTag object) {
                 return new ElementTag(((DiscordChannelTag) object).channel.getType().name())
-                        .getAttribute(attribute.fulfill(1));
+                        .getObjectAttribute(attribute.fulfill(1));
             }
         });
 
@@ -152,11 +150,11 @@ public class DiscordChannelTag implements ObjectTag {
         // @description
         // Returns the ID number of the channel.
         // -->
-        registerTag("id", new TagRunnable() {
+        registerTag("id", new TagRunnable.ObjectForm() {
             @Override
-            public String run(Attribute attribute, ObjectTag object) {
+            public ObjectTag run(Attribute attribute, ObjectTag object) {
                 return new ElementTag(((DiscordChannelTag) object).channel_id)
-                        .getAttribute(attribute.fulfill(1));
+                        .getObjectAttribute(attribute.fulfill(1));
             }
         });
 
@@ -167,11 +165,11 @@ public class DiscordChannelTag implements ObjectTag {
         // @description
         // Returns the raw mention string for the channel.
         // -->
-        registerTag("mention", new TagRunnable() {
+        registerTag("mention", new TagRunnable.ObjectForm() {
             @Override
-            public String run(Attribute attribute, ObjectTag object) {
+            public ObjectTag run(Attribute attribute, ObjectTag object) {
                 return new ElementTag(((DiscordChannelTag) object).channel.getMention())
-                        .getAttribute(attribute.fulfill(1));
+                        .getObjectAttribute(attribute.fulfill(1));
             }
         });
 
@@ -182,9 +180,9 @@ public class DiscordChannelTag implements ObjectTag {
         // @description
         // Returns the group that owns this channel.
         // -->
-        registerTag("group", new TagRunnable() {
+        registerTag("group", new TagRunnable.ObjectForm() {
             @Override
-            public String run(Attribute attribute, ObjectTag object) {
+            public ObjectTag run(Attribute attribute, ObjectTag object) {
                 Channel chan = ((DiscordChannelTag) object).channel;
                 Guild guild;
                 if (chan instanceof GuildChannel) {
@@ -194,38 +192,20 @@ public class DiscordChannelTag implements ObjectTag {
                     return null;
                 }
                 return new DiscordGroupTag(((DiscordChannelTag) object).bot, guild)
-                        .getAttribute(attribute.fulfill(1));
+                        .getObjectAttribute(attribute.fulfill(1));
             }
         });
     }
 
-        public static HashMap<String, TagRunnable> registeredTags = new HashMap<>();
+    public static ObjectTagProcessor tagProcessor = new ObjectTagProcessor();
 
-    public static void registerTag(String name, TagRunnable runnable) {
-        if (runnable.name == null) {
-            runnable.name = name;
-        }
-        registeredTags.put(name, runnable);
+    public static void registerTag(String name, TagRunnable.ObjectForm runnable) {
+        tagProcessor.registerTag(name, runnable);
     }
 
     @Override
-    public String getAttribute(Attribute attribute) {
-        if (attribute == null) {
-            return null;
-        }
-
-        // TODO: Scrap getAttribute, make this functionality a core system
-        String attrLow = CoreUtilities.toLowerCase(attribute.getAttributeWithoutContext(1));
-        TagRunnable tr = registeredTags.get(attrLow);
-        if (tr != null) {
-            if (!tr.name.equals(attrLow)) {
-                Debug.echoError(attribute.getScriptEntry() != null ? attribute.getScriptEntry().getResidingQueue() : null,
-                        "Using deprecated form of tag '" + tr.name + "': '" + attrLow + "'.");
-            }
-            return tr.run(attribute, this);
-        }
-
-        return new ElementTag(identify()).getAttribute(attribute);
+    public ObjectTag getObjectAttribute(Attribute attribute) {
+        return tagProcessor.getObjectAttribute(this, attribute);
     }
 
     String prefix = "discordchannel";
