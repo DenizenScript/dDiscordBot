@@ -15,6 +15,29 @@ import java.util.HashMap;
 
 public class DiscordBotTag implements ObjectTag {
 
+    // <--[language]
+    // @name DiscordBotTag
+    // @group Object System
+    // @plugin dDiscordBot
+    // @description
+    // A DiscordBotTag is an object that represents a Discord bot powered by dDiscordBot.
+    //
+    // For format info, see <@link language discord@>
+    //
+    // -->
+
+    // <--[language]
+    // @name discord@
+    // @group Object Fetcher System
+    // @plugin dDiscordBot
+    // @description
+    // discord@ refers to the 'object identifier' of a DiscordBotTag. The 'discord@' is notation for Denizen's Object
+    // Fetcher. The constructor for a DiscordBotTag is the bot ID (as chosen in <@link command discord>).
+    // For example: mybot
+    //
+    // For general info, see <@link language DiscordBotTag>
+    // -->
+
     @Fetchable("discord")
     public static DiscordBotTag valueOf(String string, TagContext context) {
         if (string.startsWith("discord@")) {

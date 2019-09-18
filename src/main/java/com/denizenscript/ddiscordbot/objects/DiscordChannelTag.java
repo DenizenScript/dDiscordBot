@@ -15,6 +15,31 @@ import java.util.HashMap;
 
 public class DiscordChannelTag implements ObjectTag {
 
+    // <--[language]
+    // @name DiscordChannelTag
+    // @group Object System
+    // @plugin dDiscordBot
+    // @description
+    // A DiscordChannelTag is an object that represents a channel (text or voice) on Discord, either as a generic reference,
+    // or as a bot-specific reference (the relevant guild is inherently linked, and does not need to be specified).
+    //
+    // For format info, see <@link language discordchannel@>
+    //
+    // -->
+
+    // <--[language]
+    // @name discordchannel@
+    // @group Object Fetcher System
+    // @plugin dDiscordBot
+    // @description
+    // discordchannel@ refers to the 'object identifier' of a DiscordChannelTag. The 'discordchannel@' is notation for Denizen's Object
+    // Fetcher. The constructor for a DiscordChannelTag is the bot ID (optional), followed by the channel ID (required).
+    // For example: 1234
+    // Or: mybot,1234
+    //
+    // For general info, see <@link language DiscordChannelTag>
+    // -->
+
     @Fetchable("discordchannel")
     public static DiscordChannelTag valueOf(String string, TagContext context) {
         if (string.startsWith("discordchannel@")) {

@@ -16,6 +16,37 @@ import java.util.HashMap;
 
 public class DiscordGroupTag implements ObjectTag {
 
+    // <--[language]
+    // @name DiscordGroupTag
+    // @group Object System
+    // @plugin dDiscordBot
+    // @description
+    // A DiscordGroupTag is an object that represents a group on Discord, either as a generic reference,
+    // or as a bot-specific reference.
+    //
+    // Note that the correct name for what we call here a 'group' is inconsistent between different people.
+    // The Discord API calls it a "guild" (for historical reasons, not called that by *people* anymore usually),
+    // messages in the Discord app call it a "server" (which is a convenient name but is factually inaccurate, as they are not servers),
+    // many people will simply say "a Discord" (which is awkward for branding and also would be confusing if used in documentation).
+    // So we're going with "group" (which is still confusing because "group" sometimes refers to DM groups, but... it's good enough).
+    //
+    // For format info, see <@link language discordgroup@>
+    //
+    // -->
+
+    // <--[language]
+    // @name discordgroup@
+    // @group Object Fetcher System
+    // @plugin dDiscordBot
+    // @description
+    // discordgroup@ refers to the 'object identifier' of a DiscordGroupTag. The 'discordgroup@' is notation for Denizen's Object
+    // Fetcher. The constructor for a DiscordGroupTag is the bot ID (optional), followed by the guild ID (required).
+    // For example: 1234
+    // Or: mybot,1234
+    //
+    // For general info, see <@link language DiscordGroupTag>
+    // -->
+
     @Fetchable("discordgroup")
     public static DiscordGroupTag valueOf(String string, TagContext context) {
         if (string.startsWith("discordgroup@")) {

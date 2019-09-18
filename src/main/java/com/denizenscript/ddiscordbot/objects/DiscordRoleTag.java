@@ -16,6 +16,32 @@ import java.util.List;
 
 public class DiscordRoleTag implements ObjectTag {
 
+    // <--[language]
+    // @name DiscordRoleTag
+    // @group Object System
+    // @plugin dDiscordBot
+    // @description
+    // A DiscordRoleTag is an object that represents a role on Discord, either as a generic reference,
+    // or as a guild-specific reference, or as a bot+guild-specific reference.
+    //
+    // For format info, see <@link language discordrole@>
+    //
+    // -->
+
+    // <--[language]
+    // @name discordrole@
+    // @group Object Fetcher System
+    // @plugin dDiscordBot
+    // @description
+    // discordrole@ refers to the 'object identifier' of a DiscordRoleTag. The 'discordrole@' is notation for Denizen's Object
+    // Fetcher. The constructor for a DiscordRoleTag is the bot ID (optional), followed by the guild ID (optional), followed by the role ID (required).
+    // For example: 4321
+    // Or: 1234,4321
+    // Or: mybot,1234,4321
+    //
+    // For general info, see <@link language DiscordRoleTag>
+    // -->
+
     @Fetchable("discordrole")
     public static DiscordRoleTag valueOf(String string, TagContext context) {
         if (string.startsWith("discordrole@")) {
