@@ -1,7 +1,7 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
-import com.denizenscript.ddiscordbot.dDiscordBot;
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
@@ -60,15 +60,15 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
             return new DiscordUserTag(botID, getEvent().getMember());
         }
         else if (name.equals("group_name")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             return new ElementTag(getEvent().getGuild().block().getName());
         }
         else if (name.equals("user_id")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             return new ElementTag(getEvent().getMember().getId().asLong());
         }
         else if (name.equals("user_name")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             return new ElementTag(getEvent().getMember().getUsername());
         }
         return super.getContext(name);

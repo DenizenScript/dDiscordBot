@@ -1,7 +1,7 @@
 package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
-import com.denizenscript.ddiscordbot.dDiscordBot;
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -109,7 +109,7 @@ public class DiscordRoleTag implements ObjectTag {
         this.guild_id = guildId;
         this.role_id = roleId;
         if (bot != null) {
-            DiscordConnection conn = dDiscordBot.instance.connections.get(bot);
+            DiscordConnection conn = DenizenDiscordBot.instance.connections.get(bot);
             if (conn != null) {
                 role = conn.client.getRoleById(Snowflake.of(guild_id), Snowflake.of(role_id)).block();
             }

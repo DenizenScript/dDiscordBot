@@ -207,17 +207,17 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 client.login().block();
             }
             catch (Exception ex) {
-                Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
-                    dDiscordBot.instance.connections.remove(conn.botID);
+                Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
+                    DenizenDiscordBot.instance.connections.remove(conn.botID);
                 });
                 Debug.echoError(ex);
             }
-            Bukkit.getScheduler().runTask(dDiscordBot.instance, ender);
+            Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, ender);
         }
     }
 
     public static void errorMessage(ScriptQueue queue, String message) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(dDiscordBot.instance, new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, new Runnable() {
             @Override
             public void run() {
                 Debug.echoError(queue, message);
@@ -258,7 +258,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         DiscordClient client;
 
         Supplier<Boolean> requireClientID = () -> {
-            if (!dDiscordBot.instance.connections.containsKey(id.asString())) {
+            if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
                 Debug.echoError(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: unknown ID!");
                 return true;
             }
@@ -289,13 +289,13 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireObject.apply(code, "code")) {
                     return;
                 }
-                if (dDiscordBot.instance.connections.containsKey(id.asString())) {
+                if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
                     Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
                     return;
                 }
                 DiscordConnection dc = new DiscordConnection();
                 dc.botID = id.asString();
-                dDiscordBot.instance.connections.put(id.asString(), dc);
+                DenizenDiscordBot.instance.connections.put(id.asString(), dc);
                 DiscordConnectThread dct = new DiscordConnectThread();
                 dct.code = code.asString();
                 dct.conn = dc;
@@ -307,7 +307,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireClientID.get()) {
                     return;
                 }
-                dDiscordBot.instance.connections.remove(id.asString()).client.logout();
+                DenizenDiscordBot.instance.connections.remove(id.asString()).client.logout();
                 break;
             }
             case MESSAGE: {
@@ -322,7 +322,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     scriptEntry.setFinished(true);
                     return;
                 }
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                 if (client == null) {
                     return;
                 }
@@ -352,7 +352,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireClientID.get() || requireUser.get() || requireGuild.get() || requireRole.get()) {
                     return;
                 }
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                 if (requireClientObject.apply(client)) {
                     return;
                 }
@@ -365,7 +365,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireClientID.get() || requireUser.get() || requireRole.get() || requireGuild.get()) {
                     return;
                 }
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                 if (requireClientObject.apply(client)) {
                     return;
                 }
@@ -378,7 +378,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireClientID.get() || requireClientID.get() || requireMessage.get() || requireMessageId.get()) {
                     return;
                 }
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                 if (requireClientObject.apply(client)) {
                     return;
                 }
@@ -395,7 +395,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireClientID.get() || requireClientID.get() || requireMessageId.get()) {
                     return;
                 }
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                 if (requireClientObject.apply(client)) {
                     return;
                 }
@@ -412,7 +412,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireClientID.get() || requireChannel.get()) {
                     return;
                 }
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                 if (requireClientObject.apply(client)) {
                     return;
                 }
@@ -425,7 +425,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireClientID.get() || requireChannel.get()) {
                     return;
                 }
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                 if (requireClientObject.apply(client)) {
                     return;
                 }
@@ -438,7 +438,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireClientID.get() || requireGuild.get() || requireMessage.get()) {
                     return;
                 }
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                 if (requireClientObject.apply(client)) {
                     return;
                 }
@@ -458,7 +458,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireClientID.get()) {
                     return;
                 }
-                client = dDiscordBot.instance.connections.get(id.asString()).client;
+                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                 if (requireClientObject.apply(client)) {
                     return;
                 }

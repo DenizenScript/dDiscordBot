@@ -1,7 +1,7 @@
 package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
-import com.denizenscript.ddiscordbot.dDiscordBot;
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
@@ -85,7 +85,7 @@ public class DiscordUserTag implements ObjectTag {
         this.bot = bot;
         this.user_id = userId;
         if (bot != null) {
-            DiscordConnection conn = dDiscordBot.instance.connections.get(bot);
+            DiscordConnection conn = DenizenDiscordBot.instance.connections.get(bot);
             if (conn != null) {
                 user = conn.client.getUserById(Snowflake.of(user_id)).block();
             }

@@ -1,7 +1,7 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
-import com.denizenscript.ddiscordbot.dDiscordBot;
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
@@ -106,14 +106,14 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
             return new ElementTag(!(getEvent().getMessage().getChannel().block() instanceof GuildChannel));
         }
         else if (name.equals("channel_name")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             MessageChannel channel = getEvent().getMessage().getChannel().block();
             if (channel instanceof GuildChannel) {
                 return new ElementTag(((GuildChannel) channel).getName());
             }
         }
         else if (name.equals("mention_names")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             ListTag list = new ListTag();
             for (User user : getEvent().getMessage().getUserMentions().toIterable()) {
                 list.add(String.valueOf(user.getUsername()));
@@ -121,17 +121,17 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
             return list;
         }
         else if (name.equals("group_name")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             if (getEvent().getGuildId().isPresent()) {
                 return new ElementTag(getEvent().getGuild().block().getName());
             }
         }
         else if (name.equals("author_id")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             return new ElementTag(getEvent().getMessage().getAuthor().get().getId().asLong());
         }
         else if (name.equals("author_name")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             return new ElementTag(getEvent().getMessage().getAuthor().get().getUsername());
         }
         return super.getContext(name);

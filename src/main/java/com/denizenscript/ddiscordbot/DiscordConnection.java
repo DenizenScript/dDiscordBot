@@ -35,7 +35,7 @@ public class DiscordConnection {
     }
 
     public void autoHandle(Event event, DiscordScriptEvent scriptEvent) {
-        Bukkit.getScheduler().runTask(dDiscordBot.instance, () -> {
+        Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
             if (!scriptEvent.enabled) {
                 return;
             }

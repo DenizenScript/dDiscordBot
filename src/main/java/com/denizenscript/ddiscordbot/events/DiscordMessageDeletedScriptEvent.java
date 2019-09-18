@@ -1,7 +1,7 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
-import com.denizenscript.ddiscordbot.dDiscordBot;
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
@@ -119,32 +119,32 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
             return new ElementTag(!(getEvent().getChannel().block() instanceof GuildChannel));
         }
         else if (name.equals("channel_name")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             MessageChannel channel = getEvent().getChannel().block();
             if (channel instanceof GuildChannel) {
                 return new ElementTag(((GuildChannel) channel).getName());
             }
         }
         else if (name.equals("group_name")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             if (getEvent().getChannel().block() instanceof GuildChannel) {
                 return new ElementTag(((GuildChannel) getEvent().getChannel().block()).getGuild().block().getName());
             }
         }
         else if (name.equals("author_id")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             if (getEvent().getMessage().isPresent()) {
                 return new ElementTag(getEvent().getMessage().get().getAuthor().get().getId().asLong());
             }
         }
         else if (name.equals("author_name")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             if (getEvent().getMessage().isPresent()) {
                 return new ElementTag(getEvent().getMessage().get().getAuthor().get().getUsername());
             }
         }
         else if (name.equals("mention_names")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             if (getEvent().getMessage().isPresent()) {
                 ListTag list = new ListTag();
                 for (User user : getEvent().getMessage().get().getUserMentions().toIterable()) {

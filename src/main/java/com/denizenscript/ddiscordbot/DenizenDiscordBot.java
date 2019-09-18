@@ -17,11 +17,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 
-public class dDiscordBot extends JavaPlugin {
+public class DenizenDiscordBot extends JavaPlugin {
 
     public static SlowWarning userContextDeprecation = new SlowWarning("'user_id', 'author_name', and similar contexts are deprecated: use 'context.user.id' and similar.");
 
-    public static dDiscordBot instance;
+    public static DenizenDiscordBot instance;
 
     public HashMap<String, DiscordConnection> connections = new HashMap<>();
 

@@ -1,7 +1,7 @@
 package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
-import com.denizenscript.ddiscordbot.dDiscordBot;
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
@@ -47,7 +47,7 @@ public class DiscordBotTag implements ObjectTag {
             return null;
         }
         string = CoreUtilities.toLowerCase(string);
-        if (!dDiscordBot.instance.connections.containsKey(string)) {
+        if (!DenizenDiscordBot.instance.connections.containsKey(string)) {
             return null;
         }
         return new DiscordBotTag(string);
@@ -103,7 +103,7 @@ public class DiscordBotTag implements ObjectTag {
         registerTag("groups", new TagRunnable() {
             @Override
             public String run(Attribute attribute, ObjectTag object) {
-                DiscordConnection connection = dDiscordBot.instance.connections.get(((DiscordBotTag) object).bot);
+                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(((DiscordBotTag) object).bot);
                 if (connection == null) {
                     return null;
                 }
@@ -128,7 +128,7 @@ public class DiscordBotTag implements ObjectTag {
                 if (!attribute.hasContext(1)) {
                     return null;
                 }
-                DiscordConnection connection = dDiscordBot.instance.connections.get(((DiscordBotTag) object).bot);
+                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(((DiscordBotTag) object).bot);
                 if (connection == null) {
                     return null;
                 }

@@ -1,7 +1,7 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
-import com.denizenscript.ddiscordbot.dDiscordBot;
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordRoleTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
@@ -141,19 +141,19 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
             return removedRoles;
         }
         else if (name.equals("group_name")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             return new ElementTag(getEvent().getGuild().block().getName());
         }
         else if (name.equals("user_id")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             return new ElementTag(getEvent().getMember().block().getId().asLong());
         }
         else if (name.equals("user_name")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             return new ElementTag(getEvent().getMember().block().getUsername());
         }
         else if (name.equals("old_role_ids")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             ListTag oldRoles = new ListTag();
             for (Long role : getOldRoles()) {
                 oldRoles.addObject(new ElementTag(role));
@@ -161,7 +161,7 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
             return oldRoles;
         }
         else if (name.equals("new_role_ids")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             ListTag newRoles = new ListTag();
             for (Long role : getNewRoles()) {
                 newRoles.addObject(new ElementTag(role));
@@ -169,11 +169,11 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
             return newRoles;
         }
         else if (name.equals("added_role_ids")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             return getAddedRoleIds();
         }
         else if (name.equals("removed_role_ids")) {
-            dDiscordBot.userContextDeprecation.warn();
+            DenizenDiscordBot.userContextDeprecation.warn();
             return getRemovedRoleIds();
         }
         return super.getContext(name);
