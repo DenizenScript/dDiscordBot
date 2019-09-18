@@ -1,5 +1,5 @@
 name: dDiscordBot
 authors: ['mcmonkey']
 version: ${project.version} (build ${BUILD_NUMBER})
-main: com.denizenscript.ddiscordbot.dDiscordBot
+main: com.denizenscript.ddiscordbot.DenizenDiscordBot
 depend: [Denizen]
