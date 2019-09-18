@@ -1,6 +1,9 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
+import com.denizenscript.ddiscordbot.dDiscordBot;
+import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
+import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.GuildChannel;
@@ -34,17 +37,14 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     // @Context
     // <context.bot> returns the Denizen ID of the bot.
     // <context.self> returns the bots own Discord user ID.
-    // <context.channel> returns the channel ID.
-    // <context.channel_name> returns the channel name.
-    // <context.group> returns the group ID.
-    // <context.group_name> returns the group name.
+    // <context.channel> returns the channel.
+    // <context.group> returns the group.
     // <context.message> returns the message (raw).
     // <context.message_id> returns the message ID.
     // <context.no_mention_message> returns the message with all user mentions stripped.
     // <context.formatted_message> returns the formatted message (mentions/etc. are written cleanly). CURRENTLY NON-FUNCTIONAL.
     // <context.author> returns the user that authored the message.
-    // <context.mentions> returns a list of all mentioned user IDs.
-    // <context.mention_names> returns a list of all mentioned user names.
+    // <context.mentions> returns a list of all mentioned users.
     // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
     //
     // -->
@@ -72,22 +72,11 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     @Override
     public ObjectTag getContext(String name) {
         if (name.equals("channel")) {
-            return new ElementTag(getEvent().getMessage().getChannelId().asLong());
-        }
-        else if (name.equals("channel_name")) {
-            MessageChannel channel = getEvent().getMessage().getChannel().block();
-            if (channel instanceof GuildChannel) {
-                return new ElementTag(((GuildChannel) channel).getName());
-            }
+            return new DiscordChannelTag(botID, getEvent().getMessage().getChannelId().asLong());
         }
         else if (name.equals("group")) {
             if (getEvent().getGuildId().isPresent()) {
-                return new ElementTag(getEvent().getGuildId().get().asLong());
-            }
-        }
-        else if (name.equals("group_name")) {
-            if (getEvent().getGuildId().isPresent()) {
-                return new ElementTag(getEvent().getGuild().block().getName());
+                return new DiscordGroupTag(botID, getEvent().getGuildId().get().asLong());
             }
         }
         else if (name.equals("message")) {
@@ -106,28 +95,44 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
         else if (name.equals("author")) {
             return new DiscordUserTag(botID, getEvent().getMessage().getAuthor().get());
         }
-        else if (name.equals("author_id")) { // Deprecated
-            return new ElementTag(getEvent().getMessage().getAuthor().get().getId().asLong());
-        }
-        else if (name.equals("author_name")) { // Deprecated
-            return new ElementTag(getEvent().getMessage().getAuthor().get().getUsername());
-        }
         else if (name.equals("mentions")) {
             ListTag list = new ListTag();
             for (Snowflake user : getEvent().getMessage().getUserMentionIds()) {
-                list.add(String.valueOf(user.asLong()));
+                list.addObject(new DiscordUserTag(botID, user.asLong()));
             }
             return list;
         }
+        else if (name.equals("is_direct")) {
+            return new ElementTag(!(getEvent().getMessage().getChannel().block() instanceof GuildChannel));
+        }
+        else if (name.equals("channel_name")) {
+            dDiscordBot.userContextDeprecation.warn();
+            MessageChannel channel = getEvent().getMessage().getChannel().block();
+            if (channel instanceof GuildChannel) {
+                return new ElementTag(((GuildChannel) channel).getName());
+            }
+        }
         else if (name.equals("mention_names")) {
+            dDiscordBot.userContextDeprecation.warn();
             ListTag list = new ListTag();
             for (User user : getEvent().getMessage().getUserMentions().toIterable()) {
                 list.add(String.valueOf(user.getUsername()));
             }
             return list;
         }
-        else if (name.equals("is_direct")) {
-            return new ElementTag(!(getEvent().getMessage().getChannel().block() instanceof GuildChannel));
+        else if (name.equals("group_name")) {
+            dDiscordBot.userContextDeprecation.warn();
+            if (getEvent().getGuildId().isPresent()) {
+                return new ElementTag(getEvent().getGuild().block().getName());
+            }
+        }
+        else if (name.equals("author_id")) {
+            dDiscordBot.userContextDeprecation.warn();
+            return new ElementTag(getEvent().getMessage().getAuthor().get().getId().asLong());
+        }
+        else if (name.equals("author_name")) {
+            dDiscordBot.userContextDeprecation.warn();
+            return new ElementTag(getEvent().getMessage().getAuthor().get().getUsername());
         }
         return super.getContext(name);
     }

@@ -1,6 +1,9 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
+import com.denizenscript.ddiscordbot.dDiscordBot;
+import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
+import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.object.entity.GuildChannel;
@@ -34,13 +37,10 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     // @Context
     // <context.bot> returns the Denizen ID of the bot.
     // <context.self> returns the bots own Discord user ID.
-    // <context.channel> returns the channel ID.
-    // <context.channel_name> returns the channel name.
-    // <context.group> returns the group ID.
-    // <context.group_name> returns the group name.
+    // <context.channel> returns the channel.
+    // <context.group> returns the group.
     // <context.author> returns the user that authored the message.
-    // <context.mentions> returns a list of all mentioned user IDs.
-    // <context.mention_names> returns a list of all mentioned user names.
+    // <context.mentions> returns a list of all mentioned users.
     // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
     // <context.old_message_valid> returns whether the old message is available (it may be lost due to caching).
     // <context.message> returns the original message (raw).
@@ -74,22 +74,11 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     @Override
     public ObjectTag getContext(String name) {
         if (name.equals("channel")) {
-            return new ElementTag(getEvent().getChannelId().asLong());
-        }
-        else if (name.equals("channel_name")) {
-            MessageChannel channel = getEvent().getChannel().block();
-            if (channel instanceof GuildChannel) {
-                return new ElementTag(((GuildChannel) channel).getName());
-            }
+            return new DiscordChannelTag(botID, getEvent().getChannelId().asLong());
         }
         else if (name.equals("group")) {
             if (getEvent().getChannel().block() instanceof GuildChannel) {
-                return new ElementTag(((GuildChannel) getEvent().getChannel().block()).getGuildId().asLong());
-            }
-        }
-        else if (name.equals("group_name")) {
-            if (getEvent().getChannel().block() instanceof GuildChannel) {
-                return new ElementTag(((GuildChannel) getEvent().getChannel().block()).getGuild().block().getName());
+                return new DiscordGroupTag(botID, ((GuildChannel) getEvent().getChannel().block()).getGuildId().asLong());
             }
         }
         else if (name.equals("old_message_valid")) {
@@ -117,26 +106,45 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
         else if (name.equals("author")) {
             return new DiscordUserTag(botID, getEvent().getMessage().get().getAuthor().get());
         }
-        else if (name.equals("author_id")) { // Deprecated
-            if (getEvent().getMessage().isPresent()) {
-                return new ElementTag(getEvent().getMessage().get().getAuthor().get().getId().asLong());
-            }
-        }
-        else if (name.equals("author_name")) { // Deprecated
-            if (getEvent().getMessage().isPresent()) {
-                return new ElementTag(getEvent().getMessage().get().getAuthor().get().getUsername());
-            }
-        }
         else if (name.equals("mentions")) {
             if (getEvent().getMessage().isPresent()) {
                 ListTag list = new ListTag();
                 for (Snowflake user : getEvent().getMessage().get().getUserMentionIds()) {
-                    list.add(String.valueOf(user.asLong()));
+                    list.addObject(new DiscordUserTag(botID, user.asLong()));
                 }
                 return list;
             }
         }
+        else if (name.equals("is_direct")) {
+            return new ElementTag(!(getEvent().getChannel().block() instanceof GuildChannel));
+        }
+        else if (name.equals("channel_name")) {
+            dDiscordBot.userContextDeprecation.warn();
+            MessageChannel channel = getEvent().getChannel().block();
+            if (channel instanceof GuildChannel) {
+                return new ElementTag(((GuildChannel) channel).getName());
+            }
+        }
+        else if (name.equals("group_name")) {
+            dDiscordBot.userContextDeprecation.warn();
+            if (getEvent().getChannel().block() instanceof GuildChannel) {
+                return new ElementTag(((GuildChannel) getEvent().getChannel().block()).getGuild().block().getName());
+            }
+        }
+        else if (name.equals("author_id")) {
+            dDiscordBot.userContextDeprecation.warn();
+            if (getEvent().getMessage().isPresent()) {
+                return new ElementTag(getEvent().getMessage().get().getAuthor().get().getId().asLong());
+            }
+        }
+        else if (name.equals("author_name")) {
+            dDiscordBot.userContextDeprecation.warn();
+            if (getEvent().getMessage().isPresent()) {
+                return new ElementTag(getEvent().getMessage().get().getAuthor().get().getUsername());
+            }
+        }
         else if (name.equals("mention_names")) {
+            dDiscordBot.userContextDeprecation.warn();
             if (getEvent().getMessage().isPresent()) {
                 ListTag list = new ListTag();
                 for (User user : getEvent().getMessage().get().getUserMentions().toIterable()) {
@@ -144,9 +152,6 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
                 }
                 return list;
             }
-        }
-        else if (name.equals("is_direct")) {
-            return new ElementTag(!(getEvent().getChannel().block() instanceof GuildChannel));
         }
         return super.getContext(name);
     }

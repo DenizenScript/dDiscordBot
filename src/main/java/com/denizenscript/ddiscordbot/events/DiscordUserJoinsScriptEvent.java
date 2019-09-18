@@ -1,6 +1,8 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
+import com.denizenscript.ddiscordbot.dDiscordBot;
+import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import com.denizenscript.denizencore.objects.core.ElementTag;
@@ -28,8 +30,7 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
     // @Context
     // <context.bot> returns the Denizen ID of the bot.
     // <context.self> returns the bots own Discord user ID.
-    // <context.group> returns the group ID.
-    // <context.group_name> returns the group name.
+    // <context.group> returns the group.
     // <context.user> returns the user.
     // -->
 
@@ -53,18 +54,21 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
     @Override
     public ObjectTag getContext(String name) {
         if (name.equals("group")) {
-            return new ElementTag(getEvent().getGuildId().asLong());
-        }
-        else if (name.equals("group_name")) {
-            return new ElementTag(getEvent().getGuild().block().getName());
+            return new DiscordGroupTag(botID, getEvent().getGuildId().asLong());
         }
         else if (name.equals("user")) {
             return new DiscordUserTag(botID, getEvent().getMember());
         }
-        else if (name.equals("user_id")) { // Deprecated
+        else if (name.equals("group_name")) {
+            dDiscordBot.userContextDeprecation.warn();
+            return new ElementTag(getEvent().getGuild().block().getName());
+        }
+        else if (name.equals("user_id")) {
+            dDiscordBot.userContextDeprecation.warn();
             return new ElementTag(getEvent().getMember().getId().asLong());
         }
-        else if (name.equals("user_name")) { // Deprecated
+        else if (name.equals("user_name")) {
+            dDiscordBot.userContextDeprecation.warn();
             return new ElementTag(getEvent().getMember().getUsername());
         }
         return super.getContext(name);
