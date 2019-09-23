@@ -28,8 +28,7 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
     // @Plugin dDiscordBot
     //
     // @Context
-    // <context.bot> returns the Denizen ID of the bot.
-    // <context.self> returns the bots own Discord user ID.
+    // <context.bot> returns the relevant Discord bot object.
     // <context.group> returns the group.
     // <context.user> returns the user.
     // -->

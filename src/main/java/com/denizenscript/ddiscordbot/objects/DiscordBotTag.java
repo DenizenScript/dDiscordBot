@@ -92,6 +92,25 @@ public class DiscordBotTag implements ObjectTag {
         });
 
         // <--[tag]
+        // @attribute <DiscordBotTag.self_user>
+        // @returns DiscordUserTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the bot's own Discord user object.
+        // -->
+        registerTag("self_user", new TagRunnable.ObjectForm() {
+            @Override
+            public ObjectTag run(Attribute attribute, ObjectTag object) {
+                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(((DiscordBotTag) object).bot);
+                if (connection == null) {
+                    return null;
+                }
+                return new DiscordUserTag(((DiscordBotTag) object).bot, connection.client.getSelf().block())
+                        .getObjectAttribute(attribute.fulfill(1));
+            }
+        });
+
+        // <--[tag]
         // @attribute <DiscordBotTag.groups>
         // @returns ListTag(DiscordGroupTag)
         // @plugin dDiscordBot

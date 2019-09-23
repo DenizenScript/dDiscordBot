@@ -1,5 +1,6 @@
 package com.denizenscript.ddiscordbot;
 
+import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.entity.User;
 import com.denizenscript.denizencore.events.ScriptEvent;
@@ -22,10 +23,7 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
     @Override
     public ObjectTag getContext(String name) {
         if (name.equals("bot")) {
-            return new ElementTag(botID);
-        }
-        else if (name.equals("self")) {
-            return new ElementTag(event.getClient().getSelf().block().getId().asLong());
+            return new DiscordBotTag(botID);
         }
         return super.getContext(name);
     }

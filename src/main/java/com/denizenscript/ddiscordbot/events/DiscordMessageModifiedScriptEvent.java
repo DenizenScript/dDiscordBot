@@ -34,8 +34,7 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
     // @Plugin dDiscordBot
     //
     // @Context
-    // <context.bot> returns the Denizen ID of the bot.
-    // <context.self> returns the bots own Discord user ID.
+    // <context.bot> returns the relevant Discord bot object.
     // <context.channel> returns the channel.
     // <context.group> returns the group.
     // <context.author> returns the user that authored the message.
