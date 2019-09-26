@@ -84,11 +84,10 @@ public class DiscordBotTag implements ObjectTag {
         // @description
         // Returns the name of the bot.
         // -->
-        registerTag("name", new TagRunnable.ObjectForm() {
+        registerTag("name", new TagRunnable.ObjectForm<DiscordBotTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((DiscordBotTag) object).bot)
-                        .getObjectAttribute(attribute.fulfill(1));
+            public ObjectTag run(Attribute attribute, DiscordBotTag object) {
+                return new ElementTag(object.bot);
             }
         });
 
@@ -99,15 +98,14 @@ public class DiscordBotTag implements ObjectTag {
         // @description
         // Returns the bot's own Discord user object.
         // -->
-        registerTag("self_user", new TagRunnable.ObjectForm() {
+        registerTag("self_user", new TagRunnable.ObjectForm<DiscordBotTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
-                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(((DiscordBotTag) object).bot);
+            public ObjectTag run(Attribute attribute, DiscordBotTag object) {
+                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
                 if (connection == null) {
                     return null;
                 }
-                return new DiscordUserTag(((DiscordBotTag) object).bot, connection.client.getSelf().block())
-                        .getObjectAttribute(attribute.fulfill(1));
+                return new DiscordUserTag(object.bot, connection.client.getSelf().block());
             }
         });
 
@@ -118,18 +116,18 @@ public class DiscordBotTag implements ObjectTag {
         // @description
         // Returns a list of all groups (aka 'guilds' or 'servers') that this Discord bot has access to.
         // -->
-        registerTag("groups", new TagRunnable.ObjectForm() {
+        registerTag("groups", new TagRunnable.ObjectForm<DiscordBotTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
-                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(((DiscordBotTag) object).bot);
+            public ObjectTag run(Attribute attribute, DiscordBotTag object) {
+                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
                 if (connection == null) {
                     return null;
                 }
                 ListTag list = new ListTag();
                 for (Guild guild : connection.client.getGuilds().toIterable()) {
-                    list.addObject(new DiscordGroupTag(((DiscordBotTag) object).bot, guild));
+                    list.addObject(new DiscordGroupTag(object.bot, guild));
                 }
-                return list.getObjectAttribute(attribute.fulfill(1));
+                return list;
             }
         });
 
@@ -140,13 +138,13 @@ public class DiscordBotTag implements ObjectTag {
         // @description
         // Returns the Discord group (aka 'guild' or 'server') that best matches the input name, or null if there's no match.
         // -->
-        registerTag("group", new TagRunnable.ObjectForm() {
+        registerTag("group", new TagRunnable.ObjectForm<DiscordBotTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
+            public ObjectTag run(Attribute attribute, DiscordBotTag object) {
                 if (!attribute.hasContext(1)) {
                     return null;
                 }
-                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(((DiscordBotTag) object).bot);
+                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
                 if (connection == null) {
                     return null;
                 }
@@ -165,15 +163,14 @@ public class DiscordBotTag implements ObjectTag {
                 if (bestMatch == null) {
                     return null;
                 }
-                return new DiscordGroupTag(((DiscordBotTag) object).bot, bestMatch)
-                        .getObjectAttribute(attribute.fulfill(1));
+                return new DiscordGroupTag(object.bot, bestMatch);
             }
         });
     }
 
-    public static ObjectTagProcessor tagProcessor = new ObjectTagProcessor();
+    public static ObjectTagProcessor<DiscordBotTag> tagProcessor = new ObjectTagProcessor<>();
 
-    public static void registerTag(String name, TagRunnable.ObjectForm runnable) {
+    public static void registerTag(String name, TagRunnable.ObjectForm<DiscordBotTag> runnable) {
         tagProcessor.registerTag(name, runnable);
     }
 

@@ -113,11 +113,10 @@ public class DiscordUserTag implements ObjectTag {
         // @description
         // Returns the user name of the user.
         // -->
-        registerTag("name", new TagRunnable.ObjectForm() {
+        registerTag("name", new TagRunnable.ObjectForm<DiscordUserTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((DiscordUserTag) object).user.getUsername())
-                        .getObjectAttribute(attribute.fulfill(1));
+            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
+                return new ElementTag(object.user.getUsername());
             }
         });
 
@@ -128,9 +127,9 @@ public class DiscordUserTag implements ObjectTag {
         // @description
         // Returns the group-specific nickname of the user (if any).
         // -->
-        registerTag("nickname", new TagRunnable.ObjectForm() {
+        registerTag("nickname", new TagRunnable.ObjectForm<DiscordUserTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
+            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
                 if (!attribute.hasContext(1)) {
                     return null;
                 }
@@ -138,12 +137,11 @@ public class DiscordUserTag implements ObjectTag {
                 if (group == null) {
                     return null;
                 }
-                Optional<String> nickname = ((DiscordUserTag) object).user.asMember(Snowflake.of(group.guild_id)).block().getNickname();
+                Optional<String> nickname = object.user.asMember(Snowflake.of(group.guild_id)).block().getNickname();
                 if (!nickname.isPresent()) {
                     return null;
                 }
-                return new ElementTag(nickname.get())
-                        .getObjectAttribute(attribute.fulfill(1));
+                return new ElementTag(nickname.get());
             }
         });
 
@@ -154,11 +152,10 @@ public class DiscordUserTag implements ObjectTag {
         // @description
         // Returns the ID number of the user.
         // -->
-        registerTag("id", new TagRunnable.ObjectForm() {
+        registerTag("id", new TagRunnable.ObjectForm<DiscordUserTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((DiscordUserTag) object).user_id)
-                        .getObjectAttribute(attribute.fulfill(1));
+            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
+                return new ElementTag(object.user_id);
             }
         });
 
@@ -169,11 +166,10 @@ public class DiscordUserTag implements ObjectTag {
         // @description
         // Returns the raw mention string for the user.
         // -->
-        registerTag("mention", new TagRunnable.ObjectForm() {
+        registerTag("mention", new TagRunnable.ObjectForm<DiscordUserTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((DiscordUserTag) object).user.getMention())
-                        .getObjectAttribute(attribute.fulfill(1));
+            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
+                return new ElementTag(object.user.getMention());
             }
         });
 
@@ -184,9 +180,9 @@ public class DiscordUserTag implements ObjectTag {
         // @description
         // Returns a list of all roles the user has in the given group.
         // -->
-        registerTag("roles", new TagRunnable.ObjectForm() {
+        registerTag("roles", new TagRunnable.ObjectForm<DiscordUserTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
+            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
                 if (!attribute.hasContext(1)) {
                     return null;
                 }
@@ -195,17 +191,17 @@ public class DiscordUserTag implements ObjectTag {
                     return null;
                 }
                 ListTag list = new ListTag();
-                for (Role role : ((DiscordUserTag) object).user.asMember(Snowflake.of(group.guild_id)).block().getRoles().toIterable()) {
-                    list.addObject(new DiscordRoleTag(((DiscordUserTag) object).bot, role));
+                for (Role role : object.user.asMember(Snowflake.of(group.guild_id)).block().getRoles().toIterable()) {
+                    list.addObject(new DiscordRoleTag(object.bot, role));
                 }
-                return list.getObjectAttribute(attribute.fulfill(1));
+                return list;
             }
         });
     }
 
-    public static ObjectTagProcessor tagProcessor = new ObjectTagProcessor();
+    public static ObjectTagProcessor<DiscordUserTag> tagProcessor = new ObjectTagProcessor<>();
 
-    public static void registerTag(String name, TagRunnable.ObjectForm runnable) {
+    public static void registerTag(String name, TagRunnable.ObjectForm<DiscordUserTag> runnable) {
         tagProcessor.registerTag(name, runnable);
     }
 

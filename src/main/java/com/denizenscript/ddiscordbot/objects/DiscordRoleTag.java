@@ -140,11 +140,10 @@ public class DiscordRoleTag implements ObjectTag {
         // @description
         // Returns the name of the role.
         // -->
-        registerTag("name", new TagRunnable.ObjectForm() {
+        registerTag("name", new TagRunnable.ObjectForm<DiscordRoleTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((DiscordRoleTag) object).role.getName())
-                        .getObjectAttribute(attribute.fulfill(1));
+            public ObjectTag run(Attribute attribute, DiscordRoleTag object) {
+                return new ElementTag(object.role.getName());
             }
         });
 
@@ -155,11 +154,10 @@ public class DiscordRoleTag implements ObjectTag {
         // @description
         // Returns the ID number of the role.
         // -->
-        registerTag("id", new TagRunnable.ObjectForm() {
+        registerTag("id", new TagRunnable.ObjectForm<DiscordRoleTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((DiscordRoleTag) object).role_id)
-                        .getObjectAttribute(attribute.fulfill(1));
+            public ObjectTag run(Attribute attribute, DiscordRoleTag object) {
+                return new ElementTag(object.role_id);
             }
         });
 
@@ -170,11 +168,10 @@ public class DiscordRoleTag implements ObjectTag {
         // @description
         // Returns the raw mention string the role.
         // -->
-        registerTag("mention", new TagRunnable.ObjectForm() {
+        registerTag("mention", new TagRunnable.ObjectForm<DiscordRoleTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
-                return new ElementTag(((DiscordRoleTag) object).role.getMention())
-                        .getObjectAttribute(attribute.fulfill(1));
+            public ObjectTag run(Attribute attribute, DiscordRoleTag object) {
+                return new ElementTag(object.role.getMention());
             }
         });
 
@@ -185,18 +182,17 @@ public class DiscordRoleTag implements ObjectTag {
         // @description
         // Returns the group that owns this role.
         // -->
-        registerTag("group", new TagRunnable.ObjectForm() {
+        registerTag("group", new TagRunnable.ObjectForm<DiscordRoleTag>() {
             @Override
-            public ObjectTag run(Attribute attribute, ObjectTag object) {
-                return new DiscordGroupTag(((DiscordRoleTag) object).bot, ((DiscordRoleTag) object).role.getGuild().block())
-                        .getObjectAttribute(attribute.fulfill(1));
+            public ObjectTag run(Attribute attribute, DiscordRoleTag object) {
+                return new DiscordGroupTag(object.bot, object.role.getGuild().block());
             }
         });
     }
 
-    public static ObjectTagProcessor tagProcessor = new ObjectTagProcessor();
+    public static ObjectTagProcessor<DiscordRoleTag> tagProcessor = new ObjectTagProcessor<>();
 
-    public static void registerTag(String name, TagRunnable.ObjectForm runnable) {
+    public static void registerTag(String name, TagRunnable.ObjectForm<DiscordRoleTag> runnable) {
         tagProcessor.registerTag(name, runnable);
     }
 
