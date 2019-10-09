@@ -7,8 +7,10 @@ import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagRunnable;
+import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Role;
 import discord4j.core.object.entity.User;
+import discord4j.core.object.presence.Activity;
 import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
@@ -170,6 +172,113 @@ public class DiscordUserTag implements ObjectTag {
             @Override
             public ObjectTag run(Attribute attribute, DiscordUserTag object) {
                 return new ElementTag(object.user.getMention());
+            }
+        });
+
+        // <--[tag]
+        // @attribute <DiscordUserTag.status[<group>]>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the status of the user, as seen from the given group.
+        // Can be any of: online, dnd, idle, invisible, offline.
+        // -->
+        registerTag("status", new TagRunnable.ObjectForm<DiscordUserTag>() {
+            @Override
+            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
+                if (!attribute.hasContext(1)) {
+                    return null;
+                }
+                DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+                if (group == null) {
+                    return null;
+                }
+                Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
+                return new ElementTag(member.getPresence().block().getStatus().getValue());
+            }
+        });
+
+        // <--[tag]
+        // @attribute <DiscordUserTag.activity_type[<group>]>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the activity type of the user, as seen from the given group.
+        // Can be any of: PLAYING, LISTENING, STREAMING, WATCHING.
+        // Not present for all users.
+        // -->
+        registerTag("status", new TagRunnable.ObjectForm<DiscordUserTag>() {
+            @Override
+            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
+                if (!attribute.hasContext(1)) {
+                    return null;
+                }
+                DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+                if (group == null) {
+                    return null;
+                }
+                Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
+                Optional<Activity> activity = member.getPresence().block().getActivity();
+                if (!activity.isPresent()) {
+                    return null;
+                }
+                return new ElementTag(activity.get().getType().name());
+            }
+        });
+
+        // <--[tag]
+        // @attribute <DiscordUserTag.activity_name[<group>]>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the name of the activity of the user, as seen from the given group.
+        // Can be any of: PLAYING, LISTENING, STREAMING, WATCHING.
+        // Not present for all users.
+        // -->
+        registerTag("status", new TagRunnable.ObjectForm<DiscordUserTag>() {
+            @Override
+            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
+                if (!attribute.hasContext(1)) {
+                    return null;
+                }
+                DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+                if (group == null) {
+                    return null;
+                }
+                Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
+                Optional<Activity> activity = member.getPresence().block().getActivity();
+                if (!activity.isPresent()) {
+                    return null;
+                }
+                return new ElementTag(activity.get().getName());
+            }
+        });
+
+        // <--[tag]
+        // @attribute <DiscordUserTag.activity_url[<group>]>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the stream URL of the activity of the user, as seen from the given group.
+        // Can be any of: PLAYING, LISTENING, STREAMING, WATCHING.
+        // Not present for all users.
+        // -->
+        registerTag("status", new TagRunnable.ObjectForm<DiscordUserTag>() {
+            @Override
+            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
+                if (!attribute.hasContext(1)) {
+                    return null;
+                }
+                DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+                if (group == null) {
+                    return null;
+                }
+                Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
+                Optional<Activity> activity = member.getPresence().block().getActivity();
+                if (!activity.isPresent() || !activity.get().getStreamingUrl().isPresent()) {
+                    return null;
+                }
+                return new ElementTag(activity.get().getStreamingUrl().get());
             }
         });
 
