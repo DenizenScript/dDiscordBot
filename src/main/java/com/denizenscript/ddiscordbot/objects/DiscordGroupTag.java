@@ -156,6 +156,24 @@ public class DiscordGroupTag implements ObjectTag {
         });
 
         // <--[tag]
+        // @attribute <DiscordGroupTag.members>
+        // @returns ListTag(DiscordUserTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of all users in the group.
+        // -->
+        registerTag("members", new TagRunnable.ObjectForm<DiscordGroupTag>() {
+            @Override
+            public ObjectTag run(Attribute attribute, DiscordGroupTag object) {
+                ListTag list = new ListTag();
+                for (Member member : object.guild.getMembers().toIterable()) {
+                    list.addObject(new DiscordUserTag(object.bot, member.getId().asLong()));
+                }
+                return list;
+            }
+        });
+
+        // <--[tag]
         // @attribute <DiscordGroupTag.roles>
         // @returns ListTag(DiscordRoleTag)
         // @plugin dDiscordBot
