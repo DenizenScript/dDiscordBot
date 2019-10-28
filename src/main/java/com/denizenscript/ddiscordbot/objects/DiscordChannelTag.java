@@ -109,22 +109,20 @@ public class DiscordChannelTag implements ObjectTag {
         // @description
         // Returns the name of the channel.
         // -->
-        registerTag("name", new TagRunnable.ObjectForm<DiscordChannelTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordChannelTag object) {
-                Channel chan = object.channel;
-                String name;
-                if (chan instanceof GuildChannel) {
-                    name = ((GuildChannel) chan).getName();
-                }
-                else if (chan instanceof PrivateChannel) {
-                    name = "private";
-                }
-                else {
-                    name = "unknown";
-                }
-                return new ElementTag(name);
+        registerTag("name", (attribute, object) -> {
+            Channel chan = object.channel;
+            String name;
+            if (chan instanceof GuildChannel) {
+                name = ((GuildChannel) chan).getName();
             }
+            else if (chan instanceof PrivateChannel) {
+                name = "private";
+            }
+            else {
+                name = "unknown";
+            }
+            return new ElementTag(name);
+
         });
 
         // <--[tag]
@@ -135,11 +133,9 @@ public class DiscordChannelTag implements ObjectTag {
         // Returns the type of the channel.
         // Will be any of: GUILD_TEXT, DM, GUILD_VOICE, GROUP_DM, GUILD_CATEGORY
         // -->
-        registerTag("type", new TagRunnable.ObjectForm<DiscordChannelTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordChannelTag object) {
-                return new ElementTag(object.channel.getType().name());
-            }
+        registerTag("type", (attribute, object) -> {
+            return new ElementTag(object.channel.getType().name());
+
         });
 
         // <--[tag]
@@ -149,11 +145,9 @@ public class DiscordChannelTag implements ObjectTag {
         // @description
         // Returns the ID number of the channel.
         // -->
-        registerTag("id", new TagRunnable.ObjectForm<DiscordChannelTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordChannelTag object) {
-                return new ElementTag(object.channel_id);
-            }
+        registerTag("id", (attribute, object) -> {
+            return new ElementTag(object.channel_id);
+
         });
 
         // <--[tag]
@@ -163,11 +157,9 @@ public class DiscordChannelTag implements ObjectTag {
         // @description
         // Returns the raw mention string for the channel.
         // -->
-        registerTag("mention", new TagRunnable.ObjectForm<DiscordChannelTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordChannelTag object) {
-                return new ElementTag(object.channel.getMention());
-            }
+        registerTag("mention", (attribute, object) -> {
+            return new ElementTag(object.channel.getMention());
+
         });
 
         // <--[tag]
@@ -177,26 +169,24 @@ public class DiscordChannelTag implements ObjectTag {
         // @description
         // Returns the group that owns this channel.
         // -->
-        registerTag("group", new TagRunnable.ObjectForm<DiscordChannelTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordChannelTag object) {
-                Channel chan = object.channel;
-                Guild guild;
-                if (chan instanceof GuildChannel) {
-                    guild = ((GuildChannel) chan).getGuild().block();
-                }
-                else {
-                    return null;
-                }
-                return new DiscordGroupTag(object.bot, guild);
+        registerTag("group", (attribute, object) -> {
+            Channel chan = object.channel;
+            Guild guild;
+            if (chan instanceof GuildChannel) {
+                guild = ((GuildChannel) chan).getGuild().block();
             }
+            else {
+                return null;
+            }
+            return new DiscordGroupTag(object.bot, guild);
+
         });
     }
 
     public static ObjectTagProcessor<DiscordChannelTag> tagProcessor = new ObjectTagProcessor<>();
 
-    public static void registerTag(String name, TagRunnable.ObjectForm<DiscordChannelTag> runnable) {
-        tagProcessor.registerTag(name, runnable);
+    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordChannelTag> runnable, String... variants) {
+        tagProcessor.registerTag(name, runnable, variants);
     }
 
     @Override

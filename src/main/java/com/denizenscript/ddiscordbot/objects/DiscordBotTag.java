@@ -84,11 +84,9 @@ public class DiscordBotTag implements ObjectTag {
         // @description
         // Returns the name of the bot.
         // -->
-        registerTag("name", new TagRunnable.ObjectForm<DiscordBotTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordBotTag object) {
-                return new ElementTag(object.bot);
-            }
+        registerTag("name", (attribute, object) -> {
+            return new ElementTag(object.bot);
+
         });
 
         // <--[tag]
@@ -98,15 +96,13 @@ public class DiscordBotTag implements ObjectTag {
         // @description
         // Returns the bot's own Discord user object.
         // -->
-        registerTag("self_user", new TagRunnable.ObjectForm<DiscordBotTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordBotTag object) {
-                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
-                if (connection == null) {
-                    return null;
-                }
-                return new DiscordUserTag(object.bot, connection.client.getSelf().block());
+        registerTag("self_user", (attribute, object) -> {
+            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
+            if (connection == null) {
+                return null;
             }
+            return new DiscordUserTag(object.bot, connection.client.getSelf().block());
+
         });
 
         // <--[tag]
@@ -116,19 +112,17 @@ public class DiscordBotTag implements ObjectTag {
         // @description
         // Returns a list of all groups (aka 'guilds' or 'servers') that this Discord bot has access to.
         // -->
-        registerTag("groups", new TagRunnable.ObjectForm<DiscordBotTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordBotTag object) {
-                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
-                if (connection == null) {
-                    return null;
-                }
-                ListTag list = new ListTag();
-                for (Guild guild : connection.client.getGuilds().toIterable()) {
-                    list.addObject(new DiscordGroupTag(object.bot, guild));
-                }
-                return list;
+        registerTag("groups", (attribute, object) -> {
+            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
+            if (connection == null) {
+                return null;
             }
+            ListTag list = new ListTag();
+            for (Guild guild : connection.client.getGuilds().toIterable()) {
+                list.addObject(new DiscordGroupTag(object.bot, guild));
+            }
+            return list;
+
         });
 
         // <--[tag]
@@ -138,40 +132,38 @@ public class DiscordBotTag implements ObjectTag {
         // @description
         // Returns the Discord group (aka 'guild' or 'server') that best matches the input name, or null if there's no match.
         // -->
-        registerTag("group", new TagRunnable.ObjectForm<DiscordBotTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordBotTag object) {
-                if (!attribute.hasContext(1)) {
-                    return null;
-                }
-                DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
-                if (connection == null) {
-                    return null;
-                }
-                String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
-                Guild bestMatch = null;
-                for (Guild guild : connection.client.getGuilds().toIterable()) {
-                    String guildName = CoreUtilities.toLowerCase(guild.getName());
-                    if (matchString.equals(guildName)) {
-                        bestMatch = guild;
-                        break;
-                    }
-                    if (guildName.contains(matchString)) {
-                        bestMatch = guild;
-                    }
-                }
-                if (bestMatch == null) {
-                    return null;
-                }
-                return new DiscordGroupTag(object.bot, bestMatch);
+        registerTag("group", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
             }
+            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
+            if (connection == null) {
+                return null;
+            }
+            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            Guild bestMatch = null;
+            for (Guild guild : connection.client.getGuilds().toIterable()) {
+                String guildName = CoreUtilities.toLowerCase(guild.getName());
+                if (matchString.equals(guildName)) {
+                    bestMatch = guild;
+                    break;
+                }
+                if (guildName.contains(matchString)) {
+                    bestMatch = guild;
+                }
+            }
+            if (bestMatch == null) {
+                return null;
+            }
+            return new DiscordGroupTag(object.bot, bestMatch);
+
         });
     }
 
     public static ObjectTagProcessor<DiscordBotTag> tagProcessor = new ObjectTagProcessor<>();
 
-    public static void registerTag(String name, TagRunnable.ObjectForm<DiscordBotTag> runnable) {
-        tagProcessor.registerTag(name, runnable);
+    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordBotTag> runnable, String... variants) {
+        tagProcessor.registerTag(name, runnable, variants);
     }
 
     @Override

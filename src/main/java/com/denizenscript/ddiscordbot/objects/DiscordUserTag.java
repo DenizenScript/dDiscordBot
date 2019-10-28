@@ -115,11 +115,9 @@ public class DiscordUserTag implements ObjectTag {
         // @description
         // Returns the user name of the user.
         // -->
-        registerTag("name", new TagRunnable.ObjectForm<DiscordUserTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
-                return new ElementTag(object.user.getUsername());
-            }
+        registerTag("name", (attribute, object) -> {
+            return new ElementTag(object.user.getUsername());
+
         });
 
         // <--[tag]
@@ -129,22 +127,20 @@ public class DiscordUserTag implements ObjectTag {
         // @description
         // Returns the group-specific nickname of the user (if any).
         // -->
-        registerTag("nickname", new TagRunnable.ObjectForm<DiscordUserTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
-                if (!attribute.hasContext(1)) {
-                    return null;
-                }
-                DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
-                if (group == null) {
-                    return null;
-                }
-                Optional<String> nickname = object.user.asMember(Snowflake.of(group.guild_id)).block().getNickname();
-                if (!nickname.isPresent()) {
-                    return null;
-                }
-                return new ElementTag(nickname.get());
+        registerTag("nickname", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
             }
+            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            if (group == null) {
+                return null;
+            }
+            Optional<String> nickname = object.user.asMember(Snowflake.of(group.guild_id)).block().getNickname();
+            if (!nickname.isPresent()) {
+                return null;
+            }
+            return new ElementTag(nickname.get());
+
         });
 
         // <--[tag]
@@ -154,11 +150,9 @@ public class DiscordUserTag implements ObjectTag {
         // @description
         // Returns the ID number of the user.
         // -->
-        registerTag("id", new TagRunnable.ObjectForm<DiscordUserTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
-                return new ElementTag(object.user_id);
-            }
+        registerTag("id", (attribute, object) -> {
+            return new ElementTag(object.user_id);
+
         });
 
         // <--[tag]
@@ -168,11 +162,9 @@ public class DiscordUserTag implements ObjectTag {
         // @description
         // Returns the raw mention string for the user.
         // -->
-        registerTag("mention", new TagRunnable.ObjectForm<DiscordUserTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
-                return new ElementTag(object.user.getMention());
-            }
+        registerTag("mention", (attribute, object) -> {
+            return new ElementTag(object.user.getMention());
+
         });
 
         // <--[tag]
@@ -183,19 +175,17 @@ public class DiscordUserTag implements ObjectTag {
         // Returns the status of the user, as seen from the given group.
         // Can be any of: online, dnd, idle, invisible, offline.
         // -->
-        registerTag("status", new TagRunnable.ObjectForm<DiscordUserTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
-                if (!attribute.hasContext(1)) {
-                    return null;
-                }
-                DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
-                if (group == null) {
-                    return null;
-                }
-                Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
-                return new ElementTag(member.getPresence().block().getStatus().getValue());
+        registerTag("status", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
             }
+            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            if (group == null) {
+                return null;
+            }
+            Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
+            return new ElementTag(member.getPresence().block().getStatus().getValue());
+
         });
 
         // <--[tag]
@@ -207,23 +197,21 @@ public class DiscordUserTag implements ObjectTag {
         // Can be any of: PLAYING, LISTENING, STREAMING, WATCHING.
         // Not present for all users.
         // -->
-        registerTag("status", new TagRunnable.ObjectForm<DiscordUserTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
-                if (!attribute.hasContext(1)) {
-                    return null;
-                }
-                DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
-                if (group == null) {
-                    return null;
-                }
-                Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
-                Optional<Activity> activity = member.getPresence().block().getActivity();
-                if (!activity.isPresent()) {
-                    return null;
-                }
-                return new ElementTag(activity.get().getType().name());
+        registerTag("status", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
             }
+            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            if (group == null) {
+                return null;
+            }
+            Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
+            Optional<Activity> activity = member.getPresence().block().getActivity();
+            if (!activity.isPresent()) {
+                return null;
+            }
+            return new ElementTag(activity.get().getType().name());
+
         });
 
         // <--[tag]
@@ -235,23 +223,21 @@ public class DiscordUserTag implements ObjectTag {
         // Can be any of: PLAYING, LISTENING, STREAMING, WATCHING.
         // Not present for all users.
         // -->
-        registerTag("status", new TagRunnable.ObjectForm<DiscordUserTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
-                if (!attribute.hasContext(1)) {
-                    return null;
-                }
-                DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
-                if (group == null) {
-                    return null;
-                }
-                Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
-                Optional<Activity> activity = member.getPresence().block().getActivity();
-                if (!activity.isPresent()) {
-                    return null;
-                }
-                return new ElementTag(activity.get().getName());
+        registerTag("status", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
             }
+            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            if (group == null) {
+                return null;
+            }
+            Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
+            Optional<Activity> activity = member.getPresence().block().getActivity();
+            if (!activity.isPresent()) {
+                return null;
+            }
+            return new ElementTag(activity.get().getName());
+
         });
 
         // <--[tag]
@@ -263,23 +249,21 @@ public class DiscordUserTag implements ObjectTag {
         // Can be any of: PLAYING, LISTENING, STREAMING, WATCHING.
         // Not present for all users.
         // -->
-        registerTag("status", new TagRunnable.ObjectForm<DiscordUserTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
-                if (!attribute.hasContext(1)) {
-                    return null;
-                }
-                DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
-                if (group == null) {
-                    return null;
-                }
-                Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
-                Optional<Activity> activity = member.getPresence().block().getActivity();
-                if (!activity.isPresent() || !activity.get().getStreamingUrl().isPresent()) {
-                    return null;
-                }
-                return new ElementTag(activity.get().getStreamingUrl().get());
+        registerTag("status", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
             }
+            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            if (group == null) {
+                return null;
+            }
+            Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
+            Optional<Activity> activity = member.getPresence().block().getActivity();
+            if (!activity.isPresent() || !activity.get().getStreamingUrl().isPresent()) {
+                return null;
+            }
+            return new ElementTag(activity.get().getStreamingUrl().get());
+
         });
 
         // <--[tag]
@@ -289,29 +273,27 @@ public class DiscordUserTag implements ObjectTag {
         // @description
         // Returns a list of all roles the user has in the given group.
         // -->
-        registerTag("roles", new TagRunnable.ObjectForm<DiscordUserTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordUserTag object) {
-                if (!attribute.hasContext(1)) {
-                    return null;
-                }
-                DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
-                if (group == null) {
-                    return null;
-                }
-                ListTag list = new ListTag();
-                for (Role role : object.user.asMember(Snowflake.of(group.guild_id)).block().getRoles().toIterable()) {
-                    list.addObject(new DiscordRoleTag(object.bot, role));
-                }
-                return list;
+        registerTag("roles", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
             }
+            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            if (group == null) {
+                return null;
+            }
+            ListTag list = new ListTag();
+            for (Role role : object.user.asMember(Snowflake.of(group.guild_id)).block().getRoles().toIterable()) {
+                list.addObject(new DiscordRoleTag(object.bot, role));
+            }
+            return list;
+
         });
     }
 
     public static ObjectTagProcessor<DiscordUserTag> tagProcessor = new ObjectTagProcessor<>();
 
-    public static void registerTag(String name, TagRunnable.ObjectForm<DiscordUserTag> runnable) {
-        tagProcessor.registerTag(name, runnable);
+    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordUserTag> runnable, String... variants) {
+        tagProcessor.registerTag(name, runnable, variants);
     }
 
     @Override

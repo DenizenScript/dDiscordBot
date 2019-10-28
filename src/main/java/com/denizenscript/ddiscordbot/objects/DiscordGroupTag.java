@@ -116,11 +116,9 @@ public class DiscordGroupTag implements ObjectTag {
         // @description
         // Returns the name of the group.
         // -->
-        registerTag("name", new TagRunnable.ObjectForm<DiscordGroupTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordGroupTag object) {
-                return new ElementTag(object.guild.getName());
-            }
+        registerTag("name", (attribute, object) -> {
+            return new ElementTag(object.guild.getName());
+
         });
 
         // <--[tag]
@@ -130,11 +128,9 @@ public class DiscordGroupTag implements ObjectTag {
         // @description
         // Returns the ID number of the group.
         // -->
-        registerTag("id", new TagRunnable.ObjectForm<DiscordGroupTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordGroupTag object) {
-                return new ElementTag(object.guild_id);
-            }
+        registerTag("id", (attribute, object) -> {
+            return new ElementTag(object.guild_id);
+
         });
 
         // <--[tag]
@@ -144,15 +140,13 @@ public class DiscordGroupTag implements ObjectTag {
         // @description
         // Returns a list of all channels in the group.
         // -->
-        registerTag("channels", new TagRunnable.ObjectForm<DiscordGroupTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordGroupTag object) {
-                ListTag list = new ListTag();
-                for (GuildChannel chan : object.guild.getChannels().toIterable()) {
-                    list.addObject(new DiscordChannelTag(object.bot, chan));
-                }
-                return list;
+        registerTag("channels", (attribute, object) -> {
+            ListTag list = new ListTag();
+            for (GuildChannel chan : object.guild.getChannels().toIterable()) {
+                list.addObject(new DiscordChannelTag(object.bot, chan));
             }
+            return list;
+
         });
 
         // <--[tag]
@@ -162,15 +156,13 @@ public class DiscordGroupTag implements ObjectTag {
         // @description
         // Returns a list of all users in the group.
         // -->
-        registerTag("members", new TagRunnable.ObjectForm<DiscordGroupTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordGroupTag object) {
-                ListTag list = new ListTag();
-                for (Member member : object.guild.getMembers().toIterable()) {
-                    list.addObject(new DiscordUserTag(object.bot, member.getId().asLong()));
-                }
-                return list;
+        registerTag("members", (attribute, object) -> {
+            ListTag list = new ListTag();
+            for (Member member : object.guild.getMembers().toIterable()) {
+                list.addObject(new DiscordUserTag(object.bot, member.getId().asLong()));
             }
+            return list;
+
         });
 
         // <--[tag]
@@ -180,15 +172,13 @@ public class DiscordGroupTag implements ObjectTag {
         // @description
         // Returns a list of all roles in the group.
         // -->
-        registerTag("roles", new TagRunnable.ObjectForm<DiscordGroupTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordGroupTag object) {
-                ListTag list = new ListTag();
-                for (Role role : object.guild.getRoles().toIterable()) {
-                    list.addObject(new DiscordRoleTag(object.bot, role));
-                }
-                return list;
+        registerTag("roles", (attribute, object) -> {
+            ListTag list = new ListTag();
+            for (Role role : object.guild.getRoles().toIterable()) {
+                list.addObject(new DiscordRoleTag(object.bot, role));
             }
+            return list;
+
         });
 
         // <--[tag]
@@ -202,27 +192,25 @@ public class DiscordGroupTag implements ObjectTag {
         // (this happens more often than you might expect - many users accidentally join new Discord groups from the
         // web on a temporary web account, then rejoin on a local client with their 'real' account).
         // -->
-        registerTag("member", new TagRunnable.ObjectForm<DiscordGroupTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordGroupTag object) {
-                if (!attribute.hasContext(1)) {
-                    return null;
-                }
-                String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
-                int discrimMark = matchString.indexOf('#');
-                String discrimVal = null;
-                if (discrimMark > 0 && discrimMark == matchString.length() - 5) {
-                    discrimVal = matchString.substring(discrimMark + 1);
-                    matchString = matchString.substring(0, discrimMark);
-                }
-                final String discrim = discrimVal;
-                final String matchName = matchString;
-                for (Member member : object.guild.getMembers().filter(
-                        m -> matchName.equalsIgnoreCase(m.getUsername()) && (discrim == null || discrim.equals(m.getDiscriminator()))).toIterable()) {
-                    return new DiscordUserTag(object.bot, member.getId().asLong());
-                }
+        registerTag("member", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
                 return null;
             }
+            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            int discrimMark = matchString.indexOf('#');
+            String discrimVal = null;
+            if (discrimMark > 0 && discrimMark == matchString.length() - 5) {
+                discrimVal = matchString.substring(discrimMark + 1);
+                matchString = matchString.substring(0, discrimMark);
+            }
+            final String discrim = discrimVal;
+            final String matchName = matchString;
+            for (Member member : object.guild.getMembers().filter(
+                    m -> matchName.equalsIgnoreCase(m.getUsername()) && (discrim == null || discrim.equals(m.getDiscriminator()))).toIterable()) {
+                return new DiscordUserTag(object.bot, member.getId().asLong());
+            }
+            return null;
+
         });
 
         // <--[tag]
@@ -232,36 +220,34 @@ public class DiscordGroupTag implements ObjectTag {
         // @description
         // Returns the channel that best matches the input name, or null if there's no match.
         // -->
-        registerTag("channel", new TagRunnable.ObjectForm<DiscordGroupTag>() {
-            @Override
-            public ObjectTag run(Attribute attribute, DiscordGroupTag object) {
-                if (!attribute.hasContext(1)) {
-                    return null;
-                }
-                String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
-                Channel bestMatch = null;
-                for (GuildChannel chan : object.guild.getChannels().toIterable()) {
-                    String chanName = CoreUtilities.toLowerCase(chan.getName());
-                    if (matchString.equals(chanName)) {
-                        bestMatch = chan;
-                        break;
-                    }
-                    if (chanName.contains(matchString)) {
-                        bestMatch = chan;
-                    }
-                }
-                if (bestMatch == null) {
-                    return null;
-                }
-                return new DiscordChannelTag(object.bot, bestMatch);
+        registerTag("channel", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
             }
+            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            Channel bestMatch = null;
+            for (GuildChannel chan : object.guild.getChannels().toIterable()) {
+                String chanName = CoreUtilities.toLowerCase(chan.getName());
+                if (matchString.equals(chanName)) {
+                    bestMatch = chan;
+                    break;
+                }
+                if (chanName.contains(matchString)) {
+                    bestMatch = chan;
+                }
+            }
+            if (bestMatch == null) {
+                return null;
+            }
+            return new DiscordChannelTag(object.bot, bestMatch);
+
         });
     }
 
     public static ObjectTagProcessor<DiscordGroupTag> tagProcessor = new ObjectTagProcessor<>();
 
-    public static void registerTag(String name, TagRunnable.ObjectForm<DiscordGroupTag> runnable) {
-        tagProcessor.registerTag(name, runnable);
+    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordGroupTag> runnable, String... variants) {
+        tagProcessor.registerTag(name, runnable, variants);
     }
 
     @Override
