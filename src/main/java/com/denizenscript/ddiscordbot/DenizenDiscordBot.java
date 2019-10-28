@@ -37,17 +37,11 @@ public class DenizenDiscordBot extends JavaPlugin {
             ScriptEvent.registerScriptEvent(DiscordUserJoinsScriptEvent.instance = new DiscordUserJoinsScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserLeavesScriptEvent.instance = new DiscordUserLeavesScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserRoleChangeScriptEvent.instance = new DiscordUserRoleChangeScriptEvent());
-            ObjectFetcher.registerWithObjectFetcher(DiscordChannelTag.class);
-            DiscordChannelTag.registerTags();
-            ObjectFetcher.registerWithObjectFetcher(DiscordBotTag.class);
-            DiscordBotTag.registerTags();
-            ObjectFetcher.registerWithObjectFetcher(DiscordGroupTag.class);
-            DiscordGroupTag.registerTags();
-            ObjectFetcher.registerWithObjectFetcher(DiscordRoleTag.class);
-            DiscordRoleTag.registerTags();
-            ObjectFetcher.registerWithObjectFetcher(DiscordUserTag.class);
-            DiscordUserTag.registerTags();
-            ObjectFetcher._initialize();
+            ObjectFetcher.registerWithObjectFetcher(DiscordChannelTag.class, DiscordChannelTag.tagProcessor);
+            ObjectFetcher.registerWithObjectFetcher(DiscordBotTag.class, DiscordBotTag.tagProcessor);
+            ObjectFetcher.registerWithObjectFetcher(DiscordGroupTag.class, DiscordGroupTag.tagProcessor);
+            ObjectFetcher.registerWithObjectFetcher(DiscordRoleTag.class, DiscordRoleTag.tagProcessor);
+            ObjectFetcher.registerWithObjectFetcher(DiscordUserTag.class, DiscordUserTag.tagProcessor);
             TagManager.registerTagHandler(new TagRunnable.RootForm() {
                 @Override
                 public void run(ReplaceableTagEvent event) {
