@@ -117,7 +117,17 @@ public class DiscordUserTag implements ObjectTag {
         // -->
         registerTag("name", (attribute, object) -> {
             return new ElementTag(object.user.getUsername());
+        });
 
+        // <--[tag]
+        // @attribute <DiscordUserTag.is_bot>
+        // @returns ElementTag(Boolean)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a boolean indicating whether the user is a bot.
+        // -->
+        registerTag("is_bot", (attribute, object) -> {
+            return new ElementTag(object.user.isBot());
         });
 
         // <--[tag]
@@ -140,7 +150,6 @@ public class DiscordUserTag implements ObjectTag {
                 return null;
             }
             return new ElementTag(nickname.get());
-
         });
 
         // <--[tag]
@@ -164,7 +173,6 @@ public class DiscordUserTag implements ObjectTag {
         // -->
         registerTag("mention", (attribute, object) -> {
             return new ElementTag(object.user.getMention());
-
         });
 
         // <--[tag]
@@ -185,7 +193,6 @@ public class DiscordUserTag implements ObjectTag {
             }
             Member member = object.user.asMember(Snowflake.of(group.guild_id)).block();
             return new ElementTag(member.getPresence().block().getStatus().getValue());
-
         });
 
         // <--[tag]
@@ -211,7 +218,6 @@ public class DiscordUserTag implements ObjectTag {
                 return null;
             }
             return new ElementTag(activity.get().getType().name());
-
         });
 
         // <--[tag]
@@ -237,7 +243,6 @@ public class DiscordUserTag implements ObjectTag {
                 return null;
             }
             return new ElementTag(activity.get().getName());
-
         });
 
         // <--[tag]
@@ -263,7 +268,6 @@ public class DiscordUserTag implements ObjectTag {
                 return null;
             }
             return new ElementTag(activity.get().getStreamingUrl().get());
-
         });
 
         // <--[tag]
@@ -286,7 +290,6 @@ public class DiscordUserTag implements ObjectTag {
                 list.addObject(new DiscordRoleTag(object.bot, role));
             }
             return list;
-
         });
     }
 
