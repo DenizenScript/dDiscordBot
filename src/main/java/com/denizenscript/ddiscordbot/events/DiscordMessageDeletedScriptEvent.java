@@ -26,9 +26,9 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     //
     // @Regex ^on discord message deleted$
     //
-    // @Switch for <bot>
-    // @Switch channel <channel_id>
-    // @Switch group <group_id>
+    // @Switch for:<bot> to only process the event for a specified Discord bot.
+    // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
+    // @Switch group:<group_id> to only process the event for a specified Discord group.
     //
     // @Triggers when a Discord user deletes a message.
     //

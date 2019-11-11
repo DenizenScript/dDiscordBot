@@ -25,9 +25,9 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
     //
     // @Regex ^on discord message modified$
     //
-    // @Switch for <bot>
-    // @Switch channel <channel_id>
-    // @Switch group <group_id>
+    // @Switch for:<bot> to only process the event for a specified Discord bot.
+    // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
+    // @Switch group:<group_id> to only process the event for a specified Discord group.
     //
     // @Triggers when a Discord user modified a message.
     //
