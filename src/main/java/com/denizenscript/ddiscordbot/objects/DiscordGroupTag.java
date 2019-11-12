@@ -16,7 +16,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 public class DiscordGroupTag implements ObjectTag {
 
     // <--[language]
-    // @name DiscordGroupTag
+    // @name DiscordGroupTag Objects
     // @group Object System
     // @plugin dDiscordBot
     // @description
@@ -43,7 +43,7 @@ public class DiscordGroupTag implements ObjectTag {
     // For example: 1234
     // Or: mybot,1234
     //
-    // For general info, see <@link language DiscordGroupTag>
+    // For general info, see <@link language DiscordGroupTag Objects>
     // -->
 
     @Fetchable("discordgroup")

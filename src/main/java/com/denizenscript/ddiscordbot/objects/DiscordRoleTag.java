@@ -17,7 +17,7 @@ import java.util.List;
 public class DiscordRoleTag implements ObjectTag {
 
     // <--[language]
-    // @name DiscordRoleTag
+    // @name DiscordRoleTag Objects
     // @group Object System
     // @plugin dDiscordBot
     // @description
@@ -39,7 +39,7 @@ public class DiscordRoleTag implements ObjectTag {
     // Or: 1234,4321
     // Or: mybot,1234,4321
     //
-    // For general info, see <@link language DiscordRoleTag>
+    // For general info, see <@link language DiscordRoleTag Objects>
     // -->
 
     @Fetchable("discordrole")

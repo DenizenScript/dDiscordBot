@@ -15,7 +15,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 public class DiscordBotTag implements ObjectTag {
 
     // <--[language]
-    // @name DiscordBotTag
+    // @name DiscordBotTag Objects
     // @group Object System
     // @plugin dDiscordBot
     // @description
@@ -34,7 +34,7 @@ public class DiscordBotTag implements ObjectTag {
     // Fetcher. The constructor for a DiscordBotTag is the bot ID (as chosen in <@link command discord>).
     // For example: mybot
     //
-    // For general info, see <@link language DiscordBotTag>
+    // For general info, see <@link language DiscordBotTag Objects>
     // -->
 
     @Fetchable("discord")

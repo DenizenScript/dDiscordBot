@@ -15,7 +15,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 public class DiscordChannelTag implements ObjectTag {
 
     // <--[language]
-    // @name DiscordChannelTag
+    // @name DiscordChannelTag Objects
     // @group Object System
     // @plugin dDiscordBot
     // @description
@@ -36,7 +36,7 @@ public class DiscordChannelTag implements ObjectTag {
     // For example: 1234
     // Or: mybot,1234
     //
-    // For general info, see <@link language DiscordChannelTag>
+    // For general info, see <@link language DiscordChannelTag Objects>
     // -->
 
     @Fetchable("discordchannel")

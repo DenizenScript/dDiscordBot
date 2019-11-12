@@ -21,7 +21,7 @@ import java.util.Optional;
 public class DiscordUserTag implements ObjectTag {
 
     // <--[language]
-    // @name DiscordUserTag
+    // @name DiscordUserTag Objects
     // @group Object System
     // @plugin dDiscordBot
     // @description
@@ -42,7 +42,7 @@ public class DiscordUserTag implements ObjectTag {
     // For example: 1234
     // Or: mybot,1234
     //
-    // For general info, see <@link language DiscordUserTag>
+    // For general info, see <@link language DiscordUserTag Objects>
     // -->
 
     @Fetchable("discorduser")
