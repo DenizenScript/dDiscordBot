@@ -118,7 +118,6 @@ public class DiscordGroupTag implements ObjectTag {
         // -->
         registerTag("name", (attribute, object) -> {
             return new ElementTag(object.guild.getName());
-
         });
 
         // <--[tag]
@@ -130,7 +129,6 @@ public class DiscordGroupTag implements ObjectTag {
         // -->
         registerTag("id", (attribute, object) -> {
             return new ElementTag(object.guild_id);
-
         });
 
         // <--[tag]
@@ -146,7 +144,6 @@ public class DiscordGroupTag implements ObjectTag {
                 list.addObject(new DiscordChannelTag(object.bot, chan));
             }
             return list;
-
         });
 
         // <--[tag]
@@ -162,7 +159,6 @@ public class DiscordGroupTag implements ObjectTag {
                 list.addObject(new DiscordUserTag(object.bot, member.getId().asLong()));
             }
             return list;
-
         });
 
         // <--[tag]
@@ -178,7 +174,6 @@ public class DiscordGroupTag implements ObjectTag {
                 list.addObject(new DiscordRoleTag(object.bot, role));
             }
             return list;
-
         });
 
         // <--[tag]
@@ -210,7 +205,6 @@ public class DiscordGroupTag implements ObjectTag {
                 return new DiscordUserTag(object.bot, member.getId().asLong());
             }
             return null;
-
         });
 
         // <--[tag]
@@ -240,7 +234,35 @@ public class DiscordGroupTag implements ObjectTag {
                 return null;
             }
             return new DiscordChannelTag(object.bot, bestMatch);
+        });
 
+        // <--[tag]
+        // @attribute <DiscordGroupTag.role[<name>]>
+        // @returns DiscordRoleTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the role that best matches the input name, or null if there's no match.
+        // -->
+        registerTag("role", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
+            }
+            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            Role bestMatch = null;
+            for (Role role : object.guild.getRoles().toIterable()) {
+                String roleName = CoreUtilities.toLowerCase(role.getName());
+                if (matchString.equals(roleName)) {
+                    bestMatch = role;
+                    break;
+                }
+                if (roleName.contains(matchString)) {
+                    bestMatch = role;
+                }
+            }
+            if (bestMatch == null) {
+                return null;
+            }
+            return new DiscordRoleTag(object.bot, bestMatch);
         });
     }
 
