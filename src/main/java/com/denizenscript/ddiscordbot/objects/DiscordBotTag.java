@@ -7,7 +7,6 @@ import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagRunnable;
-import discord4j.core.object.entity.Guild;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
@@ -118,8 +117,8 @@ public class DiscordBotTag implements ObjectTag {
                 return null;
             }
             ListTag list = new ListTag();
-            for (Guild guild : connection.client.getGuilds().toIterable()) {
-                list.addObject(new DiscordGroupTag(object.bot, guild));
+            for (DiscordConnection.GuildCache guild : connection.guildsCached) {
+                list.addObject(new DiscordGroupTag(object.bot, guild.id));
             }
             return list;
 
@@ -141,9 +140,9 @@ public class DiscordBotTag implements ObjectTag {
                 return null;
             }
             String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
-            Guild bestMatch = null;
-            for (Guild guild : connection.client.getGuilds().toIterable()) {
-                String guildName = CoreUtilities.toLowerCase(guild.getName());
+            DiscordConnection.GuildCache bestMatch = null;
+            for (DiscordConnection.GuildCache guild : connection.guildsCached) {
+                String guildName = CoreUtilities.toLowerCase(guild.name);
                 if (matchString.equals(guildName)) {
                     bestMatch = guild;
                     break;
@@ -155,7 +154,7 @@ public class DiscordBotTag implements ObjectTag {
             if (bestMatch == null) {
                 return null;
             }
-            return new DiscordGroupTag(object.bot, bestMatch);
+            return new DiscordGroupTag(object.bot, bestMatch.id);
 
         });
     }
