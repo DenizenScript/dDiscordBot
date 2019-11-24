@@ -304,6 +304,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 break;
             }
             case DISCONNECT: {
+                scriptEntry.setFinished(true);
                 if (requireClientID.get()) {
                     return;
                 }
@@ -349,6 +350,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 break;
             }
             case ADD_ROLE: {
+                scriptEntry.setFinished(true);
                 if (requireClientID.get() || requireUser.get() || requireGuild.get() || requireRole.get()) {
                     return;
                 }
@@ -362,6 +364,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 break;
             }
             case REMOVE_ROLE: {
+                scriptEntry.setFinished(true);
                 if (requireClientID.get() || requireUser.get() || requireRole.get() || requireGuild.get()) {
                     return;
                 }
@@ -375,6 +378,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 break;
             }
             case EDIT_MESSAGE: {
+                scriptEntry.setFinished(true);
                 if (requireClientID.get() || requireClientID.get() || requireMessage.get() || requireMessageId.get()) {
                     return;
                 }
@@ -392,6 +396,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 break;
             }
             case DELETE_MESSAGE: {
+                scriptEntry.setFinished(true);
                 if (requireClientID.get() || requireClientID.get() || requireMessageId.get()) {
                     return;
                 }
@@ -409,6 +414,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 break;
             }
             case START_TYPING: {
+                scriptEntry.setFinished(true);
                 if (requireClientID.get() || requireChannel.get()) {
                     return;
                 }
@@ -422,6 +428,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 break;
             }
             case STOP_TYPING: {
+                scriptEntry.setFinished(true);
                 if (requireClientID.get() || requireChannel.get()) {
                     return;
                 }
@@ -435,6 +442,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 break;
             }
             case RENAME: {
+                scriptEntry.setFinished(true);
                 if (requireClientID.get() || requireGuild.get() || requireMessage.get()) {
                     return;
                 }
@@ -455,6 +463,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 break;
             }
             case STATUS: {
+                scriptEntry.setFinished(true);
                 if (requireClientID.get()) {
                     return;
                 }
