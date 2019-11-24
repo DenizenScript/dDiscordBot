@@ -307,7 +307,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireClientID.get()) {
                     return;
                 }
-                DenizenDiscordBot.instance.connections.remove(id.asString()).client.logout();
+                DenizenDiscordBot.instance.connections.remove(id.asString()).client.logout().block();
                 break;
             }
             case MESSAGE: {
