@@ -2,6 +2,7 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.denizen.utilities.debugging.Debug;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
@@ -60,7 +61,13 @@ public class DiscordGroupTag implements ObjectTag {
             bot = CoreUtilities.toLowerCase(string.substring(0, comma));
             string = string.substring(comma + 1);
         }
-        long grpId = ArgumentHelper.getLongFrom(string);
+        if (!ArgumentHelper.matchesInteger(string)) {
+            if (context == null || context.debug) {
+                Debug.echoError("DiscordGroupTag input is not a number.");
+            }
+            return null;
+        }
+        long grpId = Long.parseLong(string);
         if (grpId == 0) {
             return null;
         }

@@ -2,6 +2,7 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.denizen.utilities.debugging.Debug;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
@@ -59,7 +60,13 @@ public class DiscordUserTag implements ObjectTag {
             bot = CoreUtilities.toLowerCase(string.substring(0, comma));
             string = string.substring(comma + 1);
         }
-        long usrId = ArgumentHelper.getLongFrom(string);
+        if (!ArgumentHelper.matchesInteger(string)) {
+            if (context == null || context.debug) {
+                Debug.echoError("DiscordUserTag input is not a number.");
+            }
+            return null;
+        }
+        long usrId = Long.parseLong(string);
         if (usrId == 0) {
             return null;
         }

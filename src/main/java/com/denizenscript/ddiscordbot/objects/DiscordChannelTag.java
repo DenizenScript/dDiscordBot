@@ -2,6 +2,7 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.denizen.utilities.debugging.Debug;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
@@ -53,7 +54,13 @@ public class DiscordChannelTag implements ObjectTag {
             bot = CoreUtilities.toLowerCase(string.substring(0, comma));
             string = string.substring(comma + 1);
         }
-        long chanID = ArgumentHelper.getLongFrom(string);
+        if (!ArgumentHelper.matchesInteger(string)) {
+            if (context == null || context.debug) {
+                Debug.echoError("DiscordChannelTag input is not a number.");
+            }
+            return null;
+        }
+        long chanID = Long.parseLong(string);
         if (chanID == 0) {
             return null;
         }

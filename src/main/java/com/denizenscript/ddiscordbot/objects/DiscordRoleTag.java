@@ -2,6 +2,7 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.denizen.utilities.debugging.Debug;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
@@ -52,23 +53,41 @@ public class DiscordRoleTag implements ObjectTag {
         }
         List<String> input = CoreUtilities.split(string, ',');
         if (input.size() == 1) {
-            long roleId = ArgumentHelper.getLongFrom(input.get(0));
+            if (!ArgumentHelper.matchesInteger(input.get(0))) {
+                if (context == null || context.debug) {
+                    Debug.echoError("DiscordRoleTag input is not a number.");
+                }
+                return null;
+            }
+            long roleId = Long.parseLong(input.get(0));
             if (roleId == 0) {
                 return null;
             }
             return new DiscordRoleTag(null, 0, roleId);
         }
         else if (input.size() == 3) {
-            long guildId = ArgumentHelper.getLongFrom(input.get(1));
-            long roleId = ArgumentHelper.getLongFrom(input.get(2));
+            if (!ArgumentHelper.matchesInteger(input.get(1)) || !ArgumentHelper.matchesInteger(input.get(2))) {
+                if (context == null || context.debug) {
+                    Debug.echoError("DiscordRoleTag input is not a number.");
+                }
+                return null;
+            }
+            long guildId = Long.parseLong(input.get(1));
+            long roleId = Long.parseLong(input.get(2));
             if (guildId == 0 || roleId == 0) {
                 return null;
             }
             return new DiscordRoleTag(input.get(0), guildId, roleId);
         }
         else if (input.size() == 2) {
-            long guildId = ArgumentHelper.getLongFrom(input.get(0));
-            long roleId = ArgumentHelper.getLongFrom(input.get(1));
+            if (!ArgumentHelper.matchesInteger(input.get(0)) || !ArgumentHelper.matchesInteger(input.get(1))) {
+                if (context == null || context.debug) {
+                    Debug.echoError("DiscordRoleTag input is not a number.");
+                }
+                return null;
+            }
+            long guildId = Long.parseLong(input.get(0));
+            long roleId = Long.parseLong(input.get(1));
             if (guildId == 0 || roleId == 0) {
                 return null;
             }
