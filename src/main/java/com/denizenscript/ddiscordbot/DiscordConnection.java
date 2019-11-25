@@ -120,7 +120,7 @@ public class DiscordConnection {
                 return cache;
             }
         }
-        Guild guild = client.getGuildById(Snowflake.of(id)).defaultIfEmpty(null).block();
+        Guild guild = client.getGuildById(Snowflake.of(id)).block();
         if (guild == null) {
             return null;
         }
