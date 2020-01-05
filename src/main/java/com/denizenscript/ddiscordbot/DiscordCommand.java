@@ -108,11 +108,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to edit a message the bot has already sent.
-    // - discord id:mybot edit_message message_id:<[msg]> "Wow! It got edited!"
+    // - discord id:mybot edit_message channel:<[channel]> message_id:<[msg]> "Wow! It got edited!"
     //
     // @Usage
     // Use to delete a message the bot has already sent.
-    // - discord id:mybot delete_message message_id:<[msg]>
+    // - discord id:mybot delete_message channel:<[channel]> message_id:<[msg]>
     //
     // -->
 
@@ -379,7 +379,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             }
             case EDIT_MESSAGE: {
                 scriptEntry.setFinished(true);
-                if (requireClientID.get() || requireClientID.get() || requireMessage.get() || requireMessageId.get()) {
+                if (requireClientID.get() || requireChannel.get() || requireMessage.get() || requireMessageId.get()) {
                     return;
                 }
                 client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
@@ -397,7 +397,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             }
             case DELETE_MESSAGE: {
                 scriptEntry.setFinished(true);
-                if (requireClientID.get() || requireClientID.get() || requireMessageId.get()) {
+                if (requireClientID.get() || requireChannel.get() || requireMessageId.get()) {
                     return;
                 }
                 client = DenizenDiscordBot.instance.connections.get(id.asString()).client;

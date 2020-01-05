@@ -4,4 +4,4 @@ version: ${project.version} (build ${BUILD_NUMBER})
 main: com.denizenscript.ddiscordbot.DenizenDiscordBot
 depend: [Denizen]
 
-api-version: 1.13
+api-version: '1.13'
