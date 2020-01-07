@@ -107,7 +107,7 @@ public class DiscordRoleTag implements ObjectTag {
         }
         int comma = arg.indexOf(',');
         if (comma == -1) {
-            return false;
+            return ArgumentHelper.matchesInteger(arg);
         }
         String after = arg.substring(comma + 1);
         int secondComma = after.indexOf(',');
