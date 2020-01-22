@@ -7,7 +7,6 @@ import com.denizenscript.denizencore.events.ScriptEvent;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import reactor.core.publisher.Flux;
 
-
 public abstract class DiscordScriptEvent extends ScriptEvent {
 
     public String botID;

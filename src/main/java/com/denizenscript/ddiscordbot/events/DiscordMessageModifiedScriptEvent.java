@@ -55,7 +55,6 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
         return (MessageUpdateEvent) event;
     }
 
-
     @Override
     public boolean couldMatch(ScriptContainer scriptContainer, String s) {
         return CoreUtilities.toLowerCase(s).startsWith("discord message modified");

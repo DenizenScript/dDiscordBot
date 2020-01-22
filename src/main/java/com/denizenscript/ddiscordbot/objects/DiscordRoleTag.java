@@ -239,7 +239,10 @@ public class DiscordRoleTag implements ObjectTag {
         if (bot != null) {
             return "discordrole@" + bot + "," + guild_id + "," + role_id;
         }
-        return "discordrole@" + guild_id + "," + role_id;
+        if (guild_id != 0) {
+            return "discordrole@" + guild_id + "," + role_id;
+        }
+        return "discordrole@" + role_id;
     }
 
     @Override

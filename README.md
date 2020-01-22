@@ -1,7 +1,6 @@
 dDiscordBot: Adds a Discord Bot to Denizen!
 -------------------------------------------
 
-
 **Download (Dev builds)**: https://ci.citizensnpcs.co/job/dDiscordBot/
 
 Only works if you know how to operate a Discord bot, of course! https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token
