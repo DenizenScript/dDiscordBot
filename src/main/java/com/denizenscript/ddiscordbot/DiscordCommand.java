@@ -120,9 +120,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
-        // Interpret arguments
-        for (Argument arg : scriptEntry.getProcessedArgs()) {
 
+        for (Argument arg : scriptEntry.getProcessedArgs()) {
             if (!scriptEntry.hasObject("id")
                     && arg.matchesPrefix("id")) {
                 scriptEntry.addObject("id", new ElementTag(CoreUtilities.toLowerCase(arg.getValue())));
@@ -179,12 +178,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             }
         }
 
-        // Check for required information
         if (!scriptEntry.hasObject("id")) {
             throw new InvalidArgumentsException("Must have an ID!");
         }
-
-        // Check for required information
         if (!scriptEntry.hasObject("instruction")) {
             throw new InvalidArgumentsException("Must have an instruction!");
         }
@@ -227,8 +223,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     @Override
     public void execute(ScriptEntry scriptEntry) {
-
-        // Fetch required objects
         ElementTag id = scriptEntry.getElement("id");
         ElementTag instruction = scriptEntry.getElement("instruction");
         ElementTag code = scriptEntry.getElement("code"); // Intentionally do not debug this value.
@@ -242,18 +236,19 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         ElementTag url = scriptEntry.getElement("url");
         ElementTag messageId = scriptEntry.getElement("message_id");
 
-        // Debug the execution
-        Debug.report(scriptEntry, getName(), id.debug()
-                + (channel != null ? channel.debug(): "")
-                + instruction.debug()
-                + (message != null ? message.debug(): "")
-                + (user != null ? user.debug(): "")
-                + (guild != null ? guild.debug(): "")
-                + (role != null ? role.debug(): "")
-                + (status != null ? status.debug(): "")
-                + (activity != null ? activity.debug(): "")
-                + (url != null ? url.debug(): "")
-                + (messageId != null ? messageId.debug(): ""));
+        if (scriptEntry.dbCallShouldDebug()) {
+            Debug.report(scriptEntry, getName(), id.debug()
+                    + (channel != null ? channel.debug() : "")
+                    + instruction.debug()
+                    + (message != null ? message.debug() : "")
+                    + (user != null ? user.debug() : "")
+                    + (guild != null ? guild.debug() : "")
+                    + (role != null ? role.debug() : "")
+                    + (status != null ? status.debug() : "")
+                    + (activity != null ? activity.debug() : "")
+                    + (url != null ? url.debug() : "")
+                    + (messageId != null ? messageId.debug() : ""));
+        }
 
         DiscordClient client;
 
