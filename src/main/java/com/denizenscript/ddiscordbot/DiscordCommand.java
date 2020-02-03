@@ -4,7 +4,9 @@ import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordRoleTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
+import com.denizenscript.denizen.objects.ColorTag;
 import com.denizenscript.denizencore.objects.Argument;
+import com.denizenscript.denizencore.objects.core.ListTag;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.object.entity.Message;
@@ -13,6 +15,7 @@ import discord4j.core.object.entity.User;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import discord4j.core.object.util.Snowflake;
+import discord4j.core.spec.EmbedCreateSpec;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
@@ -24,7 +27,10 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import org.bukkit.Bukkit;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.Function;
 
@@ -32,7 +38,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     // <--[command]
     // @Name discord
-    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<message>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
+    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/add_role/start_typing/stop_typing/remove_role/status/embed (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<message>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>) (author_url:<url>) (fields:title|description|boolean|...) (image_url:<url>) (author:<author>) (title:<title>) (description:<description>) (footer:<footer>) (footer_icon:<url>) (color:<color>) (thumbnail:<url>) (timestamp:true/false)
     // @Required 2
     // @Short Connects to and interacts with Discord.
     // @Plugin dDiscordBot
@@ -47,7 +53,15 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // and the activity argument can be: PLAYING, STREAMING, LISTENING, or WATCHING.
     // Streaming activity requires a 'url:' input.
     //
-    // The command may be ~waited for, but only for 'connect' and 'message' options. No other arguments should be ~waited for.
+    // The command may be ~waited for, but only for 'connect', 'embed' and 'message' options. No other arguments should be ~waited for.
+    //
+    // Specify color in embed using a ColorTag.
+    // Specify timestamp:true to include a current timestamp information in the footer of the embed.
+    // Url inputs in embed must be valid links like https://www.google.com/ and not google.com
+    //
+    // When using the fields in embed, the fields input takes a list in a format of 3 per field.
+    // Each field has a title, description and a boolean for if it is inline.
+    // Example input: first_title|first_description|true|second_title|second_description|true|third_title|third_description|false
     //
     // @Tags
     // <discord[<bot_id>]>
@@ -114,9 +128,17 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // Use to delete a message the bot has already sent.
     // - discord id:mybot delete_message channel:<[channel]> message_id:<[msg]>
     //
+    // @Usage
+    // Use to send a embed message.
+    // - discord id:mybot embed channel:<[channel]> title:<[title]> description:<[description]>
+    //
+    // @Usage
+    // Use to send a complex embed message.
+    // - discord id:mybot embed channel:<[channel]> url:<[url]> author_url:<[author_url]> fields:<[fields]> image_url:<[image_url]> author_icon:<[author_icon]> author:<[author]> title:<[title]> description:<[description]> footer:<[footer]> footer_icon:<[footer_icon]> color:<[color]> thumbnail:<[thumbnail]> timestamp:<[timestamp]> "Hello world!"
+    //
     // -->
 
-    public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, ADD_ROLE, REMOVE_ROLE, STATUS, RENAME, START_TYPING, STOP_TYPING, EDIT_MESSAGE, DELETE_MESSAGE }
+    public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, ADD_ROLE, REMOVE_ROLE, STATUS, RENAME, START_TYPING, STOP_TYPING, EDIT_MESSAGE, DELETE_MESSAGE, EMBED }
 
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
@@ -169,6 +191,55 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             else if (!scriptEntry.hasObject("message_id")
                     && arg.matchesPrefix("message_id")) {
                 scriptEntry.addObject("message_id", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("author")
+                    && arg.matchesPrefix("author")) {
+                scriptEntry.addObject("author", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("author_icon")
+                    && arg.matchesPrefix("author_icon")) {
+                scriptEntry.addObject("author_icon", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("author_url")
+                    && arg.matchesPrefix("author_url")) {
+                scriptEntry.addObject("author_url", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("title")
+                    && arg.matchesPrefix("title")) {
+                scriptEntry.addObject("title", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("description")
+                    && arg.matchesPrefix("description")) {
+                scriptEntry.addObject("description", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("thumbnail")
+                    && arg.matchesPrefix("thumbnail")) {
+                scriptEntry.addObject("thumbnail", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("color")
+                    && arg.matchesPrefix("color")
+                    && arg.matchesArgumentType(ColorTag.class)) {
+                scriptEntry.addObject("color", arg.asType(ColorTag.class));
+            }
+            else if (!scriptEntry.hasObject("fields")
+                    && arg.matchesPrefix("fields")) {
+                scriptEntry.addObject("fields", arg.asType(ListTag.class).filter(ElementTag.class, scriptEntry));
+            }
+            else if (!scriptEntry.hasObject("footer")
+                    && arg.matchesPrefix("footer")) {
+                scriptEntry.addObject("footer", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("footer_icon")
+                    && arg.matchesPrefix("footer_icon")) {
+                scriptEntry.addObject("footer_icon", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("timestamp")
+                    && arg.matchesPrefix("timestamp")) {
+                scriptEntry.addObject("timestamp", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("image_url")
+                    && arg.matchesPrefix("image_url")) {
+                scriptEntry.addObject("image_url", arg.asElement());
             }
             else if (!scriptEntry.hasObject("message")) {
                 scriptEntry.addObject("message", new ElementTag(arg.raw_value));
@@ -235,6 +306,19 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         DiscordRoleTag role = scriptEntry.getObjectTag("role");
         ElementTag url = scriptEntry.getElement("url");
         ElementTag messageId = scriptEntry.getElement("message_id");
+        ElementTag author = scriptEntry.getElement("author");
+        ElementTag authorIcon = scriptEntry.getElement("author_icon");
+        ElementTag authorUrl = scriptEntry.getElement("author_url");
+        ElementTag title = scriptEntry.getElement("title");
+        ElementTag description = scriptEntry.getElement("description");
+        ElementTag thumbnail = scriptEntry.getElement("thumbnail");
+        ColorTag color = scriptEntry.getObjectTag("color");
+        // ElementTag fields = scriptEntry.getElement("fields");
+        List<ElementTag> fields = (List<ElementTag>) scriptEntry.getObject("fields");
+        ElementTag footer = scriptEntry.getElement("footer");
+        ElementTag footerIcon = scriptEntry.getElement("footer_icon");
+        ElementTag timestamp = scriptEntry.getElement("timestamp");
+        ElementTag imageUrl = scriptEntry.getElement("image_url");
 
         if (scriptEntry.dbCallShouldDebug()) {
             Debug.report(scriptEntry, getName(), id.debug()
@@ -322,6 +406,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (client == null) {
                     return;
                 }
+                if (message == null) {
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to send message: No message given!");
+                    return;
+                }
                 if (channel == null) {
                     client.getUserById(Snowflake.of(user.user_id)).map(User::getPrivateChannel).flatMap(chanBork -> chanBork.flatMap(
                             chan -> chan.createMessage(message.asString())))
@@ -381,6 +469,14 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 if (requireClientObject.apply(client)) {
                     return;
                 }
+                if (messageId == null) {
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to edit message: No message ID given!");
+                    return;
+                }
+                if (message == null) {
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to edit message: No message given!");
+                    return;
+                }
                 Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
                 if (mes == null) {
                     // Not an error as this could happen for reasons the script isn't able to account for.
@@ -397,6 +493,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                 if (requireClientObject.apply(client)) {
+                    return;
+                }
+                if (messageId == null) {
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to delete message: No message ID given!");
                     return;
                 }
                 Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
@@ -447,10 +547,18 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 long userId;
                 if (user == null) {
+                    if (!client.getSelfId().isPresent()) {
+                        Debug.echoError(scriptEntry.getResidingQueue(), "Failed to rename: Self ID is not present!");
+                        return;
+                    }
                     userId = client.getSelfId().get().asLong();
                 }
                 else {
                     userId = user.user_id;
+                }
+                if (message == null) {
+                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to rename: No name given!");
+                    return;
                 }
                 client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(userId)))
                         .flatMap(memberBork -> memberBork.flatMap(member -> member.edit(spec -> spec.setNickname(message.asString()))))
@@ -464,6 +572,12 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                 if (requireClientObject.apply(client)) {
+                    return;
+                }
+                if (message == null) {
+                    return;
+                }
+                if (url == null) {
                     return;
                 }
                 Activity.Type at = activity == null ? Activity.Type.PLAYING : Activity.Type.valueOf(activity.asString().toUpperCase());
@@ -482,19 +596,104 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 String statusLower = status == null ? "online" : CoreUtilities.toLowerCase(status.asString());
                 Presence presence;
-                if (statusLower.equals("idle")) {
-                    presence = Presence.idle(activityObject);
-                }
-                else if (statusLower.equals("dnd")) {
-                    presence = Presence.doNotDisturb(activityObject);
-                }
-                else if (statusLower.equals("invisible")) {
-                    presence = Presence.invisible();
-                }
-                else {
-                    presence = Presence.online(activityObject);
+                switch (statusLower) {
+                    case "idle":
+                        presence = Presence.idle(activityObject);
+                        break;
+                    case "dnd":
+                        presence = Presence.doNotDisturb(activityObject);
+                        break;
+                    case "invisible":
+                        presence = Presence.invisible();
+                        break;
+                    default:
+                        presence = Presence.online(activityObject);
+                        break;
                 }
                 client.updatePresence(presence).subscribe();
+                break;
+            }
+            case EMBED: {
+                scriptEntry.setFinished(true);
+                if (requireClientID.get()) {
+                    return;
+                }
+                if (channel == null) {
+                    return;
+                }
+                if (fields != null) {
+                    if (fields.size()%3 != 0) {
+                        Debug.echoError(scriptEntry.getResidingQueue(), "Field argument is not aligned to 3 per field. Got size: " + fields.size());
+                        return;
+                    }
+                }
+                Consumer<EmbedCreateSpec> template = spec -> {
+                    if (author != null) {
+                        if (authorUrl != null) {
+                            if (authorIcon != null) {
+                                spec = spec.setAuthor(author.asString(), authorUrl.asString(), authorIcon.asString());
+                            }
+                            else {
+                                spec = spec.setAuthor(author.asString(), authorUrl.asString(), null);
+                            }
+
+                        }
+                        else if (authorIcon != null) {
+                            spec = spec.setAuthor(author.asString(), null, authorIcon.asString());
+                        }
+                        else {
+                            spec = spec.setAuthor(author.asString(), null, null);
+                        }
+                    }
+                    if (footer != null) {
+                        if (footerIcon != null) {
+                            spec = spec.setFooter(footer.asString(),footerIcon.asString());
+                        }
+                        else {
+                            spec = spec.setFooter(footer.asString(),null);
+                        }
+                    }
+                    if (description != null) {
+                        spec = spec.setDescription(description.asString());
+                    }
+                    if (fields != null) {
+                        for (int i = 0; i < fields.size(); i = i + 3) {
+                            spec = spec.addField(fields.get(i).asString(),fields.get(+1).asString(),fields.get(i+2).asBoolean());
+                        }
+                    }
+                    if (title != null) {
+                        spec = spec.setTitle(title.asString());
+                    }
+                    if (url != null) {
+                        spec = spec.setUrl(url.asString());
+                    }
+                    if (thumbnail != null) {
+                        spec = spec.setThumbnail(thumbnail.asString());
+                    }
+                    if (imageUrl != null) {
+                        spec = spec.setImage(imageUrl.asString());
+                    }
+                    if (timestamp != null) {
+                        spec = spec.setTimestamp(Instant.now());
+                    }
+                    if (color != null) {
+                        spec.setColor(new java.awt.Color(color.getColor().asRGB()));
+                    }
+                };
+                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                client.getChannelById(Snowflake.of(channel.channel_id))
+                        .flatMap(chan -> ((TextChannel) chan).createMessage(messageSpec -> {
+                            if (message != null) {
+                                messageSpec = messageSpec.setContent(message.asString());
+                            }
+                            messageSpec.setEmbed(template);
+                        }))
+                        .map(m -> {
+                            scriptEntry.addObject("message_id", new ElementTag(m.getId().asString()));
+                            scriptEntry.setFinished(true);
+                            return m;
+                        })
+                        .doOnError(Debug::echoError).subscribe();
                 break;
             }
         }
