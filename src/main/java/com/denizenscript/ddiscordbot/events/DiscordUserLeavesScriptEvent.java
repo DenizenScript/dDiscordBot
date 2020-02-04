@@ -7,8 +7,6 @@ import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import com.denizenscript.denizencore.scripts.containers.ScriptContainer;
-import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
 
@@ -46,8 +44,8 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
     }
 
     @Override
-    public boolean couldMatch(ScriptContainer scriptContainer, String s) {
-        return CoreUtilities.toLowerCase(s).startsWith("discord user leaves");
+    public boolean couldMatch(ScriptPath path) {
+        return path.eventLower.startsWith("discord user leaves");
     }
 
     @Override

@@ -13,8 +13,6 @@ import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import com.denizenscript.denizencore.scripts.containers.ScriptContainer;
-import com.denizenscript.denizencore.utilities.CoreUtilities;
 
 public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
 
@@ -53,8 +51,8 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     }
 
     @Override
-    public boolean couldMatch(ScriptContainer scriptContainer, String s) {
-        return CoreUtilities.toLowerCase(s).startsWith("discord message received");
+    public boolean couldMatch(ScriptPath path) {
+        return path.eventLower.startsWith("discord message received");
     }
 
     @Override
