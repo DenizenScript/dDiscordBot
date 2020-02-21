@@ -29,21 +29,11 @@ public class DiscordUserTag implements ObjectTag {
     // A DiscordUserTag is an object that represents a user (human or bot) on Discord, either as a generic reference,
     // or as a bot-specific reference.
     //
-    // For format info, see <@link language discorduser@>
-    //
-    // -->
-
-    // <--[language]
-    // @name discorduser@
-    // @group Object Fetcher System
-    // @plugin dDiscordBot
-    // @description
-    // discorduser@ refers to the 'object identifier' of a DiscordUserTag. The 'discorduser@' is notation for Denizen's Object
-    // Fetcher. The constructor for a DiscordUserTag is the bot ID (optional), followed by the user ID (required).
+    // These use the object notation "discorduser@".
+    // The identity format for Discord users is the bot ID (optional), followed by the user ID (required).
     // For example: 1234
     // Or: mybot,1234
     //
-    // For general info, see <@link language DiscordUserTag Objects>
     // -->
 
     @Fetchable("discorduser")

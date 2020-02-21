@@ -20,20 +20,10 @@ public class DiscordBotTag implements ObjectTag {
     // @description
     // A DiscordBotTag is an object that represents a Discord bot powered by dDiscordBot.
     //
-    // For format info, see <@link language discord@>
-    //
-    // -->
-
-    // <--[language]
-    // @name discord@
-    // @group Object Fetcher System
-    // @plugin dDiscordBot
-    // @description
-    // discord@ refers to the 'object identifier' of a DiscordBotTag. The 'discord@' is notation for Denizen's Object
-    // Fetcher. The constructor for a DiscordBotTag is the bot ID (as chosen in <@link command discord>).
+    // These use the object notation "discord@".
+    // The identity format for Discord bots is the bot ID (as chosen in <@link command discord>).
     // For example: mybot
     //
-    // For general info, see <@link language DiscordBotTag Objects>
     // -->
 
     @Fetchable("discord")

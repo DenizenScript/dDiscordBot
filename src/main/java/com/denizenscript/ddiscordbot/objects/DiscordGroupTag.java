@@ -30,21 +30,11 @@ public class DiscordGroupTag implements ObjectTag {
     // many people will simply say "a Discord" (which is awkward for branding and also would be confusing if used in documentation).
     // So we're going with "group" (which is still confusing because "group" sometimes refers to DM groups, but... it's good enough).
     //
-    // For format info, see <@link language discordgroup@>
-    //
-    // -->
-
-    // <--[language]
-    // @name discordgroup@
-    // @group Object Fetcher System
-    // @plugin dDiscordBot
-    // @description
-    // discordgroup@ refers to the 'object identifier' of a DiscordGroupTag. The 'discordgroup@' is notation for Denizen's Object
-    // Fetcher. The constructor for a DiscordGroupTag is the bot ID (optional), followed by the guild ID (required).
+    // These use the object notation "discordgroup@".
+    // The identity format for Discord groups is the bot ID (optional), followed by the guild ID (required).
     // For example: 1234
     // Or: mybot,1234
     //
-    // For general info, see <@link language DiscordGroupTag Objects>
     // -->
 
     @Fetchable("discordgroup")
