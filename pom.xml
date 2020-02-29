@@ -113,6 +113,28 @@
                                     </includes>
                                 </filter>
                             </filters>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.discord4j</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.com.discord4j</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>discord4j</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.discord4j</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.netty</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.io.netty</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>reactor</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.reactor</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.reactivestreams</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.org.reactivestreams</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
