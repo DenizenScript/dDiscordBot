@@ -40,7 +40,7 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     // <context.message_id> returns the message ID.
     // <context.no_mention_message> returns the message with all user mentions stripped.
     // <context.formatted_message> returns the formatted message (mentions/etc. are written cleanly). CURRENTLY NON-FUNCTIONAL.
-    // <context.author> returns the user that authored the message.
+    // <context.author> returns the user that authored the message (may not be valid, eg for a Webhook post).
     // <context.mentions> returns a list of all mentioned users.
     // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
     //
@@ -90,6 +90,9 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
             return new ElementTag(getEvent().getMessage().getContent().orElse(""));
         }
         else if (name.equals("author")) {
+            if (!getEvent().getMessage().getAuthor().isPresent()) {
+                return null;
+            }
             return new DiscordUserTag(botID, getEvent().getMessage().getAuthor().get());
         }
         else if (name.equals("mentions")) {
