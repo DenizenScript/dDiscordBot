@@ -30,10 +30,17 @@ import java.util.function.Function;
 
 public class DiscordCommand extends AbstractCommand implements Holdable {
 
+    public DiscordCommand() {
+        setName("discord");
+        setSyntax("discord [id:<id>] [connect code:<botcode>/disconnect/message/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<message>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
+        setRequiredArguments(2, 12);
+    }
+
     // <--[command]
     // @Name discord
     // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<message>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
     // @Required 2
+    // @Maximum 12
     // @Short Connects to and interacts with Discord.
     // @Plugin dDiscordBot
     // @Group external
