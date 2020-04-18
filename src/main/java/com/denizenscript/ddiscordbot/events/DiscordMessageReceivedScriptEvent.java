@@ -6,13 +6,13 @@ import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.GuildChannel;
-import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
-import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
+import discord4j.core.object.entity.channel.GuildChannel;
+import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.rest.util.Snowflake;
 
 public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
 
@@ -77,17 +77,17 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
             }
         }
         else if (name.equals("message")) {
-            return new ElementTag(getEvent().getMessage().getContent().orElse(""));
+            return new ElementTag(getEvent().getMessage().getContent());
         }
         else if (name.equals("message_id")) {
             return new ElementTag(getEvent().getMessage().getId().asString());
         }
         else if (name.equals("no_mention_message")) {
-            return new ElementTag(stripMentions(getEvent().getMessage().getContent().orElse(""),
+            return new ElementTag(stripMentions(getEvent().getMessage().getContent(),
                     getEvent().getMessage().getUserMentions()));
         }
         else if (name.equals("formatted_message")) {
-            return new ElementTag(getEvent().getMessage().getContent().orElse(""));
+            return new ElementTag(getEvent().getMessage().getContent());
         }
         else if (name.equals("author")) {
             if (!getEvent().getMessage().getAuthor().isPresent()) {

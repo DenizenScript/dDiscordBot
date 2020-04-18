@@ -6,13 +6,13 @@ import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.message.MessageUpdateEvent;
-import discord4j.core.object.entity.GuildChannel;
-import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
-import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
+import discord4j.core.object.entity.channel.GuildChannel;
+import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.rest.util.Snowflake;
 
 public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
     public static DiscordMessageModifiedScriptEvent instance;
@@ -84,32 +84,32 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
         }
         else if (name.equals("old_message")) {
             if (getEvent().getOld().isPresent()) {
-                return new ElementTag(getEvent().getOld().get().getContent().get());
+                return new ElementTag(getEvent().getOld().get().getContent());
             }
         }
         else if (name.equals("old_no_mention_message")) {
             if (getEvent().getOld().isPresent()) {
-                return new ElementTag(stripMentions(getEvent().getOld().get().getContent().get(),
+                return new ElementTag(stripMentions(getEvent().getOld().get().getContent(),
                         getEvent().getOld().get().getUserMentions()));
             }
         }
         else if (name.equals("old_formatted_message")) {
             if (getEvent().getOld().isPresent()) {
-                return new ElementTag(getEvent().getOld().get().getContent().get());
+                return new ElementTag(getEvent().getOld().get().getContent());
             }
         }
         else if (name.equals("message")) {
-            return new ElementTag(getEvent().getMessage().block().getContent().orElse(""));
+            return new ElementTag(getEvent().getMessage().block().getContent());
         }
         else if (name.equals("message_id")) {
             return new ElementTag(getEvent().getMessageId().asString());
         }
         else if (name.equals("no_mention_message")) {
-            return new ElementTag(stripMentions(getEvent().getMessage().block().getContent().orElse(""),
+            return new ElementTag(stripMentions(getEvent().getMessage().block().getContent(),
                     getEvent().getMessage().block().getUserMentions()));
         }
         else if (name.equals("formatted_message")) {
-            return new ElementTag(getEvent().getMessage().block().getContent().orElse(""));
+            return new ElementTag(getEvent().getMessage().block().getContent());
         }
         else if (name.equals("author")) {
             return new DiscordUserTag(botID, getEvent().getMessage().block().getAuthor().get());

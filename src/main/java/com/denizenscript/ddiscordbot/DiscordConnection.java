@@ -1,7 +1,7 @@
 package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.events.*;
-import discord4j.core.DiscordClient;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.UserUpdateEvent;
@@ -11,7 +11,9 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.event.domain.message.MessageUpdateEvent;
 import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Snowflake;
+import discord4j.core.object.entity.channel.Channel;
+import discord4j.core.object.entity.channel.GuildChannel;
+import discord4j.rest.util.Snowflake;
 import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ public class DiscordConnection {
 
     public String botID;
 
-    public DiscordClient client;
+    public GatewayDiscordClient client;
 
     public void registerHandlers() {
         EventDispatcher events = client.getEventDispatcher();

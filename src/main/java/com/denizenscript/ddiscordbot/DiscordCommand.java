@@ -7,12 +7,12 @@ import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.objects.Argument;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.TextChannel;
 import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
-import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
@@ -21,6 +21,9 @@ import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.scripts.queues.ScriptQueue;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
+import discord4j.discordjson.json.ActivityUpdateRequest;
+import discord4j.discordjson.json.gateway.StatusUpdate;
+import discord4j.rest.util.Snowflake;
 import org.bukkit.Bukkit;
 import reactor.core.publisher.Mono;
 
@@ -204,10 +207,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         @Override
         public void run() {
             try {
-                DiscordClient client = new DiscordClientBuilder(code).build();
-                conn.client = client;
+                DiscordClient client = DiscordClientBuilder.create(code).build();
                 conn.registerHandlers();
-                client.login().block();
+                conn.client = client.login().block();
             }
             catch (Exception ex) {
                 Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
@@ -257,7 +259,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     + (messageId != null ? messageId.debug() : ""));
         }
 
-        DiscordClient client;
+        GatewayDiscordClient client;
 
         Supplier<Boolean> requireClientID = () -> {
             if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
@@ -266,7 +268,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             }
             return false;
         };
-        Function<DiscordClient, Boolean> requireClientObject = (_client) -> {
+        Function<GatewayDiscordClient, Boolean> requireClientObject = (_client) -> {
             if (_client == null) {
                 Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                 return true;
@@ -454,7 +456,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 long userId;
                 if (user == null) {
-                    userId = client.getSelfId().get().asLong();
+                    userId = client.getSelfId().block().asLong();
                 }
                 else {
                     userId = user.user_id;
@@ -474,7 +476,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     return;
                 }
                 Activity.Type at = activity == null ? Activity.Type.PLAYING : Activity.Type.valueOf(activity.asString().toUpperCase());
-                Activity activityObject;
+                ActivityUpdateRequest activityObject;
                 if (at == Activity.Type.WATCHING) {
                     activityObject = Activity.watching(message.asString());
                 }
@@ -488,7 +490,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     activityObject = Activity.playing(message.asString());
                 }
                 String statusLower = status == null ? "online" : CoreUtilities.toLowerCase(status.asString());
-                Presence presence;
+                StatusUpdate presence;
                 if (statusLower.equals("idle")) {
                     presence = Presence.idle(activityObject);
                 }

@@ -6,13 +6,13 @@ import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
-import discord4j.core.object.entity.GuildChannel;
-import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
-import discord4j.core.object.util.Snowflake;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
+import discord4j.core.object.entity.channel.GuildChannel;
+import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.rest.util.Snowflake;
 
 public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
 
@@ -83,7 +83,7 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
         }
         else if (name.equals("message")) {
             if (getEvent().getMessage().isPresent()) {
-                return new ElementTag(getEvent().getMessage().get().getContent().get());
+                return new ElementTag(getEvent().getMessage().get().getContent());
             }
         }
         else if (name.equals("message_id")) {
@@ -91,13 +91,13 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
         }
         else if (name.equals("no_mention_message")) {
             if (getEvent().getMessage().isPresent()) {
-                return new ElementTag(stripMentions(getEvent().getMessage().get().getContent().get(),
+                return new ElementTag(stripMentions(getEvent().getMessage().get().getContent(),
                         getEvent().getMessage().get().getUserMentions()));
             }
         }
         else if (name.equals("formatted_message")) {
             if (getEvent().getMessage().isPresent()) {
-                return new ElementTag(getEvent().getMessage().get().getContent().get());
+                return new ElementTag(getEvent().getMessage().get().getContent());
             }
         }
         else if (name.equals("author")) {

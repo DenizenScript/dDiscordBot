@@ -11,7 +11,10 @@ import discord4j.core.object.entity.*;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import discord4j.core.object.util.Snowflake;
+import discord4j.core.object.entity.channel.Channel;
+import discord4j.core.object.entity.channel.GuildChannel;
+import discord4j.core.object.entity.channel.PrivateChannel;
+import discord4j.rest.util.Snowflake;
 
 public class DiscordChannelTag implements ObjectTag {
 
