@@ -208,8 +208,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         public void run() {
             try {
                 DiscordClient client = DiscordClientBuilder.create(code).build();
-                conn.registerHandlers();
                 conn.client = client.login().block();
+                conn.registerHandlers();
             }
             catch (Exception ex) {
                 Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
