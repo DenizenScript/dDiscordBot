@@ -73,7 +73,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to message a Discord channel.
-    // - discord id:mybot message channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!"
+    // - ~discord id:mybot message channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!"
     //
     // @Usage
     // Use to message a Discord channel and record the ID.
@@ -82,47 +82,47 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to send a message to a user through a private channel.
-    // - discord id:mybot message user:<[user]> "Hello world!"
+    // - ~discord id:mybot message user:<[user]> "Hello world!"
     //
     // @Usage
     // Use to add a role on a user in a Discord guild.
-    // - discord id:mybot add_role user:<[user]> role:<[role]> group:<[group]>
+    // - ~discord id:mybot add_role user:<[user]> role:<[role]> group:<[group]>
     //
     // @Usage
     // Use to remove a role on a user in a Discord guild.
-    // - discord id:mybot remove_role user:<[user]> role:<[role]> group:<[group]>
+    // - ~discord id:mybot remove_role user:<[user]> role:<[role]> group:<[group]>
     //
     // @Usage
     // Use to set the online status of the bot, and clear the game status.
-    // - discord id:mybot status "Minecraft" "status:ONLINE"
+    // - ~discord id:mybot status "Minecraft" "status:ONLINE"
     //
     // @Usage
     // Use to set the game status of the bot.
-    // - discord id:mybot status "Minecraft" "status:ONLINE" "activity:PLAYING"
+    // - ~discord id:mybot status "Minecraft" "status:ONLINE" "activity:PLAYING"
     //
     // @Usage
     // Use to change the bot's nickname.
-    // - discord id:mybot rename "<[nickname]>" group:<[group]>
+    // - ~discord id:mybot rename "<[nickname]>" group:<[group]>
     //
     // @Usage
     // Use to give a user a new nickname.
-    // - discord id:mybot rename "<[nickname]>" user:<[user]> group:<[group]>
+    // - ~discord id:mybot rename "<[nickname]>" user:<[user]> group:<[group]>
     //
     // @Usage
     // Use to start typing in a specific channel.
-    // - discord id:mybot start_typing channel:<[channel]>
+    // - ~discord id:mybot start_typing channel:<[channel]>
     //
     // @Usage
     // Use to stop typing in a specific channel.
-    // - discord id:mybot stop_typing channel:<[channel]>
+    // - ~discord id:mybot stop_typing channel:<[channel]>
     //
     // @Usage
     // Use to edit a message the bot has already sent.
-    // - discord id:mybot edit_message channel:<[channel]> message_id:<[msg]> "Wow! It got edited!"
+    // - ~discord id:mybot edit_message channel:<[channel]> message_id:<[msg]> "Wow! It got edited!"
     //
     // @Usage
     // Use to delete a message the bot has already sent.
-    // - discord id:mybot delete_message channel:<[channel]> message_id:<[msg]>
+    // - ~discord id:mybot delete_message channel:<[channel]> message_id:<[msg]>
     //
     // -->
 
@@ -259,8 +259,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     + (messageId != null ? messageId.debug() : ""));
         }
 
-        GatewayDiscordClient client;
-
         Supplier<Boolean> requireClientID = () -> {
             if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
                 Debug.echoError(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: unknown ID!");
@@ -288,224 +286,252 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Supplier<Boolean> requireGuild = () -> requireObject.apply(guild, "guild");
         Supplier<Boolean> requireRole = () -> requireObject.apply(role, "role");
         Supplier<Boolean> requireMessageId = () -> requireObject.apply(messageId, "message_id");
-        switch (DiscordInstruction.valueOf(instruction.asString().toUpperCase())) {
-            case CONNECT: {
-                if (requireObject.apply(code, "code")) {
-                    return;
-                }
-                if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
-                    Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
-                    return;
-                }
-                DiscordConnection dc = new DiscordConnection();
-                dc.botID = id.asString();
-                DenizenDiscordBot.instance.connections.put(id.asString(), dc);
-                DiscordConnectThread dct = new DiscordConnectThread();
-                dct.code = code.asString();
-                dct.conn = dc;
-                dct.ender = () -> scriptEntry.setFinished(true);
-                dct.start();
-                break;
+        DiscordInstruction instructionEnum = DiscordInstruction.valueOf(instruction.asString().toUpperCase());
+        if (instructionEnum == DiscordInstruction.CONNECT) {
+            if (requireObject.apply(code, "code")) {
+                return;
             }
-            case DISCONNECT: {
-                scriptEntry.setFinished(true);
-                if (requireClientID.get()) {
-                    return;
-                }
-                DenizenDiscordBot.instance.connections.remove(id.asString()).client.logout().block();
-                break;
+            if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
+                Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
+                return;
             }
-            case MESSAGE: {
-                if (channel == null && user == null) {
-                    if (!requireChannel.get()) {
-                        requireUser.get();
+            DiscordConnection dc = new DiscordConnection();
+            dc.botID = id.asString();
+            DenizenDiscordBot.instance.connections.put(id.asString(), dc);
+            DiscordConnectThread dct = new DiscordConnectThread();
+            dct.code = code.asString();
+            dct.conn = dc;
+            dct.ender = () -> scriptEntry.setFinished(true);
+            dct.start();
+            return;
+        }
+        Runnable executeCore = () -> {
+            switch (instructionEnum) {
+                case DISCONNECT: {
+                    if (requireClientID.get()) {
+                        scriptEntry.setFinished(true);
+                        return;
                     }
+                    DenizenDiscordBot.instance.connections.remove(id.asString()).client.logout().block();
                     scriptEntry.setFinished(true);
-                    return;
+                    break;
                 }
-                if (requireClientID.get() || requireMessage.get()) {
-                    scriptEntry.setFinished(true);
-                    return;
+                case MESSAGE: {
+                    if (channel == null && user == null) {
+                        if (!requireChannel.get()) {
+                            requireUser.get();
+                        }
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    if (requireClientID.get() || requireMessage.get()) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    if (client == null) {
+                        return;
+                    }
+                    if (channel == null) {
+                        client.getUserById(Snowflake.of(user.user_id)).map(User::getPrivateChannel).flatMap(chanBork -> chanBork.flatMap(
+                                chan -> chan.createMessage(message.asString())))
+                                .map(m -> {
+                                    scriptEntry.addObject("message_id", new ElementTag(m.getId().asString()));
+                                    scriptEntry.setFinished(true);
+                                    return m;
+                                })
+                                .doOnError(Debug::echoError).subscribe();
+                    }
+                    else {
+                        client.getChannelById(Snowflake.of(channel.channel_id))
+                                .flatMap(chan -> ((TextChannel) chan).createMessage(message.asString()))
+                                .map(m -> {
+                                    scriptEntry.addObject("message_id", new ElementTag(m.getId().asString()));
+                                    scriptEntry.setFinished(true);
+                                    return m;
+                                })
+                                .doOnError(Debug::echoError).subscribe();
+                    }
+                    break;
                 }
-                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                if (client == null) {
-                    return;
-                }
-                if (channel == null) {
-                    client.getUserById(Snowflake.of(user.user_id)).map(User::getPrivateChannel).flatMap(chanBork -> chanBork.flatMap(
-                            chan -> chan.createMessage(message.asString())))
-                            .map(m -> {
-                                scriptEntry.addObject("message_id", new ElementTag(m.getId().asString()));
-                                scriptEntry.setFinished(true);
-                                return m;
-                            })
+                case ADD_ROLE: {
+                    if (requireClientID.get() || requireUser.get() || requireGuild.get() || requireRole.get()) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    if (requireClientObject.apply(client)) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
+                            .flatMap(memberBork -> memberBork.flatMap(member -> member.addRole(Snowflake.of(role.role_id))))
                             .doOnError(Debug::echoError).subscribe();
+                    scriptEntry.setFinished(true);
+                    break;
                 }
-                else {
+                case REMOVE_ROLE: {
+                    if (requireClientID.get() || requireUser.get() || requireRole.get() || requireGuild.get()) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    if (requireClientObject.apply(client)) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
+                            .flatMap(memberBork -> memberBork.flatMap(member -> member.removeRole(Snowflake.of(role.role_id))))
+                            .doOnError(Debug::echoError).subscribe();
+                    scriptEntry.setFinished(true);
+                    break;
+                }
+                case EDIT_MESSAGE: {
+                    if (requireClientID.get() || requireChannel.get() || requireMessage.get() || requireMessageId.get()) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    if (requireClientObject.apply(client)) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
+                    if (mes == null) {
+                        scriptEntry.setFinished(true);
+                        // Not an error as this could happen for reasons the script isn't able to account for.
+                        Debug.echoDebug(scriptEntry, "Message '" + messageId + "' does not exist.");
+                        return;
+                    }
+                    mes.edit(m -> m.setContent(message.asString())).doOnError(Debug::echoError).subscribe();
+                    scriptEntry.setFinished(true);
+                    break;
+                }
+                case DELETE_MESSAGE: {
+                    if (requireClientID.get() || requireChannel.get() || requireMessageId.get()) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    if (requireClientObject.apply(client)) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
+                    if (mes == null) {
+                        // Not an error as this could happen for reasons the script isn't able to account for.
+                        Debug.echoDebug(scriptEntry, "Message '" + messageId + "' does not exist.");
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    mes.delete().doOnError(Debug::echoError).subscribe();
+                    scriptEntry.setFinished(true);
+                    break;
+                }
+                case START_TYPING: {
+                    if (requireClientID.get() || requireChannel.get()) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    if (requireClientObject.apply(client)) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
                     client.getChannelById(Snowflake.of(channel.channel_id))
-                            .flatMap(chan -> ((TextChannel) chan).createMessage(message.asString()))
-                            .map(m -> {
-                                scriptEntry.addObject("message_id", new ElementTag(m.getId().asString()));
-                                scriptEntry.setFinished(true);
-                                return m;
-                            })
+                            .flatMap(chan -> ((TextChannel) chan).type())
                             .doOnError(Debug::echoError).subscribe();
+                    scriptEntry.setFinished(true);
+                    break;
                 }
-                break;
+                case STOP_TYPING: {
+                    if (requireClientID.get() || requireChannel.get()) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    if (requireClientObject.apply(client)) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    client.getChannelById(Snowflake.of(channel.channel_id))
+                            .map(chan -> ((TextChannel) chan).typeUntil(Mono.empty()))
+                            .doOnError(Debug::echoError).subscribe();
+                    scriptEntry.setFinished(true);
+                    break;
+                }
+                case RENAME: {
+                    if (requireClientID.get() || requireGuild.get() || requireMessage.get()) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    if (requireClientObject.apply(client)) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    long userId;
+                    if (user == null) {
+                        userId = client.getSelfId().block().asLong();
+                    }
+                    else {
+                        userId = user.user_id;
+                    }
+                    client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(userId)))
+                            .flatMap(memberBork -> memberBork.flatMap(member -> member.edit(spec -> spec.setNickname(message.asString()))))
+                            .doOnError(Debug::echoError).subscribe();
+                    scriptEntry.setFinished(true);
+                    break;
+                }
+                case STATUS: {
+                    if (requireClientID.get()) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    if (requireClientObject.apply(client)) {
+                        scriptEntry.setFinished(true);
+                        return;
+                    }
+                    Activity.Type at = activity == null ? Activity.Type.PLAYING : Activity.Type.valueOf(activity.asString().toUpperCase());
+                    ActivityUpdateRequest activityObject;
+                    if (at == Activity.Type.WATCHING) {
+                        activityObject = Activity.watching(message.asString());
+                    }
+                    else if (at == Activity.Type.STREAMING) {
+                        activityObject = Activity.streaming(message.asString(), url.asString());
+                    }
+                    else if (at == Activity.Type.LISTENING) {
+                        activityObject = Activity.listening(message.asString());
+                    }
+                    else {
+                        activityObject = Activity.playing(message.asString());
+                    }
+                    String statusLower = status == null ? "online" : CoreUtilities.toLowerCase(status.asString());
+                    StatusUpdate presence;
+                    if (statusLower.equals("idle")) {
+                        presence = Presence.idle(activityObject);
+                    }
+                    else if (statusLower.equals("dnd")) {
+                        presence = Presence.doNotDisturb(activityObject);
+                    }
+                    else if (statusLower.equals("invisible")) {
+                        presence = Presence.invisible();
+                    }
+                    else {
+                        presence = Presence.online(activityObject);
+                    }
+                    client.updatePresence(presence).subscribe();
+                    scriptEntry.setFinished(true);
+                    break;
+                }
             }
-            case ADD_ROLE: {
-                scriptEntry.setFinished(true);
-                if (requireClientID.get() || requireUser.get() || requireGuild.get() || requireRole.get()) {
-                    return;
-                }
-                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                if (requireClientObject.apply(client)) {
-                    return;
-                }
-                client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
-                        .flatMap(memberBork -> memberBork.flatMap(member -> member.addRole(Snowflake.of(role.role_id))))
-                        .doOnError(Debug::echoError).subscribe();
-                break;
-            }
-            case REMOVE_ROLE: {
-                scriptEntry.setFinished(true);
-                if (requireClientID.get() || requireUser.get() || requireRole.get() || requireGuild.get()) {
-                    return;
-                }
-                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                if (requireClientObject.apply(client)) {
-                    return;
-                }
-                client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
-                        .flatMap(memberBork -> memberBork.flatMap(member -> member.removeRole(Snowflake.of(role.role_id))))
-                        .doOnError(Debug::echoError).subscribe();
-                break;
-            }
-            case EDIT_MESSAGE: {
-                scriptEntry.setFinished(true);
-                if (requireClientID.get() || requireChannel.get() || requireMessage.get() || requireMessageId.get()) {
-                    return;
-                }
-                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                if (requireClientObject.apply(client)) {
-                    return;
-                }
-                Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
-                if (mes == null) {
-                    // Not an error as this could happen for reasons the script isn't able to account for.
-                    Debug.echoDebug(scriptEntry, "Message '" + messageId + "' does not exist.");
-                    return;
-                }
-                mes.edit(m -> m.setContent(message.asString())).doOnError(Debug::echoError).subscribe();
-                break;
-            }
-            case DELETE_MESSAGE: {
-                scriptEntry.setFinished(true);
-                if (requireClientID.get() || requireChannel.get() || requireMessageId.get()) {
-                    return;
-                }
-                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                if (requireClientObject.apply(client)) {
-                    return;
-                }
-                Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
-                if (mes == null) {
-                    // Not an error as this could happen for reasons the script isn't able to account for.
-                    Debug.echoDebug(scriptEntry, "Message '" + messageId + "' does not exist.");
-                    return;
-                }
-                mes.delete().doOnError(Debug::echoError).subscribe();
-                break;
-            }
-            case START_TYPING: {
-                scriptEntry.setFinished(true);
-                if (requireClientID.get() || requireChannel.get()) {
-                    return;
-                }
-                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                if (requireClientObject.apply(client)) {
-                    return;
-                }
-                client.getChannelById(Snowflake.of(channel.channel_id))
-                        .flatMap(chan -> ((TextChannel) chan).type())
-                        .doOnError(Debug::echoError).subscribe();
-                break;
-            }
-            case STOP_TYPING: {
-                scriptEntry.setFinished(true);
-                if (requireClientID.get() || requireChannel.get()) {
-                    return;
-                }
-                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                if (requireClientObject.apply(client)) {
-                    return;
-                }
-                client.getChannelById(Snowflake.of(channel.channel_id))
-                        .map(chan -> ((TextChannel) chan).typeUntil(Mono.empty()))
-                        .doOnError(Debug::echoError).subscribe();
-                break;
-            }
-            case RENAME: {
-                scriptEntry.setFinished(true);
-                if (requireClientID.get() || requireGuild.get() || requireMessage.get()) {
-                    return;
-                }
-                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                if (requireClientObject.apply(client)) {
-                    return;
-                }
-                long userId;
-                if (user == null) {
-                    userId = client.getSelfId().block().asLong();
-                }
-                else {
-                    userId = user.user_id;
-                }
-                client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(userId)))
-                        .flatMap(memberBork -> memberBork.flatMap(member -> member.edit(spec -> spec.setNickname(message.asString()))))
-                        .doOnError(Debug::echoError).subscribe();
-                break;
-            }
-            case STATUS: {
-                scriptEntry.setFinished(true);
-                if (requireClientID.get()) {
-                    return;
-                }
-                client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                if (requireClientObject.apply(client)) {
-                    return;
-                }
-                Activity.Type at = activity == null ? Activity.Type.PLAYING : Activity.Type.valueOf(activity.asString().toUpperCase());
-                ActivityUpdateRequest activityObject;
-                if (at == Activity.Type.WATCHING) {
-                    activityObject = Activity.watching(message.asString());
-                }
-                else if (at == Activity.Type.STREAMING) {
-                    activityObject = Activity.streaming(message.asString(), url.asString());
-                }
-                else if (at == Activity.Type.LISTENING) {
-                    activityObject = Activity.listening(message.asString());
-                }
-                else {
-                    activityObject = Activity.playing(message.asString());
-                }
-                String statusLower = status == null ? "online" : CoreUtilities.toLowerCase(status.asString());
-                StatusUpdate presence;
-                if (statusLower.equals("idle")) {
-                    presence = Presence.idle(activityObject);
-                }
-                else if (statusLower.equals("dnd")) {
-                    presence = Presence.doNotDisturb(activityObject);
-                }
-                else if (statusLower.equals("invisible")) {
-                    presence = Presence.invisible();
-                }
-                else {
-                    presence = Presence.online(activityObject);
-                }
-                client.updatePresence(presence).subscribe();
-                break;
-            }
+        };
+        if (scriptEntry.shouldWaitFor()) {
+            Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, executeCore);
+        }
+        else {
+            executeCore.run();
         }
     }
 }
