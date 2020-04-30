@@ -1,6 +1,7 @@
 package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.events.*;
+import com.denizenscript.denizencore.utilities.debugging.Debug;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.Event;
@@ -72,10 +73,12 @@ public class DiscordConnection {
         public long id;
         public String name;
         public long guildId;
+        public Channel.Type type;
         public ChannelCache(GuildChannel channel) {
             id = channel.getId().asLong();
             name = channel.getName();
             guildId = channel.getGuildId().asLong();
+            type = channel.getType();
         }
     }
 
@@ -105,7 +108,14 @@ public class DiscordConnection {
         cache.id = guild.getId().asLong();
         cache.name = guild.getName();
         for (GuildChannel channel : guild.getChannels().toIterable()) {
-            cache.channels.add(new ChannelCache(channel));
+            try {
+                cache.channels.add(new ChannelCache(channel));
+            }
+            catch (Exception ex) {
+                if (Debug.verbose) {
+                    Debug.echoError(ex);
+                }
+            }
         }
         for (Member member : guild.getMembers().toIterable()) {
             cache.users.add(new UserCache(member));

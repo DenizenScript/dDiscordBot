@@ -147,17 +147,21 @@ public class DiscordChannelTag implements ObjectTag {
         });
 
         // <--[tag]
-        // @attribute <DiscordChannelTag.type>
+        // @attribute <DiscordChannelTag.channel_type>
         // @returns ElementTag
         // @plugin dDiscordBot
         // @description
         // Returns the type of the channel.
         // Will be any of: GUILD_TEXT, DM, GUILD_VOICE, GROUP_DM, GUILD_CATEGORY
         // -->
-        registerTag("type", (attribute, object) -> {
+        registerTag("channel_type", (attribute, object) -> {
+            DiscordConnection.ChannelCache cache = object.getCacheChannel();
+            if (cache != null) {
+                return new ElementTag(cache.type.name());
+            }
             return new ElementTag(object.getChannel().getType().name());
 
-        });
+        }, "type");
 
         // <--[tag]
         // @attribute <DiscordChannelTag.id>
