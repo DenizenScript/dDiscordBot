@@ -57,7 +57,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // and the activity argument can be: PLAYING, STREAMING, LISTENING, or WATCHING.
     // Streaming activity requires a 'url:' input.
     //
-    // The command may be ~waited for, but only for 'connect' and 'message' options. No other arguments should be ~waited for.
+    // The command should always be ~waited for. See <@link language ~waitable>.
+    //
+    // Do not type your bot token code directly into the script.
+    // The generally recommend way to track tokens is in a separate data YAML file.
+    // Load the file, issue the connect command, then unload the file. Do not keep it in server memory any longer than needed.
     //
     // @Tags
     // <discord[<bot_id>]>
