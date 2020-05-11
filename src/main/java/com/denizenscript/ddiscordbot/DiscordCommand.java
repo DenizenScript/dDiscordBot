@@ -24,6 +24,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import discord4j.discordjson.json.ActivityUpdateRequest;
 import discord4j.discordjson.json.gateway.StatusUpdate;
 import discord4j.rest.util.Snowflake;
+import discord4j.store.jdk.JdkStoreService;
 import org.bukkit.Bukkit;
 import reactor.core.publisher.Mono;
 
@@ -212,7 +213,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         public void run() {
             try {
                 DiscordClient client = DiscordClientBuilder.create(code).build();
-                conn.client = client.login().block();
+                conn.client = client.gateway().setStoreService(new JdkStoreService()).login().block();
                 conn.registerHandlers();
             }
             catch (Exception ex) {
