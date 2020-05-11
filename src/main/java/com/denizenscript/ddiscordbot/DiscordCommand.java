@@ -266,6 +266,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Supplier<Boolean> requireClientID = () -> {
             if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
                 Debug.echoError(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: unknown ID!");
+                scriptEntry.setFinished(true);
                 return true;
             }
             return false;
@@ -273,6 +274,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Function<GatewayDiscordClient, Boolean> requireClientObject = (_client) -> {
             if (_client == null) {
                 Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                scriptEntry.setFinished(true);
                 return true;
             }
             return false;
@@ -280,6 +282,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         BiFunction<Object, String, Boolean> requireObject = (obj, name) -> {
             if (obj == null) {
                 Debug.echoError(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: no " + name + " given!");
+                scriptEntry.setFinished(true);
                 return true;
             }
             return false;
