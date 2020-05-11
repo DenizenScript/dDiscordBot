@@ -73,7 +73,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to disconnect from Discord.
-    // - discord id:mybot disconnect
+    // - ~discord id:mybot disconnect
     //
     // @Usage
     // Use to message a Discord channel.
@@ -316,7 +316,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             switch (instructionEnum) {
                 case DISCONNECT: {
                     if (requireClientID.get()) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     DenizenDiscordBot.instance.connections.remove(id.asString()).client.logout().block();
@@ -332,11 +331,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         return;
                     }
                     if (requireClientID.get() || requireMessage.get()) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                    if (client == null) {
+                    if (requireClientObject.apply(client)) {
                         return;
                     }
                     if (channel == null) {
@@ -363,12 +361,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 case ADD_ROLE: {
                     if (requireClientID.get() || requireUser.get() || requireGuild.get() || requireRole.get()) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
@@ -379,12 +375,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 case REMOVE_ROLE: {
                     if (requireClientID.get() || requireUser.get() || requireRole.get() || requireGuild.get()) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
@@ -395,12 +389,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 case EDIT_MESSAGE: {
                     if (requireClientID.get() || requireChannel.get() || requireMessage.get() || requireMessageId.get()) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
@@ -416,12 +408,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 case DELETE_MESSAGE: {
                     if (requireClientID.get() || requireChannel.get() || requireMessageId.get()) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
@@ -437,12 +427,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 case START_TYPING: {
                     if (requireClientID.get() || requireChannel.get()) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     client.getChannelById(Snowflake.of(channel.channel_id))
@@ -453,12 +441,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 case STOP_TYPING: {
                     if (requireClientID.get() || requireChannel.get()) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     client.getChannelById(Snowflake.of(channel.channel_id))
@@ -469,12 +455,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 case RENAME: {
                     if (requireClientID.get() || requireGuild.get() || requireMessage.get()) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     long userId;
@@ -492,12 +476,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
                 case STATUS: {
                     if (requireClientID.get()) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
-                        scriptEntry.setFinished(true);
                         return;
                     }
                     Activity.Type at = activity == null ? Activity.Type.PLAYING : Activity.Type.valueOf(activity.asString().toUpperCase());
