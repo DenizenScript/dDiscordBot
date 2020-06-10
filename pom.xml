@@ -134,6 +134,18 @@
                                     <pattern>org.reactivestreams</pattern>
                                     <shadedPattern>com.denizenscript.shaded.org.reactivestreams</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>com.austinv11</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.com.austinv11</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.com.fasterxml</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.iwebpp</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.com.iwebpp</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
