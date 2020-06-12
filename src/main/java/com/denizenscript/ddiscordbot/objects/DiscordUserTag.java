@@ -152,7 +152,7 @@ public class DiscordUserTag implements ObjectTag {
             if (!attribute.hasContext(1)) {
                 return null;
             }
-            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }
@@ -198,7 +198,7 @@ public class DiscordUserTag implements ObjectTag {
             if (!attribute.hasContext(1)) {
                 return null;
             }
-            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }
@@ -219,7 +219,7 @@ public class DiscordUserTag implements ObjectTag {
             if (!attribute.hasContext(1)) {
                 return null;
             }
-            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }
@@ -244,7 +244,7 @@ public class DiscordUserTag implements ObjectTag {
             if (!attribute.hasContext(1)) {
                 return null;
             }
-            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }
@@ -269,7 +269,7 @@ public class DiscordUserTag implements ObjectTag {
             if (!attribute.hasContext(1)) {
                 return null;
             }
-            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }
@@ -292,7 +292,7 @@ public class DiscordUserTag implements ObjectTag {
             if (!attribute.hasContext(1)) {
                 return null;
             }
-            DiscordGroupTag group = DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }
