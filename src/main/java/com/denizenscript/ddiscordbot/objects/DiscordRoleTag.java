@@ -11,7 +11,7 @@ import discord4j.core.object.entity.Role;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import discord4j.rest.util.Snowflake;
+import discord4j.common.util.Snowflake;
 
 import java.util.List;
 

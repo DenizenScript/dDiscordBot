@@ -14,7 +14,7 @@ import discord4j.core.event.domain.message.MessageUpdateEvent;
 import discord4j.core.object.entity.*;
 import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.object.entity.channel.GuildChannel;
-import discord4j.rest.util.Snowflake;
+import discord4j.common.util.Snowflake;
 import org.bukkit.Bukkit;
 
 import java.util.ArrayList;

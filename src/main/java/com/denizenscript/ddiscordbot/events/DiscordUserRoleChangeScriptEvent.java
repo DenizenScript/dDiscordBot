@@ -9,7 +9,7 @@ import discord4j.core.event.domain.guild.MemberUpdateEvent;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import discord4j.rest.util.Snowflake;
+import discord4j.common.util.Snowflake;
 
 import java.util.ArrayList;
 

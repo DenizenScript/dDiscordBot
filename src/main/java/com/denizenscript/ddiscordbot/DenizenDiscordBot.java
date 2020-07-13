@@ -81,7 +81,7 @@ public class DenizenDiscordBot extends JavaPlugin {
 
         // <--[tag]
         // @attribute <discord[<bot-id>]>
-        // @returns Discord
+        // @returns DiscordBotTag
         // @plugin dDiscordBot
         // @description
         // Returns the Discord bot for the given bot ID.
