@@ -1,6 +1,9 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
+
+import java.util.Iterator;
+
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
@@ -87,7 +90,13 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
                     getEvent().getMessage().getUserMentions()));
         }
         else if (name.equals("formatted_message")) {
-            return new ElementTag(getEvent().getMessage().getContent());
+			String m = getEvent().getMessage().getContent();
+			Iterator<User> it = getEvent().getMessage().getUserMentions().toIterable().iterator();
+			while (it.hasNext()) {
+				User u = it.next();
+				m = m.replace("<@!" + u.getId().asString() + ">", "@" + u.getUsername());
+			}
+			return new ElementTag(m);
         }
         else if (name.equals("author")) {
             if (!getEvent().getMessage().getAuthor().isPresent()) {
