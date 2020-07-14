@@ -43,6 +43,7 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     // <context.no_mention_message> returns the message with all user mentions stripped.
     // <context.formatted_message> returns the formatted message (mentions/etc. are written cleanly).
     // <context.attachments> returns a list with URLs for all attachments, returns null if no attachments.
+    // <context.urls> returns a list of all URLs in the message, returns null if the message contains no URLs.
     // <context.author> returns the user that authored the message (may not be valid, eg for a Webhook post).
     // <context.mentions> returns a list of all mentioned users.
     // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
@@ -121,6 +122,19 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
                 for (Attachment att : getEvent().getMessage().getAttachments()) {
                     list.addObject(new ElementTag(att.getUrl()));
                 }
+                return list;
+            }
+        }
+        else if (name.equals("urls")) {
+            ListTag list = new ListTag();
+            for (String s : getEvent().getMessage().getContent().split("\\s+")) {
+                try {
+                    new java.net.URI(s);
+                    list.addObject(new ElementTag(s));
+                }
+                catch (Exception e) {}
+            }
+            if(list.size() != 0) {
                 return list;
             }
         }
