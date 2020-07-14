@@ -2,6 +2,7 @@ package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 
+import java.lang.reflect.Array;
 import java.util.Iterator;
 
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
@@ -9,6 +10,7 @@ import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Attachment;
 import discord4j.core.object.entity.User;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
@@ -90,18 +92,44 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
                     getEvent().getMessage().getUserMentions()));
         }
         else if (name.equals("formatted_message")) {
-			String m = getEvent().getMessage().getContent();
-			Iterator<User> it = getEvent().getMessage().getUserMentions().toIterable().iterator();
-			while (it.hasNext()) {
-				User u = it.next();
-				m = m.replace("<@!" + u.getId().asString() + ">", "@" + u.getUsername());
-			}
-			return new ElementTag(m);
+            // NEW
+            String m = getEvent().getMessage().getContent();
+            Iterator<User> it = getEvent().getMessage().getUserMentions().toIterable().iterator();
+            // replacing usernames
+            while (it.hasNext()) {
+                User u = it.next();
+                m = m.replaceAll("(<[^<>$]!?" + u.getId().asString() + ">)", "@" + u.getUsername());
+            }
+            // replacing channel names
+            for (String s : m.split("\\s+")) {
+                if (s.matches("(^<#[0-9]{18}>$)")) {
+                    String str = s.replace("<#", "").replace(">", "");
+                    m = m.replaceAll("(<[^<>$]" + str + ">)", "#" + ((GuildChannel) DenizenDiscordBot.instance.connections.get(botID).client.getChannelById(Snowflake.of(str)).block()).getName().replaceAll("[^a-zA-Z-]", ""));
+                }
+            }
+            // replacing role names
+            for (String s : m.split("\\s+")) {
+                if (s.matches("(^<@&[0-9]{18}>$)")) {
+                    String str = s.replace("<@&", "").replace(">", "");
+                    m = m.replaceAll("(<@[^<>$]" + str + ">)", "@" + (DenizenDiscordBot.instance.connections.get(botID).client.getRoleById(getEvent().getGuildId().get(), Snowflake.of(str)).block()).getName().replaceAll("[^\\Wa-zA-Z-]", ""));
+                }
+            }
+            return new ElementTag(m);
+        }
+        else if (name.equals("attachments")) {
+            // ALSO NEW
+            if (getEvent().getMessage().getAttachments().size() != 0) {
+                ListTag list = new ListTag();
+                for (Attachment att : getEvent().getMessage().getAttachments()) {
+                    list.addObject(new ElementTag(att.getUrl()));
+                }
+                return list;
+            }
         }
         else if (name.equals("author")) {
             if (!getEvent().getMessage().getAuthor().isPresent()) {
                 return null;
-            }
+        }
             return new DiscordUserTag(botID, getEvent().getMessage().getAuthor().get());
         }
         else if (name.equals("mentions")) {
