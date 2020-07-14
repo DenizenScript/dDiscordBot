@@ -44,7 +44,8 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     // <context.message> returns the message (raw).
     // <context.message_id> returns the message ID.
     // <context.no_mention_message> returns the message with all user mentions stripped.
-    // <context.formatted_message> returns the formatted message (mentions/etc. are written cleanly). CURRENTLY NON-FUNCTIONAL.
+    // <context.formatted_message> returns the formatted message (mentions/etc. are written cleanly).
+    // <context.attachments> returns a list with URLs for all attachments, returns null if no attachments.
     // <context.author> returns the user that authored the message (may not be valid, eg for a Webhook post).
     // <context.mentions> returns a list of all mentioned users.
     // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
