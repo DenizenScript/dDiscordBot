@@ -29,7 +29,7 @@ public class DiscordEmbedTag implements ObjectTag {
     // A DiscordEmbedTag is an object that represents a Discord embed for use with dDiscordBot.
     //
     // These use the object notation "discordembed@".
-    // The identity format for Discord embeds is a map of embed data. Do not alter raw embed data.
+    // The identity format for Discord embeds is a map of embed data. Do not alter raw embed data, use the with.as tag instead.
     //
     // -->
 
@@ -90,7 +90,12 @@ public class DiscordEmbedTag implements ObjectTag {
                 }
             }
             else {
-                builder.setAuthor(author_name.toString());
+                if (author_icon_url != null) {
+                    builder.setAuthor(author_name.toString(), null, author_icon_url.toString());
+                }
+                else {
+                    builder.setAuthor(author_name.toString());
+                }
             }
         }
         if (color != null) {
@@ -193,17 +198,17 @@ public class DiscordEmbedTag implements ObjectTag {
         // Returns a copy of this Embed tag, with the specified data key set to the specified value.
         // The following keys are accepted, with values of the listed type:
         // author_name: ElementTag
-        // author_url: ElementTag of a URL
-        // author_icon_url: ElementTag of a URL
+        // author_url: ElementTag of a URL (requires author_name set)
+        // author_icon_url: ElementTag of a URL (requires author_name set)
         // color: ColorTag
         // description: ElementTag
         // footer: ElementTag
-        // footer_icon: ElementTag of a URL
+        // footer_icon: ElementTag of a URL (requires footer set)
         // image: ElementTag of a URL
         // thumbnail: ElementTag of a URL
         // timestamp: TimeTag
         // title: ElementTag
-        // title_url: ElementTag of a URL
+        // title_url: ElementTag of a URL (requires title set)
         // -->
         registerTag("with", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();
