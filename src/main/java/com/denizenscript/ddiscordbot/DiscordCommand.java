@@ -5,14 +5,6 @@ import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordRoleTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.objects.Argument;
-import discord4j.core.DiscordClient;
-import discord4j.core.DiscordClientBuilder;
-import discord4j.core.GatewayDiscordClient;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.User;
-import discord4j.core.object.entity.channel.TextChannel;
-import discord4j.core.object.presence.Activity;
-import discord4j.core.object.presence.Presence;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
@@ -21,16 +13,15 @@ import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.scripts.queues.ScriptQueue;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import discord4j.discordjson.json.ActivityUpdateRequest;
-import discord4j.discordjson.json.gateway.StatusUpdate;
-import discord4j.common.util.Snowflake;
-import discord4j.store.jdk.JdkStoreService;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.*;
 import org.bukkit.Bukkit;
-import reactor.core.publisher.Mono;
 
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class DiscordCommand extends AbstractCommand implements Holdable {
 
@@ -212,8 +203,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         @Override
         public void run() {
             try {
-                DiscordClient client = DiscordClientBuilder.create(code).build();
-                conn.client = client.gateway().setStoreService(new JdkStoreService()).login().block();
+                JDA jda = JDABuilder.createDefault(code).build();
+                conn.client = jda;
+                jda.awaitReady();
                 conn.registerHandlers();
             }
             catch (Exception ex) {
@@ -272,7 +264,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             }
             return false;
         };
-        Function<GatewayDiscordClient, Boolean> requireClientObject = (_client) -> {
+        Function<JDA, Boolean> requireClientObject = (_client) -> {
             if (_client == null) {
                 Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                 scriptEntry.setFinished(true);
@@ -319,7 +311,14 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (requireClientID.get()) {
                         return;
                     }
-                    DenizenDiscordBot.instance.connections.remove(id.asString()).client.logout().block();
+                    JDA client = DenizenDiscordBot.instance.connections.remove(id.asString()).client;
+                    client.shutdown();
+                    try {
+                        client.awaitStatus(JDA.Status.SHUTDOWN);
+                    }
+                    catch (InterruptedException ex) {
+                        Debug.echoError(ex);
+                    }
                     scriptEntry.setFinished(true);
                     break;
                 }
@@ -334,43 +333,33 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (requireClientID.get() || requireMessage.get()) {
                         return;
                     }
-                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
                         return;
                     }
+                    MessageChannel textChan;
                     if (channel == null) {
-                        client.getUserById(Snowflake.of(user.user_id)).map(User::getPrivateChannel).flatMap(chanBork -> chanBork.flatMap(
-                                chan -> chan.createMessage(message.asString())))
-                                .map(m -> {
-                                    scriptEntry.addObject("message_id", new ElementTag(m.getId().asString()));
-                                    scriptEntry.setFinished(true);
-                                    return m;
-                                })
-                                .doOnError(Debug::echoError).subscribe();
+                        textChan = client.getUserById(user.user_id).openPrivateChannel().complete();
                     }
                     else {
-                        client.getChannelById(Snowflake.of(channel.channel_id))
-                                .flatMap(chan -> ((TextChannel) chan).createMessage(message.asString()))
-                                .map(m -> {
-                                    scriptEntry.addObject("message_id", new ElementTag(m.getId().asString()));
-                                    scriptEntry.setFinished(true);
-                                    return m;
-                                })
-                                .doOnError(Debug::echoError).subscribe();
+                        textChan = client.getTextChannelById(channel.channel_id);
                     }
+                    Message sentMessage = textChan.sendMessage(message.asString()).complete();
+                    scriptEntry.addObject("message_id", new ElementTag(sentMessage.getId()));
+                    scriptEntry.setFinished(true);
                     break;
                 }
                 case ADD_ROLE: {
                     if (requireClientID.get() || requireUser.get() || requireGuild.get() || requireRole.get()) {
                         return;
                     }
-                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
                         return;
                     }
-                    client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
-                            .flatMap(memberBork -> memberBork.flatMap(member -> member.addRole(Snowflake.of(role.role_id))))
-                            .doOnError(Debug::echoError).subscribe();
+                    Guild guildObj = client.getGuildById(guild.guild_id);
+                    Member memberObj = guildObj.getMemberById(user.user_id);
+                    guildObj.addRoleToMember(memberObj, guildObj.getRoleById(role.role_id)).complete();
                     scriptEntry.setFinished(true);
                     break;
                 }
@@ -378,13 +367,13 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (requireClientID.get() || requireUser.get() || requireRole.get() || requireGuild.get()) {
                         return;
                     }
-                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
                         return;
                     }
-                    client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(user.user_id)))
-                            .flatMap(memberBork -> memberBork.flatMap(member -> member.removeRole(Snowflake.of(role.role_id))))
-                            .doOnError(Debug::echoError).subscribe();
+                    Guild guildObj = client.getGuildById(guild.guild_id);
+                    Member memberObj = guildObj.getMemberById(user.user_id);
+                    guildObj.removeRoleFromMember(memberObj, guildObj.getRoleById(role.role_id)).complete();
                     scriptEntry.setFinished(true);
                     break;
                 }
@@ -392,18 +381,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (requireClientID.get() || requireChannel.get() || requireMessage.get() || requireMessageId.get()) {
                         return;
                     }
-                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
                         return;
                     }
-                    Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
-                    if (mes == null) {
-                        scriptEntry.setFinished(true);
-                        // Not an error as this could happen for reasons the script isn't able to account for.
-                        Debug.echoDebug(scriptEntry, "Message '" + messageId + "' does not exist.");
-                        return;
-                    }
-                    mes.edit(m -> m.setContent(message.asString())).doOnError(Debug::echoError).subscribe();
+                    client.getTextChannelById(channel.channel_id).editMessageById(messageId.asLong(), message.asString()).complete();
                     scriptEntry.setFinished(true);
                     break;
                 }
@@ -411,18 +393,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (requireClientID.get() || requireChannel.get() || requireMessageId.get()) {
                         return;
                     }
-                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
                         return;
                     }
-                    Message mes = client.getMessageById(Snowflake.of(channel.channel_id), Snowflake.of(messageId.asLong())).block();
-                    if (mes == null) {
-                        // Not an error as this could happen for reasons the script isn't able to account for.
-                        Debug.echoDebug(scriptEntry, "Message '" + messageId + "' does not exist.");
-                        scriptEntry.setFinished(true);
-                        return;
-                    }
-                    mes.delete().doOnError(Debug::echoError).subscribe();
+                    client.getTextChannelById(channel.channel_id).deleteMessageById(messageId.asLong()).complete();
                     scriptEntry.setFinished(true);
                     break;
                 }
@@ -430,13 +405,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (requireClientID.get() || requireChannel.get()) {
                         return;
                     }
-                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
                         return;
                     }
-                    client.getChannelById(Snowflake.of(channel.channel_id))
-                            .flatMap(chan -> ((TextChannel) chan).type())
-                            .doOnError(Debug::echoError).subscribe();
+                    client.getTextChannelById(channel.channel_id).sendTyping().complete();
                     scriptEntry.setFinished(true);
                     break;
                 }
@@ -444,13 +417,11 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (requireClientID.get() || requireChannel.get()) {
                         return;
                     }
-                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
                         return;
                     }
-                    client.getChannelById(Snowflake.of(channel.channel_id))
-                            .map(chan -> ((TextChannel) chan).typeUntil(Mono.empty()))
-                            .doOnError(Debug::echoError).subscribe();
+                    // TODO: ?
                     scriptEntry.setFinished(true);
                     break;
                 }
@@ -458,20 +429,18 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (requireClientID.get() || requireGuild.get() || requireMessage.get()) {
                         return;
                     }
-                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
                         return;
                     }
                     long userId;
                     if (user == null) {
-                        userId = client.getSelfId().asLong();
+                        userId = client.getSelfUser().getIdLong();
                     }
                     else {
                         userId = user.user_id;
                     }
-                    client.getGuildById(Snowflake.of(guild.guild_id)).map(guildObj -> guildObj.getMemberById(Snowflake.of(userId)))
-                            .flatMap(memberBork -> memberBork.flatMap(member -> member.edit(spec -> spec.setNickname(message.asString()))))
-                            .doOnError(Debug::echoError).subscribe();
+                    client.getGuildById(guild.guild_id).getMemberById(userId).modifyNickname(message.asString());
                     scriptEntry.setFinished(true);
                     break;
                 }
@@ -479,39 +448,39 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (requireClientID.get()) {
                         return;
                     }
-                    GatewayDiscordClient client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
                     if (requireClientObject.apply(client)) {
                         return;
                     }
-                    Activity.Type at = activity == null ? Activity.Type.PLAYING : Activity.Type.valueOf(activity.asString().toUpperCase());
-                    ActivityUpdateRequest activityObject;
-                    if (at == Activity.Type.WATCHING) {
-                        activityObject = Activity.watching(message.asString());
+                    Activity at;
+                    String activityType = CoreUtilities.toLowerCase(activity.toString());
+                    if (activityType.equals("watching")) {
+                        at = Activity.watching(message.asString());
                     }
-                    else if (at == Activity.Type.STREAMING) {
-                        activityObject = Activity.streaming(message.asString(), url.asString());
+                    else if (activityType.equals("streaming")) {
+                        at = Activity.streaming(message.asString(), url.asString());
                     }
-                    else if (at == Activity.Type.LISTENING) {
-                        activityObject = Activity.listening(message.asString());
+                    else if (activityType.equals("listening")) {
+                        at = Activity.listening(message.asString());
                     }
                     else {
-                        activityObject = Activity.playing(message.asString());
+                        at = Activity.playing(message.asString());
                     }
                     String statusLower = status == null ? "online" : CoreUtilities.toLowerCase(status.asString());
-                    StatusUpdate presence;
+                    OnlineStatus statusType;
                     if (statusLower.equals("idle")) {
-                        presence = Presence.idle(activityObject);
+                        statusType = OnlineStatus.IDLE;
                     }
                     else if (statusLower.equals("dnd")) {
-                        presence = Presence.doNotDisturb(activityObject);
+                        statusType = OnlineStatus.DO_NOT_DISTURB;
                     }
                     else if (statusLower.equals("invisible")) {
-                        presence = Presence.invisible();
+                        statusType = OnlineStatus.INVISIBLE;
                     }
                     else {
-                        presence = Presence.online(activityObject);
+                        statusType = OnlineStatus.ONLINE;
                     }
-                    client.updatePresence(presence).subscribe();
+                    client.getPresence().setPresence(statusType, at);
                     scriptEntry.setFinished(true);
                     break;
                 }

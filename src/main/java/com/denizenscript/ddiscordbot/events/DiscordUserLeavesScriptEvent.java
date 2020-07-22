@@ -1,12 +1,10 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
-import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
-import discord4j.core.event.domain.guild.MemberLeaveEvent;
-import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 
 public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
 
@@ -31,13 +29,13 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
     // <context.user> returns the user.
     // -->
 
-    public MemberLeaveEvent getEvent() {
-        return (MemberLeaveEvent) event;
+    public GuildMemberRemoveEvent getEvent() {
+        return (GuildMemberRemoveEvent) event;
     }
 
     @Override
     public boolean matches(ScriptPath path) {
-        if (!path.checkSwitch("group", String.valueOf(getEvent().getGuildId().asLong()))) {
+        if (!path.checkSwitch("group", getEvent().getGuild().getId())) {
             return false;
         }
         return super.matches(path);
@@ -51,22 +49,10 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
     @Override
     public ObjectTag getContext(String name) {
         if (name.equals("group")) {
-            return new DiscordGroupTag(botID, getEvent().getGuildId().asLong());
+            return new DiscordGroupTag(botID, getEvent().getGuild());
         }
         else if (name.equals("user")) {
-            return new DiscordUserTag(botID, getEvent().getMember().get());
-        }
-        else if (name.equals("group_name")) {
-            DenizenDiscordBot.userContextDeprecation.warn();
-            return new ElementTag(getEvent().getGuild().block().getName());
-        }
-        else if (name.equals("user_id")) {
-            DenizenDiscordBot.userContextDeprecation.warn();
-            return new ElementTag(getEvent().getMember().get().getId().asLong());
-        }
-        else if (name.equals("user_name")) {
-            DenizenDiscordBot.userContextDeprecation.warn();
-            return new ElementTag(getEvent().getMember().get().getUsername());
+            return new DiscordUserTag(botID, getEvent().getUser());
         }
         return super.getContext(name);
     }

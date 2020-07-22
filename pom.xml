@@ -32,6 +32,11 @@
             <id>everything</id>
             <url>https://repo.citizensnpcs.co</url>
         </repository>
+        <repository>
+            <id>jcenter</id>
+            <name>jcenter-bintray</name>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
     </repositories>
 
     <!-- Dependencies -->
@@ -51,11 +56,10 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.discord4j</groupId>
-            <artifactId>discord4j-core</artifactId>
-            <version>3.1.0.RC3</version>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>4.2.0_181</version>
         </dependency>
-
     </dependencies>
 
     <ciManagement>
@@ -94,20 +98,19 @@
                             <minimizeJar>true</minimizeJar>
                             <artifactSet>
                                 <includes>
-                                    <include>com.discord4j:**</include>
-                                    <include>io.projectreactor:**</include>
-                                    <include>io.projectreactor.addons:**</include>
-                                    <include>io.projectreactor.netty:**</include>
-                                    <include>io.netty:**</include>
-                                    <include>com.austinv11.servicer:**</include>
+                                    <include>net.dv8tion:**</include>
+                                    <include>com.neovisionaries:**</include>
+                                    <include>com.squareup.okhttp3:**</include>
+                                    <include>club.minnced:**</include>
                                     <include>com.fasterxml.jackson.core:**</include>
-                                    <include>com.fasterxml.jackson.datatype:**</include>
-                                    <include>org.reactivestreams:**</include>
+                                    <include>org.apache.commons:**</include>
+                                    <include>com.squareup.okio:**</include>
+                                    <include>net.sf.trove4j:**</include>
                                 </includes>
                             </artifactSet>
                             <filters>
                                 <filter>
-                                    <artifact>com.discord4j:**</artifact>
+                                    <artifact>net.dv8tion:**</artifact>
                                     <includes>
                                         <include>**</include>
                                     </includes>
@@ -115,28 +118,24 @@
                             </filters>
                             <relocations>
                                 <relocation>
-                                    <pattern>com.discord4j</pattern>
-                                    <shadedPattern>com.denizenscript.shaded.com.discord4j</shadedPattern>
+                                    <pattern>net.dv8tion</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.net.dv8tion</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>discord4j</pattern>
-                                    <shadedPattern>com.denizenscript.shaded.discord4j</shadedPattern>
+                                    <pattern>com.neovisionaries</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.com.neovisionaries</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>io.netty</pattern>
-                                    <shadedPattern>com.denizenscript.shaded.io.netty</shadedPattern>
+                                    <pattern>com.squareup.okhttp3</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.com.squareup.okhttp3</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>reactor</pattern>
-                                    <shadedPattern>com.denizenscript.shaded.reactor</shadedPattern>
+                                    <pattern>club.minnced</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.club.minnced</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.reactivestreams</pattern>
-                                    <shadedPattern>com.denizenscript.shaded.org.reactivestreams</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.austinv11</pattern>
-                                    <shadedPattern>com.denizenscript.shaded.com.austinv11</shadedPattern>
+                                    <pattern>okhttp3</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.okhttp3</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.fasterxml</pattern>
@@ -145,6 +144,22 @@
                                 <relocation>
                                     <pattern>com.iwebpp</pattern>
                                     <shadedPattern>com.denizenscript.shaded.com.iwebpp</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>tomp2p</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.tomp2p</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.org.apache</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>okio</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.okio</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>gnu</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.gnu</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

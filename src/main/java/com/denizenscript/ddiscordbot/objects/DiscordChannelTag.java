@@ -7,14 +7,13 @@ import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagRunnable;
-import discord4j.common.util.Snowflake;
-import discord4j.core.object.entity.*;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import discord4j.core.object.entity.channel.Channel;
-import discord4j.core.object.entity.channel.GuildChannel;
-import discord4j.core.object.entity.channel.PrivateChannel;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 
 public class DiscordChannelTag implements ObjectTag {
 
@@ -82,36 +81,25 @@ public class DiscordChannelTag implements ObjectTag {
         this.channel_id = channelId;
     }
 
-    public DiscordChannelTag(String bot, Channel channel) {
+    public DiscordChannelTag(String bot, MessageChannel channel) {
         this.bot = bot;
         this.channel = channel;
-        channel_id = channel.getId().asLong();
+        channel_id = channel.getIdLong();
     }
 
     public DiscordConnection getBot() {
         return DenizenDiscordBot.instance.connections.get(bot);
     }
 
-    public DiscordConnection.ChannelCache getCacheChannel() {
-        for (DiscordConnection.GuildCache cache : getBot().guildsCached) {
-            for (DiscordConnection.ChannelCache chan : cache.channels) {
-                if (chan.id == channel_id) {
-                    return chan;
-                }
-            }
-        }
-        return null;
-    }
-
-    public Channel getChannel() {
+    public MessageChannel getChannel() {
         if (channel != null) {
             return channel;
         }
-        channel = getBot().client.getChannelById(Snowflake.of(channel_id)).block();
+        channel = getBot().client.getTextChannelById(channel_id);
         return channel;
     }
 
-    public Channel channel;
+    public MessageChannel channel;
 
     public String bot;
 
@@ -127,11 +115,7 @@ public class DiscordChannelTag implements ObjectTag {
         // Returns the name of the channel.
         // -->
         registerTag("name", (attribute, object) -> {
-            DiscordConnection.ChannelCache cache = object.getCacheChannel();
-            if (cache != null) {
-                return new ElementTag(cache.name);
-            }
-            Channel chan = object.getChannel();
+            MessageChannel chan = object.getChannel();
             String name;
             if (chan instanceof GuildChannel) {
                 name = ((GuildChannel) chan).getName();
@@ -152,13 +136,9 @@ public class DiscordChannelTag implements ObjectTag {
         // @plugin dDiscordBot
         // @description
         // Returns the type of the channel.
-        // Will be any of: GUILD_TEXT, DM, GUILD_VOICE, GROUP_DM, GUILD_CATEGORY
+        // Will be any of: TEXT, PRIVATE, VOICE, GROUP, CATEGORY, STORE, UNKNOWN.
         // -->
         registerTag("channel_type", (attribute, object) -> {
-            DiscordConnection.ChannelCache cache = object.getCacheChannel();
-            if (cache != null) {
-                return new ElementTag(cache.type.name());
-            }
             return new ElementTag(object.getChannel().getType().name());
 
         }, "type");
@@ -183,7 +163,7 @@ public class DiscordChannelTag implements ObjectTag {
         // Returns the raw mention string for the channel.
         // -->
         registerTag("mention", (attribute, object) -> {
-            return new ElementTag("<#" + Snowflake.of(object.getCacheChannel().id).asString() + ">");
+            return new ElementTag("<#" + object.channel_id + ">");
 
         });
 
@@ -195,14 +175,10 @@ public class DiscordChannelTag implements ObjectTag {
         // Returns the group that owns this channel.
         // -->
         registerTag("group", (attribute, object) -> {
-            DiscordConnection.ChannelCache cache = object.getCacheChannel();
-            if (cache != null) {
-                return new DiscordGroupTag(object.bot, cache.guildId);
-            }
-            Channel chan = object.getChannel();
+            MessageChannel chan = object.getChannel();
             Guild guild;
             if (chan instanceof GuildChannel) {
-                guild = ((GuildChannel) chan).getGuild().block();
+                guild = ((GuildChannel) chan).getGuild();
             }
             else {
                 return null;

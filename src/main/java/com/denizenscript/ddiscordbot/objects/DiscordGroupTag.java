@@ -8,11 +8,13 @@ import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagRunnable;
-import discord4j.core.object.entity.*;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import discord4j.common.util.Snowflake;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class DiscordGroupTag implements ObjectTag {
 
@@ -89,22 +91,18 @@ public class DiscordGroupTag implements ObjectTag {
     public DiscordGroupTag(String bot, Guild guild) {
         this.bot = bot;
         this.guild = guild;
-        guild_id = guild.getId().asLong();
+        guild_id = guild.getIdLong();
     }
 
     public DiscordConnection getBot() {
         return DenizenDiscordBot.instance.connections.get(bot);
     }
 
-    public DiscordConnection.GuildCache getCacheGuild() {
-        return getBot().getCachedGuild(guild_id);
-    }
-
     public Guild getGuild() {
         if (guild != null) {
             return guild;
         }
-        guild = getBot().client.getGuildById(Snowflake.of(guild_id)).block();
+        guild = getBot().client.getGuildById(guild_id);
         return guild;
     }
 
@@ -124,7 +122,7 @@ public class DiscordGroupTag implements ObjectTag {
         // Returns the name of the group.
         // -->
         registerTag("name", (attribute, object) -> {
-            return new ElementTag(object.getCacheGuild().name);
+            return new ElementTag(object.getGuild().getName());
         });
 
         // <--[tag]
@@ -147,8 +145,8 @@ public class DiscordGroupTag implements ObjectTag {
         // -->
         registerTag("channels", (attribute, object) -> {
             ListTag list = new ListTag();
-            for (DiscordConnection.ChannelCache chan : object.getCacheGuild().channels) {
-                list.addObject(new DiscordChannelTag(object.bot, chan.id));
+            for (TextChannel chan : object.getGuild().getTextChannels()) {
+                list.addObject(new DiscordChannelTag(object.bot, chan));
             }
             return list;
         });
@@ -162,8 +160,8 @@ public class DiscordGroupTag implements ObjectTag {
         // -->
         registerTag("members", (attribute, object) -> {
             ListTag list = new ListTag();
-            for (DiscordConnection.UserCache member : object.getCacheGuild().users) {
-                list.addObject(new DiscordUserTag(object.bot, member.id));
+            for (Member member : object.getGuild().getMembers()) {
+                list.addObject(new DiscordUserTag(object.bot, member.getUser()));
             }
             return list;
         });
@@ -177,7 +175,7 @@ public class DiscordGroupTag implements ObjectTag {
         // -->
         registerTag("roles", (attribute, object) -> {
             ListTag list = new ListTag();
-            for (Role role : object.getGuild().getRoles().toIterable()) {
+            for (Role role : object.getGuild().getRoles()) {
                 list.addObject(new DiscordRoleTag(object.bot, role));
             }
             return list;
@@ -207,9 +205,9 @@ public class DiscordGroupTag implements ObjectTag {
             }
             final String discrim = discrimVal;
             final String matchName = matchString;
-            for (DiscordConnection.UserCache user : object.getCacheGuild().users) {
-                if (user.username.equalsIgnoreCase(matchName) && (discrim == null || user.discriminator.equals(discrim))) {
-                    return new DiscordUserTag(object.bot, user.id);
+            for (Member user : object.getGuild().getMembers()) {
+                if (user.getUser().getName().equalsIgnoreCase(matchName) && (discrim == null || user.getUser().getDiscriminator().equals(discrim))) {
+                    return new DiscordUserTag(object.bot, user.getUser());
                 }
             }
             return null;
@@ -227,9 +225,9 @@ public class DiscordGroupTag implements ObjectTag {
                 return null;
             }
             String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
-            DiscordConnection.ChannelCache bestMatch = null;
-            for (DiscordConnection.ChannelCache chan : object.getCacheGuild().channels) {
-                String chanName = CoreUtilities.toLowerCase(chan.name);
+            TextChannel bestMatch = null;
+            for (TextChannel chan : object.getGuild().getTextChannels()) {
+                String chanName = CoreUtilities.toLowerCase(chan.getName());
                 if (matchString.equals(chanName)) {
                     bestMatch = chan;
                     break;
@@ -241,7 +239,7 @@ public class DiscordGroupTag implements ObjectTag {
             if (bestMatch == null) {
                 return null;
             }
-            return new DiscordChannelTag(object.bot, bestMatch.id);
+            return new DiscordChannelTag(object.bot, bestMatch);
         });
 
         // <--[tag]
@@ -257,7 +255,7 @@ public class DiscordGroupTag implements ObjectTag {
             }
             String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
             Role bestMatch = null;
-            for (Role role : object.getGuild().getRoles().toIterable()) {
+            for (Role role : object.getGuild().getRoles()) {
                 String roleName = CoreUtilities.toLowerCase(role.getName());
                 if (matchString.equals(roleName)) {
                     bestMatch = role;

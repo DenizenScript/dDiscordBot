@@ -1,11 +1,12 @@
 package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
-import discord4j.core.event.domain.Event;
-import discord4j.core.object.entity.User;
 import com.denizenscript.denizencore.events.ScriptEvent;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import reactor.core.publisher.Flux;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.Event;
+
+import java.util.List;
 
 public abstract class DiscordScriptEvent extends ScriptEvent {
 
@@ -26,20 +27,16 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
         return super.getContext(name);
     }
 
-    public String stripMentions(String message, Flux<User> mentioned) {
-        for (User user : mentioned.toIterable()) {
-            message = message.replace(user.getMention(), "")
-                    .replace("<@" +user.getId().asLong() + ">", "")
-                    .replace("<@!" +user.getId().asLong() + ">", "");
+    public String stripMentions(String message, List<User> mentioned) {
+        for (User user : mentioned) {
+            message = message.replace(user.getAsMention(), "")
+                    .replace("<@" +user.getId() + ">", "")
+                    .replace("<@!" +user.getId() + ">", "");
         }
         return message;
     }
 
     public boolean enabled = false;
-
-    public boolean isProperEvent() {
-        return true;
-    }
 
     @Override
     public void init() {

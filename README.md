@@ -9,9 +9,11 @@ Only works if you know how to operate a Discord bot, of course! https://github.c
 
 **Discord:** https://discord.gg/Q6pZGSR
 
+**Denizen Meta Docs:** https://one.denizenscript.com/denizen/cmds/discord
+
 #### Made For:
 
-**Denizen For Bukkit**: https://github.com/DenizenScript/Denizen-For-Bukkit
+**Denizen**: https://github.com/DenizenScript/Denizen
 
 ### Licensing pre-note:
 

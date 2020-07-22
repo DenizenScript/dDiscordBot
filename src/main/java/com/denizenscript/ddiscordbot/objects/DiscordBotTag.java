@@ -10,6 +10,7 @@ import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
+import net.dv8tion.jda.api.entities.Guild;
 
 public class DiscordBotTag implements ObjectTag {
 
@@ -90,7 +91,7 @@ public class DiscordBotTag implements ObjectTag {
             if (connection == null) {
                 return null;
             }
-            return new DiscordUserTag(object.bot, connection.client.getSelf().block());
+            return new DiscordUserTag(object.bot, connection.client.getSelfUser());
 
         });
 
@@ -107,8 +108,8 @@ public class DiscordBotTag implements ObjectTag {
                 return null;
             }
             ListTag list = new ListTag();
-            for (DiscordConnection.GuildCache guild : connection.guildsCached) {
-                list.addObject(new DiscordGroupTag(object.bot, guild.id));
+            for (Guild guild : connection.client.getGuilds()) {
+                list.addObject(new DiscordGroupTag(object.bot, guild));
             }
             return list;
 
@@ -130,9 +131,9 @@ public class DiscordBotTag implements ObjectTag {
                 return null;
             }
             String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
-            DiscordConnection.GuildCache bestMatch = null;
-            for (DiscordConnection.GuildCache guild : connection.guildsCached) {
-                String guildName = CoreUtilities.toLowerCase(guild.name);
+            Guild bestMatch = null;
+            for (Guild guild : connection.client.getGuilds()) {
+                String guildName = CoreUtilities.toLowerCase(guild.getName());
                 if (matchString.equals(guildName)) {
                     bestMatch = guild;
                     break;
@@ -144,7 +145,7 @@ public class DiscordBotTag implements ObjectTag {
             if (bestMatch == null) {
                 return null;
             }
-            return new DiscordGroupTag(object.bot, bestMatch.id);
+            return new DiscordGroupTag(object.bot, bestMatch);
 
         });
     }

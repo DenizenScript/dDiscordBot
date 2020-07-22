@@ -7,11 +7,10 @@ import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagRunnable;
-import discord4j.core.object.entity.Role;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import discord4j.common.util.Snowflake;
+import net.dv8tion.jda.api.entities.Role;
 
 import java.util.List;
 
@@ -120,7 +119,7 @@ public class DiscordRoleTag implements ObjectTag {
         if (bot != null) {
             DiscordConnection conn = DenizenDiscordBot.instance.connections.get(bot);
             if (conn != null) {
-                role = conn.client.getRoleById(Snowflake.of(guild_id), Snowflake.of(role_id)).block();
+                role = conn.client.getRoleById(role_id);
             }
         }
     }
@@ -128,8 +127,8 @@ public class DiscordRoleTag implements ObjectTag {
     public DiscordRoleTag(String bot, Role role) {
         this.bot = bot;
         this.role = role;
-        role_id = role.getId().asLong();
-        guild_id = role.getGuildId().asLong();
+        role_id = role.getIdLong();
+        guild_id = role.getGuild().getIdLong();
     }
 
     public Role role;
@@ -174,7 +173,7 @@ public class DiscordRoleTag implements ObjectTag {
         // Returns the raw mention string the role.
         // -->
         registerTag("mention", (attribute, object) -> {
-            return new ElementTag(object.role.getMention());
+            return new ElementTag(object.role.getAsMention());
 
         });
 
@@ -186,7 +185,7 @@ public class DiscordRoleTag implements ObjectTag {
         // Returns the group that owns this role.
         // -->
         registerTag("group", (attribute, object) -> {
-            return new DiscordGroupTag(object.bot, object.role.getGuild().block());
+            return new DiscordGroupTag(object.bot, object.role.getGuild());
 
         });
     }
