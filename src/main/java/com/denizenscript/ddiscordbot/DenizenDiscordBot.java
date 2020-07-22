@@ -34,8 +34,9 @@ public class DenizenDiscordBot extends JavaPlugin {
             ScriptEvent.registerScriptEvent(DiscordUserJoinsScriptEvent.instance = new DiscordUserJoinsScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserLeavesScriptEvent.instance = new DiscordUserLeavesScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserRoleChangeScriptEvent.instance = new DiscordUserRoleChangeScriptEvent());
-            ObjectFetcher.registerWithObjectFetcher(DiscordChannelTag.class, DiscordChannelTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordBotTag.class, DiscordBotTag.tagProcessor);
+            ObjectFetcher.registerWithObjectFetcher(DiscordChannelTag.class, DiscordChannelTag.tagProcessor);
+            ObjectFetcher.registerWithObjectFetcher(DiscordEmbedTag.class, DiscordEmbedTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordGroupTag.class, DiscordGroupTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordRoleTag.class, DiscordRoleTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordUserTag.class, DiscordUserTag.tagProcessor);
@@ -45,23 +46,41 @@ public class DenizenDiscordBot extends JavaPlugin {
                     discordTagBase(event);
                 }
             }, "discord");
+            TagManager.registerTagHandler(new TagRunnable.RootForm() {
+                @Override
+                public void run(ReplaceableTagEvent event) {
+                    discordEmbedTagBase(event);
+                }
+            }, "discord_embed");
         }
         catch (Throwable ex) {
             Debug.echoError(ex);
         }
     }
 
+    public void discordEmbedTagBase(ReplaceableTagEvent event) {
+        if (!event.matches("discord_embed") || event.replaced()) {
+            return;
+        }
+        DiscordEmbedTag embed;
+        if (event.hasNameContext()) {
+            embed = DiscordEmbedTag.valueOf(event.getNameContext(), event.getAttributes().context);
+        }
+        else {
+            embed = new DiscordEmbedTag();
+        }
+        Attribute attribute = event.getAttributes().fulfill(1);
+        event.setReplacedObject(CoreUtilities.autoAttrib(embed, attribute));
+    }
+
     public void discordTagBase(ReplaceableTagEvent event) {
         if (!event.matches("discord") || event.replaced()) {
             return;
         }
-
         DiscordBotTag bot = null;
-
         if (event.hasNameContext()) {
             bot = DiscordBotTag.valueOf(event.getNameContext(), event.getAttributes().context);
         }
-
         Attribute attribute = event.getAttributes().fulfill(1);
 
         // <--[tag]

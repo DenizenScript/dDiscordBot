@@ -1,9 +1,6 @@
 package com.denizenscript.ddiscordbot;
 
-import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
-import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
-import com.denizenscript.ddiscordbot.objects.DiscordRoleTag;
-import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
+import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
@@ -70,6 +67,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // @Usage
     // Use to message a Discord channel.
     // - ~discord id:mybot message channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!"
+    //
+    // @Usage
+    // Use to message an embed to a Discord channel.
+    // - ~discord id:mybot message channel:<discord[mybot].group[Denizen].channel[bot-spam]> "<discord_embed.with[title].as[hi].with[description].as[This is an embed!]>"
     //
     // @Usage
     // Use to message a Discord channel and record the ID.
@@ -344,7 +345,14 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     else {
                         textChan = client.getTextChannelById(channel.channel_id);
                     }
-                    Message sentMessage = textChan.sendMessage(message.asString()).complete();
+                    Message sentMessage;
+                    if (message.asString().startsWith("discordembed@")) {
+                        MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
+                        sentMessage = textChan.sendMessage(embed).complete();
+                    }
+                    else {
+                        sentMessage = textChan.sendMessage(message.asString()).complete();
+                    }
                     scriptEntry.addObject("message_id", new ElementTag(sentMessage.getId()));
                     scriptEntry.setFinished(true);
                     break;
@@ -385,7 +393,14 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (requireClientObject.apply(client)) {
                         return;
                     }
-                    client.getTextChannelById(channel.channel_id).editMessageById(messageId.asLong(), message.asString()).complete();
+                    MessageChannel textChannel = client.getTextChannelById(channel.channel_id);
+                    if (message.asString().startsWith("discordembed@")) {
+                        MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
+                        textChannel.editMessageById(messageId.asLong(), embed).complete();
+                    }
+                    else {
+                        textChannel.editMessageById(messageId.asLong(), message.asString()).complete();
+                    }
                     scriptEntry.setFinished(true);
                     break;
                 }
