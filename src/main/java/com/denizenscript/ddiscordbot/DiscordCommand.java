@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.bukkit.Bukkit;
 
 import java.util.function.BiFunction;
@@ -204,7 +205,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         @Override
         public void run() {
             try {
-                JDA jda = JDABuilder.createDefault(code).build();
+                JDA jda = JDABuilder.createDefault(code).setMemberCachePolicy(MemberCachePolicy.ALL).build();
                 conn.client = jda;
                 jda.awaitReady();
                 conn.registerHandlers();
