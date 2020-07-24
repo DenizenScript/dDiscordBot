@@ -206,9 +206,18 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         @Override
         public void run() {
             try {
-                JDA jda = JDABuilder.createDefault(code).enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES).setMemberCachePolicy(MemberCachePolicy.ALL).build();
-                conn.client = jda;
-                jda.awaitReady();
+                try {
+                    // Try with intents
+                    JDA jda = JDABuilder.createDefault(code).enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES).setMemberCachePolicy(MemberCachePolicy.ALL).build();
+                    conn.client = jda;
+                    jda.awaitReady();
+                }
+                catch (Exception ex) {
+                    // If startup failure, try without intents
+                    JDA jda = JDABuilder.createDefault(code).build();
+                    conn.client = jda;
+                    jda.awaitReady();
+                }
                 conn.registerHandlers();
             }
             catch (Exception ex) {

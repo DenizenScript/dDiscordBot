@@ -5,6 +5,8 @@ dDiscordBot: Adds a Discord Bot to Denizen!
 
 Only works if you know how to operate a Discord bot, of course! https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token
 
+It's strongly recommended you enable the `Server Members Intent` in the Discord bot settings.
+
 #### Need help using dDiscordBot? Try one of these places:
 
 **Discord:** https://discord.gg/Q6pZGSR
