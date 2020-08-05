@@ -264,7 +264,7 @@ public class DiscordEmbedTag implements ObjectTag {
                 attribute.echoError("Invalid embed.add_field[...] tag: must have an input title.");
                 return null;
             }
-            String title = CoreUtilities.toLowerCase(attribute.getContext(1));
+            String title = attribute.getContext(1);
             attribute.fulfill(1);
             if (!attribute.startsWith("value") || !attribute.hasContext(1)) {
                 attribute.echoError("embed.add_field[...] must be followed by value[...].");
