@@ -21,7 +21,7 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
     // @Events
     // discord user role changes
     //
-    // @Regex ^on discord role changes$
+    // @Regex ^on discord user role changes$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
