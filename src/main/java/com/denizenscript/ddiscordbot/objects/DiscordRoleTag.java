@@ -170,7 +170,7 @@ public class DiscordRoleTag implements ObjectTag {
         // @returns ElementTag
         // @plugin dDiscordBot
         // @description
-        // Returns the raw mention string the role.
+        // Returns the raw mention string of the role.
         // -->
         registerTag("mention", (attribute, object) -> {
             return new ElementTag(object.role.getAsMention());

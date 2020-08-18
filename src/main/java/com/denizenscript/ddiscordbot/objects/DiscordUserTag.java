@@ -132,6 +132,17 @@ public class DiscordUserTag implements ObjectTag {
         });
 
         // <--[tag]
+        // @attribute <DiscordUserTag.avatar_url>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the URL to the user's avatar.
+        // -->
+        registerTag("avatar_url", (attribute, object) -> {
+            return new ElementTag(object.getUser().getEffectiveAvatarUrl());
+        });
+
+        // <--[tag]
         // @attribute <DiscordUserTag.nickname[<group>]>
         // @returns ElementTag
         // @plugin dDiscordBot
