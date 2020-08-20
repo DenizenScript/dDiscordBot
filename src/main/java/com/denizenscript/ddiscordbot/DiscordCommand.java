@@ -208,7 +208,12 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             try {
                 try {
                     // Try with intents
-                    JDA jda = JDABuilder.createDefault(code).enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES).setMemberCachePolicy(MemberCachePolicy.ALL).build();
+                    JDA jda = JDABuilder.createDefault(code)
+                            .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES)
+                            .setMemberCachePolicy(MemberCachePolicy.ALL)
+                            .setAutoReconnect(true)
+                            .setLargeThreshold(100000)
+                            .build();
                     conn.client = jda;
                     jda.awaitReady();
                 }
