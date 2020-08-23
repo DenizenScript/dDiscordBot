@@ -43,7 +43,7 @@ public class DiscordRoleTag implements ObjectTag {
         List<String> input = CoreUtilities.split(string, ',');
         if (input.size() == 1) {
             if (!ArgumentHelper.matchesInteger(input.get(0))) {
-                if (context == null || context.debug) {
+                if (context == null || context.showErrors()) {
                     Debug.echoError("DiscordRoleTag input is not a number.");
                 }
                 return null;
@@ -56,7 +56,7 @@ public class DiscordRoleTag implements ObjectTag {
         }
         else if (input.size() == 3) {
             if (!ArgumentHelper.matchesInteger(input.get(1)) || !ArgumentHelper.matchesInteger(input.get(2))) {
-                if (context == null || context.debug) {
+                if (context == null || context.showErrors()) {
                     Debug.echoError("DiscordRoleTag input is not a number.");
                 }
                 return null;
@@ -70,7 +70,7 @@ public class DiscordRoleTag implements ObjectTag {
         }
         else if (input.size() == 2) {
             if (!ArgumentHelper.matchesInteger(input.get(0)) || !ArgumentHelper.matchesInteger(input.get(1))) {
-                if (context == null || context.debug) {
+                if (context == null || context.showErrors()) {
                     Debug.echoError("DiscordRoleTag input is not a number.");
                 }
                 return null;

@@ -54,7 +54,7 @@ public class DiscordGroupTag implements ObjectTag {
             string = string.substring(comma + 1);
         }
         if (!ArgumentHelper.matchesInteger(string)) {
-            if (context == null || context.debug) {
+            if (context == null || context.showErrors()) {
                 Debug.echoError("DiscordGroupTag input is not a number.");
             }
             return null;

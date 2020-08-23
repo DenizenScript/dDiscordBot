@@ -49,7 +49,7 @@ public class DiscordUserTag implements ObjectTag {
             string = string.substring(comma + 1);
         }
         if (!ArgumentHelper.matchesInteger(string)) {
-            if (context == null || context.debug) {
+            if (context == null || context.showErrors()) {
                 Debug.echoError("DiscordUserTag input is not a number.");
             }
             return null;
