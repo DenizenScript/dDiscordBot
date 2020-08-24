@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.bukkit.Bukkit;
 
@@ -213,6 +214,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                             .setMemberCachePolicy(MemberCachePolicy.ALL)
                             .setAutoReconnect(true)
                             .setLargeThreshold(100000)
+                            .setChunkingFilter(ChunkingFilter.ALL)
                             .build();
                     conn.client = jda;
                     jda.awaitReady();
