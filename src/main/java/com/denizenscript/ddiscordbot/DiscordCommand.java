@@ -218,6 +218,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     jda.awaitReady();
                 }
                 catch (Exception ex) {
+                    if (Debug.verbose) {
+                        Debug.echoError(ex);
+                    }
+                    Debug.log("Discord using fallback connection path - connecting with intents disabled. Enable the members intent in your bot's setting to fix this.");
                     // If startup failure, try without intents
                     JDA jda = JDABuilder.createDefault(code).build();
                     conn.client = jda;
