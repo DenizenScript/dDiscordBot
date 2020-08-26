@@ -104,6 +104,7 @@
                                     <include>club.minnced:**</include>
                                     <include>com.fasterxml.jackson.core:**</include>
                                     <include>org.apache.commons:**</include>
+                                    <include>org.slf4j:**</include>
                                     <include>com.squareup.okio:**</include>
                                     <include>net.sf.trove4j:**</include>
                                 </includes>
@@ -152,6 +153,10 @@
                                 <relocation>
                                     <pattern>org.apache</pattern>
                                     <shadedPattern>com.denizenscript.shaded.org.apache</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.slf4j</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.org.slf4j</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>okio</pattern>
