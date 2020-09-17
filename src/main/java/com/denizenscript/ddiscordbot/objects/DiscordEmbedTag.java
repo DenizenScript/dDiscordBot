@@ -293,7 +293,7 @@ public class DiscordEmbedTag implements ObjectTag {
         // @description
         // Returns a copy of this Embed tag, with an inline field added with the given title and value.
         // -->
-        registerTag("add_field", (attribute, object) -> {
+        registerTag("add_inline_field", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();
             if (!attribute.hasContext(1)) {
                 attribute.echoError("Invalid embed.add_inline_field[...] tag: must have an input title.");
