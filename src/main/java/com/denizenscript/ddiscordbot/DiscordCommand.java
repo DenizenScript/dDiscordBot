@@ -130,7 +130,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
-
         for (Argument arg : scriptEntry.getProcessedArgs()) {
             if (!scriptEntry.hasObject("id")
                     && arg.matchesPrefix("id")) {
@@ -187,7 +186,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 arg.reportUnhandled();
             }
         }
-
         if (!scriptEntry.hasObject("id")) {
             throw new InvalidArgumentsException("Must have an ID!");
         }
@@ -264,7 +262,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         DiscordRoleTag role = scriptEntry.getObjectTag("role");
         ElementTag url = scriptEntry.getElement("url");
         ElementTag messageId = scriptEntry.getElement("message_id");
-
         if (scriptEntry.dbCallShouldDebug()) {
             Debug.report(scriptEntry, getName(), id.debug()
                     + (channel != null ? channel.debug() : "")
@@ -278,7 +275,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     + (url != null ? url.debug() : "")
                     + (messageId != null ? messageId.debug() : ""));
         }
-
         Supplier<Boolean> requireClientID = () -> {
             if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
                 Debug.echoError(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: unknown ID!");
@@ -362,10 +358,21 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     }
                     MessageChannel textChan;
                     if (channel == null) {
-                        textChan = client.getUserById(user.user_id).openPrivateChannel().complete();
+                        User userObj = client.getUserById(user.user_id);
+                        if (userObj == null) {
+                            Debug.echoError("Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
+                            scriptEntry.setFinished(true);
+                            return;
+                        }
+                        textChan = userObj.openPrivateChannel().complete();
                     }
                     else {
                         textChan = client.getTextChannelById(channel.channel_id);
+                    }
+                    if (textChan == null) {
+                        Debug.echoError("No channel to send message to (channel ID invalid, or not a text channel?).");
+                        scriptEntry.setFinished(true);
+                        return;
                     }
                     Message sentMessage;
                     if (message.asString().startsWith("discordembed@")) {
