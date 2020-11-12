@@ -215,7 +215,7 @@ public class DiscordRoleTag implements ObjectTag {
 
     @Override
     public boolean isUnique() {
-        return false;
+        return true;
     }
 
     @Override

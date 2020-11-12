@@ -14,6 +14,8 @@ import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.bukkit.Color;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -63,6 +65,61 @@ public class DiscordEmbedTag implements ObjectTag {
 
     public DiscordEmbedTag(MapTag map) {
         embedData = map;
+    }
+
+    public DiscordEmbedTag(MessageEmbed embed) {
+        embedData = new MapTag();
+        if (embed.getAuthor() != null && embed.getAuthor().getName() != null) {
+            embedData.putObject("author_name", new ElementTag(embed.getAuthor().getName()));
+        }
+        if (embed.getAuthor() != null && embed.getAuthor().getUrl() != null) {
+            embedData.putObject("author_url", new ElementTag(embed.getAuthor().getUrl()));
+        }
+        if (embed.getAuthor() != null && embed.getAuthor().getIconUrl() != null) {
+            embedData.putObject("author_icon_url", new ElementTag(embed.getAuthor().getIconUrl()));
+        }
+        if (embed.getColor() != null) {
+            embedData.putObject("author_icon_url", new ColorTag(Color.fromRGB(embed.getColorRaw())));
+        }
+        if (embed.getDescription() != null) {
+            embedData.putObject("getDescription", new ElementTag(embed.getDescription()));
+        }
+        if (embed.getFooter() != null && embed.getFooter().getText() != null) {
+            embedData.putObject("footer", new ElementTag(embed.getFooter().getText()));
+        }
+        if (embed.getFooter() != null && embed.getFooter().getIconUrl() != null) {
+            embedData.putObject("footer_icon", new ElementTag(embed.getFooter().getIconUrl()));
+        }
+        if (embed.getImage() != null && embed.getImage().getUrl() != null) {
+            embedData.putObject("image", new ElementTag(embed.getImage().getUrl()));
+        }
+        if (embed.getThumbnail() != null && embed.getThumbnail().getUrl() != null) {
+            embedData.putObject("thumbnail", new ElementTag(embed.getThumbnail().getUrl()));
+        }
+        if (embed.getTimestamp() != null) {
+            embedData.putObject("timestamp", new TimeTag(embed.getTimestamp().toZonedDateTime()));
+        }
+        if (embed.getTitle() != null) {
+            embedData.putObject("title", new ElementTag(embed.getTitle()));
+        }
+        if (embed.getUrl() != null) {
+            embedData.putObject("title_url", new ElementTag(embed.getUrl()));
+        }
+        if (!embed.getFields().isEmpty()) {
+            ListTag fields = new ListTag();
+            for (MessageEmbed.Field field : embed.getFields()) {
+                MapTag fieldMap = new MapTag();
+                if (field.getName() != null) {
+                    fieldMap.putObject("title", new ElementTag(field.getName()));
+                }
+                if (field.getValue() != null) {
+                    fieldMap.putObject("title", new ElementTag(field.getValue()));
+                }
+                fieldMap.putObject("inline", new ElementTag(field.isInline()));
+                fields.addObject(fieldMap);
+            }
+            embedData.putObject("fields", fields);
+        }
     }
 
     public EmbedBuilder build(TagContext context) {

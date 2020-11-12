@@ -329,7 +329,7 @@ public class DiscordUserTag implements ObjectTag {
 
     @Override
     public boolean isUnique() {
-        return false;
+        return true;
     }
 
     @Override

@@ -1,12 +1,15 @@
 package com.denizenscript.ddiscordbot.events;
 
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
+import com.denizenscript.ddiscordbot.objects.DiscordMessageTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
+import com.denizenscript.denizencore.tags.TagContext;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -33,13 +36,7 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     // <context.bot> returns the relevant Discord bot object.
     // <context.channel> returns the channel.
     // <context.group> returns the group.
-    // <context.message> returns the message (raw).
-    // <context.message_id> returns the message ID.
-    // <context.no_mention_message> returns the message with all user mentions stripped.
-    // <context.formatted_message> returns the formatted message (mentions/etc. are written cleanly). CURRENTLY NON-FUNCTIONAL.
-    // <context.author> returns the user that authored the message (may not be valid, eg for a Webhook post).
-    // <context.mentions> returns a list of all mentioned users.
-    // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
+    // <context.new_message> returns the message received, as a DiscordMessageTag.
     //
     // -->
 
@@ -73,22 +70,31 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
                 return new DiscordGroupTag(botID, getEvent().getGuild());
             }
         }
+        else if (name.equals("new_message")) {
+            return new DiscordMessageTag(botID, getEvent().getMessage());
+        }
         else if (name.equals("message")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return new ElementTag(getEvent().getMessage().getContentRaw());
         }
         else if (name.equals("message_id")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return new ElementTag(getEvent().getMessage().getId());
         }
         else if (name.equals("no_mention_message")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return new ElementTag(stripMentions(getEvent().getMessage().getContentRaw(), getEvent().getMessage().getMentionedUsers()));
         }
         else if (name.equals("formatted_message")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return new ElementTag(getEvent().getMessage().getContentDisplay());
         }
         else if (name.equals("author")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return new DiscordUserTag(botID, getEvent().getMessage().getAuthor());
         }
         else if (name.equals("mentions")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             ListTag list = new ListTag();
             for (User user : getEvent().getMessage().getMentionedUsers()) {
                 list.addObject(new DiscordUserTag(botID, user));
@@ -96,6 +102,7 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
             return list;
         }
         else if (name.equals("is_direct")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return new ElementTag(getEvent().getChannel() instanceof PrivateChannel);
         }
         return super.getContext(name);

@@ -1,10 +1,13 @@
 package com.denizenscript.ddiscordbot.events;
 
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
+import com.denizenscript.ddiscordbot.objects.DiscordMessageTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
+import com.denizenscript.denizencore.tags.TagContext;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 
@@ -30,14 +33,8 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     // <context.bot> returns the relevant Discord bot object.
     // <context.channel> returns the channel.
     // <context.group> returns the group.
-    // <context.author> returns the user that authored the message.
-    // <context.mentions> returns a list of all mentioned users.
-    // <context.is_direct> returns whether the message was sent directly to the bot (if false, the message was sent to a public channel).
     // <context.old_message_valid> returns whether the old message is available (it may be lost due to caching).
-    // <context.message> returns the original message (raw).
-    // <context.message_id> returns the message ID.
-    // <context.no_mention_message> returns the original message with all user mentions stripped.
-    // <context.formatted_message> returns the formatted original message (mentions/etc. are written cleanly). CURRENTLY NON-FUNCTIONAL.
+    // <context.old_message> returns the original DiscordMessageText (data may be missing if not cached).
     //
     // -->
 
@@ -71,38 +68,51 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
                 return new DiscordGroupTag(botID, getEvent().getGuild());
             }
         }
-        // TODO: Message cache
+        else if (name.equals("old_message")) {
+            return new DiscordMessageTag(botID, getEvent().getChannel().getIdLong(), getEvent().getMessageIdLong());
+        }
+        // TODO: Message cache?
         else if (name.equals("old_message_valid")) {
             return new ElementTag(false);
         }
         else if (name.equals("message")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return null;
         }
         else if (name.equals("message_id")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return new ElementTag(getEvent().getMessageId());
         }
         else if (name.equals("no_mention_message")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return null;
         }
         else if (name.equals("formatted_message")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return null;
         }
         else if (name.equals("author")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return null;
         }
         else if (name.equals("mentions")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return null;
         }
         else if (name.equals("is_direct")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return new ElementTag(getEvent().getChannel() instanceof PrivateChannel);
         }
         else if (name.equals("author_id")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return null;
         }
         else if (name.equals("author_name")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return null;
         }
         else if (name.equals("mention_names")) {
+            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
             return null;
         }
         return super.getContext(name);
