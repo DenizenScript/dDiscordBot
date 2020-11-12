@@ -98,6 +98,14 @@ public class DiscordReactionTag implements ObjectTag {
         }
     }
 
+    public DiscordReactionTag(String bot, long channelId, long messageId, MessageReaction reaction) {
+        this.bot = bot;
+        this.emote = reaction.getReactionEmote();
+        this.message_id = messageId;
+        this.channel_id = channelId;
+        this.reaction = reaction;
+    }
+
     public DiscordReactionTag(String bot, Message message, MessageReaction reaction) {
         this.bot = bot;
         this.emote = reaction.getReactionEmote();
@@ -193,7 +201,10 @@ public class DiscordReactionTag implements ObjectTag {
         // Returns the amount of times this reaction exists on the message.
         // -->
         registerTag("count", (attribute, object) -> {
-            return new ElementTag(object.getReaction().getCount());
+            if (object.getReaction().hasCount()) {
+                return new ElementTag(object.getReaction().getCount());
+            }
+            return new ElementTag(object.getReaction().retrieveUsers().complete().size());
         });
 
         // <--[tag]

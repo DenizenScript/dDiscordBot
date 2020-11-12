@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 
@@ -21,6 +23,16 @@ public class DiscordConnection extends ListenerAdapter {
 
     public void registerHandlers() {
         client.addEventListener(this);
+    }
+
+    @Override
+    public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        autoHandle(event, DiscordMessageReactionAddScriptEvent.instance);
+    }
+
+    @Override
+    public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
+        autoHandle(event, DiscordMessageReactionRemoveScriptEvent.instance);
     }
 
     @Override

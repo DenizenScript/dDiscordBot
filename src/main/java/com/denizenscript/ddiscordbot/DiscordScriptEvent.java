@@ -1,14 +1,14 @@
 package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
-import com.denizenscript.denizencore.events.ScriptEvent;
+import com.denizenscript.denizen.events.BukkitScriptEvent;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.Event;
 
 import java.util.List;
 
-public abstract class DiscordScriptEvent extends ScriptEvent {
+public abstract class DiscordScriptEvent extends BukkitScriptEvent {
 
     public String botID;
 
@@ -16,7 +16,10 @@ public abstract class DiscordScriptEvent extends ScriptEvent {
 
     @Override
     public boolean matches(ScriptPath path) {
-        return path.checkSwitch("for", botID);
+        if (!path.checkSwitch("for", botID)) {
+            return false;
+        }
+        return super.matches(path);
     }
 
     @Override
