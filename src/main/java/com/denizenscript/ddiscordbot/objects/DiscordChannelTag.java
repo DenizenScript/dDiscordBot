@@ -5,15 +5,13 @@ import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.denizen.utilities.debugging.Debug;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
+import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.*;
 
 public class DiscordChannelTag implements ObjectTag {
 
@@ -127,7 +125,6 @@ public class DiscordChannelTag implements ObjectTag {
                 name = "unknown";
             }
             return new ElementTag(name);
-
         });
 
         // <--[tag]
@@ -140,7 +137,6 @@ public class DiscordChannelTag implements ObjectTag {
         // -->
         registerTag("channel_type", (attribute, object) -> {
             return new ElementTag(object.getChannel().getType().name());
-
         }, "type");
 
         // <--[tag]
@@ -152,7 +148,6 @@ public class DiscordChannelTag implements ObjectTag {
         // -->
         registerTag("id", (attribute, object) -> {
             return new ElementTag(object.channel_id);
-
         });
 
         // <--[tag]
@@ -164,7 +159,6 @@ public class DiscordChannelTag implements ObjectTag {
         // -->
         registerTag("mention", (attribute, object) -> {
             return new ElementTag("<#" + object.channel_id + ">");
-
         });
 
         // <--[tag]
@@ -184,7 +178,49 @@ public class DiscordChannelTag implements ObjectTag {
                 return null;
             }
             return new DiscordGroupTag(object.bot, guild);
+        });
 
+        // <--[tag]
+        // @attribute <DiscordChannelTag.pinned_messages>
+        // @returns ListTag(DiscordMessageTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of the messages that are pinned in the channel.
+        // -->
+        registerTag("pinned_messages", (attribute, object) -> {
+            ListTag list = new ListTag();
+            for (Message message : object.getChannel().retrievePinnedMessages().complete()) {
+                list.addObject(new DiscordMessageTag(object.bot, message));
+            }
+            return list;
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.first_message>
+        // @returns DiscordMessageTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the first message sent in the channel.
+        // -->
+        registerTag("first_message", (attribute, object) -> {
+            Message first = object.getChannel().getHistoryFromBeginning(1).complete().getRetrievedHistory().get(0);
+            return new DiscordMessageTag(object.bot, first);
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.last_message>
+        // @returns DiscordMessageTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the last message sent in the channel.
+        // -->
+        registerTag("last_message", (attribute, object) -> {
+            if (object.getChannel().hasLatestMessage()) {
+                return new DiscordMessageTag(object.bot, object.channel_id, object.getChannel().getLatestMessageIdLong());
+            }
+            else {
+                return null;
+            }
         });
     }
 

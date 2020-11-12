@@ -208,7 +208,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 try {
                     // Try with intents
                     JDA jda = JDABuilder.createDefault(code)
-                            .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES)
+                            .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EMOJIS,
+                                    GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MESSAGES,
+                                    GatewayIntent.DIRECT_MESSAGE_REACTIONS, GatewayIntent.DIRECT_MESSAGES)
                             .setMemberCachePolicy(MemberCachePolicy.ALL)
                             .setAutoReconnect(true)
                             .setLargeThreshold(100000)
@@ -221,7 +223,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (Debug.verbose) {
                         Debug.echoError(ex);
                     }
-                    Debug.log("Discord using fallback connection path - connecting with intents disabled. Enable the members intent in your bot's setting to fix this.");
+                    Debug.echoError("Discord full connection attempt failed.");
+                    Debug.log("Discord using fallback connection path - connecting with intents disabled. Enable the members intent in your bot's settings (at https://discord.com/developers/applications ) to fix this.");
                     // If startup failure, try without intents
                     JDA jda = JDABuilder.createDefault(code).build();
                     conn.client = jda;

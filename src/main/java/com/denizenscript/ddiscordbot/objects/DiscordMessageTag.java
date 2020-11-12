@@ -87,7 +87,7 @@ public class DiscordMessageTag implements ObjectTag {
         if (arg.contains("@")) {
             return false;
         }
-        int comma = arg.indexOf(',');
+        int comma = arg.lastIndexOf(',');
         if (comma == -1) {
             return ArgumentHelper.matchesInteger(arg);
         }
@@ -268,6 +268,42 @@ public class DiscordMessageTag implements ObjectTag {
             ListTag list = new ListTag();
             for (MessageEmbed embed : object.getMessage().getEmbeds()) {
                 list.addObject(new DiscordEmbedTag(embed));
+            }
+            return list;
+        });
+
+        // <--[tag]
+        // @attribute <DiscordMessageTag.previous_messages[<#>]>
+        // @returns ListTag(DiscordMessageTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of the last (specified number) messages sent in the channel prior to this message.
+        // The list is ordered from most recent to least recent.
+        // -->
+        registerTag("previous_messages", (attribute, object) -> {
+            int limit = attribute.getIntContext(1);
+            MessageHistory history = object.getChannel().getHistoryBefore(object.message_id, limit).complete();
+            ListTag list = new ListTag();
+            for (Message message : history.getRetrievedHistory()) {
+                list.addObject(new DiscordMessageTag(object.bot, message));
+            }
+            return list;
+        });
+
+        // <--[tag]
+        // @attribute <DiscordMessageTag.next_messages[<#>]>
+        // @returns ListTag(DiscordMessageTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of the next (specified number) messages sent in the channel after this message.
+        // The list is ordered from most recent to least recent.
+        // -->
+        registerTag("next_messages", (attribute, object) -> {
+            int limit = attribute.getIntContext(1);
+            MessageHistory history = object.getChannel().getHistoryAfter(object.message_id, limit).complete();
+            ListTag list = new ListTag();
+            for (Message message : history.getRetrievedHistory()) {
+                list.addObject(new DiscordMessageTag(object.bot, message));
             }
             return list;
         });
