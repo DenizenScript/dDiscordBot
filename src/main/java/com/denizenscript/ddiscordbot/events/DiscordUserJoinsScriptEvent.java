@@ -14,7 +14,7 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
     // @Events
     // discord user joins
     //
-    // @Regex ^on discord user join$
+    // @Regex ^on discord user joins$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
