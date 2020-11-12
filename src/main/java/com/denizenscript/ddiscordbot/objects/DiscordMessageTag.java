@@ -273,6 +273,21 @@ public class DiscordMessageTag implements ObjectTag {
         });
 
         // <--[tag]
+        // @attribute <DiscordMessageTag.reactions>
+        // @returns ListTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of reaction on this message.
+        // -->
+        registerTag("reactions", (attribute, object) -> {
+            ListTag list = new ListTag();
+            for (MessageReaction reaction : object.getMessage().getReactions()) {
+                list.addObject(new DiscordReactionTag(object.bot, object.getMessage(), reaction));
+            }
+            return list;
+        });
+
+        // <--[tag]
         // @attribute <DiscordMessageTag.previous_messages[<#>]>
         // @returns ListTag(DiscordMessageTag)
         // @plugin dDiscordBot
