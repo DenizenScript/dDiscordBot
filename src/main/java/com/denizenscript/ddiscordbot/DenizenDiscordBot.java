@@ -101,6 +101,36 @@ public class DenizenDiscordBot extends JavaPlugin {
                 return DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
             });
             // <--[tag]
+            // @attribute <discord_message[<message>]>
+            // @returns DiscordMessageTag
+            // @plugin dDiscordBot
+            // @description
+            // Returns a Discord Message object constructed from the input value.
+            // Refer to <@link language DiscordMessageTag objects>.
+            // -->
+            TagManager.registerTagHandler("discord_message", (attribute) -> {
+                if (!attribute.hasContext(1)) {
+                    attribute.echoError("Discord message tag base must have input.");
+                    return null;
+                }
+                return DiscordMessageTag.valueOf(attribute.getContext(1), attribute.context);
+            });
+            // <--[tag]
+            // @attribute <discord_reaction[<reaction>]>
+            // @returns DiscordReactionTag
+            // @plugin dDiscordBot
+            // @description
+            // Returns a Discord Reaction object constructed from the input value.
+            // Refer to <@link language DiscordReactionTag objects>.
+            // -->
+            TagManager.registerTagHandler("discord_reaction", (attribute) -> {
+                if (!attribute.hasContext(1)) {
+                    attribute.echoError("Discord reaction tag base must have input.");
+                    return null;
+                }
+                return DiscordReactionTag.valueOf(attribute.getContext(1), attribute.context);
+            });
+            // <--[tag]
             // @attribute <discord_role[<role>]>
             // @returns DiscordRoleTag
             // @plugin dDiscordBot
