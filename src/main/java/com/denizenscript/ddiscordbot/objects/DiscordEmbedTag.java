@@ -365,6 +365,7 @@ public class DiscordEmbedTag implements ObjectTag {
             MapTag fieldMap = new MapTag();
             fieldMap.putObject("title", new ElementTag(title));
             fieldMap.putObject("value", new ElementTag(value));
+            fieldMap.putObject("inline", new ElementTag("true"));
             ObjectTag fieldsData = embed.embedData.getObject("fields");
             ListTag fieldList;
             if (fieldsData == null) {
