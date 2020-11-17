@@ -141,6 +141,15 @@ public class DiscordMessageTag implements ObjectTag {
 
     public long message_id;
 
+    public static String stripMentions(String message, List<User> mentioned) {
+        for (User user : mentioned) {
+            message = message.replace(user.getAsMention(), "")
+                    .replace("<@" +user.getId() + ">", "")
+                    .replace("<@!" +user.getId() + ">", "");
+        }
+        return message;
+    }
+
     public static void registerTags() {
 
         // <--[tag]
@@ -196,6 +205,17 @@ public class DiscordMessageTag implements ObjectTag {
         // -->
         registerTag("text_display", (attribute, object) -> {
             return new ElementTag(object.getMessage().getContentDisplay());
+        });
+
+        // <--[tag]
+        // @attribute <DiscordMessageTag.text_no_mentions>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the text of the message, with '@' mentions removed.
+        // -->
+        registerTag("text_no_mentions", (attribute, object) -> {
+            return new ElementTag(stripMentions(object.getMessage().getContentRaw(), object.getMessage().getMentionedUsers()));
         });
 
         // <--[tag]

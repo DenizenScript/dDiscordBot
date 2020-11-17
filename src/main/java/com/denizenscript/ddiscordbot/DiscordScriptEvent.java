@@ -3,10 +3,7 @@ package com.denizenscript.ddiscordbot;
 import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
 import com.denizenscript.denizen.events.BukkitScriptEvent;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.Event;
-
-import java.util.List;
 
 public abstract class DiscordScriptEvent extends BukkitScriptEvent {
 
@@ -28,15 +25,6 @@ public abstract class DiscordScriptEvent extends BukkitScriptEvent {
             return new DiscordBotTag(botID);
         }
         return super.getContext(name);
-    }
-
-    public String stripMentions(String message, List<User> mentioned) {
-        for (User user : mentioned) {
-            message = message.replace(user.getAsMention(), "")
-                    .replace("<@" +user.getId() + ">", "")
-                    .replace("<@!" +user.getId() + ">", "");
-        }
-        return message;
     }
 
     public boolean enabled = false;

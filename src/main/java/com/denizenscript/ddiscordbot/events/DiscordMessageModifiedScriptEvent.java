@@ -97,7 +97,7 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
         }
         else if (name.equals("no_mention_message")) {
             DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return new ElementTag(stripMentions(getEvent().getMessage().getContentRaw(), getEvent().getMessage().getMentionedUsers()));
+            return new ElementTag(DiscordMessageTag.stripMentions(getEvent().getMessage().getContentRaw(), getEvent().getMessage().getMentionedUsers()));
         }
         else if (name.equals("formatted_message")) {
             DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
