@@ -157,7 +157,7 @@ public class DiscordUserTag implements ObjectTag {
             if (group == null) {
                 return null;
             }
-            String nickname = group.guild.getMember(object.getUser()).getNickname();
+            String nickname = group.getGuild().getMember(object.getUser()).getNickname();
             if (nickname == null) {
                 return null;
             }
@@ -203,7 +203,7 @@ public class DiscordUserTag implements ObjectTag {
             if (group == null) {
                 return null;
             }
-            return new ElementTag(group.guild.getMember(object.getUser()).getOnlineStatus().getKey());
+            return new ElementTag(group.getGuild().getMember(object.getUser()).getOnlineStatus().getKey());
         });
 
         // <--[tag]
@@ -223,7 +223,7 @@ public class DiscordUserTag implements ObjectTag {
             if (group == null) {
                 return null;
             }
-            List<Activity> activities = group.guild.getMember(object.getUser()).getActivities();
+            List<Activity> activities = group.getGuild().getMember(object.getUser()).getActivities();
             if (activities.isEmpty()) {
                 return null;
             }
@@ -247,7 +247,7 @@ public class DiscordUserTag implements ObjectTag {
             if (group == null) {
                 return null;
             }
-            List<Activity> activities = group.guild.getMember(object.getUser()).getActivities();
+            List<Activity> activities = group.getGuild().getMember(object.getUser()).getActivities();
             if (activities.isEmpty()) {
                 return null;
             }
@@ -271,7 +271,7 @@ public class DiscordUserTag implements ObjectTag {
             if (group == null) {
                 return null;
             }
-            List<Activity> activities = group.guild.getMember(object.getUser()).getActivities();
+            List<Activity> activities = group.getGuild().getMember(object.getUser()).getActivities();
             if (activities.isEmpty()) {
                 return null;
             }
@@ -297,7 +297,7 @@ public class DiscordUserTag implements ObjectTag {
                 return null;
             }
             ListTag list = new ListTag();
-            for (Role role : group.guild.getMember(object.getUser()).getRoles()) {
+            for (Role role : group.getGuild().getMember(object.getUser()).getRoles()) {
                 list.addObject(new DiscordRoleTag(object.bot, role));
             }
             return list;
