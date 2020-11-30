@@ -38,7 +38,7 @@ public class DiscordMessageReactionRemoveScriptEvent extends DiscordScriptEvent 
 
     @Override
     public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord message reaction added");
+        return path.eventLower.startsWith("discord message reaction removed");
     }
 
     @Override
