@@ -212,7 +212,7 @@ public class DiscordReactionTag implements ObjectTag {
         // @returns ElementTag
         // @plugin dDiscordBot
         // @description
-        // Returns the amount of the emoji reacted.
+        // Returns the name of the emoji.
         // -->
         registerTag("name", (attribute, object) -> {
             return new ElementTag(object.emote.getName());

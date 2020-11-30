@@ -1,6 +1,7 @@
 package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.commands.DiscordCommand;
+import com.denizenscript.ddiscordbot.commands.DiscordReactCommand;
 import com.denizenscript.ddiscordbot.events.*;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -28,6 +29,7 @@ public class DenizenDiscordBot extends JavaPlugin {
         instance = this;
         try {
             DenizenCore.getCommandRegistry().registerCommand(DiscordCommand.class);
+            DenizenCore.getCommandRegistry().registerCommand(DiscordReactCommand.class);
             ScriptEvent.registerScriptEvent(DiscordMessageDeletedScriptEvent.instance = new DiscordMessageDeletedScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageModifiedScriptEvent.instance = new DiscordMessageModifiedScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageReactionAddScriptEvent.instance = new DiscordMessageReactionAddScriptEvent());
