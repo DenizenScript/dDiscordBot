@@ -1,5 +1,7 @@
-package com.denizenscript.ddiscordbot;
+package com.denizenscript.ddiscordbot.commands;
 
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
