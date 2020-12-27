@@ -107,7 +107,7 @@ public class DiscordMessageTag implements ObjectTag {
         this.bot = bot;
         this.message_id = message.getIdLong();
         this.message = message;
-        this.channel = message.getTextChannel();
+        this.channel = message.getChannel();
         this.channel_id = message.getTextChannel().getIdLong();
     }
 
@@ -115,11 +115,14 @@ public class DiscordMessageTag implements ObjectTag {
         return DenizenDiscordBot.instance.connections.get(bot);
     }
 
-    public TextChannel getChannel() {
+    public MessageChannel getChannel() {
         if (channel != null) {
             return channel;
         }
         channel = getBot().client.getTextChannelById(channel_id);
+        if (channel == null) {
+            channel = getBot().client.getPrivateChannelById(channel_id);
+        }
         return channel;
     }
 
@@ -133,7 +136,7 @@ public class DiscordMessageTag implements ObjectTag {
 
     public String bot;
 
-    public TextChannel channel;
+    public MessageChannel channel;
 
     public Message message;
 
