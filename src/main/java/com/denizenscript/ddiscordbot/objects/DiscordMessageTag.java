@@ -108,7 +108,7 @@ public class DiscordMessageTag implements ObjectTag {
         this.message_id = message.getIdLong();
         this.message = message;
         this.channel = message.getChannel();
-        this.channel_id = message.getTextChannel().getIdLong();
+        this.channel_id = this.channel.getIdLong();
     }
 
     public DiscordConnection getBot() {

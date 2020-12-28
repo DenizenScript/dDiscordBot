@@ -111,8 +111,8 @@ public class DiscordReactionTag implements ObjectTag {
         this.emote = reaction.getReactionEmote();
         this.message_id = message.getIdLong();
         this.message = message;
-        this.channel = message.getTextChannel();
-        this.channel_id = message.getTextChannel().getIdLong();
+        this.channel = message.getChannel();
+        this.channel_id = this.channel.getIdLong();
         this.reaction = reaction;
     }
 
@@ -120,11 +120,14 @@ public class DiscordReactionTag implements ObjectTag {
         return DenizenDiscordBot.instance.connections.get(bot);
     }
 
-    public TextChannel getChannel() {
+    public MessageChannel getChannel() {
         if (channel != null) {
             return channel;
         }
         channel = getBot().client.getTextChannelById(channel_id);
+        if (channel == null) {
+            channel = getBot().client.getPrivateChannelById(channel_id);
+        }
         return channel;
     }
 
@@ -151,7 +154,7 @@ public class DiscordReactionTag implements ObjectTag {
 
     public String bot;
 
-    public TextChannel channel;
+    public MessageChannel channel;
 
     public Message message;
 
