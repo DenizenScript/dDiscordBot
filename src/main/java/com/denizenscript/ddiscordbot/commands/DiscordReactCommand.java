@@ -13,6 +13,7 @@ import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.bukkit.Bukkit;
 
@@ -22,14 +23,14 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
 
     public DiscordReactCommand() {
         setName("discordreact");
-        setSyntax("discordreact [id:<id>] [message:<message_id>] [add/remove/clear] [reaction:<reaction>/all]");
-        setRequiredArguments(4, 5);
+        setSyntax("discordreact [id:<id>] [message:<message_id>] [add/remove/clear] [reaction:<reaction>/all] (user:<user>)");
+        setRequiredArguments(4, 6);
     }
     // <--[command]
     // @Name discordreact
-    // @Syntax discordreact [id:<id>] (channel:<channel>) [message:<message>] [add/remove/clear] [reaction:<reaction>/all]
+    // @Syntax discordreact [id:<id>] (channel:<channel>) [message:<message>] [add/remove/clear] [reaction:<reaction>/all] (user:<user>)
     // @Required 4
-    // @Maximum 5
+    // @Maximum 6
     // @Short Manages message reactions on Discord.
     // @Plugin dDiscordBot
     // @Group external
@@ -42,6 +43,8 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
     // You can add or remove reactions from the bot, or clear all reactions of a specific ID, or clear all reactions from a message entirely.
     //
     // Reactions can be unicode symbols, or custom emoji IDs.
+    //
+    // Optionally specify a user for 'remove' to remove only a specific user's reaction.
     //
     // 'Add' requires basic add-reaction permissions.
     // 'Clear' requires 'manage messages' permission.
@@ -87,6 +90,11 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
                     && arg.matchesArgumentType(DiscordMessageTag.class)) {
                 scriptEntry.addObject("message", arg.asType(DiscordMessageTag.class));
             }
+            else if (!scriptEntry.hasObject("user")
+                    && arg.matchesPrefix("user")
+                    && arg.matchesArgumentType(DiscordUserTag.class)) {
+                scriptEntry.addObject("user", arg.asType(DiscordUserTag.class));
+            }
             else if (!scriptEntry.hasObject("reaction")
                     && arg.matchesPrefix("reaction")) {
                 scriptEntry.addObject("reaction", arg.asElement());
@@ -115,11 +123,13 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
         ElementTag instruction = scriptEntry.getElement("instruction");
         DiscordChannelTag channel = scriptEntry.getObjectTag("channel");
         DiscordMessageTag message = scriptEntry.getObjectTag("message");
+        DiscordUserTag user = scriptEntry.getObjectTag("user");
         ElementTag reaction = scriptEntry.getElement("reaction");
         if (scriptEntry.dbCallShouldDebug()) {
             Debug.report(scriptEntry, getName(), id.debug()
                     + instruction.debug()
                     + (channel != null ? channel.debug() : "")
+                    + (user != null ? user.debug() : "")
                     + message.debug()
                     + reaction.debug());
         }
@@ -163,11 +173,26 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
                 break;
             }
             case REMOVE: {
-                if (emote != null) {
-                    action = msg.removeReaction(emote);
+                if (user != null) {
+                    User userObj = client.getUserById(user.user_id);
+                    if (userObj == null) {
+                        Debug.echoError("Cannot remove reaction from unknown user ID.");
+                        return;
+                    }
+                    if (emote != null) {
+                        action = msg.removeReaction(emote, userObj);
+                    }
+                    else {
+                        action = msg.removeReaction(reaction.asString(), userObj);
+                    }
                 }
                 else {
-                    action = msg.removeReaction(reaction.asString());
+                    if (emote != null) {
+                        action = msg.removeReaction(emote);
+                    }
+                    else {
+                        action = msg.removeReaction(reaction.asString());
+                    }
                 }
                 break;
             }
