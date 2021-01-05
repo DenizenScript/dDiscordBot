@@ -121,6 +121,17 @@ public class DiscordUserTag implements ObjectTag {
         });
 
         // <--[tag]
+        // @attribute <DiscordUserTag.discriminator>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the discriminator ID of the user.
+        // -->
+        registerTag("discriminator", (attribute, object) -> {
+            return new ElementTag(object.getUser().getDiscriminator());
+        });
+
+        // <--[tag]
         // @attribute <DiscordUserTag.is_bot>
         // @returns ElementTag(Boolean)
         // @plugin dDiscordBot
