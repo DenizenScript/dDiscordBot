@@ -315,6 +315,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             if (requireObject.apply(code, "code")) {
                 return;
             }
+            if (scriptEntry.dbCallShouldDebug() && com.denizenscript.denizen.utilities.debugging.Debug.record) {
+                Debug.echoError("You almost recorded debug of your Discord token - record automatically disabled to protect you.");
+                com.denizenscript.denizen.utilities.debugging.Debug.record = false;
+            }
             if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
                 Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
                 return;
