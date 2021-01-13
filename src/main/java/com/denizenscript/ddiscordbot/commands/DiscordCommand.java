@@ -489,7 +489,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     else {
                         userId = user.user_id;
                     }
-                    client.getGuildById(guild.guild_id).getMemberById(userId).modifyNickname(message.asString());
+                    client.getGuildById(guild.guild_id).getMemberById(userId).modifyNickname(message.asString()).complete();
                     scriptEntry.setFinished(true);
                     break;
                 }
