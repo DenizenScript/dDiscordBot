@@ -43,7 +43,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
     // @Tags
-    // <entry[saveName].message_id> returns the ID of the sent message, when the command is ~waited for.
+    // <entry[saveName].message> returns the DiscordMessageTag of the sent message, when the command is ~waited for.
     //
     // @Usage
     // Use to message a Discord channel.
@@ -183,7 +183,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                 action = action.mentionRepliedUser(false);
             }
             Message sentMessage = action.complete();
-            scriptEntry.addObject("message_id", new ElementTag(sentMessage.getId()));
+            scriptEntry.addObject("message", new DiscordMessageTag(id.asString(), sentMessage));
             scriptEntry.setFinished(true);
         });
     }
