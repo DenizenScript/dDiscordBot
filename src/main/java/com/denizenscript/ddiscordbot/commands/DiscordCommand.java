@@ -29,13 +29,13 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     public DiscordCommand() {
         setName("discord");
-        setSyntax("discord [id:<id>] [connect code:<botcode>/disconnect/message/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<message>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
+        setSyntax("discord [id:<id>] [connect code:<botcode>/disconnect/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
         setRequiredArguments(2, 12);
     }
 
     // <--[command]
     // @Name discord
-    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/message/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<message>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
+    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
     // @Required 2
     // @Maximum 12
     // @Short Connects to and interacts with Discord.
@@ -59,7 +59,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Tags
     // <discord[<bot_id>]>
-    // <entry[saveName].message_id> returns the ID of the sent message, when the command is ~waited for, and the 'message' argument is used.
     //
     // @Usage
     // Use to connect to Discord via a bot code.
@@ -68,23 +67,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // @Usage
     // Use to disconnect from Discord.
     // - ~discord id:mybot disconnect
-    //
-    // @Usage
-    // Use to message a Discord channel.
-    // - ~discord id:mybot message channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!"
-    //
-    // @Usage
-    // Use to message an embed to a Discord channel.
-    // - ~discord id:mybot message channel:<discord[mybot].group[Denizen].channel[bot-spam]> "<discord_embed.with[title].as[hi].with[description].as[This is an embed!]>"
-    //
-    // @Usage
-    // Use to message a Discord channel and record the ID.
-    // - ~discord id:mybot message channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!" save:sent
-    // - announce "Sent as <entry[sent].message_id>"
-    //
-    // @Usage
-    // Use to send a message to a user through a private channel.
-    // - ~discord id:mybot message user:<[user]> "Hello world!"
     //
     // @Usage
     // Use to add a role on a user in a Discord guild.
@@ -282,7 +264,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         }
         Supplier<Boolean> requireClientID = () -> {
             if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
-                Debug.echoError(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: unknown ID!");
+                errorMessage(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: unknown ID!");
                 scriptEntry.setFinished(true);
                 return true;
             }
@@ -290,7 +272,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         };
         Function<JDA, Boolean> requireClientObject = (_client) -> {
             if (_client == null) {
-                Debug.echoError(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                errorMessage(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
                 scriptEntry.setFinished(true);
                 return true;
             }
@@ -298,7 +280,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         };
         BiFunction<Object, String, Boolean> requireObject = (obj, name) -> {
             if (obj == null) {
-                Debug.echoError(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: no " + name + " given!");
+                errorMessage(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: no " + name + " given!");
                 scriptEntry.setFinished(true);
                 return true;
             }
@@ -351,6 +333,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     break;
                 }
                 case MESSAGE: {
+                    DenizenDiscordBot.oldMessageCommand.warn(scriptEntry);
                     if (channel == null && user == null) {
                         if (!requireChannel.get()) {
                             requireUser.get();
@@ -369,7 +352,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (channel == null) {
                         User userObj = client.getUserById(user.user_id);
                         if (userObj == null) {
-                            Debug.echoError("Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
+                            errorMessage(scriptEntry.getResidingQueue(), "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
                             scriptEntry.setFinished(true);
                             return;
                         }
@@ -379,7 +362,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         textChan = client.getTextChannelById(channel.channel_id);
                     }
                     if (textChan == null) {
-                        Debug.echoError("No channel to send message to (channel ID invalid, or not a text channel?).");
+                        errorMessage(scriptEntry.getResidingQueue(), "No channel to send message to (channel ID invalid, or not a text channel?).");
                         scriptEntry.setFinished(true);
                         return;
                     }

@@ -93,6 +93,9 @@ public class DiscordChannelTag implements ObjectTag {
         if (channel != null) {
             return channel;
         }
+        if (bot == null) {
+            return null;
+        }
         channel = getBot().client.getTextChannelById(channel_id);
         return channel;
     }

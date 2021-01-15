@@ -1,6 +1,7 @@
 package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.commands.DiscordCommand;
+import com.denizenscript.ddiscordbot.commands.DiscordMessageCommand;
 import com.denizenscript.ddiscordbot.commands.DiscordReactCommand;
 import com.denizenscript.ddiscordbot.events.*;
 import com.denizenscript.ddiscordbot.objects.*;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 public class DenizenDiscordBot extends JavaPlugin {
 
     public static Warning oldMessageContexts = new FutureWarning("dDiscordBot contexts relating to message data are now provided by DiscordMessageTag.");
+    public static Warning oldMessageCommand = new FutureWarning("dDiscordMessage's 'discord message' sub-command has been moved to a base 'discordmessage' command.");
 
     public static DenizenDiscordBot instance;
 
@@ -29,6 +31,7 @@ public class DenizenDiscordBot extends JavaPlugin {
         instance = this;
         try {
             DenizenCore.getCommandRegistry().registerCommand(DiscordCommand.class);
+            DenizenCore.getCommandRegistry().registerCommand(DiscordMessageCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordReactCommand.class);
             ScriptEvent.registerScriptEvent(DiscordMessageDeletedScriptEvent.instance = new DiscordMessageDeletedScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageModifiedScriptEvent.instance = new DiscordMessageModifiedScriptEvent());

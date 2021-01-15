@@ -119,6 +119,9 @@ public class DiscordMessageTag implements ObjectTag {
         if (channel != null) {
             return channel;
         }
+        if (bot == null) {
+            return null;
+        }
         channel = getBot().client.getTextChannelById(channel_id);
         if (channel == null) {
             channel = getBot().client.getPrivateChannelById(channel_id);
