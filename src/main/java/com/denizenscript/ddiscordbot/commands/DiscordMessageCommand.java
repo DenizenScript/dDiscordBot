@@ -12,21 +12,22 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.bukkit.Bukkit;
 
 public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
     public DiscordMessageCommand() {
         setName("discordmessage");
-        setSyntax("discordmessage [id:<id>] [reply:<message>/channel:<channel>/user:<user>] [<message>]");
-        setRequiredArguments(3, 4);
+        setSyntax("discordmessage [id:<id>] [reply:<message>/channel:<channel>/user:<user>] [<message>] (no_mention)");
+        setRequiredArguments(3, 5);
     }
 
     // <--[command]
     // @Name discordmessage
-    // @Syntax discordmessage [id:<id>] (reply:<message>/channel:<channel>/user:<user>) [<message>]
+    // @Syntax discordmessage [id:<id>] (reply:<message>/channel:<channel>/user:<user>) [<message>] (no_mention)
     // @Required 3
-    // @Maximum 4
+    // @Maximum 5
     // @Short Sends a message to a Discord channel.
     // @Plugin dDiscordBot
     // @Group external
@@ -35,6 +36,9 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // Sends a message to a Discord channel.
     //
     // Command may fail if the bot does not have permission within the Discord group to send a message in that channel.
+    //
+    // You can send the message to: a channel or user, or optionally in reply to a previous message.
+    // If sending as a reply, optionally use "no_mention" to disable the default reply pinging the original user.
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
@@ -46,7 +50,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // - ~discordmessage id:mybot channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!"
     //
     // @Usage
-    // Use to reply to a message from a message recieved event.
+    // Use to reply to a message from a message received event.
     // - ~discordmessage id:mybot reply:<context.message> "Hello world!"
     //
     // @Usage
@@ -86,6 +90,10 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                     && arg.matchesArgumentType(DiscordMessageTag.class)) {
                 scriptEntry.addObject("reply", arg.asType(DiscordMessageTag.class));
             }
+            else if (!scriptEntry.hasObject("no_mention")
+                    && arg.matches("no_mention")) {
+                scriptEntry.addObject("no_mention", new ElementTag(true));
+            }
             else if (!scriptEntry.hasObject("message")) {
                 scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
             }
@@ -108,12 +116,14 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         ElementTag message = scriptEntry.getElement("message");
         DiscordUserTag user = scriptEntry.getObjectTag("user");
         DiscordMessageTag reply = scriptEntry.getObjectTag("reply");
+        ElementTag noMention = scriptEntry.getElement("no_mention");
         if (scriptEntry.dbCallShouldDebug()) {
             Debug.report(scriptEntry, getName(), id.debug()
                     + (channel != null ? channel.debug() : "")
                     + (message != null ? message.debug() : "")
                     + (user != null ? user.debug() : "")
-                    + (reply != null ? reply.debug() : ""));
+                    + (reply != null ? reply.debug() : "")
+                    + (noMention != null ? noMention.debug() : ""));
         }
 
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
@@ -151,24 +161,28 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             if (reply != null) {
                 replyTo = reply.bot != null ? reply.getMessage() : toChannel.retrieveMessageById(reply.message_id).complete();
             }
-            Message sentMessage;
+            MessageAction action;
             if (message.asString().startsWith("discordembed@")) {
                 MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
                 if (reply != null) {
-                    sentMessage = reply.getMessage().reply(embed).complete();
+                    action = replyTo.reply(embed);
                 }
                 else {
-                    sentMessage = toChannel.sendMessage(embed).complete();
+                    action = toChannel.sendMessage(embed);
                 }
             }
             else {
                 if (reply != null) {
-                    sentMessage = reply.getMessage().reply(message.asString()).complete();
+                    action = replyTo.reply(message.asString());
                 }
                 else {
-                    sentMessage = toChannel.sendMessage(message.asString()).complete();
+                    action = toChannel.sendMessage(message.asString());
                 }
             }
+            if (noMention != null && noMention.asBoolean()) {
+                action = action.mentionRepliedUser(false);
+            }
+            Message sentMessage = action.complete();
             scriptEntry.addObject("message_id", new ElementTag(sentMessage.getId()));
             scriptEntry.setFinished(true);
         });
