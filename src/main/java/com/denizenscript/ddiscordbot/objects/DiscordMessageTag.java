@@ -345,6 +345,21 @@ public class DiscordMessageTag implements ObjectTag {
             }
             return list;
         });
+
+        // <--[tag]
+        // @attribute <DiscordMessageTag.replied_to>
+        // @returns DiscordMessageTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the message that this message was in reply to (if any).
+        // -->
+        registerTag("replied_to", (attribute, object) -> {
+            Message message = object.getMessage().getReferencedMessage();
+            if (message == null) {
+                return null;
+            }
+            return new DiscordMessageTag(object.bot, message);
+        });
     }
 
     public static ObjectTagProcessor<DiscordMessageTag> tagProcessor = new ObjectTagProcessor<>();
