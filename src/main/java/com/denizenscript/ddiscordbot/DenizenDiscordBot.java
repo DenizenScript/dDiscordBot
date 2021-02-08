@@ -12,6 +12,8 @@ import com.denizenscript.denizencore.objects.ObjectFetcher;
 import com.denizenscript.denizencore.tags.TagManager;
 import com.denizenscript.denizencore.utilities.debugging.FutureWarning;
 import com.denizenscript.denizencore.utilities.debugging.Warning;
+import org.bukkit.Bukkit;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -172,5 +174,22 @@ public class DenizenDiscordBot extends JavaPlugin {
         catch (Throwable ex) {
             Debug.echoError(ex);
         }
+    }
+
+    @Override
+    public void onDisable() {
+        for (DiscordConnection connection : connections.values()) {
+            try {
+                if (connection.client != null) {
+                    connection.client.shutdownNow();
+                }
+            }
+            catch (Throwable ex) {
+                Debug.echoError(ex);
+            }
+        }
+        connections.clear();
+        Bukkit.getServer().getScheduler().cancelTasks(this);
+        HandlerList.unregisterAll(this);
     }
 }
