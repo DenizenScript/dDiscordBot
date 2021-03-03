@@ -17,6 +17,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class DenizenDiscordBot extends JavaPlugin {
 
@@ -178,10 +179,13 @@ public class DenizenDiscordBot extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        for (DiscordConnection connection : connections.values()) {
+        for (Map.Entry<String, DiscordConnection> connection : connections.entrySet()) {
             try {
-                if (connection.client != null) {
-                    connection.client.shutdownNow();
+                if (connection.getValue().client != null) {
+                    if (connection.getValue().flags.modified) {
+                        connection.getValue().flags.saveToFile(DiscordCommand.flagFilePathFor(connection.getKey()));
+                    }
+                    connection.getValue().client.shutdownNow();
                 }
             }
             catch (Throwable ex) {

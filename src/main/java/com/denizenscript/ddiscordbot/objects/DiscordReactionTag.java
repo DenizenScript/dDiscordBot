@@ -3,6 +3,9 @@ package com.denizenscript.ddiscordbot.objects;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.denizen.utilities.debugging.Debug;
+import com.denizenscript.denizencore.flags.AbstractFlagTracker;
+import com.denizenscript.denizencore.flags.FlaggableObject;
+import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
 import com.denizenscript.denizencore.objects.ArgumentHelper;
 import com.denizenscript.denizencore.objects.Fetchable;
 import com.denizenscript.denizencore.objects.ObjectTag;
@@ -17,7 +20,7 @@ import net.dv8tion.jda.api.entities.*;
 
 import java.util.List;
 
-public class DiscordReactionTag implements ObjectTag {
+public class DiscordReactionTag implements ObjectTag, FlaggableObject {
 
     // <--[language]
     // @name DiscordReactionTag Objects
@@ -165,6 +168,16 @@ public class DiscordReactionTag implements ObjectTag {
     public long message_id;
 
     public MessageReaction reaction;
+
+    @Override
+    public AbstractFlagTracker getFlagTracker() {
+        return new RedirectionFlagTracker(getBot().flags, "__reactions." + channel_id + "." + message_id + "." + (emote.isEmoji() ? emote.getEmoji() : emote.getEmote().getId()));
+    }
+
+    @Override
+    public void reapplyTracker(AbstractFlagTracker tracker) {
+        // Nothing to do.
+    }
 
     public static void registerTags() {
 

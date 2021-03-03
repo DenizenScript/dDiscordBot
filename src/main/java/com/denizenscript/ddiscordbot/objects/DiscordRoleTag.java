@@ -3,6 +3,9 @@ package com.denizenscript.ddiscordbot.objects;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.denizen.utilities.debugging.Debug;
+import com.denizenscript.denizencore.flags.AbstractFlagTracker;
+import com.denizenscript.denizencore.flags.FlaggableObject;
+import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
@@ -14,7 +17,7 @@ import net.dv8tion.jda.api.entities.Role;
 
 import java.util.List;
 
-public class DiscordRoleTag implements ObjectTag {
+public class DiscordRoleTag implements ObjectTag, FlaggableObject {
 
     // <--[language]
     // @name DiscordRoleTag Objects
@@ -138,6 +141,16 @@ public class DiscordRoleTag implements ObjectTag {
     public long role_id;
 
     public long guild_id;
+
+    @Override
+    public AbstractFlagTracker getFlagTracker() {
+        return new RedirectionFlagTracker(DenizenDiscordBot.instance.connections.get(bot).flags, "__roles." + guild_id + "." + role_id);
+    }
+
+    @Override
+    public void reapplyTracker(AbstractFlagTracker tracker) {
+        // Nothing to do.
+    }
 
     public static void registerTags() {
 

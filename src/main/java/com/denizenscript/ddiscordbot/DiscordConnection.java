@@ -1,6 +1,7 @@
 package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.events.*;
+import com.denizenscript.denizencore.flags.SavableMapFlagTracker;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -20,6 +21,8 @@ public class DiscordConnection extends ListenerAdapter {
     public String botID;
 
     public JDA client;
+
+    public SavableMapFlagTracker flags;
 
     public void registerHandlers() {
         client.addEventListener(this);

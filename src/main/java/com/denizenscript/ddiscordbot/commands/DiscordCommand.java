@@ -3,6 +3,7 @@ package com.denizenscript.ddiscordbot.commands;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
+import com.denizenscript.denizencore.flags.SavableMapFlagTracker;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
@@ -235,6 +236,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         }, 0);
     }
 
+    public static String flagFilePathFor(String bot) {
+        return "/flags/bot_" + Argument.prefixCharsAllowed.trimToMatches(CoreUtilities.toLowerCase(bot)) + ".dat";
+    }
+
     @Override
     public void execute(ScriptEntry scriptEntry) {
         ElementTag id = scriptEntry.getElement("id");
@@ -306,6 +311,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 return;
             }
             DiscordConnection dc = new DiscordConnection();
+            dc.flags = SavableMapFlagTracker.loadFlagFile(DenizenDiscordBot.instance.getDataFolder().getPath() + flagFilePathFor(id.asString()));
             dc.botID = id.asString();
             DenizenDiscordBot.instance.connections.put(id.asString(), dc);
             DiscordConnectThread dct = new DiscordConnectThread();
@@ -321,10 +327,13 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     if (requireClientID.get()) {
                         return;
                     }
-                    JDA client = DenizenDiscordBot.instance.connections.remove(id.asString()).client;
-                    client.shutdown();
+                    DiscordConnection dc = DenizenDiscordBot.instance.connections.remove(id.asString());
+                    if (dc.flags.modified) {
+                        dc.flags.saveToFile(flagFilePathFor(id.asString()));
+                    }
+                    dc.client.shutdown();
                     try {
-                        client.awaitStatus(JDA.Status.SHUTDOWN);
+                        dc.client.awaitStatus(JDA.Status.SHUTDOWN);
                     }
                     catch (InterruptedException ex) {
                         Debug.echoError(ex);

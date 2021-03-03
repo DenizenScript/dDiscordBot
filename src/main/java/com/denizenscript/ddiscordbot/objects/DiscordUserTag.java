@@ -3,6 +3,9 @@ package com.denizenscript.ddiscordbot.objects;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.denizen.utilities.debugging.Debug;
+import com.denizenscript.denizencore.flags.AbstractFlagTracker;
+import com.denizenscript.denizencore.flags.FlaggableObject;
+import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
@@ -17,7 +20,7 @@ import net.dv8tion.jda.api.entities.User;
 
 import java.util.List;
 
-public class DiscordUserTag implements ObjectTag {
+public class DiscordUserTag implements ObjectTag, FlaggableObject {
 
     // <--[language]
     // @name DiscordUserTag Objects
@@ -106,6 +109,16 @@ public class DiscordUserTag implements ObjectTag {
     public String bot;
 
     public long user_id;
+
+    @Override
+    public AbstractFlagTracker getFlagTracker() {
+        return new RedirectionFlagTracker(getBot().flags, "__users." + user_id);
+    }
+
+    @Override
+    public void reapplyTracker(AbstractFlagTracker tracker) {
+        // Nothing to do.
+    }
 
     public static void registerTags() {
 

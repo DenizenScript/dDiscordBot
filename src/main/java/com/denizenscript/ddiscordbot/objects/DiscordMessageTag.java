@@ -3,6 +3,9 @@ package com.denizenscript.ddiscordbot.objects;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.denizen.utilities.debugging.Debug;
+import com.denizenscript.denizencore.flags.AbstractFlagTracker;
+import com.denizenscript.denizencore.flags.FlaggableObject;
+import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
 import com.denizenscript.denizencore.objects.ArgumentHelper;
 import com.denizenscript.denizencore.objects.Fetchable;
 import com.denizenscript.denizencore.objects.ObjectTag;
@@ -17,7 +20,7 @@ import net.dv8tion.jda.api.entities.*;
 
 import java.util.List;
 
-public class DiscordMessageTag implements ObjectTag {
+public class DiscordMessageTag implements ObjectTag, FlaggableObject {
 
     // <--[language]
     // @name DiscordMessageTag Objects
@@ -146,6 +149,16 @@ public class DiscordMessageTag implements ObjectTag {
     public long channel_id;
 
     public long message_id;
+
+    @Override
+    public AbstractFlagTracker getFlagTracker() {
+        return new RedirectionFlagTracker(getBot().flags, "__messages." + channel_id + "." + message_id);
+    }
+
+    @Override
+    public void reapplyTracker(AbstractFlagTracker tracker) {
+        // Nothing to do.
+    }
 
     public static String stripMentions(String message, List<User> mentioned) {
         for (User user : mentioned) {
