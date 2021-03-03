@@ -34,6 +34,9 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
     // Or: mybot,12,1234,99
     // The reaction ID for custom reactions is an ID number, and for default emojis is the unicode text format of the emoji.
     //
+    // This object type is flaggable.
+    // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat, under special sub-key "__reactions"
+    //
     // -->
 
     @Fetchable("discordreaction")
@@ -180,6 +183,8 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
     }
 
     public static void registerTags() {
+
+        AbstractFlagTracker.registerFlagHandlers(tagProcessor);
 
         // <--[tag]
         // @attribute <DiscordReactionTag.id>

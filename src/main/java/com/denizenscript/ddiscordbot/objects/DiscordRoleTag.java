@@ -33,6 +33,9 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
     // Or: 1234,4321
     // Or: mybot,1234,4321
     //
+    // This object type is flaggable.
+    // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat, under special sub-key "__roles"
+    //
     // -->
 
     @Fetchable("discordrole")
@@ -153,6 +156,8 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
     }
 
     public static void registerTags() {
+
+        AbstractFlagTracker.registerFlagHandlers(tagProcessor);
 
         // <--[tag]
         // @attribute <DiscordRoleTag.name>

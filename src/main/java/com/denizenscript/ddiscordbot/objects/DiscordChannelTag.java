@@ -3,7 +3,6 @@ package com.denizenscript.ddiscordbot.objects;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.denizen.utilities.debugging.Debug;
-import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.flags.AbstractFlagTracker;
 import com.denizenscript.denizencore.flags.FlaggableObject;
 import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
@@ -31,6 +30,9 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
     // The identity format for Discord channels is the bot ID (optional), followed by the channel ID (required).
     // For example: 1234
     // Or: mybot,1234
+    //
+    // This object type is flaggable.
+    // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat, under special sub-key "__channels"
     //
     // -->
 
@@ -121,6 +123,8 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
     }
 
     public static void registerTags() {
+
+        AbstractFlagTracker.registerFlagHandlers(tagProcessor);
 
         // <--[tag]
         // @attribute <DiscordChannelTag.name>

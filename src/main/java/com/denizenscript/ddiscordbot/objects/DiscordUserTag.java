@@ -35,6 +35,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
     // For example: 1234
     // Or: mybot,1234
     //
+    // This object type is flaggable.
+    // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat, under special sub-key "__users"
+    //
     // -->
 
     @Fetchable("discorduser")
@@ -121,6 +124,8 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
     }
 
     public static void registerTags() {
+
+        AbstractFlagTracker.registerFlagHandlers(tagProcessor);
 
         // <--[tag]
         // @attribute <DiscordUserTag.name>

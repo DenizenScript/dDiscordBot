@@ -2,10 +2,8 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
-import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.flags.AbstractFlagTracker;
 import com.denizenscript.denizencore.flags.FlaggableObject;
-import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
@@ -28,6 +26,9 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
     // These use the object notation "discord@".
     // The identity format for Discord bots is the bot ID (as chosen in <@link command discord>).
     // For example: mybot
+    //
+    // This object type is flaggable.
+    // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat
     //
     // -->
 
@@ -80,6 +81,8 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
     }
 
     public static void registerTags() {
+
+        AbstractFlagTracker.registerFlagHandlers(tagProcessor);
 
         // <--[tag]
         // @attribute <DiscordBotTag.name>
