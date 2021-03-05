@@ -228,12 +228,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     }
 
     public static void errorMessage(ScriptQueue queue, String message) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, new Runnable() {
-            @Override
-            public void run() {
-                Debug.echoError(queue, message);
-            }
-        }, 0);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, () -> Debug.echoError(queue, message), 0);
     }
 
     public static String flagFilePathFor(String bot) {
@@ -499,31 +494,35 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     }
                     Activity at;
                     String activityType = CoreUtilities.toLowerCase(activity.toString());
-                    if (activityType.equals("watching")) {
-                        at = Activity.watching(message.asString());
-                    }
-                    else if (activityType.equals("streaming")) {
-                        at = Activity.streaming(message.asString(), url.asString());
-                    }
-                    else if (activityType.equals("listening")) {
-                        at = Activity.listening(message.asString());
-                    }
-                    else {
-                        at = Activity.playing(message.asString());
+                    switch (activityType) {
+                        case "watching":
+                            at = Activity.watching(message.asString());
+                            break;
+                        case "streaming":
+                            at = Activity.streaming(message.asString(), url.asString());
+                            break;
+                        case "listening":
+                            at = Activity.listening(message.asString());
+                            break;
+                        default:
+                            at = Activity.playing(message.asString());
+                            break;
                     }
                     String statusLower = status == null ? "online" : CoreUtilities.toLowerCase(status.asString());
                     OnlineStatus statusType;
-                    if (statusLower.equals("idle")) {
-                        statusType = OnlineStatus.IDLE;
-                    }
-                    else if (statusLower.equals("dnd")) {
-                        statusType = OnlineStatus.DO_NOT_DISTURB;
-                    }
-                    else if (statusLower.equals("invisible")) {
-                        statusType = OnlineStatus.INVISIBLE;
-                    }
-                    else {
-                        statusType = OnlineStatus.ONLINE;
+                    switch (statusLower) {
+                        case "idle":
+                            statusType = OnlineStatus.IDLE;
+                            break;
+                        case "dnd":
+                            statusType = OnlineStatus.DO_NOT_DISTURB;
+                            break;
+                        case "invisible":
+                            statusType = OnlineStatus.INVISIBLE;
+                            break;
+                        default:
+                            statusType = OnlineStatus.ONLINE;
+                            break;
                     }
                     client.getPresence().setPresence(statusType, at);
                     scriptEntry.setFinished(true);

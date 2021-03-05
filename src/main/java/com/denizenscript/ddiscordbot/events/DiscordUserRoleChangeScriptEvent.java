@@ -71,75 +71,73 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
 
     @Override
     public ObjectTag getContext(String name) {
-        if (name.equals("group")) {
-            return new DiscordGroupTag(botID, getGenericEvent().getGuild().getIdLong());
-        }
-        else if (name.equals("user")) {
-            return new DiscordUserTag(botID, getGenericEvent().getUser().getIdLong());
-        }
-        else if (name.equals("old_roles")) {
-            List<Role> existing = getGenericEvent().getMember().getRoles();
-            ListTag oldRoles = new ListTag();
-            if (isAdding()) {
-                for (Role role : existing) {
-                    if (!getAddEvent().getRoles().contains(role)) {
-                        oldRoles.addObject(new DiscordRoleTag(botID,  role));
+        switch (name) {
+            case "group":
+                return new DiscordGroupTag(botID, getGenericEvent().getGuild().getIdLong());
+            case "user":
+                return new DiscordUserTag(botID, getGenericEvent().getUser().getIdLong());
+            case "old_roles": {
+                List<Role> existing = getGenericEvent().getMember().getRoles();
+                ListTag oldRoles = new ListTag();
+                if (isAdding()) {
+                    for (Role role : existing) {
+                        if (!getAddEvent().getRoles().contains(role)) {
+                            oldRoles.addObject(new DiscordRoleTag(botID, role));
+                        }
                     }
                 }
-            }
-            else {
-                for (Role role : existing) {
-                    oldRoles.addObject(new DiscordRoleTag(botID, role));
-                }
-                for (Role role : getRemoveEvent().getRoles()) {
-                    if (!existing.contains(role)) {
+                else {
+                    for (Role role : existing) {
                         oldRoles.addObject(new DiscordRoleTag(botID, role));
                     }
-                }
-            }
-            return oldRoles;
-        }
-        else if (name.equals("new_roles")) {
-            List<Role> existing = getGenericEvent().getMember().getRoles();
-            ListTag newRoles = new ListTag();
-            if (!isAdding()) {
-                for (Role role : existing) {
-                    if (!getRemoveEvent().getRoles().contains(role)) {
-                        newRoles.addObject(new DiscordRoleTag(botID, role));
+                    for (Role role : getRemoveEvent().getRoles()) {
+                        if (!existing.contains(role)) {
+                            oldRoles.addObject(new DiscordRoleTag(botID, role));
+                        }
                     }
                 }
+                return oldRoles;
             }
-            else {
-                for (Role role : existing) {
-                    newRoles.addObject(new DiscordRoleTag(botID, role));
+            case "new_roles": {
+                List<Role> existing = getGenericEvent().getMember().getRoles();
+                ListTag newRoles = new ListTag();
+                if (!isAdding()) {
+                    for (Role role : existing) {
+                        if (!getRemoveEvent().getRoles().contains(role)) {
+                            newRoles.addObject(new DiscordRoleTag(botID, role));
+                        }
+                    }
+                }
+                else {
+                    for (Role role : existing) {
+                        newRoles.addObject(new DiscordRoleTag(botID, role));
+                    }
+                    for (Role role : getAddEvent().getRoles()) {
+                        if (!existing.contains(role)) {
+                            newRoles.addObject(new DiscordRoleTag(botID, role));
+                        }
+                    }
+                }
+                return newRoles;
+            }
+            case "added_roles":
+                ListTag addedRoles = new ListTag();
+                if (!isAdding()) {
+                    return addedRoles;
                 }
                 for (Role role : getAddEvent().getRoles()) {
-                    if (!existing.contains(role)) {
-                        newRoles.addObject(new DiscordRoleTag(botID, role));
-                    }
+                    addedRoles.addObject(new DiscordRoleTag(botID, role));
                 }
-            }
-            return newRoles;
-        }
-        else if (name.equals("added_roles")) {
-            ListTag addedRoles = new ListTag();
-            if (!isAdding()) {
                 return addedRoles;
-            }
-            for (Role role : getAddEvent().getRoles()) {
-                addedRoles.addObject(new DiscordRoleTag(botID, role));
-            }
-            return addedRoles;
-        }
-        else if (name.equals("removed_roles")) {
-            ListTag removedRoles = new ListTag();
-            if (isAdding()) {
+            case "removed_roles":
+                ListTag removedRoles = new ListTag();
+                if (isAdding()) {
+                    return removedRoles;
+                }
+                for (Role role : getRemoveEvent().getRoles()) {
+                    removedRoles.addObject(new DiscordRoleTag(botID, role));
+                }
                 return removedRoles;
-            }
-            for (Role role : getRemoveEvent().getRoles()) {
-                removedRoles.addObject(new DiscordRoleTag(botID, role));
-            }
-            return removedRoles;
         }
         return super.getContext(name);
     }

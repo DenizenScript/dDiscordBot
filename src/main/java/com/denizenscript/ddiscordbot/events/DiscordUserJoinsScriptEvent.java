@@ -48,11 +48,11 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
 
     @Override
     public ObjectTag getContext(String name) {
-        if (name.equals("group")) {
-            return new DiscordGroupTag(botID, getEvent().getGuild());
-        }
-        else if (name.equals("user")) {
-            return new DiscordUserTag(botID, getEvent().getUser());
+        switch (name) {
+            case "group":
+                return new DiscordGroupTag(botID, getEvent().getGuild());
+            case "user":
+                return new DiscordUserTag(botID, getEvent().getUser());
         }
         return super.getContext(name);
     }

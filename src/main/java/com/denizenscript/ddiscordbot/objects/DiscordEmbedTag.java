@@ -56,7 +56,7 @@ public class DiscordEmbedTag implements ObjectTag {
         if (arg.startsWith("discordembed@")) {
             return true;
         }
-        return true;
+        return MapTag.matches(arg);
     }
 
     public DiscordEmbedTag() {

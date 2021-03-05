@@ -60,60 +60,36 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
 
     @Override
     public ObjectTag getContext(String name) {
-        if (name.equals("channel")) {
-            return new DiscordChannelTag(botID, getEvent().getChannel());
-        }
-        else if (name.equals("group")) {
-            if (getEvent().isFromGuild()) {
-                return new DiscordGroupTag(botID, getEvent().getGuild());
-            }
-        }
-        else if (name.equals("old_message")) {
-            return new DiscordMessageTag(botID, getEvent().getChannel().getIdLong(), getEvent().getMessageIdLong());
-        }
-        // TODO: Message cache?
-        else if (name.equals("old_message_valid")) {
-            return new ElementTag(false);
-        }
-        else if (name.equals("message")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return null;
-        }
-        else if (name.equals("message_id")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return new ElementTag(getEvent().getMessageId());
-        }
-        else if (name.equals("no_mention_message")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return null;
-        }
-        else if (name.equals("formatted_message")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return null;
-        }
-        else if (name.equals("author")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return null;
-        }
-        else if (name.equals("mentions")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return null;
-        }
-        else if (name.equals("is_direct")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return new ElementTag(getEvent().getChannel() instanceof PrivateChannel);
-        }
-        else if (name.equals("author_id")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return null;
-        }
-        else if (name.equals("author_name")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return null;
-        }
-        else if (name.equals("mention_names")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return null;
+        switch (name) {
+            case "channel":
+                return new DiscordChannelTag(botID, getEvent().getChannel());
+            case "group":
+                if (getEvent().isFromGuild()) {
+                    return new DiscordGroupTag(botID, getEvent().getGuild());
+                }
+                break;
+            case "old_message":
+                return new DiscordMessageTag(botID, getEvent().getChannel().getIdLong(), getEvent().getMessageIdLong());
+
+            // TODO: Message cache?
+            case "old_message_valid":
+                return new ElementTag(false);
+            case "message":
+            case "formatted_message":
+            case "no_mention_message":
+            case "author":
+            case "mentions":
+            case "author_id":
+            case "author_name":
+            case "mention_names":
+                DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
+                return null;
+            case "message_id":
+                DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
+                return new ElementTag(getEvent().getMessageId());
+            case "is_direct":
+                DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
+                return new ElementTag(getEvent().getChannel() instanceof PrivateChannel);
         }
         return super.getContext(name);
     }

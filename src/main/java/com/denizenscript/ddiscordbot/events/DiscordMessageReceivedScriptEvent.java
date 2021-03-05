@@ -62,48 +62,41 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
 
     @Override
     public ObjectTag getContext(String name) {
-        if (name.equals("channel")) {
-            return new DiscordChannelTag(botID, getEvent().getChannel());
-        }
-        else if (name.equals("group")) {
-            if (getEvent().isFromGuild()) {
-                return new DiscordGroupTag(botID, getEvent().getGuild());
-            }
-        }
-        else if (name.equals("new_message")) {
-            return new DiscordMessageTag(botID, getEvent().getMessage());
-        }
-        else if (name.equals("message")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return new ElementTag(getEvent().getMessage().getContentRaw());
-        }
-        else if (name.equals("message_id")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return new ElementTag(getEvent().getMessage().getId());
-        }
-        else if (name.equals("no_mention_message")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return new ElementTag(DiscordMessageTag.stripMentions(getEvent().getMessage().getContentRaw(), getEvent().getMessage().getMentionedUsers()));
-        }
-        else if (name.equals("formatted_message")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return new ElementTag(getEvent().getMessage().getContentDisplay());
-        }
-        else if (name.equals("author")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return new DiscordUserTag(botID, getEvent().getMessage().getAuthor());
-        }
-        else if (name.equals("mentions")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            ListTag list = new ListTag();
-            for (User user : getEvent().getMessage().getMentionedUsers()) {
-                list.addObject(new DiscordUserTag(botID, user));
-            }
-            return list;
-        }
-        else if (name.equals("is_direct")) {
-            DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-            return new ElementTag(getEvent().getChannel() instanceof PrivateChannel);
+        switch (name) {
+            case "channel":
+                return new DiscordChannelTag(botID, getEvent().getChannel());
+            case "group":
+                if (getEvent().isFromGuild()) {
+                    return new DiscordGroupTag(botID, getEvent().getGuild());
+                }
+                break;
+            case "new_message":
+                return new DiscordMessageTag(botID, getEvent().getMessage());
+            case "message":
+                DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
+                return new ElementTag(getEvent().getMessage().getContentRaw());
+            case "message_id":
+                DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
+                return new ElementTag(getEvent().getMessage().getId());
+            case "no_mention_message":
+                DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
+                return new ElementTag(DiscordMessageTag.stripMentions(getEvent().getMessage().getContentRaw(), getEvent().getMessage().getMentionedUsers()));
+            case "formatted_message":
+                DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
+                return new ElementTag(getEvent().getMessage().getContentDisplay());
+            case "author":
+                DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
+                return new DiscordUserTag(botID, getEvent().getMessage().getAuthor());
+            case "mentions":
+                DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
+                ListTag list = new ListTag();
+                for (User user : getEvent().getMessage().getMentionedUsers()) {
+                    list.addObject(new DiscordUserTag(botID, user));
+                }
+                return list;
+            case "is_direct":
+                DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
+                return new ElementTag(getEvent().getChannel() instanceof PrivateChannel);
         }
         return super.getContext(name);
     }

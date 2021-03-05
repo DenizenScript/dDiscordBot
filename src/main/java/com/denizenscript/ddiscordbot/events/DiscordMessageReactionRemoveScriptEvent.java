@@ -54,22 +54,20 @@ public class DiscordMessageReactionRemoveScriptEvent extends DiscordScriptEvent 
 
     @Override
     public ObjectTag getContext(String name) {
-        if (name.equals("channel")) {
-            return new DiscordChannelTag(botID, getEvent().getChannel());
-        }
-        else if (name.equals("group")) {
-            if (getEvent().isFromGuild()) {
-                return new DiscordGroupTag(botID, getEvent().getGuild());
-            }
-        }
-        else if (name.equals("message")) {
-            return new DiscordMessageTag(botID, getEvent().getChannel().getIdLong(), getEvent().getMessageIdLong());
-        }
-        else if (name.equals("reaction")) {
-            return new DiscordReactionTag(botID, getEvent().getChannel().getIdLong(), getEvent().getMessageIdLong(), getEvent().getReaction());
-        }
-        else if (name.equals("user")) {
-            return new DiscordUserTag(botID, getEvent().getUserIdLong());
+        switch (name) {
+            case "channel":
+                return new DiscordChannelTag(botID, getEvent().getChannel());
+            case "group":
+                if (getEvent().isFromGuild()) {
+                    return new DiscordGroupTag(botID, getEvent().getGuild());
+                }
+                break;
+            case "message":
+                return new DiscordMessageTag(botID, getEvent().getChannel().getIdLong(), getEvent().getMessageIdLong());
+            case "reaction":
+                return new DiscordReactionTag(botID, getEvent().getChannel().getIdLong(), getEvent().getMessageIdLong(), getEvent().getReaction());
+            case "user":
+                return new DiscordUserTag(botID, getEvent().getUserIdLong());
         }
         return super.getContext(name);
     }
