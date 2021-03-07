@@ -66,6 +66,13 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // - ~discord id:mybot connect code:<[code]>
     //
     // @Usage
+    // Use to connect to Discord via a bot code in a way that will help prevent token theft.
+    // - ~yaml load:data/discordbot.yml id:discordtemp
+    // - define code <yaml[discordtemp].read[bot_token]>
+    // - yaml unload id:discordtemp
+    // - ~discord id:mybot connect code:<[code]>
+    //
+    // @Usage
     // Use to disconnect from Discord.
     // - ~discord id:mybot disconnect
     //
