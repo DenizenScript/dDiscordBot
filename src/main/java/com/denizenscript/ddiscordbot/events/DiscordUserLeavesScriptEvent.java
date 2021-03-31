@@ -23,6 +23,8 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
     //
     // @Plugin dDiscordBot
     //
+    // @Group Discord
+    //
     // @Context
     // <context.bot> returns the relevant Discord bot object.
     // <context.group> returns the group.

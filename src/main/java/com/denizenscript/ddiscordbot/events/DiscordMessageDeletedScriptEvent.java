@@ -29,6 +29,8 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     //
     // @Plugin dDiscordBot
     //
+    // @Group Discord
+    //
     // @Context
     // <context.bot> returns the relevant Discord bot object.
     // <context.channel> returns the channel.
