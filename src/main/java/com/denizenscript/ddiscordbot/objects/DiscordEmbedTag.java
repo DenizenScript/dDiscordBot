@@ -205,7 +205,7 @@ public class DiscordEmbedTag implements ObjectTag {
 
     public static HashSet<String> acceptedWithKeys = new HashSet<>(Arrays.asList(
             "author_name", "author_url", "author_icon_url", "color", "description",
-            "footer", "footer_icon", "image", "thumbnail", "timestamp", "title", "title_url"
+            "footer", "footer_icon", "image", "thumbnail", "timestamp", "title", "title_url", "fields"
     ));
 
     public static void registerTags() {
