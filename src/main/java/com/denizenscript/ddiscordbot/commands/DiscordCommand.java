@@ -3,6 +3,8 @@ package com.denizenscript.ddiscordbot.commands;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
+import com.denizenscript.denizen.Denizen;
+import com.denizenscript.denizen.utilities.Utilities;
 import com.denizenscript.denizencore.flags.SavableMapFlagTracker;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -22,6 +24,7 @@ import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.bukkit.Bukkit;
 
+import java.io.File;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -30,13 +33,13 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     public DiscordCommand() {
         setName("discord");
-        setSyntax("discord [id:<id>] [connect code:<botcode>/disconnect/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
+        setSyntax("discord [id:<id>] [connect tokenfile:<file>/disconnect/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
         setRequiredArguments(2, 12);
     }
 
     // <--[command]
     // @Name discord
-    // @Syntax discord [id:<id>] [connect code:<botcode>/disconnect/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
+    // @Syntax discord [id:<id>] [connect tokenfile:<file>/disconnect/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
     // @Required 2
     // @Maximum 12
     // @Short Connects to and interacts with Discord.
@@ -54,9 +57,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // The command should always be ~waited for. See <@link language ~waitable>.
     //
-    // Do not type your bot token code directly into the script.
-    // The generally recommend way to track tokens is in a separate data YAML file.
-    // Load the file, issue the connect command, then unload the file. Do not keep it in server memory any longer than needed.
+    // Store your Discord bot token in a file, like "plugins/Denizen/data/discord_token.txt", with the token as the only content of the file, which you can then use like "tokenfile:data/discord_token.txt"
     //
     // @Tags
     // <discord[<bot_id>]>
@@ -66,11 +67,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // - ~discord id:mybot connect code:<[code]>
     //
     // @Usage
-    // Use to connect to Discord via a bot code in a way that will help prevent token theft.
-    // - ~yaml load:data/discordbot.yml id:discordtemp
-    // - define code <yaml[discordtemp].read[bot_token]>
-    // - yaml unload id:discordtemp
-    // - ~discord id:mybot connect code:<[code]>
+    // Use to connect to Discord with a token stored in text file 'plugins/Denizen/data/discord_token.txt'.
+    // - ~discord id:mybot connect tokenfile:data/discord_token.txt
     //
     // @Usage
     // Use to disconnect from Discord.
@@ -134,6 +132,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
             else if (!scriptEntry.hasObject("code")
                     && arg.matchesPrefix("code")) {
                 scriptEntry.addObject("code", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("tokenfile")
+                    && arg.matchesPrefix("tokenfile")) {
+                scriptEntry.addObject("tokenfile", arg.asElement());
             }
             else if (!scriptEntry.hasObject("channel")
                     && arg.matchesPrefix("channel")
@@ -247,6 +249,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         ElementTag id = scriptEntry.getElement("id");
         ElementTag instruction = scriptEntry.getElement("instruction");
         ElementTag code = scriptEntry.getElement("code"); // Intentionally do not debug this value.
+        ElementTag tokenFile = scriptEntry.getElement("tokenfile");
         DiscordChannelTag channel = scriptEntry.getObjectTag("channel");
         ElementTag message = scriptEntry.getElement("message");
         ElementTag status = scriptEntry.getElement("status");
@@ -267,6 +270,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     + (status != null ? status.debug() : "")
                     + (activity != null ? activity.debug() : "")
                     + (url != null ? url.debug() : "")
+                    + (tokenFile != null ? tokenFile.debug() : "")
                     + (messageId != null ? messageId.debug() : ""));
         }
         Supplier<Boolean> requireClientID = () -> {
@@ -300,31 +304,56 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Supplier<Boolean> requireRole = () -> requireObject.apply(role, "role");
         Supplier<Boolean> requireMessageId = () -> requireObject.apply(messageId, "message_id");
         DiscordInstruction instructionEnum = DiscordInstruction.valueOf(instruction.asString().toUpperCase());
-        if (instructionEnum == DiscordInstruction.CONNECT) {
-            if (requireObject.apply(code, "code")) {
-                return;
-            }
-            if (scriptEntry.dbCallShouldDebug() && com.denizenscript.denizen.utilities.debugging.Debug.record) {
-                Debug.echoError("You almost recorded debug of your Discord token - record automatically disabled to protect you.");
-                com.denizenscript.denizen.utilities.debugging.Debug.record = false;
-            }
-            if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
-                Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
-                return;
-            }
-            DiscordConnection dc = new DiscordConnection();
-            dc.flags = SavableMapFlagTracker.loadFlagFile(DenizenDiscordBot.instance.getDataFolder().getPath() + flagFilePathFor(id.asString()));
-            dc.botID = id.asString();
-            DenizenDiscordBot.instance.connections.put(id.asString(), dc);
-            DiscordConnectThread dct = new DiscordConnectThread();
-            dct.code = code.asString();
-            dct.conn = dc;
-            dct.ender = () -> scriptEntry.setFinished(true);
-            dct.start();
-            return;
-        }
         Runnable executeCore = () -> {
             switch (instructionEnum) {
+                case CONNECT: {
+                    if (code == null && tokenFile == null) {
+                        requireObject.apply(null, "tokenfile");
+                        break;
+                    }
+                    if (code != null && scriptEntry.dbCallShouldDebug() && com.denizenscript.denizen.utilities.debugging.Debug.record) {
+                        Debug.echoError("You almost recorded debug of your Discord token - record automatically disabled to protect you.");
+                        com.denizenscript.denizen.utilities.debugging.Debug.record = false;
+                    }
+                    if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
+                        Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
+                        break;
+                    }
+                    String codeRaw;
+                    if (code != null) {
+                        codeRaw = code.asString();
+                    }
+                    else {
+                        File f = new File(Denizen.getInstance().getDataFolder(), tokenFile.asString());
+                        if (!Utilities.canReadFile(f)) {
+                            Debug.echoError("Invalid tokenfile path specified. Invalid paths have been denied by the server administrator.");
+                            scriptEntry.setFinished(true);
+                            break;
+                        }
+                        if (!f.exists()) {
+                            Debug.echoError("Invalid tokenfile specified. File does not exist.");
+                            scriptEntry.setFinished(true);
+                            break;
+                        }
+                        codeRaw = CoreUtilities.journallingLoadFile(f.getAbsolutePath());
+                        if (codeRaw == null || codeRaw.length() < 5 || codeRaw.length() > 200) {
+                            Debug.echoError("Invalid tokenfile specified. File content doesn't look like a bot token.");
+                            scriptEntry.setFinished(true);
+                            break;
+                        }
+                        codeRaw = codeRaw.trim();
+                    }
+                    DiscordConnection dc = new DiscordConnection();
+                    dc.flags = SavableMapFlagTracker.loadFlagFile(DenizenDiscordBot.instance.getDataFolder().getPath() + flagFilePathFor(id.asString()));
+                    dc.botID = id.asString();
+                    DenizenDiscordBot.instance.connections.put(id.asString(), dc);
+                    DiscordConnectThread dct = new DiscordConnectThread();
+                    dct.code = codeRaw;
+                    dct.conn = dc;
+                    dct.ender = () -> scriptEntry.setFinished(true);
+                    dct.start();
+                    break;
+                }
                 case DISCONNECT: {
                     if (requireClientID.get()) {
                         return;
