@@ -15,19 +15,21 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.bukkit.Bukkit;
 
+import java.nio.charset.StandardCharsets;
+
 public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
     public DiscordMessageCommand() {
         setName("discordmessage");
-        setSyntax("discordmessage [id:<id>] [reply:<message>/channel:<channel>/user:<user>] [<message>] (no_mention)");
-        setRequiredArguments(3, 5);
+        setSyntax("discordmessage [id:<id>] [reply:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (attach_file_name:<name> attach_text:<text>)");
+        setRequiredArguments(3, 7);
     }
 
     // <--[command]
     // @Name discordmessage
-    // @Syntax discordmessage [id:<id>] (reply:<message>/channel:<channel>/user:<user>) [<message>] (no_mention)
+    // @Syntax discordmessage [id:<id>] (reply:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (attach_file_name:<name> attach_text:<text>)
     // @Required 3
-    // @Maximum 5
+    // @Maximum 7
     // @Short Sends a message to a Discord channel.
     // @Plugin dDiscordBot
     // @Group external
@@ -39,6 +41,8 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     //
     // You can send the message to: a channel or user, or optionally in reply to a previous message.
     // If sending as a reply, optionally use "no_mention" to disable the default reply pinging the original user.
+    //
+    // You can use "attach_file_name:<name>" and "attach_text:<text>" to attach a text file with longer content than a normal message allows.
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
@@ -66,6 +70,10 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // Use to send a message to a user through a private channel.
     // - ~discordmessage id:mybot message user:<[user]> "Hello world!"
     //
+    // @Usage
+    // Use to send a text-file message to a channel.
+    // - ~discordmessage id:mybot channel:<[channel]> attach_file_name:quote.xml "attach_file_text:<&lt>mcmonkey<&gt> haha text files amirite<n>gotta abuse em"
+    //
     // -->
 
     @Override
@@ -74,6 +82,14 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             if (!scriptEntry.hasObject("id")
                     && arg.matchesPrefix("id")) {
                 scriptEntry.addObject("id", new ElementTag(CoreUtilities.toLowerCase(arg.getValue())));
+            }
+            else if (!scriptEntry.hasObject("attach_file_name")
+                    && arg.matchesPrefix("attach_file_name")) {
+                scriptEntry.addObject("attach_file_name", arg.asElement());
+            }
+            else if (!scriptEntry.hasObject("attach_file_text")
+                    && arg.matchesPrefix("attach_file_text")) {
+                scriptEntry.addObject("attach_file_text", arg.asElement());
             }
             else if (!scriptEntry.hasObject("channel")
                     && arg.matchesPrefix("to", "channel")
@@ -104,7 +120,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         if (!scriptEntry.hasObject("id")) {
             throw new InvalidArgumentsException("Must have an ID!");
         }
-        if (!scriptEntry.hasObject("message")) {
+        if (!scriptEntry.hasObject("message") && !scriptEntry.hasObject("attach_file_name")) {
             throw new InvalidArgumentsException("Must have a message!");
         }
     }
@@ -117,12 +133,16 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         DiscordUserTag user = scriptEntry.getObjectTag("user");
         DiscordMessageTag reply = scriptEntry.getObjectTag("reply");
         ElementTag noMention = scriptEntry.getElement("no_mention");
+        ElementTag attachFileName = scriptEntry.getElement("attach_file_name");
+        ElementTag attachFileText = scriptEntry.getElement("attach_file_text");
         if (scriptEntry.dbCallShouldDebug()) {
             Debug.report(scriptEntry, getName(), id.debug()
                     + (channel != null ? channel.debug() : "")
                     + (message != null ? message.debug() : "")
                     + (user != null ? user.debug() : "")
                     + (reply != null ? reply.debug() : "")
+                    + (attachFileName != null ? attachFileName.debug() : "")
+                    + (attachFileText != null ? attachFileText.debug() : "")
                     + (noMention != null ? noMention.debug() : ""));
         }
 
@@ -161,8 +181,22 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             if (reply != null) {
                 replyTo = reply.bot != null ? reply.getMessage() : toChannel.retrieveMessageById(reply.message_id).complete();
             }
-            MessageAction action;
-            if (message.asString().startsWith("discordembed@")) {
+            MessageAction action = null;
+            boolean isFile = false;
+            if (message == null || message.asString().length() == 0) {
+                if (attachFileName != null) {
+                    if (attachFileText != null) {
+                        if (reply != null) {
+                            action = replyTo.reply(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
+                        }
+                        else {
+                            action = toChannel.sendFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
+                        }
+                        isFile = true;
+                    }
+                }
+            }
+            else if (message.asString().startsWith("discordembed@")) {
                 MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
                 if (reply != null) {
                     action = replyTo.reply(embed);
@@ -177,6 +211,19 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                 }
                 else {
                     action = toChannel.sendMessage(message.asString());
+                }
+            }
+            if (action == null) {
+                Debug.echoError("Failed to send message - missing content?");
+                scriptEntry.setFinished(true);
+                return;
+            }
+            if (!isFile && attachFileName != null) {
+                if (attachFileText != null) {
+                    action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
+                }
+                else {
+                    Debug.echoError("Failed to send attachment - missing content?");
                 }
             }
             if (noMention != null && noMention.asBoolean()) {
