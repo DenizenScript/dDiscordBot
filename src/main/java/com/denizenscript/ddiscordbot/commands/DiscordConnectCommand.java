@@ -20,12 +20,13 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.bukkit.Bukkit;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 public class DiscordConnectCommand extends AbstractCommand implements Holdable {
 
@@ -107,7 +108,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
 
         public ScriptQueue queue;
 
-        public Collection<GatewayIntent> intents = new ArrayList<>(Arrays.asList(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EMOJIS, GatewayIntent.GUILD_MESSAGE_REACTIONS,
+        public HashSet<GatewayIntent> intents = new HashSet<>(Arrays.asList(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EMOJIS, GatewayIntent.GUILD_MESSAGE_REACTIONS,
                 GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGE_REACTIONS, GatewayIntent.DIRECT_MESSAGES));
 
         @Override
@@ -116,6 +117,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
                 try {
                     // Try with intents
                     JDA jda = JDABuilder.createDefault(code)
+                            .enableCache(Arrays.stream(CacheFlag.values()).filter(f -> f.getRequiredIntent() == null || intents.contains(f.getRequiredIntent())).collect(Collectors.toList()))
                             .enableIntents(intents)
                             .setMemberCachePolicy(MemberCachePolicy.ALL)
                             .setAutoReconnect(true)
