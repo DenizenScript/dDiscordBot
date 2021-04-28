@@ -16,12 +16,8 @@ import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.scripts.queues.ScriptQueue;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.ChunkingFilter;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.bukkit.Bukkit;
 
 import java.io.File;
@@ -33,21 +29,21 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
 
     public DiscordCommand() {
         setName("discord");
-        setSyntax("discord [id:<id>] [connect tokenfile:<file>/disconnect/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
+        setSyntax("discord [id:<id>] [disconnect/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
         setRequiredArguments(2, 12);
     }
 
     // <--[command]
     // @Name discord
-    // @Syntax discord [id:<id>] [connect tokenfile:<file>/disconnect/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
+    // @Syntax discord [id:<id>] [disconnect/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
     // @Required 2
     // @Maximum 12
-    // @Short Connects to and interacts with Discord.
+    // @Short Interacts with Discord.
     // @Plugin dDiscordBot
     // @Group external
     //
     // @Description
-    // Connects to and interacts with Discord.
+    // Interacts with Discord.
     //
     // Commands may fail if the bot does not have permission within the Discord group to perform them.
     //
@@ -57,18 +53,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // The command should always be ~waited for. See <@link language ~waitable>.
     //
-    // Store your Discord bot token in a file, like "plugins/Denizen/data/discord_token.txt", with the token as the only content of the file, which you can then use like "tokenfile:data/discord_token.txt"
-    //
     // @Tags
     // <discord[<bot_id>]>
-    //
-    // @Usage
-    // Use to connect to Discord via a bot code.
-    // - ~discord id:mybot connect code:<[code]>
-    //
-    // @Usage
-    // Use to connect to Discord with a token stored in text file 'plugins/Denizen/data/discord_token.txt'.
-    // - ~discord id:mybot connect tokenfile:data/discord_token.txt
     //
     // @Usage
     // Use to disconnect from Discord.
@@ -188,60 +174,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         }
     }
 
-    public static class DiscordConnectThread extends Thread {
-
-        public String code;
-
-        public DiscordConnection conn;
-
-        public Runnable ender;
-
-        @Override
-        public void run() {
-            try {
-                try {
-                    // Try with intents
-                    JDA jda = JDABuilder.createDefault(code)
-                            .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EMOJIS,
-                                    GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MESSAGES,
-                                    GatewayIntent.DIRECT_MESSAGE_REACTIONS, GatewayIntent.DIRECT_MESSAGES)
-                            .setMemberCachePolicy(MemberCachePolicy.ALL)
-                            .setAutoReconnect(true)
-                            .setLargeThreshold(100000)
-                            .setChunkingFilter(ChunkingFilter.ALL)
-                            .build();
-                    conn.client = jda;
-                    jda.awaitReady();
-                }
-                catch (Exception ex) {
-                    if (Debug.verbose) {
-                        Debug.echoError(ex);
-                    }
-                    Debug.echoError("Discord full connection attempt failed.");
-                    Debug.log("Discord using fallback connection path - connecting with intents disabled. Enable the members intent in your bot's settings (at https://discord.com/developers/applications ) to fix this.");
-                    // If startup failure, try without intents
-                    JDA jda = JDABuilder.createDefault(code).build();
-                    conn.client = jda;
-                    jda.awaitReady();
-                }
-                conn.registerHandlers();
-            }
-            catch (Exception ex) {
-                Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
-                    DenizenDiscordBot.instance.connections.remove(conn.botID);
-                });
-                Debug.echoError(ex);
-            }
-            Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, ender);
-        }
-    }
-
     public static void errorMessage(ScriptQueue queue, String message) {
         Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, () -> Debug.echoError(queue, message), 0);
-    }
-
-    public static String flagFilePathFor(String bot) {
-        return "/flags/bot_" + Argument.prefixCharsAllowed.trimToMatches(CoreUtilities.toLowerCase(bot)) + ".dat";
     }
 
     @Override
@@ -307,6 +241,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Runnable executeCore = () -> {
             switch (instructionEnum) {
                 case CONNECT: {
+                    DenizenDiscordBot.oldConnectCommand.warn(scriptEntry);
                     if (code == null && tokenFile == null) {
                         requireObject.apply(null, "tokenfile");
                         break;
@@ -326,7 +261,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     else {
                         File f = new File(Denizen.getInstance().getDataFolder(), tokenFile.asString());
                         if (!Utilities.canReadFile(f)) {
-                            Debug.echoError("Invalid tokenfile path specified. Invalid paths have been denied by the server administrator.");
+                            Debug.echoError("Cannot read from that token file path due to security settings in Denizen/config.yml.");
                             scriptEntry.setFinished(true);
                             break;
                         }
@@ -344,10 +279,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         codeRaw = codeRaw.trim();
                     }
                     DiscordConnection dc = new DiscordConnection();
-                    dc.flags = SavableMapFlagTracker.loadFlagFile(DenizenDiscordBot.instance.getDataFolder().getPath() + flagFilePathFor(id.asString()));
+                    dc.flags = SavableMapFlagTracker.loadFlagFile(DenizenDiscordBot.instance.getDataFolder().getPath() + DiscordConnectCommand.flagFilePathFor(id.asString()));
                     dc.botID = id.asString();
                     DenizenDiscordBot.instance.connections.put(id.asString(), dc);
-                    DiscordConnectThread dct = new DiscordConnectThread();
+                    DiscordConnectCommand.DiscordConnectThread dct = new DiscordConnectCommand.DiscordConnectThread();
                     dct.code = codeRaw;
                     dct.conn = dc;
                     dct.ender = () -> scriptEntry.setFinished(true);
@@ -360,7 +295,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                     }
                     DiscordConnection dc = DenizenDiscordBot.instance.connections.remove(id.asString());
                     if (dc.flags.modified) {
-                        dc.flags.saveToFile(flagFilePathFor(id.asString()));
+                        dc.flags.saveToFile(DiscordConnectCommand.flagFilePathFor(id.asString()));
                     }
                     dc.client.shutdown();
                     try {

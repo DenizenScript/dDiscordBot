@@ -1,6 +1,7 @@
 package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.commands.DiscordCommand;
+import com.denizenscript.ddiscordbot.commands.DiscordConnectCommand;
 import com.denizenscript.ddiscordbot.commands.DiscordMessageCommand;
 import com.denizenscript.ddiscordbot.commands.DiscordReactCommand;
 import com.denizenscript.ddiscordbot.events.*;
@@ -11,6 +12,7 @@ import com.denizenscript.denizencore.events.ScriptEvent;
 import com.denizenscript.denizencore.objects.ObjectFetcher;
 import com.denizenscript.denizencore.tags.TagManager;
 import com.denizenscript.denizencore.utilities.debugging.FutureWarning;
+import com.denizenscript.denizencore.utilities.debugging.SlowWarning;
 import com.denizenscript.denizencore.utilities.debugging.Warning;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
@@ -21,8 +23,9 @@ import java.util.Map;
 
 public class DenizenDiscordBot extends JavaPlugin {
 
-    public static Warning oldMessageContexts = new FutureWarning("dDiscordBot contexts relating to message data are now provided by DiscordMessageTag.");
-    public static Warning oldMessageCommand = new FutureWarning("dDiscordMessage's 'discord message' sub-command has been moved to a base 'discordmessage' command.");
+    public static Warning oldMessageContexts = new SlowWarning("dDiscordBot contexts relating to message data are now provided by DiscordMessageTag.");
+    public static Warning oldMessageCommand = new SlowWarning("dDiscordBot's 'discord message' sub-command has been moved to a base 'discordmessage' command.");
+    public static Warning oldConnectCommand = new FutureWarning("dDiscordBot's 'discord connect' sub-command has been moved to a base 'discordconnect' command.");
 
     public static DenizenDiscordBot instance;
 
@@ -34,6 +37,7 @@ public class DenizenDiscordBot extends JavaPlugin {
         instance = this;
         try {
             DenizenCore.getCommandRegistry().registerCommand(DiscordCommand.class);
+            DenizenCore.getCommandRegistry().registerCommand(DiscordConnectCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordMessageCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordReactCommand.class);
             ScriptEvent.registerScriptEvent(DiscordMessageDeletedScriptEvent.instance = new DiscordMessageDeletedScriptEvent());
@@ -183,7 +187,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             try {
                 if (connection.getValue().client != null) {
                     if (connection.getValue().flags.modified) {
-                        connection.getValue().flags.saveToFile(DiscordCommand.flagFilePathFor(connection.getKey()));
+                        connection.getValue().flags.saveToFile(DiscordConnectCommand.flagFilePathFor(connection.getKey()));
                     }
                     connection.getValue().client.shutdownNow();
                 }
