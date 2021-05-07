@@ -107,6 +107,25 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         return user;
     }
 
+    public User getUserForTag(Attribute attribute) {
+        User user = getUser();
+        if (user == null) {
+            if (getBot() == null) {
+                if (bot == null) {
+                    attribute.echoError("DiscordUserTag failed to get original user: bot is missing.");
+                }
+                else {
+                    attribute.echoError("DiscordUserTag failed to get original user: bot is not connected.");
+                }
+            }
+            else {
+                attribute.echoError("DiscordUserTag failed to get original user: bot is valid, but user ID is not.");
+            }
+            return null;
+        }
+        return user;
+    }
+
     public User user;
 
     public String bot;
@@ -135,6 +154,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Returns the user name of the user.
         // -->
         registerTag("name", (attribute, object) -> {
+            if (object.getUserForTag(attribute) == null) {
+                return null;
+            }
             return new ElementTag(object.getUser().getName());
         });
 
@@ -146,6 +168,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Returns the discriminator ID of the user.
         // -->
         registerTag("discriminator", (attribute, object) -> {
+            if (object.getUserForTag(attribute) == null) {
+                return null;
+            }
             return new ElementTag(object.getUser().getDiscriminator());
         });
 
@@ -157,6 +182,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Returns a boolean indicating whether the user is a bot.
         // -->
         registerTag("is_bot", (attribute, object) -> {
+            if (object.getUserForTag(attribute) == null) {
+                return null;
+            }
             return new ElementTag(object.getUser().isBot());
         });
 
@@ -168,6 +196,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Returns the URL to the user's avatar.
         // -->
         registerTag("avatar_url", (attribute, object) -> {
+            if (object.getUserForTag(attribute) == null) {
+                return null;
+            }
             return new ElementTag(object.getUser().getEffectiveAvatarUrl());
         });
 
@@ -184,6 +215,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
             }
             DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
             if (group == null) {
+                return null;
+            }
+            if (object.getUserForTag(attribute) == null) {
                 return null;
             }
             String nickname = group.getGuild().getMember(object.getUser()).getNickname();
@@ -232,6 +266,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
             if (group == null) {
                 return null;
             }
+            if (object.getUserForTag(attribute) == null) {
+                return null;
+            }
             return new ElementTag(group.getGuild().getMember(object.getUser()).getOnlineStatus().getKey());
         });
 
@@ -250,6 +287,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
             }
             DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
             if (group == null) {
+                return null;
+            }
+            if (object.getUserForTag(attribute) == null) {
                 return null;
             }
             List<Activity> activities = group.getGuild().getMember(object.getUser()).getActivities();
@@ -275,6 +315,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
             if (group == null) {
                 return null;
             }
+            if (object.getUserForTag(attribute) == null) {
+                return null;
+            }
             List<Activity> activities = group.getGuild().getMember(object.getUser()).getActivities();
             if (activities.isEmpty()) {
                 return null;
@@ -296,6 +339,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
             }
             DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
             if (group == null) {
+                return null;
+            }
+            if (object.getUserForTag(attribute) == null) {
                 return null;
             }
             List<Activity> activities = group.getGuild().getMember(object.getUser()).getActivities();
@@ -321,6 +367,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
             }
             DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
             if (group == null) {
+                return null;
+            }
+            if (object.getUserForTag(attribute) == null) {
                 return null;
             }
             ListTag list = new ListTag();
