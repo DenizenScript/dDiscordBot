@@ -14,10 +14,7 @@ import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 
 public class DiscordGroupTag implements ObjectTag, FlaggableObject {
 
@@ -287,6 +284,50 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
                 return null;
             }
             return new DiscordRoleTag(object.bot, bestMatch);
+        });
+
+        // <--[tag]
+        // @attribute <DiscordGroupTag.emoji_names>
+        // @returns ListTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of emoji names in the group.
+        // -->
+        registerTag("emoji_names", (attribute, object) -> {
+            ListTag result = new ListTag();
+            for (Emote emote : object.getGuild().getEmotes()) {
+                result.add(emote.getName());
+            }
+            return result;
+        });
+
+        // <--[tag]
+        // @attribute <DiscordGroupTag.emoji_id[<name>]>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the ID of the emoji that best matches the input name, or null if there's no match.
+        // -->
+        registerTag("emoji_id", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
+            }
+            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            Emote bestMatch = null;
+            for (Emote emote : object.getGuild().getEmotes()) {
+                String emoteName = CoreUtilities.toLowerCase(emote.getName());
+                if (matchString.equals(emoteName)) {
+                    bestMatch = emote;
+                    break;
+                }
+                if (emoteName.contains(matchString)) {
+                    bestMatch = emote;
+                }
+            }
+            if (bestMatch == null) {
+                return null;
+            }
+            return new ElementTag(bestMatch.getId());
         });
     }
 

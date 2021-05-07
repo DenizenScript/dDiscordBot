@@ -241,7 +241,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // @plugin dDiscordBot
         // @description
         // Returns the activity type of the user, as seen from the given group.
-        // Can be any of: PLAYING, LISTENING, STREAMING, WATCHING.
+        // Can be any of: DEFAULT, STREAMING, LISTENING, WATCHING, CUSTOM_STATUS, COMPETING.
         // Not present for all users.
         // -->
         registerTag("activity_type", (attribute, object) -> {
@@ -265,7 +265,6 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // @plugin dDiscordBot
         // @description
         // Returns the name of the activity of the user, as seen from the given group.
-        // Can be any of: PLAYING, LISTENING, STREAMING, WATCHING.
         // Not present for all users.
         // -->
         registerTag("activity_name", (attribute, object) -> {
@@ -289,7 +288,6 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // @plugin dDiscordBot
         // @description
         // Returns the stream URL of the activity of the user, as seen from the given group.
-        // Can be any of: PLAYING, LISTENING, STREAMING, WATCHING.
         // Not present for all users.
         // -->
         registerTag("activity_url", (attribute, object) -> {
