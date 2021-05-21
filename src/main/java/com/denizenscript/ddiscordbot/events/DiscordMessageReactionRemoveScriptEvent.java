@@ -48,8 +48,13 @@ public class DiscordMessageReactionRemoveScriptEvent extends DiscordScriptEvent 
         if (!path.checkSwitch("channel", getEvent().getChannel().getId())) {
             return false;
         }
-        if (getEvent().isFromGuild() && !path.checkSwitch("group", getEvent().getGuild().getId())) {
-            return false;
+        if (path.switches.containsKey("group")) {
+            if (!getEvent().isFromGuild()) {
+                return false;
+            }
+            if (!path.checkSwitch("group", getEvent().getGuild().getId())) {
+                return false;
+            }
         }
         return super.matches(path);
     }
