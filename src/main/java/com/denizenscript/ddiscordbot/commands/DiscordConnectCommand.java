@@ -152,7 +152,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
 
 
     public static String flagFilePathFor(String bot) {
-        return DenizenDiscordBot.instance.getDataFolder().getAbsolutePath() + "/flags/bot_" + Argument.prefixCharsAllowed.trimToMatches(CoreUtilities.toLowerCase(bot)) + ".dat";
+        return DenizenDiscordBot.instance.getDataFolder().getPath() + "/flags/bot_" + Argument.prefixCharsAllowed.trimToMatches(CoreUtilities.toLowerCase(bot)) + ".dat";
     }
 
     @Override
@@ -192,7 +192,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
                 return;
             }
             codeRaw = codeRaw.trim();
-            dc.flags = SavableMapFlagTracker.loadFlagFile(DenizenDiscordBot.instance.getDataFolder().getPath() + flagFilePathFor(id.asString()));
+            dc.flags = SavableMapFlagTracker.loadFlagFile(flagFilePathFor(id.asString()));
             DiscordConnectThread dct = new DiscordConnectThread();
             dct.queue = scriptEntry.getResidingQueue();
             dct.code = codeRaw;

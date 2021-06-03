@@ -279,7 +279,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         codeRaw = codeRaw.trim();
                     }
                     DiscordConnection dc = new DiscordConnection();
-                    dc.flags = SavableMapFlagTracker.loadFlagFile(DenizenDiscordBot.instance.getDataFolder().getPath() + DiscordConnectCommand.flagFilePathFor(id.asString()));
+                    dc.flags = SavableMapFlagTracker.loadFlagFile(DiscordConnectCommand.flagFilePathFor(id.asString()));
                     dc.botID = id.asString();
                     DenizenDiscordBot.instance.connections.put(id.asString(), dc);
                     DiscordConnectCommand.DiscordConnectThread dct = new DiscordConnectCommand.DiscordConnectThread();
