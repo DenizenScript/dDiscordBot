@@ -152,7 +152,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
 
 
     public static String flagFilePathFor(String bot) {
-        return "/flags/bot_" + Argument.prefixCharsAllowed.trimToMatches(CoreUtilities.toLowerCase(bot)) + ".dat";
+        return DenizenDiscordBot.instance.getDataFolder().getAbsolutePath() + "/flags/bot_" + Argument.prefixCharsAllowed.trimToMatches(CoreUtilities.toLowerCase(bot)) + ".dat";
     }
 
     @Override

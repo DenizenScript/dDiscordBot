@@ -21,13 +21,13 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
     public DiscordMessageCommand() {
         setName("discordmessage");
-        setSyntax("discordmessage [id:<id>] [reply:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (attach_file_name:<name> attach_text:<text>)");
+        setSyntax("discordmessage [id:<id>] [reply:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (attach_file_name:<name> attach_file_text:<text>)");
         setRequiredArguments(3, 7);
     }
 
     // <--[command]
     // @Name discordmessage
-    // @Syntax discordmessage [id:<id>] (reply:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (attach_file_name:<name> attach_text:<text>)
+    // @Syntax discordmessage [id:<id>] (reply:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (attach_file_name:<name> attach_file_text:<text>)
     // @Required 3
     // @Maximum 7
     // @Short Sends a message to a Discord channel.
@@ -42,7 +42,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // You can send the message to: a channel or user, or optionally in reply to a previous message.
     // If sending as a reply, optionally use "no_mention" to disable the default reply pinging the original user.
     //
-    // You can use "attach_file_name:<name>" and "attach_text:<text>" to attach a text file with longer content than a normal message allows.
+    // You can use "attach_file_name:<name>" and "attach_file_text:<text>" to attach a text file with longer content than a normal message allows.
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
