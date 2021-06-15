@@ -77,7 +77,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // @plugin dDiscordBot
             // @description
             // Returns a Discord Channel object constructed from the input value.
-            // Refer to <@link language DiscordChannelTag objects>.
+            // Refer to <@link objecttype DiscordChannelTag>.
             // -->
             TagManager.registerTagHandler("discord_channel", (attribute) -> {
                 if (!attribute.hasContext(1)) {
@@ -93,7 +93,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // @description
             // Returns a blank DiscordEmbedTag instance, to be filled with data via the with.as tag.
             // Or, if given an input, returns a Discord Embed object constructed from the input value.
-            // Refer to <@link language DiscordEmbedTag objects>.
+            // Refer to <@link objecttype DiscordEmbedTag>.
             // -->
             TagManager.registerTagHandler("discord_embed", (attribute) -> {
                 if (!attribute.hasContext(1)) {
@@ -107,7 +107,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // @plugin dDiscordBot
             // @description
             // Returns a Discord Group object constructed from the input value.
-            // Refer to <@link language DiscordGroupTag objects>.
+            // Refer to <@link objecttype DiscordGroupTag>.
             // -->
             TagManager.registerTagHandler("discord_group", (attribute) -> {
                 if (!attribute.hasContext(1)) {
@@ -122,7 +122,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // @plugin dDiscordBot
             // @description
             // Returns a Discord Message object constructed from the input value.
-            // Refer to <@link language DiscordMessageTag objects>.
+            // Refer to <@link objecttype DiscordMessageTag>.
             // -->
             TagManager.registerTagHandler("discord_message", (attribute) -> {
                 if (!attribute.hasContext(1)) {
@@ -137,7 +137,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // @plugin dDiscordBot
             // @description
             // Returns a Discord Reaction object constructed from the input value.
-            // Refer to <@link language DiscordReactionTag objects>.
+            // Refer to <@link objecttype DiscordReactionTag>.
             // -->
             TagManager.registerTagHandler("discord_reaction", (attribute) -> {
                 if (!attribute.hasContext(1)) {
@@ -152,7 +152,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // @plugin dDiscordBot
             // @description
             // Returns a Discord Role object constructed from the input value.
-            // Refer to <@link language DiscordRoleTag objects>.
+            // Refer to <@link objecttype DiscordRoleTag>.
             // -->
             TagManager.registerTagHandler("discord_role", (attribute) -> {
                 if (!attribute.hasContext(1)) {
@@ -167,7 +167,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // @plugin dDiscordBot
             // @description
             // Returns a Discord User object constructed from the input value.
-            // Refer to <@link language DiscordUserTag objects>.
+            // Refer to <@link objecttype DiscordUserTag>.
             // -->
             TagManager.registerTagHandler("discord_user", (attribute) -> {
                 if (!attribute.hasContext(1)) {

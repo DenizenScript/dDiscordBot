@@ -26,6 +26,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
     // @name DiscordReactionTag
     // @prefix discordreaction
     // @base ElementTag
+    // @implements FlaggableObject
     // @format
     // The identity format for Discord reactions is the bot ID, followed by the channel ID, followed by the message ID, followed by the reaction ID.
     // Or: mybot,12,1234,99

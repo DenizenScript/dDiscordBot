@@ -22,6 +22,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
     // @name DiscordGroupTag
     // @prefix discordgroup
     // @base ElementTag
+    // @implements FlaggableObject
     // @format
     // The identity format for Discord groups is the bot ID (optional), followed by the guild ID (required).
     // For example: 1234

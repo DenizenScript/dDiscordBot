@@ -22,6 +22,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
     // @name DiscordChannelTag
     // @prefix discordchannel
     // @base ElementTag
+    // @implements FlaggableObject
     // @format
     // The identity format for Discord channels is the bot ID (optional), followed by the channel ID (required).
     // For example: 1234

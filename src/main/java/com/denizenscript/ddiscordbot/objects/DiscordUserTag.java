@@ -26,6 +26,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
     // @name DiscordUserTag
     // @prefix discorduser
     // @base ElementTag
+    // @implements FlaggableObject
     // @format
     // The identity format for Discord users is the bot ID (optional), followed by the user ID (required).
     // For example: 1234

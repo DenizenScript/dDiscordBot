@@ -20,6 +20,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
     // @name DiscordBotTag
     // @prefix discord
     // @base ElementTag
+    // @implements FlaggableObject
     // @format
     // The identity format for Discord bots is the bot ID (as chosen in <@link command discord>).
     // For example: mybot

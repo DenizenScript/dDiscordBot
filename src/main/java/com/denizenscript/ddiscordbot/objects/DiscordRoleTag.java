@@ -23,6 +23,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
     // @name DiscordRoleTag
     // @prefix discordrole
     // @base ElementTag
+    // @implements FlaggableObject
     // @format
     // The identity format for Discord roles  is the bot ID (optional), followed by the guild ID (optional), followed by the role ID (required).
     // For example: 4321

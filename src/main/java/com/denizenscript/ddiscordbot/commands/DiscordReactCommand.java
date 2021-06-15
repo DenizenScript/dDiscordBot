@@ -38,7 +38,7 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
     // @Description
     // Manages message reactions on Discord.
     //
-    // The message can be a <@link language DiscordMessageTag>, or just the message ID, with a channel ID also given.
+    // The message can be a <@link objecttype DiscordMessageTag>, or just the message ID, with a channel ID also given.
     //
     // You can add or remove reactions from the bot, or clear all reactions of a specific ID, or clear all reactions from a message entirely.
     //

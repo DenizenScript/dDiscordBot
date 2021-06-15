@@ -26,6 +26,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
     // @name DiscordMessageTag
     // @prefix discordmessage
     // @base ElementTag
+    // @implements FlaggableObject
     // @format
     // The identity format for Discord messages is the bot ID (optional), followed by the channel ID (optional), followed by the message ID (required).
     // For example: 1234
