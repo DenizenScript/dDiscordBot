@@ -18,18 +18,19 @@ import net.dv8tion.jda.api.entities.*;
 
 public class DiscordChannelTag implements ObjectTag, FlaggableObject {
 
-    // <--[language]
-    // @name DiscordChannelTag Objects
-    // @group Object System
+    // <--[ObjectType]
+    // @name DiscordChannelTag
+    // @prefix discordchannel
+    // @base ElementTag
+    // @format
+    // The identity format for Discord channels is the bot ID (optional), followed by the channel ID (required).
+    // For example: 1234
+    // Or: mybot,1234
+    //
     // @plugin dDiscordBot
     // @description
     // A DiscordChannelTag is an object that represents a channel (text or voice) on Discord, either as a generic reference,
     // or as a bot-specific reference (the relevant guild is inherently linked, and does not need to be specified).
-    //
-    // These use the object notation "discordchannel@".
-    // The identity format for Discord channels is the bot ID (optional), followed by the channel ID (required).
-    // For example: 1234
-    // Or: mybot,1234
     //
     // This object type is flaggable.
     // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat, under special sub-key "__channels"

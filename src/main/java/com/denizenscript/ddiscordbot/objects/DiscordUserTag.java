@@ -22,18 +22,19 @@ import java.util.List;
 
 public class DiscordUserTag implements ObjectTag, FlaggableObject {
 
-    // <--[language]
-    // @name DiscordUserTag Objects
-    // @group Object System
+    // <--[ObjectType]
+    // @name DiscordUserTag
+    // @prefix discorduser
+    // @base ElementTag
+    // @format
+    // The identity format for Discord users is the bot ID (optional), followed by the user ID (required).
+    // For example: 1234
+    // Or: mybot,1234
+    //
     // @plugin dDiscordBot
     // @description
     // A DiscordUserTag is an object that represents a user (human or bot) on Discord, either as a generic reference,
     // or as a bot-specific reference.
-    //
-    // These use the object notation "discorduser@".
-    // The identity format for Discord users is the bot ID (optional), followed by the user ID (required).
-    // For example: 1234
-    // Or: mybot,1234
     //
     // This object type is flaggable.
     // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat, under special sub-key "__users"

@@ -19,19 +19,20 @@ import java.util.List;
 
 public class DiscordRoleTag implements ObjectTag, FlaggableObject {
 
-    // <--[language]
-    // @name DiscordRoleTag Objects
-    // @group Object System
-    // @plugin dDiscordBot
-    // @description
-    // A DiscordRoleTag is an object that represents a role on Discord, either as a generic reference,
-    // or as a guild-specific reference, or as a bot+guild-specific reference.
-    //
-    // These use the object notation "discordrole@".
+    // <--[ObjectType]
+    // @name DiscordRoleTag
+    // @prefix discordrole
+    // @base ElementTag
+    // @format
     // The identity format for Discord roles  is the bot ID (optional), followed by the guild ID (optional), followed by the role ID (required).
     // For example: 4321
     // Or: 1234,4321
     // Or: mybot,1234,4321
+    //
+    // @plugin dDiscordBot
+    // @description
+    // A DiscordRoleTag is an object that represents a role on Discord, either as a generic reference,
+    // or as a guild-specific reference, or as a bot+guild-specific reference.
     //
     // This object type is flaggable.
     // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat, under special sub-key "__roles"

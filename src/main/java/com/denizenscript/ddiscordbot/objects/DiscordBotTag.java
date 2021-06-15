@@ -16,16 +16,17 @@ import net.dv8tion.jda.api.entities.Guild;
 
 public class DiscordBotTag implements ObjectTag, FlaggableObject {
 
-    // <--[language]
-    // @name DiscordBotTag Objects
-    // @group Object System
+    // <--[ObjectType]
+    // @name DiscordBotTag
+    // @prefix discord
+    // @base ElementTag
+    // @format
+    // The identity format for Discord bots is the bot ID (as chosen in <@link command discord>).
+    // For example: mybot
+    //
     // @plugin dDiscordBot
     // @description
     // A DiscordBotTag is an object that represents a Discord bot powered by dDiscordBot.
-    //
-    // These use the object notation "discord@".
-    // The identity format for Discord bots is the bot ID (as chosen in <@link command discord>).
-    // For example: mybot
     //
     // This object type is flaggable.
     // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat

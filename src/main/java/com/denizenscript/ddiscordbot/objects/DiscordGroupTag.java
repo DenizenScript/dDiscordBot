@@ -18,9 +18,15 @@ import net.dv8tion.jda.api.entities.*;
 
 public class DiscordGroupTag implements ObjectTag, FlaggableObject {
 
-    // <--[language]
-    // @name DiscordGroupTag Objects
-    // @group Object System
+    // <--[ObjectType]
+    // @name DiscordGroupTag
+    // @prefix discordgroup
+    // @base ElementTag
+    // @format
+    // The identity format for Discord groups is the bot ID (optional), followed by the guild ID (required).
+    // For example: 1234
+    // Or: mybot,1234
+    //
     // @plugin dDiscordBot
     // @description
     // A DiscordGroupTag is an object that represents a group on Discord, either as a generic reference,
@@ -31,11 +37,6 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
     // messages in the Discord app call it a "server" (which is a convenient name but is factually inaccurate, as they are not servers),
     // many people will simply say "a Discord" (which is awkward for branding and also would be confusing if used in documentation).
     // So we're going with "group" (which is still confusing because "group" sometimes refers to DM groups, but... it's good enough).
-    //
-    // These use the object notation "discordgroup@".
-    // The identity format for Discord groups is the bot ID (optional), followed by the guild ID (required).
-    // For example: 1234
-    // Or: mybot,1234
     //
     // This object type is flaggable.
     // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat, under special sub-key "__guilds"

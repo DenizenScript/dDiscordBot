@@ -64,7 +64,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // @Usage
     // Use to message a Discord channel and record the ID.
     // - ~discordmessage id:mybot channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!" save:sent
-    // - announce "Sent as <entry[sent].message_id>"
+    // - announce "Sent as <entry[sent].message.id>"
     //
     // @Usage
     // Use to send a message to a user through a private channel.

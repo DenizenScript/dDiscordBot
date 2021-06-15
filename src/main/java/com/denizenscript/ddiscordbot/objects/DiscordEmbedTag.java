@@ -23,15 +23,16 @@ import java.util.Map;
 
 public class DiscordEmbedTag implements ObjectTag {
 
-    // <--[language]
-    // @name DiscordEmbedTag Objects
-    // @group Object System
+    // <--[ObjectType]
+    // @name DiscordEmbedTag
+    // @prefix discordembed
+    // @base ElementTag
+    // @format
+    // The identity format for Discord embeds is a map of embed data. Do not alter raw embed data, use the with.as tag instead.
+    //
     // @plugin dDiscordBot
     // @description
     // A DiscordEmbedTag is an object that represents a Discord embed for use with dDiscordBot.
-    //
-    // These use the object notation "discordembed@".
-    // The identity format for Discord embeds is a map of embed data. Do not alter raw embed data, use the with.as tag instead.
     //
     // -->
 

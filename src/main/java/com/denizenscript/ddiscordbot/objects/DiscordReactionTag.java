@@ -22,17 +22,18 @@ import java.util.List;
 
 public class DiscordReactionTag implements ObjectTag, FlaggableObject {
 
-    // <--[language]
-    // @name DiscordReactionTag Objects
-    // @group Object System
-    // @plugin dDiscordBot
-    // @description
-    // A DiscordReactionTag is an object that represents a reaction to a message already sent on Discord, as a generic reference.
-    //
-    // These use the object notation "discordreaction@".
+    // <--[ObjectType]
+    // @name DiscordReactionTag
+    // @prefix discordreaction
+    // @base ElementTag
+    // @format
     // The identity format for Discord reactions is the bot ID, followed by the channel ID, followed by the message ID, followed by the reaction ID.
     // Or: mybot,12,1234,99
     // The reaction ID for custom reactions is an ID number, and for default emojis is the unicode text format of the emoji.
+    //
+    // @plugin dDiscordBot
+    // @description
+    // A DiscordReactionTag is an object that represents a reaction to a message already sent on Discord, as a generic reference.
     //
     // This object type is flaggable.
     // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat, under special sub-key "__reactions"

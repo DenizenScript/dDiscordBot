@@ -22,21 +22,22 @@ import java.util.List;
 
 public class DiscordMessageTag implements ObjectTag, FlaggableObject {
 
-    // <--[language]
-    // @name DiscordMessageTag Objects
-    // @group Object System
+    // <--[ObjectType]
+    // @name DiscordMessageTag
+    // @prefix discordmessage
+    // @base ElementTag
+    // @format
+    // The identity format for Discord messages is the bot ID (optional), followed by the channel ID (optional), followed by the message ID (required).
+    // For example: 1234
+    // Or: 12,1234
+    // Or: mybot,12,1234
+    //
     // @plugin dDiscordBot
     // @description
     // A DiscordMessageTag is an object that represents a message already sent on Discord, either as a generic reference,
     // or as a bot-specific reference.
     // Note that this is not used for messages that *are going to be* sent.
     // Note that this often does not contain data for messages that have been deleted (unless that data is cached).
-    //
-    // These use the object notation "discordmessage@".
-    // The identity format for Discord messages is the bot ID (optional), followed by the channel ID (optional), followed by the message ID (required).
-    // For example: 1234
-    // Or: 12,1234
-    // Or: mybot,12,1234
     //
     // This object type is flaggable.
     // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat, under special sub-key "__messages"
