@@ -383,6 +383,22 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
             }
             return new DiscordMessageTag(object.bot, message);
         });
+
+        // <--[tag]
+        // @attribute <DiscordMessageTag.attachments>
+        // @returns ListTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of attachment URLs for this message. Most messages will return an empty list, or a single-entry list,
+        // however it is possible in some cases for a single message to have multiple attachments.
+        // -->
+        registerTag("attachments", (attribute, object) -> {
+            ListTag result = new ListTag();
+            for (Message.Attachment attachment : object.getMessage().getAttachments()) {
+                result.addObject(new ElementTag(attachment.getUrl()));
+            }
+            return result;
+        });
     }
 
     public static ObjectTagProcessor<DiscordMessageTag> tagProcessor = new ObjectTagProcessor<>();
