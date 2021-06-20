@@ -87,7 +87,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 return DiscordChannelTag.valueOf(attribute.getContext(1), attribute.context);
             });
             // <--[tag]
-            // @attribute <discord_embed[(<embed>)>
+            // @attribute <discord_embed[(<embed>)]>
             // @returns DiscordEmbedTag
             // @plugin dDiscordBot
             // @description
