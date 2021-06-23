@@ -239,266 +239,272 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Supplier<Boolean> requireMessageId = () -> requireObject.apply(messageId, "message_id");
         DiscordInstruction instructionEnum = DiscordInstruction.valueOf(instruction.asString().toUpperCase());
         Runnable executeCore = () -> {
-            switch (instructionEnum) {
-                case CONNECT: {
-                    DenizenDiscordBot.oldConnectCommand.warn(scriptEntry);
-                    if (code == null && tokenFile == null) {
-                        requireObject.apply(null, "tokenfile");
+            try {
+                switch (instructionEnum) {
+                    case CONNECT: {
+                        DenizenDiscordBot.oldConnectCommand.warn(scriptEntry);
+                        if (code == null && tokenFile == null) {
+                            requireObject.apply(null, "tokenfile");
+                            break;
+                        }
+                        if (code != null && scriptEntry.dbCallShouldDebug() && com.denizenscript.denizen.utilities.debugging.Debug.record) {
+                            Debug.echoError("You almost recorded debug of your Discord token - record automatically disabled to protect you.");
+                            com.denizenscript.denizen.utilities.debugging.Debug.record = false;
+                        }
+                        if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
+                            Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
+                            break;
+                        }
+                        String codeRaw;
+                        if (code != null) {
+                            codeRaw = code.asString();
+                        }
+                        else {
+                            File f = new File(Denizen.getInstance().getDataFolder(), tokenFile.asString());
+                            if (!Utilities.canReadFile(f)) {
+                                Debug.echoError("Cannot read from that token file path due to security settings in Denizen/config.yml.");
+                                scriptEntry.setFinished(true);
+                                break;
+                            }
+                            if (!f.exists()) {
+                                Debug.echoError("Invalid tokenfile specified. File does not exist.");
+                                scriptEntry.setFinished(true);
+                                break;
+                            }
+                            codeRaw = CoreUtilities.journallingLoadFile(f.getAbsolutePath());
+                            if (codeRaw == null || codeRaw.length() < 5 || codeRaw.length() > 200) {
+                                Debug.echoError("Invalid tokenfile specified. File content doesn't look like a bot token.");
+                                scriptEntry.setFinished(true);
+                                break;
+                            }
+                            codeRaw = codeRaw.trim();
+                        }
+                        DiscordConnection dc = new DiscordConnection();
+                        dc.flags = SavableMapFlagTracker.loadFlagFile(DiscordConnectCommand.flagFilePathFor(id.asString()));
+                        dc.botID = id.asString();
+                        DenizenDiscordBot.instance.connections.put(id.asString(), dc);
+                        DiscordConnectCommand.DiscordConnectThread dct = new DiscordConnectCommand.DiscordConnectThread();
+                        dct.code = codeRaw;
+                        dct.conn = dc;
+                        dct.ender = () -> scriptEntry.setFinished(true);
+                        dct.start();
                         break;
                     }
-                    if (code != null && scriptEntry.dbCallShouldDebug() && com.denizenscript.denizen.utilities.debugging.Debug.record) {
-                        Debug.echoError("You almost recorded debug of your Discord token - record automatically disabled to protect you.");
-                        com.denizenscript.denizen.utilities.debugging.Debug.record = false;
-                    }
-                    if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
-                        Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
-                        break;
-                    }
-                    String codeRaw;
-                    if (code != null) {
-                        codeRaw = code.asString();
-                    }
-                    else {
-                        File f = new File(Denizen.getInstance().getDataFolder(), tokenFile.asString());
-                        if (!Utilities.canReadFile(f)) {
-                            Debug.echoError("Cannot read from that token file path due to security settings in Denizen/config.yml.");
-                            scriptEntry.setFinished(true);
-                            break;
+                    case DISCONNECT: {
+                        if (requireClientID.get()) {
+                            return;
                         }
-                        if (!f.exists()) {
-                            Debug.echoError("Invalid tokenfile specified. File does not exist.");
-                            scriptEntry.setFinished(true);
-                            break;
+                        DiscordConnection dc = DenizenDiscordBot.instance.connections.remove(id.asString());
+                        if (dc.flags.modified) {
+                            dc.flags.saveToFile(DiscordConnectCommand.flagFilePathFor(id.asString()));
                         }
-                        codeRaw = CoreUtilities.journallingLoadFile(f.getAbsolutePath());
-                        if (codeRaw == null || codeRaw.length() < 5 || codeRaw.length() > 200) {
-                            Debug.echoError("Invalid tokenfile specified. File content doesn't look like a bot token.");
-                            scriptEntry.setFinished(true);
-                            break;
+                        dc.client.shutdown();
+                        try {
+                            dc.client.awaitStatus(JDA.Status.SHUTDOWN);
                         }
-                        codeRaw = codeRaw.trim();
-                    }
-                    DiscordConnection dc = new DiscordConnection();
-                    dc.flags = SavableMapFlagTracker.loadFlagFile(DiscordConnectCommand.flagFilePathFor(id.asString()));
-                    dc.botID = id.asString();
-                    DenizenDiscordBot.instance.connections.put(id.asString(), dc);
-                    DiscordConnectCommand.DiscordConnectThread dct = new DiscordConnectCommand.DiscordConnectThread();
-                    dct.code = codeRaw;
-                    dct.conn = dc;
-                    dct.ender = () -> scriptEntry.setFinished(true);
-                    dct.start();
-                    break;
-                }
-                case DISCONNECT: {
-                    if (requireClientID.get()) {
-                        return;
-                    }
-                    DiscordConnection dc = DenizenDiscordBot.instance.connections.remove(id.asString());
-                    if (dc.flags.modified) {
-                        dc.flags.saveToFile(DiscordConnectCommand.flagFilePathFor(id.asString()));
-                    }
-                    dc.client.shutdown();
-                    try {
-                        dc.client.awaitStatus(JDA.Status.SHUTDOWN);
-                    }
-                    catch (InterruptedException ex) {
-                        Debug.echoError(ex);
-                    }
-                    scriptEntry.setFinished(true);
-                    break;
-                }
-                case MESSAGE: {
-                    DenizenDiscordBot.oldMessageCommand.warn(scriptEntry);
-                    if (channel == null && user == null) {
-                        if (!requireChannel.get()) {
-                            requireUser.get();
+                        catch (InterruptedException ex) {
+                            Debug.echoError(ex);
                         }
                         scriptEntry.setFinished(true);
-                        return;
+                        break;
                     }
-                    if (requireClientID.get() || requireMessage.get()) {
-                        return;
-                    }
-                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                    if (requireClientObject.apply(client)) {
-                        return;
-                    }
-                    MessageChannel textChan;
-                    if (channel == null) {
-                        User userObj = client.getUserById(user.user_id);
-                        if (userObj == null) {
-                            errorMessage(scriptEntry.getResidingQueue(), "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
+                    case MESSAGE: {
+                        DenizenDiscordBot.oldMessageCommand.warn(scriptEntry);
+                        if (channel == null && user == null) {
+                            if (!requireChannel.get()) {
+                                requireUser.get();
+                            }
                             scriptEntry.setFinished(true);
                             return;
                         }
-                        textChan = userObj.openPrivateChannel().complete();
-                    }
-                    else {
-                        textChan = client.getTextChannelById(channel.channel_id);
-                    }
-                    if (textChan == null) {
-                        errorMessage(scriptEntry.getResidingQueue(), "No channel to send message to (channel ID invalid, or not a text channel?).");
+                        if (requireClientID.get() || requireMessage.get()) {
+                            return;
+                        }
+                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        if (requireClientObject.apply(client)) {
+                            return;
+                        }
+                        MessageChannel textChan;
+                        if (channel == null) {
+                            User userObj = client.getUserById(user.user_id);
+                            if (userObj == null) {
+                                errorMessage(scriptEntry.getResidingQueue(), "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
+                                scriptEntry.setFinished(true);
+                                return;
+                            }
+                            textChan = userObj.openPrivateChannel().complete();
+                        }
+                        else {
+                            textChan = client.getTextChannelById(channel.channel_id);
+                        }
+                        if (textChan == null) {
+                            errorMessage(scriptEntry.getResidingQueue(), "No channel to send message to (channel ID invalid, or not a text channel?).");
+                            scriptEntry.setFinished(true);
+                            return;
+                        }
+                        Message sentMessage;
+                        if (message.asString().startsWith("discordembed@")) {
+                            MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
+                            sentMessage = textChan.sendMessage(embed).complete();
+                        }
+                        else {
+                            sentMessage = textChan.sendMessage(message.asString()).complete();
+                        }
+                        scriptEntry.addObject("message_id", new ElementTag(sentMessage.getId()));
                         scriptEntry.setFinished(true);
-                        return;
+                        break;
                     }
-                    Message sentMessage;
-                    if (message.asString().startsWith("discordembed@")) {
-                        MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
-                        sentMessage = textChan.sendMessage(embed).complete();
+                    case ADD_ROLE: {
+                        if (requireClientID.get() || requireUser.get() || requireGuild.get() || requireRole.get()) {
+                            return;
+                        }
+                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        if (requireClientObject.apply(client)) {
+                            return;
+                        }
+                        Guild guildObj = client.getGuildById(guild.guild_id);
+                        Member memberObj = guildObj.getMemberById(user.user_id);
+                        guildObj.addRoleToMember(memberObj, guildObj.getRoleById(role.role_id)).complete();
+                        scriptEntry.setFinished(true);
+                        break;
                     }
-                    else {
-                        sentMessage = textChan.sendMessage(message.asString()).complete();
+                    case REMOVE_ROLE: {
+                        if (requireClientID.get() || requireUser.get() || requireRole.get() || requireGuild.get()) {
+                            return;
+                        }
+                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        if (requireClientObject.apply(client)) {
+                            return;
+                        }
+                        Guild guildObj = client.getGuildById(guild.guild_id);
+                        Member memberObj = guildObj.getMemberById(user.user_id);
+                        guildObj.removeRoleFromMember(memberObj, guildObj.getRoleById(role.role_id)).complete();
+                        scriptEntry.setFinished(true);
+                        break;
                     }
-                    scriptEntry.addObject("message_id", new ElementTag(sentMessage.getId()));
-                    scriptEntry.setFinished(true);
-                    break;
+                    case EDIT_MESSAGE: {
+                        if (requireClientID.get() || requireChannel.get() || requireMessage.get() || requireMessageId.get()) {
+                            return;
+                        }
+                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        if (requireClientObject.apply(client)) {
+                            return;
+                        }
+                        MessageChannel textChannel = client.getTextChannelById(channel.channel_id);
+                        if (message.asString().startsWith("discordembed@")) {
+                            MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
+                            textChannel.editMessageById(messageId.asLong(), embed).complete();
+                        }
+                        else {
+                            textChannel.editMessageById(messageId.asLong(), message.asString()).complete();
+                        }
+                        scriptEntry.setFinished(true);
+                        break;
+                    }
+                    case DELETE_MESSAGE: {
+                        if (requireClientID.get() || requireChannel.get() || requireMessageId.get()) {
+                            return;
+                        }
+                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        if (requireClientObject.apply(client)) {
+                            return;
+                        }
+                        client.getTextChannelById(channel.channel_id).deleteMessageById(messageId.asLong()).complete();
+                        scriptEntry.setFinished(true);
+                        break;
+                    }
+                    case START_TYPING: {
+                        if (requireClientID.get() || requireChannel.get()) {
+                            return;
+                        }
+                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        if (requireClientObject.apply(client)) {
+                            return;
+                        }
+                        client.getTextChannelById(channel.channel_id).sendTyping().complete();
+                        scriptEntry.setFinished(true);
+                        break;
+                    }
+                    case STOP_TYPING: {
+                        if (requireClientID.get() || requireChannel.get()) {
+                            return;
+                        }
+                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        if (requireClientObject.apply(client)) {
+                            return;
+                        }
+                        // TODO: ?
+                        scriptEntry.setFinished(true);
+                        break;
+                    }
+                    case RENAME: {
+                        if (requireClientID.get() || requireGuild.get() || requireMessage.get()) {
+                            return;
+                        }
+                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        if (requireClientObject.apply(client)) {
+                            return;
+                        }
+                        long userId;
+                        if (user == null) {
+                            userId = client.getSelfUser().getIdLong();
+                        }
+                        else {
+                            userId = user.user_id;
+                        }
+                        client.getGuildById(guild.guild_id).getMemberById(userId).modifyNickname(message.asString()).complete();
+                        scriptEntry.setFinished(true);
+                        break;
+                    }
+                    case STATUS: {
+                        if (requireClientID.get()) {
+                            return;
+                        }
+                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        if (requireClientObject.apply(client)) {
+                            return;
+                        }
+                        Activity at;
+                        String activityType = CoreUtilities.toLowerCase(activity.toString());
+                        switch (activityType) {
+                            case "watching":
+                                at = Activity.watching(message.asString());
+                                break;
+                            case "streaming":
+                                at = Activity.streaming(message.asString(), url.asString());
+                                break;
+                            case "listening":
+                                at = Activity.listening(message.asString());
+                                break;
+                            default:
+                                at = Activity.playing(message.asString());
+                                break;
+                        }
+                        String statusLower = status == null ? "online" : CoreUtilities.toLowerCase(status.asString());
+                        OnlineStatus statusType;
+                        switch (statusLower) {
+                            case "idle":
+                                statusType = OnlineStatus.IDLE;
+                                break;
+                            case "dnd":
+                                statusType = OnlineStatus.DO_NOT_DISTURB;
+                                break;
+                            case "invisible":
+                                statusType = OnlineStatus.INVISIBLE;
+                                break;
+                            default:
+                                statusType = OnlineStatus.ONLINE;
+                                break;
+                        }
+                        client.getPresence().setPresence(statusType, at);
+                        scriptEntry.setFinished(true);
+                        break;
+                    }
                 }
-                case ADD_ROLE: {
-                    if (requireClientID.get() || requireUser.get() || requireGuild.get() || requireRole.get()) {
-                        return;
-                    }
-                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                    if (requireClientObject.apply(client)) {
-                        return;
-                    }
-                    Guild guildObj = client.getGuildById(guild.guild_id);
-                    Member memberObj = guildObj.getMemberById(user.user_id);
-                    guildObj.addRoleToMember(memberObj, guildObj.getRoleById(role.role_id)).complete();
-                    scriptEntry.setFinished(true);
-                    break;
-                }
-                case REMOVE_ROLE: {
-                    if (requireClientID.get() || requireUser.get() || requireRole.get() || requireGuild.get()) {
-                        return;
-                    }
-                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                    if (requireClientObject.apply(client)) {
-                        return;
-                    }
-                    Guild guildObj = client.getGuildById(guild.guild_id);
-                    Member memberObj = guildObj.getMemberById(user.user_id);
-                    guildObj.removeRoleFromMember(memberObj, guildObj.getRoleById(role.role_id)).complete();
-                    scriptEntry.setFinished(true);
-                    break;
-                }
-                case EDIT_MESSAGE: {
-                    if (requireClientID.get() || requireChannel.get() || requireMessage.get() || requireMessageId.get()) {
-                        return;
-                    }
-                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                    if (requireClientObject.apply(client)) {
-                        return;
-                    }
-                    MessageChannel textChannel = client.getTextChannelById(channel.channel_id);
-                    if (message.asString().startsWith("discordembed@")) {
-                        MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
-                        textChannel.editMessageById(messageId.asLong(), embed).complete();
-                    }
-                    else {
-                        textChannel.editMessageById(messageId.asLong(), message.asString()).complete();
-                    }
-                    scriptEntry.setFinished(true);
-                    break;
-                }
-                case DELETE_MESSAGE: {
-                    if (requireClientID.get() || requireChannel.get() || requireMessageId.get()) {
-                        return;
-                    }
-                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                    if (requireClientObject.apply(client)) {
-                        return;
-                    }
-                    client.getTextChannelById(channel.channel_id).deleteMessageById(messageId.asLong()).complete();
-                    scriptEntry.setFinished(true);
-                    break;
-                }
-                case START_TYPING: {
-                    if (requireClientID.get() || requireChannel.get()) {
-                        return;
-                    }
-                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                    if (requireClientObject.apply(client)) {
-                        return;
-                    }
-                    client.getTextChannelById(channel.channel_id).sendTyping().complete();
-                    scriptEntry.setFinished(true);
-                    break;
-                }
-                case STOP_TYPING: {
-                    if (requireClientID.get() || requireChannel.get()) {
-                        return;
-                    }
-                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                    if (requireClientObject.apply(client)) {
-                        return;
-                    }
-                    // TODO: ?
-                    scriptEntry.setFinished(true);
-                    break;
-                }
-                case RENAME: {
-                    if (requireClientID.get() || requireGuild.get() || requireMessage.get()) {
-                        return;
-                    }
-                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                    if (requireClientObject.apply(client)) {
-                        return;
-                    }
-                    long userId;
-                    if (user == null) {
-                        userId = client.getSelfUser().getIdLong();
-                    }
-                    else {
-                        userId = user.user_id;
-                    }
-                    client.getGuildById(guild.guild_id).getMemberById(userId).modifyNickname(message.asString()).complete();
-                    scriptEntry.setFinished(true);
-                    break;
-                }
-                case STATUS: {
-                    if (requireClientID.get()) {
-                        return;
-                    }
-                    JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-                    if (requireClientObject.apply(client)) {
-                        return;
-                    }
-                    Activity at;
-                    String activityType = CoreUtilities.toLowerCase(activity.toString());
-                    switch (activityType) {
-                        case "watching":
-                            at = Activity.watching(message.asString());
-                            break;
-                        case "streaming":
-                            at = Activity.streaming(message.asString(), url.asString());
-                            break;
-                        case "listening":
-                            at = Activity.listening(message.asString());
-                            break;
-                        default:
-                            at = Activity.playing(message.asString());
-                            break;
-                    }
-                    String statusLower = status == null ? "online" : CoreUtilities.toLowerCase(status.asString());
-                    OnlineStatus statusType;
-                    switch (statusLower) {
-                        case "idle":
-                            statusType = OnlineStatus.IDLE;
-                            break;
-                        case "dnd":
-                            statusType = OnlineStatus.DO_NOT_DISTURB;
-                            break;
-                        case "invisible":
-                            statusType = OnlineStatus.INVISIBLE;
-                            break;
-                        default:
-                            statusType = OnlineStatus.ONLINE;
-                            break;
-                    }
-                    client.getPresence().setPresence(statusType, at);
-                    scriptEntry.setFinished(true);
-                    break;
-                }
+            }
+            catch (Throwable ex) {
+                Debug.echoError(ex);
+                scriptEntry.setFinished(true);
             }
         };
         if (scriptEntry.shouldWaitFor()) {

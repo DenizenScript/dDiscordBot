@@ -222,6 +222,9 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
             if (object.getUserForTag(attribute) == null) {
                 return null;
             }
+            if (group.bot == null && object.bot != null) {
+                group = new DiscordGroupTag(object.bot, group.guild_id);
+            }
             String nickname = group.getGuild().getMember(object.getUser()).getNickname();
             if (nickname == null) {
                 return null;
