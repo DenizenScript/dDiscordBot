@@ -11,7 +11,7 @@ It's strongly recommended you enable the `Server Members Intent` in the Discord 
 
 **Discord:** https://discord.gg/Q6pZGSR
 
-**Denizen Meta Docs:** https://one.denizenscript.com/denizen/cmds/discord
+**Denizen Meta Docs:** https://meta.denizenscript.com/Docs/Search/dDiscordBot
 
 #### Made For:
 

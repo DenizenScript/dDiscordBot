@@ -2,6 +2,7 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.denizen.objects.ColorTag;
 import com.denizenscript.denizen.utilities.debugging.Debug;
 import com.denizenscript.denizencore.flags.AbstractFlagTracker;
 import com.denizenscript.denizencore.flags.FlaggableObject;
@@ -15,6 +16,7 @@ import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.Role;
 
+import java.awt.Color;
 import java.util.List;
 
 public class DiscordRoleTag implements ObjectTag, FlaggableObject {
@@ -170,7 +172,6 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
         // -->
         registerTag("name", (attribute, object) -> {
             return new ElementTag(object.role.getName());
-
         });
 
         // <--[tag]
@@ -182,7 +183,6 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
         // -->
         registerTag("id", (attribute, object) -> {
             return new ElementTag(object.role_id);
-
         });
 
         // <--[tag]
@@ -194,7 +194,6 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
         // -->
         registerTag("mention", (attribute, object) -> {
             return new ElementTag(object.role.getAsMention());
-
         });
 
         // <--[tag]
@@ -206,7 +205,21 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
         // -->
         registerTag("group", (attribute, object) -> {
             return new DiscordGroupTag(object.bot, object.role.getGuild());
+        });
 
+        // <--[tag]
+        // @attribute <DiscordRoleTag.color>
+        // @returns ColorTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the display color of the role, if any.
+        // -->
+        registerTag("color", (attribute, object) -> {
+            Color color = object.role.getColor();
+            if (color == null) {
+                return null;
+            }
+            return new ColorTag(color.getRed(), color.getGreen(), color.getBlue());
         });
     }
 
