@@ -146,7 +146,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                     + (noMention != null ? noMention.debug() : ""));
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
+        Runnable runner = () -> {
             JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
             if (client == null) {
                 Debug.echoError("Failed to process DiscordMessage command: unknown bot ID!");
@@ -232,6 +232,13 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             Message sentMessage = action.complete();
             scriptEntry.addObject("message", new DiscordMessageTag(id.asString(), sentMessage));
             scriptEntry.setFinished(true);
-        });
+        };
+        if (scriptEntry.shouldWaitFor()) {
+            Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, runner);
+        }
+        else {
+            Debug.echoError("DiscordMessage command ran without ~waitable. This will freeze the server. If you wanted your server to freeze, ignore this message.");
+            runner.run();
+        }
     }
 }
