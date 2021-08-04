@@ -14,7 +14,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <BUILD_NUMBER>Unknown</BUILD_NUMBER>
-        <bukkit.version>1.17-R0.1-SNAPSHOT</bukkit.version>
+        <bukkit.version>1.17.1-R0.1-SNAPSHOT</bukkit.version>
         <denizen.version>1.2.1-SNAPSHOT</denizen.version>
     </properties>
 
@@ -32,10 +32,11 @@
             <id>everything</id>
             <url>https://repo.citizensnpcs.co</url>
         </repository>
+
         <repository>
-            <id>jcenter</id>
-            <name>jcenter-bintray</name>
-            <url>https://jcenter.bintray.com</url>
+            <id>dv8tion</id>
+            <name>m2-dv8tion</name>
+            <url>https://m2.dv8tion.net/releases</url>
         </repository>
     </repositories>
 
@@ -58,7 +59,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.2.0_227</version>
+            <version>4.3.0_305</version>
         </dependency>
     </dependencies>
 

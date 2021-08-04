@@ -174,6 +174,10 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         }
     }
 
+    static {
+        DiscordConnectCommand.fixJDALogger();
+    }
+
     public static void errorMessage(ScriptQueue queue, String message) {
         Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, () -> Debug.echoError(queue, message), 0);
     }

@@ -14,6 +14,7 @@ import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.scripts.queues.ScriptQueue;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
+import com.denizenscript.denizencore.utilities.ReflectionHelper;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -21,11 +22,13 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.dv8tion.jda.internal.utils.JDALogger;
 import org.bukkit.Bukkit;
+import org.slf4j.Logger;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.io.*;
+import java.lang.invoke.MethodHandle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DiscordConnectCommand extends AbstractCommand implements Holdable {
@@ -98,6 +101,49 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
         }
     }
 
+    public static boolean loggerIsFixed = false;
+
+    public static PrintStream altLogger = new PrintStream(new ByteArrayOutputStream()) {
+        @Override
+        public void println(String s) {
+            Debug.log("JDA", s);
+        }
+    };
+
+    /**
+     * This method is a dirty hack to minimize the amount of broken output from JDA.
+     */
+    public static void fixJDALogger() {
+        if (loggerIsFixed) {
+            return;
+        }
+        loggerIsFixed = true;
+        // Dirty hack step 1: break System.err so Paper won't complain when JDALogger's static init whines into System.err
+        PrintStream currentErr = System.err;
+        System.setErr(altLogger);
+        Logger defaultLogger = null;
+        try {
+            // Force JDALogger to init now, which will do that spam, and get a SimpleLogger instance while we're at it.
+            defaultLogger = JDALogger.getLog(DiscordConnectCommand.class);
+        }
+        finally {
+            // Fix the logger back, with a try/finally to avoid breaking it.
+            System.setErr(currentErr);
+        }
+        try {
+            // Dirty hack step 2: use that SimpleLogger instance to modify the class and redirect its log path to one that won't get complained about by Paper.
+            MethodHandle streamSetter = ReflectionHelper.getFinalSetter(defaultLogger.getClass(), "TARGET_STREAM");
+            streamSetter.invoke(altLogger);
+        }
+        catch (Throwable ex) {
+            Debug.echoError(ex);
+        }
+    }
+
+    static {
+        fixJDALogger();
+    }
+
     public static class DiscordConnectThread extends Thread {
 
         public String code;
@@ -116,14 +162,23 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
             try {
                 try {
                     // Try with intents
-                    JDA jda = JDABuilder.createDefault(code)
-                            .enableCache(Arrays.stream(CacheFlag.values()).filter(f -> f.getRequiredIntent() == null || intents.contains(f.getRequiredIntent())).collect(Collectors.toList()))
-                            .enableIntents(intents)
-                            .setMemberCachePolicy(MemberCachePolicy.ALL)
-                            .setAutoReconnect(true)
-                            .setLargeThreshold(100000)
-                            .setChunkingFilter(ChunkingFilter.ALL)
-                            .build();
+                    JDA jda;
+                    // Hack to bypass Paper whining about JDA whining into System.err
+                    PrintStream currentErr = System.err;
+                    System.setErr(altLogger);
+                    try {
+                        jda = JDABuilder.createDefault(code)
+                                .enableCache(Arrays.stream(CacheFlag.values()).filter(f -> f.getRequiredIntent() == null || intents.contains(f.getRequiredIntent())).collect(Collectors.toList()))
+                                .enableIntents(intents)
+                                .setMemberCachePolicy(MemberCachePolicy.ALL)
+                                .setAutoReconnect(true)
+                                .setLargeThreshold(100000)
+                                .setChunkingFilter(ChunkingFilter.ALL)
+                                .build();
+                    }
+                    finally {
+                        System.setErr(currentErr);
+                    }
                     conn.client = jda;
                     jda.awaitReady();
                 }
