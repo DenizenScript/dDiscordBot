@@ -27,6 +27,7 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
+    // @Switch message:<message> to only process the event if the message matches some matcher text, like 'message:*hello*' to match any message that contains the word 'hello'.
     //
     // @Triggers when a Discord bot receives a message.
     //
@@ -61,6 +62,11 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
                 return false;
             }
             if (!path.checkSwitch("group", getEvent().getGuild().getId())) {
+                return false;
+            }
+        }
+        if (path.switches.containsKey("message")) {
+            if (!runGenericSwitchCheck(path, "message", getEvent().getMessage().getContentRaw())) {
                 return false;
             }
         }
