@@ -288,7 +288,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
 
     @Override
     public String debug() {
-        return (prefix + "='<A>" + identify() + "<G>'  ");
+        return identify() + " <GR>(" + emote.getName() + ")";
     }
 
     @Override

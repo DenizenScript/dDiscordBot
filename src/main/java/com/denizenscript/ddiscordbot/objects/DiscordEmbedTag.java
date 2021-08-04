@@ -400,8 +400,8 @@ public class DiscordEmbedTag implements ObjectTag {
     }
 
     @Override
-    public String debug() {
-        return (prefix + "='<A>" + identify() + "<G>'  ");
+    public String debuggable() {
+        return "discordembed@" + embedData.debuggable();
     }
 
     @Override

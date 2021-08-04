@@ -266,8 +266,11 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
     }
 
     @Override
-    public String debug() {
-        return (prefix + "='<A>" + identify() + "<G>'  ");
+    public String debuggable() {
+        if (channel != null) {
+            return identify() + " <GR>(" + channel.getName() + ")";
+        }
+        return identify();
     }
 
     @Override

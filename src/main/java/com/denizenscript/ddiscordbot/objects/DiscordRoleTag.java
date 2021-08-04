@@ -242,8 +242,11 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
     }
 
     @Override
-    public String debug() {
-        return (prefix + "='<A>" + identify() + "<G>'  ");
+    public String debuggable() {
+        if (role != null) {
+            return identify() + " <GR>(" + role.getName() + ")";
+        }
+        return identify();
     }
 
     @Override

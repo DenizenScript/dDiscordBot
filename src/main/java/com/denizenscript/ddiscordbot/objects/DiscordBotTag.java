@@ -188,11 +188,6 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
     }
 
     @Override
-    public String debug() {
-        return (prefix + "='<A>" + identify() + "<G>'  ");
-    }
-
-    @Override
     public boolean isUnique() {
         return true;
     }

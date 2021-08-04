@@ -352,8 +352,11 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
     }
 
     @Override
-    public String debug() {
-        return (prefix + "='<A>" + identify() + "<G>'  ");
+    public String debuggable() {
+        if (guild != null) {
+            return identify() + " <GR>(" + guild.getName() + ")";
+        }
+        return identify();
     }
 
     @Override

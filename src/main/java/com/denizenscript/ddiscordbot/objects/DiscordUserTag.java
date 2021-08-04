@@ -105,20 +105,31 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         if (user != null) {
             return user;
         }
-        user = getBot().client.getUserById(user_id);
+        if (bot == null) {
+            return null;
+        }
+        DiscordConnection botObject = getBot();
+        if (botObject.client == null) {
+            return null;
+        }
+        user = botObject.client.getUserById(user_id);
         return user;
     }
 
     public User getUserForTag(Attribute attribute) {
         User user = getUser();
         if (user == null) {
-            if (getBot() == null) {
+            DiscordConnection botObject = getBot();
+            if (botObject == null) {
                 if (bot == null) {
                     attribute.echoError("DiscordUserTag failed to get original user: bot is missing.");
                 }
                 else {
                     attribute.echoError("DiscordUserTag failed to get original user: bot is not connected.");
                 }
+            }
+            else if (botObject.client == null) {
+                attribute.echoError("DiscordUserTag failed to get original user: bot is present, but is disconnected or invalid.");
             }
             else {
                 attribute.echoError("DiscordUserTag failed to get original user: bot is valid, but user ID is not.");
@@ -404,8 +415,11 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
     }
 
     @Override
-    public String debug() {
-        return (prefix + "='<A>" + identify() + "<G>'  ");
+    public String debuggable() {
+        if (user != null) {
+            return identify() + " <GR>(" + user.getName() + "#" + user.getDiscriminator() + ")";
+        }
+        return identify();
     }
 
     @Override
