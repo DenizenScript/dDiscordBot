@@ -1,6 +1,7 @@
 package com.denizenscript.ddiscordbot.commands;
 
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Argument;
@@ -147,12 +148,13 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         }
 
         Runnable runner = () -> {
-            JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-            if (client == null) {
+            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(id.asString());
+            if (connection == null) {
                 Debug.echoError("Failed to process DiscordMessage command: unknown bot ID!");
                 scriptEntry.setFinished(true);
                 return;
             }
+            JDA client = connection.client;
             MessageChannel toChannel = null;
             if (reply != null && reply.channel_id != 0) {
                 toChannel = client.getTextChannelById(reply.channel_id);

@@ -65,10 +65,8 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
                 return false;
             }
         }
-        if (path.switches.containsKey("message")) {
-            if (!runGenericSwitchCheck(path, "message", getEvent().getMessage().getContentRaw())) {
-                return false;
-            }
+        if (!runGenericSwitchCheck(path, "message", getEvent().getMessage().getContentRaw())) {
+            return false;
         }
         return super.matches(path);
     }
