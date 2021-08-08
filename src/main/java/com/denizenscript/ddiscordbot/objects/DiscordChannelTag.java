@@ -58,11 +58,11 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
             }
             return null;
         }
-        long chanID = Long.parseLong(string);
-        if (chanID == 0) {
+        long chanId = Long.parseLong(string);
+        if (chanId == 0) {
             return null;
         }
-        return new DiscordChannelTag(bot, chanID);
+        return new DiscordChannelTag(bot, chanId);
     }
 
     public static boolean matches(String arg) {
