@@ -201,10 +201,10 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             else if (message.asString().startsWith("discordembed@")) {
                 MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
                 if (reply != null) {
-                    action = replyTo.reply(embed);
+                    action = replyTo.replyEmbeds(embed);
                 }
                 else {
-                    action = toChannel.sendMessage(embed);
+                    action = toChannel.sendMessageEmbeds(embed);
                 }
             }
             else {

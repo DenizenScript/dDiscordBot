@@ -349,7 +349,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         Message sentMessage;
                         if (message.asString().startsWith("discordembed@")) {
                             MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
-                            sentMessage = textChan.sendMessage(embed).complete();
+                            sentMessage = textChan.sendMessageEmbeds(embed).complete();
                         }
                         else {
                             sentMessage = textChan.sendMessage(message.asString()).complete();
@@ -397,7 +397,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         MessageChannel textChannel = client.getTextChannelById(channel.channel_id);
                         if (message.asString().startsWith("discordembed@")) {
                             MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
-                            textChannel.editMessageById(messageId.asLong(), embed).complete();
+                            textChannel.editMessageEmbedsById(messageId.asLong(), embed).complete();
                         }
                         else {
                             textChannel.editMessageById(messageId.asLong(), message.asString()).complete();
