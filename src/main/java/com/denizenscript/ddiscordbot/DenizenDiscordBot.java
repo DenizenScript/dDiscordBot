@@ -86,6 +86,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // @description
             // Returns a blank DiscordButtonTag instance, to be filled with data via the with.as tag.
             // Or, if given an input, returns a Discord Button object constructed from the input value.
+            // Refer to <link objecttype DiscordButtonTag>.
             // -->
             TagManager.registerTagHandler("discord_button", (attribute) -> {
                 if (!attribute.hasContext(1)) {
