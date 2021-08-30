@@ -58,7 +58,7 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
         List<String> commaSplit = CoreUtilities.split(string, ',');
         if (commaSplit.size() == 0 || commaSplit.size() > 3) {
             if (context == null || context.showErrors()) {
-                Debug.echoError("DiscordMessageTag input is not valid.");
+                Debug.echoError("DiscordCommandTag input is not valid.");
             }
             return null;
         }
