@@ -284,7 +284,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
             return;
         }
         JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
-        boolean isEphermal = ephermal == null ? false : ephermal.asBoolean();
+        boolean isEphermal = ephermal != null && ephermal.asBoolean();
 
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             switch (instructionEnum) {
