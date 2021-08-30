@@ -34,7 +34,7 @@ public class DiscordInteractionTag implements ObjectTag, FlaggableObject {
     // @base ElementTag
     // @implements FlaggableObject
     // @format
-    // The identity format for Discord groups is the bot ID (optional), followed by the channel ID (required), followed by the interaction ID (required).
+    // The identity format for Discord interactions is the bot ID (optional), followed by the channel ID (required), followed by the interaction ID (required).
     // For example: 1234,5678
     // Or: mybot,1234,5678
     //
