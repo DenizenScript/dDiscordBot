@@ -317,9 +317,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                     }
                                     OptionType optionType = null;
                                     for (OptionType val : OptionType.values()) {
-                                        if (val.name().toUpperCase().replace("_", "").equals(
-                                            typeStr.asString().toUpperCase().replace("_", "")
-                                        )) {
+                                        if (val.name().toUpperCase().replace("_", "").equals(typeStr.asString().toUpperCase().replace("_", ""))) {
                                             optionType = val;
                                             break;
                                         }
