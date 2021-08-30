@@ -558,7 +558,5 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
             }
             scriptEntry.setFinished(true);
         });
-
-        //Debug.log("hello :)");
     }
 }
