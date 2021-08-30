@@ -236,6 +236,9 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
             if (result != null) {
                 privileges.add(result);
             }
+            else {
+                Debug.echoError("Privileged input must be a DiscordUserTag or DiscordRoleTag!");
+            }
         }
     }
 
