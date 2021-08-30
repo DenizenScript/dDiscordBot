@@ -27,7 +27,6 @@ public class DenizenDiscordBot extends JavaPlugin {
     public static Warning oldMessageContexts = new SlowWarning("dDiscordBot contexts relating to message data are now provided by DiscordMessageTag.");
     public static Warning oldMessageCommand = new SlowWarning("dDiscordBot's 'discord message' sub-command has been moved to a base 'discordmessage' command.");
     public static Warning oldConnectCommand = new FutureWarning("dDiscordBot's 'discord connect' sub-command has been moved to a base 'discordconnect' command.");
-    public static Warning globalSlashCommand = new SlowWarning("Registering a slash command globally may take up to an hour.");
 
     public static DenizenDiscordBot instance;
 

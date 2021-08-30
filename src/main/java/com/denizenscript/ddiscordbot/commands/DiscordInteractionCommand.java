@@ -391,7 +391,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                 }
                                 CommandCreateAction action = null;
                                 if (group == null) {
-                                    DenizenDiscordBot.globalSlashCommand.warn(scriptEntry);
+                                    Debug.log("Registering a slash command globally may take up to an hour.");
                                     action = client.upsertCommand(data);
                                 } 
                                 else {
