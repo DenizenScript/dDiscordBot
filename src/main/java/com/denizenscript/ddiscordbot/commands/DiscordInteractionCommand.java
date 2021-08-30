@@ -276,16 +276,14 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                     + (rows != null ? ArgumentHelper.debugList("Rows", rows) : "")
                     + (message != null ? message.debug() : ""));
         }
-
         DiscordInteractionInstruction instructionEnum = DiscordInteractionInstruction.valueOf(instruction.asString().toUpperCase());
         if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
-            Debug.echoError("Failed to process DiscordMessage command: unknown bot ID!");
+            Debug.echoError("Failed to process DiscordInteraction command: unknown bot ID!");
             scriptEntry.setFinished(true);
             return;
         }
         JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
         boolean isEphermal = ephermal != null && ephermal.asBoolean();
-
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             switch (instructionEnum) {
                 case COMMAND: {
@@ -299,10 +297,8 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                         scriptEntry.setFinished(true);
                         return;
                     }
-
                     DiscordInteractionCommandInstruction commandInstructionEnum = DiscordInteractionCommandInstruction.valueOf(commandInstruction.asString().toUpperCase());
                     boolean isEnabled = enabled == null ? true : enabled.asBoolean();
-
                     switch (commandInstructionEnum) {
                         case CREATE: {
                             if (description == null) {
