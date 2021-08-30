@@ -82,6 +82,8 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
     //
     // Otherwise, you can defer, reply to, or delete an interaction. These instructions all require the "interaction" argument.
     //
+    // The "ephermal" argument can be used to only have the reply message be visible to the user.
+    //
     // You should almost always defer an interaction before replying. A defer will override a reply in terms of being ephermal.
     // Replying to an interaction uses similar logic to normal messaging. See <@link command discordmessage>.
     //
