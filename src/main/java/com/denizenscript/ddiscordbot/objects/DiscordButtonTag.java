@@ -15,6 +15,7 @@ import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
 
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
@@ -108,12 +109,10 @@ public class DiscordButtonTag implements ObjectTag {
         }
         if (id != null) {
             if (emoji != null) {
-                // should unicode or ?
-                /*Emoji emojiData = Emoji.fromUnicode(emoji.toString());
-    
+                Emoji emojiData = Emoji.fromUnicode(emoji.toString());
                 if (emojiData != null) {
                     button = Button.of(styleData, id.toString(), emojiData);
-                }*/
+                }
             } else {
                 if (label != null) {
                     button = Button.of(styleData, id.toString(), label.toString());
@@ -126,7 +125,7 @@ public class DiscordButtonTag implements ObjectTag {
     public MapTag buttonData;
 
     public static HashSet<String> acceptedWithKeys = new HashSet<>(Arrays.asList(
-            "style", "id", "label", "emoji"
+        "style", "id", "label", "emoji"
     ));
 
     public static void registerTags() {
