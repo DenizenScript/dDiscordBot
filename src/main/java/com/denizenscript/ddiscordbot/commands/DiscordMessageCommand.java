@@ -5,18 +5,25 @@ import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Argument;
+import com.denizenscript.denizencore.objects.ArgumentHelper;
 import com.denizenscript.denizencore.objects.core.ElementTag;
+import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.tags.TagManager;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.bukkit.Bukkit;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
@@ -44,6 +51,8 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // If sending as a reply, optionally use "no_mention" to disable the default reply pinging the original user.
     //
     // You can use "attach_file_name:<name>" and "attach_file_text:<text>" to attach a text file with longer content than a normal message allows.
+    //
+    // You can use "rows" to attach action rows of components, such as buttons to the message.
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
@@ -74,6 +83,11 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // @Usage
     // Use to send a text-file message to a channel.
     // - ~discordmessage id:mybot channel:<[channel]> attach_file_name:quote.xml "attach_file_text:<&lt>mcmonkey<&gt> haha text files amirite<n>gotta abuse em"
+    //
+    // @Usage
+    // Use to send a message and attach a button to it.
+    // - define my_button <discord_button.with[style].as[primary].with[id].as[my_button].with[label].as[Hello]>
+    // - ~discordmessage id:mybot channel:<discord[mybot].channel[testing]> rows:<list_single[<list_single[<[my_button]>]>]> "Hello world!"
     //
     // -->
 
@@ -111,6 +125,10 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                     && arg.matches("no_mention")) {
                 scriptEntry.addObject("no_mention", new ElementTag(true));
             }
+            else if (!scriptEntry.hasObject("rows")
+                    && arg.matchesPrefix("rows")) {
+                scriptEntry.addObject("rows", ListTag.getListFor(TagManager.tagObject(arg.getValue(), scriptEntry.getContext()), scriptEntry.getContext()).filter(ListTag.class, scriptEntry));
+            }
             else if (!scriptEntry.hasObject("message")) {
                 scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
             }
@@ -126,6 +144,25 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         }
     }
 
+    public static List<ActionRow> createRows(ScriptEntry scriptEntry, List<ListTag> rows) {
+        List<ActionRow> actionRows = new ArrayList<>();
+        if (rows != null) {
+            for (ListTag row : rows) {
+                List<Button> buttons = new ArrayList<>();
+                for (DiscordButtonTag button : row.filter(DiscordButtonTag.class, scriptEntry.getContext())) {
+                    Button built = button.build(scriptEntry.getContext());
+                    if (built != null) {
+                        buttons.add(built);
+                    }
+                }
+                actionRows.add(ActionRow.of(buttons));
+            }
+            return actionRows;
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public void execute(ScriptEntry scriptEntry) {
         ElementTag id = scriptEntry.getElement("id");
@@ -136,6 +173,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         ElementTag noMention = scriptEntry.getElement("no_mention");
         ElementTag attachFileName = scriptEntry.getElement("attach_file_name");
         ElementTag attachFileText = scriptEntry.getElement("attach_file_text");
+        List<ListTag> rows = (List<ListTag>) scriptEntry.getObjectTag("rows");
         if (scriptEntry.dbCallShouldDebug()) {
             Debug.report(scriptEntry, getName(), id.debug()
                     + (channel != null ? channel.debug() : "")
@@ -144,7 +182,8 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                     + (reply != null ? reply.debug() : "")
                     + (attachFileName != null ? attachFileName.debug() : "")
                     + (attachFileText != null ? attachFileText.debug() : "")
-                    + (noMention != null ? noMention.debug() : ""));
+                    + (noMention != null ? noMention.debug() : "")
+                    + (rows != null ? ArgumentHelper.debugList("Rows", rows) : ""));
         }
 
         Runnable runner = () -> {
@@ -227,6 +266,10 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                 else {
                     Debug.echoError("Failed to send attachment - missing content?");
                 }
+            }
+            List<ActionRow> actionRows = DiscordMessageCommand.createRows(scriptEntry, rows);
+            if (actionRows != null) {
+                action.setActionRows(actionRows);
             }
             if (noMention != null && noMention.asBoolean()) {
                 action = action.mentionRepliedUser(false);

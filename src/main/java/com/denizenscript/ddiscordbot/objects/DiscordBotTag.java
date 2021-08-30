@@ -13,6 +13,7 @@ import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.commands.Command;
 
 public class DiscordBotTag implements ObjectTag, FlaggableObject {
 
@@ -131,7 +132,25 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
                 list.addObject(new DiscordGroupTag(object.bot, guild));
             }
             return list;
+        });
 
+        // <--[tag]
+        // @attribute <DiscordBotTag.commands>
+        // @returns ListTag(DiscordCommandTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of all application commands.
+        // -->
+        registerTag("commands", (attribute, object) -> {
+            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
+            if (connection == null) {
+                return null;
+            }
+            ListTag list = new ListTag();
+            for (Command command : connection.client.retrieveCommands().complete()) {
+                list.addObject(new DiscordCommandTag(object.bot, null, command));
+            }
+            return list;
         });
 
         // <--[tag]
@@ -166,6 +185,39 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
             }
             return new DiscordGroupTag(object.bot, bestMatch);
 
+        });
+
+        // <--[tag]
+        // @attribute <DiscordBotTag.command[<name>]>
+        // @returns DiscordCommandTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the application command that best matches the input name, or null if there's no match.
+        // -->
+        registerTag("command", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
+            }
+            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
+            if (connection == null) {
+                return null;
+            }
+            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            Command bestMatch = null;
+            for (Command command : connection.client.retrieveCommands().complete()) {
+                String commandName = CoreUtilities.toLowerCase(command.getName());
+                if (matchString.equals(commandName)) {
+                    bestMatch = command;
+                    break;
+                }
+                if (commandName.contains(matchString)) {
+                    bestMatch = command;
+                }
+            }
+            if (bestMatch == null) {
+                return null;
+            }
+            return new DiscordCommandTag(object.bot, null, bestMatch);
         });
     }
 

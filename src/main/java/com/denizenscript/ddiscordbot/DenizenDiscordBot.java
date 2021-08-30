@@ -2,6 +2,7 @@ package com.denizenscript.ddiscordbot;
 
 import com.denizenscript.ddiscordbot.commands.DiscordCommand;
 import com.denizenscript.ddiscordbot.commands.DiscordConnectCommand;
+import com.denizenscript.ddiscordbot.commands.DiscordInteractionCommand;
 import com.denizenscript.ddiscordbot.commands.DiscordMessageCommand;
 import com.denizenscript.ddiscordbot.commands.DiscordReactCommand;
 import com.denizenscript.ddiscordbot.events.*;
@@ -26,6 +27,7 @@ public class DenizenDiscordBot extends JavaPlugin {
     public static Warning oldMessageContexts = new SlowWarning("dDiscordBot contexts relating to message data are now provided by DiscordMessageTag.");
     public static Warning oldMessageCommand = new SlowWarning("dDiscordBot's 'discord message' sub-command has been moved to a base 'discordmessage' command.");
     public static Warning oldConnectCommand = new FutureWarning("dDiscordBot's 'discord connect' sub-command has been moved to a base 'discordconnect' command.");
+    public static Warning globalSlashCommand = new SlowWarning("Registering a slash command globally may take up to an hour.");
 
     public static DenizenDiscordBot instance;
 
@@ -38,21 +40,27 @@ public class DenizenDiscordBot extends JavaPlugin {
         try {
             DenizenCore.getCommandRegistry().registerCommand(DiscordCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordConnectCommand.class);
+            DenizenCore.getCommandRegistry().registerCommand(DiscordInteractionCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordMessageCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordReactCommand.class);
+            ScriptEvent.registerScriptEvent(DiscordButtonClickedScriptEvent.instance = new DiscordButtonClickedScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageDeletedScriptEvent.instance = new DiscordMessageDeletedScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageModifiedScriptEvent.instance = new DiscordMessageModifiedScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageReactionAddScriptEvent.instance = new DiscordMessageReactionAddScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageReactionRemoveScriptEvent.instance = new DiscordMessageReactionRemoveScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageReceivedScriptEvent.instance = new DiscordMessageReceivedScriptEvent());
+            ScriptEvent.registerScriptEvent(DiscordSlashCommandScriptEvent.instance = new DiscordSlashCommandScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserJoinsScriptEvent.instance = new DiscordUserJoinsScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserLeavesScriptEvent.instance = new DiscordUserLeavesScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserNicknameChangeScriptEvent.instance = new DiscordUserNicknameChangeScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserRoleChangeScriptEvent.instance = new DiscordUserRoleChangeScriptEvent());
             ObjectFetcher.registerWithObjectFetcher(DiscordBotTag.class, DiscordBotTag.tagProcessor);
+            ObjectFetcher.registerWithObjectFetcher(DiscordButtonTag.class, DiscordButtonTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordChannelTag.class, DiscordChannelTag.tagProcessor);
+            ObjectFetcher.registerWithObjectFetcher(DiscordCommandTag.class, DiscordCommandTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordEmbedTag.class, DiscordEmbedTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordGroupTag.class, DiscordGroupTag.tagProcessor);
+            ObjectFetcher.registerWithObjectFetcher(DiscordInteractionTag.class, DiscordInteractionTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordMessageTag.class, DiscordMessageTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordReactionTag.class, DiscordReactionTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordRoleTag.class, DiscordRoleTag.tagProcessor);
@@ -70,6 +78,20 @@ public class DenizenDiscordBot extends JavaPlugin {
                     return null;
                 }
                 return DiscordBotTag.valueOf(attribute.getContext(1), attribute.context);
+            });
+            // <--[tag]
+            // @attribute <discord_button[(<button>)]>
+            // @returns DiscordButtonTag
+            // @plugin dDiscordBot
+            // @description
+            // Returns a blank DiscordButtonTag instance, to be filled with data via the with.as tag.
+            // Or, if given an input, returns a Discord Button object constructed from the input value.
+            // -->
+            TagManager.registerTagHandler("discord_button", (attribute) -> {
+                if (!attribute.hasContext(1)) {
+                    return new DiscordButtonTag();
+                }
+                return DiscordButtonTag.valueOf(attribute.getContext(1), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_channel[<channel>]>
@@ -198,6 +220,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             }
         }
         connections.clear();
+        DiscordInteractionTag.interactionCache.clear();
         Bukkit.getServer().getScheduler().cancelTasks(this);
         HandlerList.unregisterAll(this);
     }
