@@ -217,7 +217,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
             }
         }
         if (bestMatch == null) {
-            Debug.echoError(scriptEntry.getContext(), "Invalid command name!");
+            Debug.echoError(scriptEntry, "Invalid command name!");
             scriptEntry.setFinished(true);
             return null;
         }
@@ -292,12 +292,12 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                 switch (instructionEnum) {
                     case COMMAND: {
                         if (commandInstruction == null) {
-                            Debug.echoError(scriptEntry.getContext(), "Must have a command instruction!");
+                            Debug.echoError(scriptEntry, "Must have a command instruction!");
                             scriptEntry.setFinished(true);
                             return;
                         } 
                         else if (name == null) {
-                            Debug.echoError(scriptEntry.getContext(), "Must specify a name!");
+                            Debug.echoError(scriptEntry, "Must specify a name!");
                             scriptEntry.setFinished(true);
                             return;
                         }
@@ -306,7 +306,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                         switch (commandInstructionEnum) {
                             case CREATE: {
                                 if (description == null) {
-                                    Debug.echoError(scriptEntry.getContext(), "Must specify a description!");
+                                    Debug.echoError(scriptEntry, "Must specify a description!");
                                     scriptEntry.setFinished(true);
                                     return;
                                 }
@@ -315,7 +315,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                     for (MapTag option : options) {
                                         ElementTag typeStr = (ElementTag) option.getObject("type");
                                         if (typeStr == null) {
-                                            Debug.echoError(scriptEntry.getContext(), "Command options must specify a type!");
+                                            Debug.echoError(scriptEntry, "Command options must specify a type!");
                                             scriptEntry.setFinished(true);
                                             return;
                                         }
@@ -327,7 +327,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                             }
                                         }
                                         if (optionType == null) {
-                                            Debug.echoError(scriptEntry.getContext(), "Invalid option type!");
+                                            Debug.echoError(scriptEntry, "Invalid option type!");
                                             scriptEntry.setFinished(true);
                                             return;
                                         }
@@ -336,12 +336,12 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                         ElementTag optionIsRequired = (ElementTag) option.getObject("required");
                                         ListTag optionChoices = (ListTag) option.getObject("choices");
                                         if (optionName == null) {
-                                            Debug.echoError(scriptEntry.getContext(), "Command options must specify a name!");
+                                            Debug.echoError(scriptEntry, "Command options must specify a name!");
                                             scriptEntry.setFinished(true);
                                             return;
                                         } 
                                         else if (optionDescription == null) {
-                                            Debug.echoError(scriptEntry.getContext(), "Command options must specify a description!");
+                                            Debug.echoError(scriptEntry, "Command options must specify a description!");
                                             scriptEntry.setFinished(true);
                                             return;
                                         }
@@ -360,7 +360,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                             OptionData optionData = new OptionData(optionType, optionName.asString(), optionDescription.asString(), optionIsRequired == null ? true : optionIsRequired.asBoolean());
                                             if (optionChoices != null) {
                                                 if (optionType != OptionType.STRING && optionType != OptionType.INTEGER) {
-                                                    Debug.echoError(scriptEntry.getContext(), "Command options with choices must be either STRING or INTEGER!");
+                                                    Debug.echoError(scriptEntry, "Command options with choices must be either STRING or INTEGER!");
                                                     scriptEntry.setFinished(true);
                                                     return;
                                                 }
@@ -368,12 +368,12 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                                     ElementTag choiceName = (ElementTag) choice.getObject("name");
                                                     ElementTag choiceValue = (ElementTag) choice.getObject("value");
                                                     if (choiceName == null) {
-                                                        Debug.echoError(scriptEntry.getContext(), "Command option choices must specify a name!");
+                                                        Debug.echoError(scriptEntry, "Command option choices must specify a name!");
                                                         scriptEntry.setFinished(true);
                                                         return;
                                                     } 
                                                     else if (choiceValue == null) {
-                                                        Debug.echoError(scriptEntry.getContext(), "Command option choices must specify a value!");
+                                                        Debug.echoError(scriptEntry, "Command option choices must specify a value!");
                                                         scriptEntry.setFinished(true);
                                                         return;
                                                     }
@@ -404,12 +404,12 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                             }
                             case PERMS: {
                                 if (enableFor == null && disableFor == null) {
-                                    Debug.echoError(scriptEntry.getContext(), "Must specify privileges!");
+                                    Debug.echoError(scriptEntry, "Must specify privileges!");
                                     scriptEntry.setFinished(true);
                                     return;
                                 } 
                                 else if (group == null) {
-                                    Debug.echoError(scriptEntry.getContext(), "Must specify a group!");
+                                    Debug.echoError(scriptEntry, "Must specify a group!");
                                     scriptEntry.setFinished(true);
                                     return;
                                 }
@@ -446,12 +446,12 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                     }
                     case DEFER: {
                         if (interaction == null) {
-                            Debug.echoError(scriptEntry.getContext(), "Must specify an interaction!");
+                            Debug.echoError(scriptEntry, "Must specify an interaction!");
                             scriptEntry.setFinished(true);
                             return;
                         } 
                         else if (interaction.getInteraction() == null) {
-                            Debug.echoError(scriptEntry.getContext(), "Invalid interaction! Has it expired?");
+                            Debug.echoError(scriptEntry, "Invalid interaction! Has it expired?");
                             scriptEntry.setFinished(true);
                             return;
                         }
@@ -460,12 +460,12 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                     }
                     case REPLY: {
                         if (interaction == null) {
-                            Debug.echoError(scriptEntry.getContext(), "Must specify an interaction!");
+                            Debug.echoError(scriptEntry, "Must specify an interaction!");
                             scriptEntry.setFinished(true);
                             return;
                         } 
                         else if (interaction.getInteraction() == null) {
-                            Debug.echoError(scriptEntry.getContext(), "Invalid interaction! Has it expired?");
+                            Debug.echoError(scriptEntry, "Invalid interaction! Has it expired?");
                             scriptEntry.setFinished(true);
                             return;
                         }
@@ -474,7 +474,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                          * Since you can't see if the acknowledged message is ephermal or not, this is a requirement so we don't have to try/catch
                          */
                         else if (message == null) {
-                            Debug.echoError(scriptEntry.getContext(), "Must have a message!");
+                            Debug.echoError(scriptEntry, "Must have a message!");
                             scriptEntry.setFinished(true);
                             return;
                         }
@@ -541,12 +541,12 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                     }
                     case DELETE: {
                         if (interaction == null) {
-                            Debug.echoError(scriptEntry.getContext(), "Must specify an interaction!");
+                            Debug.echoError(scriptEntry, "Must specify an interaction!");
                             scriptEntry.setFinished(true);
                             return;
                         } 
                         else if (interaction.getInteraction() == null) {
-                            Debug.echoError(scriptEntry.getContext(), "Invalid interaction! Has it expired?");
+                            Debug.echoError(scriptEntry, "Invalid interaction! Has it expired?");
                             scriptEntry.setFinished(true);
                             return;
                         }
