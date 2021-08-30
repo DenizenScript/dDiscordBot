@@ -232,7 +232,9 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
             else if (item.startsWith("discordrole@")) {
                 result = CommandPrivilege.enable(DiscordRoleTag.valueOf(item, scriptEntry.getContext()).role);
             }
-            if (result != null) privileges.add(result);
+            if (result != null) {
+                privileges.add(result);
+            }
         }
     }
 
