@@ -217,7 +217,7 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
         // @returns ListTag(MapTag)
         // @plugin dDiscordBot
         // @description
-        // Returns the option MapTags of the command.
+        // Returns the option MapTags of the command. This is the same value as the one provided when creating a command.
         // -->
         registerTag("options", (attribute, object) -> {
             ListTag options = new ListTag();
