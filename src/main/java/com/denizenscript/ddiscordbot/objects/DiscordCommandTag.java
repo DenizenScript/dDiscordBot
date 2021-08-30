@@ -279,9 +279,11 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
     @Override
     public String identify() {
         if (bot != null) {
-            return "discordcommand@" + bot + "," + command_id;
+            return "discordcommand@" + bot + "," + guild_id + "," + command_id;
         }
-        
+        if (guild_id != 0) {
+            return "discordcommand@" + guild_id + "," + command_id;
+        }
         return "discordcommand@" + command_id;
     }
 
