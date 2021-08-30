@@ -477,9 +477,6 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                         scriptEntry.setFinished(true);
                         return;
                     }
-
-                    // The following code is painful.
-
                     MessageEmbed embed = null;
                     List<ActionRow> actionRows = DiscordMessageCommand.createRows(scriptEntry, rows);
                     if (message != null && message.asString().startsWith("discordembed@")) {
