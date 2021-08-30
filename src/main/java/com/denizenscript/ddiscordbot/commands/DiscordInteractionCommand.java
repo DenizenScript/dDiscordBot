@@ -288,270 +288,274 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
         boolean isEphermal = ephermal != null && ephermal.asBoolean();
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
-            switch (instructionEnum) {
-                case COMMAND: {
-                    if (commandInstruction == null) {
-                        Debug.echoError(scriptEntry.getContext(), "Must have a command instruction!");
-                        scriptEntry.setFinished(true);
-                        return;
-                    } 
-                    else if (name == null) {
-                        Debug.echoError(scriptEntry.getContext(), "Must specify a name!");
-                        scriptEntry.setFinished(true);
-                        return;
-                    }
-                    DiscordInteractionCommandInstruction commandInstructionEnum = DiscordInteractionCommandInstruction.valueOf(commandInstruction.asString().toUpperCase());
-                    boolean isEnabled = enabled == null ? true : enabled.asBoolean();
-                    switch (commandInstructionEnum) {
-                        case CREATE: {
-                            if (description == null) {
-                                Debug.echoError(scriptEntry.getContext(), "Must specify a description!");
-                                scriptEntry.setFinished(true);
-                                return;
-                            }
-                            CommandData data = new CommandData(name.asString(), description.asString());
-                            if (options != null) {
-                                for (MapTag option : options) {
-                                    ElementTag typeStr = (ElementTag) option.getObject("type");
-                                    if (typeStr == null) {
-                                        Debug.echoError(scriptEntry.getContext(), "Command options must specify a type!");
-                                        scriptEntry.setFinished(true);
-                                        return;
-                                    }
-                                    OptionType optionType = null;
-                                    for (OptionType val : OptionType.values()) {
-                                        if (val.name().toUpperCase().replace("_", "").equals(typeStr.asString().toUpperCase().replace("_", ""))) {
-                                            optionType = val;
-                                            break;
+            try {
+                switch (instructionEnum) {
+                    case COMMAND: {
+                        if (commandInstruction == null) {
+                            Debug.echoError(scriptEntry.getContext(), "Must have a command instruction!");
+                            scriptEntry.setFinished(true);
+                            return;
+                        } 
+                        else if (name == null) {
+                            Debug.echoError(scriptEntry.getContext(), "Must specify a name!");
+                            scriptEntry.setFinished(true);
+                            return;
+                        }
+                        DiscordInteractionCommandInstruction commandInstructionEnum = DiscordInteractionCommandInstruction.valueOf(commandInstruction.asString().toUpperCase());
+                        boolean isEnabled = enabled == null ? true : enabled.asBoolean();
+                        switch (commandInstructionEnum) {
+                            case CREATE: {
+                                if (description == null) {
+                                    Debug.echoError(scriptEntry.getContext(), "Must specify a description!");
+                                    scriptEntry.setFinished(true);
+                                    return;
+                                }
+                                CommandData data = new CommandData(name.asString(), description.asString());
+                                if (options != null) {
+                                    for (MapTag option : options) {
+                                        ElementTag typeStr = (ElementTag) option.getObject("type");
+                                        if (typeStr == null) {
+                                            Debug.echoError(scriptEntry.getContext(), "Command options must specify a type!");
+                                            scriptEntry.setFinished(true);
+                                            return;
                                         }
-                                    }
-                                    if (optionType == null) {
-                                        Debug.echoError(scriptEntry.getContext(), "Invalid option type!");
-                                        scriptEntry.setFinished(true);
-                                        return;
-                                    }
-                                    ElementTag optionName = (ElementTag) option.getObject("name");
-                                    ElementTag optionDescription = (ElementTag) option.getObject("description");
-                                    ElementTag optionIsRequired = (ElementTag) option.getObject("required");
-                                    ListTag optionChoices = (ListTag) option.getObject("choices");
-                                    if (optionName == null) {
-                                        Debug.echoError(scriptEntry.getContext(), "Command options must specify a name!");
-                                        scriptEntry.setFinished(true);
-                                        return;
-                                    } 
-                                    else if (optionDescription == null) {
-                                        Debug.echoError(scriptEntry.getContext(), "Command options must specify a description!");
-                                        scriptEntry.setFinished(true);
-                                        return;
-                                    }
-                                    if (optionType == OptionType.SUB_COMMAND) {
-                                        data.addSubcommands(new SubcommandData(optionName.asString(), optionDescription.asString()));
-                                    }
-                                    /*
-                                    support these later
-                                    needs recursive logic
+                                        OptionType optionType = null;
+                                        for (OptionType val : OptionType.values()) {
+                                            if (val.name().toUpperCase().replace("_", "").equals(typeStr.asString().toUpperCase().replace("_", ""))) {
+                                                optionType = val;
+                                                break;
+                                            }
+                                        }
+                                        if (optionType == null) {
+                                            Debug.echoError(scriptEntry.getContext(), "Invalid option type!");
+                                            scriptEntry.setFinished(true);
+                                            return;
+                                        }
+                                        ElementTag optionName = (ElementTag) option.getObject("name");
+                                        ElementTag optionDescription = (ElementTag) option.getObject("description");
+                                        ElementTag optionIsRequired = (ElementTag) option.getObject("required");
+                                        ListTag optionChoices = (ListTag) option.getObject("choices");
+                                        if (optionName == null) {
+                                            Debug.echoError(scriptEntry.getContext(), "Command options must specify a name!");
+                                            scriptEntry.setFinished(true);
+                                            return;
+                                        } 
+                                        else if (optionDescription == null) {
+                                            Debug.echoError(scriptEntry.getContext(), "Command options must specify a description!");
+                                            scriptEntry.setFinished(true);
+                                            return;
+                                        }
+                                        if (optionType == OptionType.SUB_COMMAND) {
+                                            data.addSubcommands(new SubcommandData(optionName.asString(), optionDescription.asString()));
+                                        }
+                                        /*
+                                        support these later
+                                        needs recursive logic
 
-                                    else if (optionType == OptionType.SUB_COMMAND_GROUP) {
-                                        data.addSubcommandGroups(new SubcommandGroupData(optionName.asString(), optionDescription.asString()));
-                                    }
-                                    */
-                                    else {
-                                        OptionData optionData = new OptionData(optionType, optionName.asString(), optionDescription.asString(), optionIsRequired == null ? true : optionIsRequired.asBoolean());
-                                        if (optionChoices != null) {
-                                            if (optionType != OptionType.STRING && optionType != OptionType.INTEGER) {
-                                                Debug.echoError(scriptEntry.getContext(), "Command options with choices must be either STRING or INTEGER!");
-                                                scriptEntry.setFinished(true);
-                                                return;
-                                            }
-                                            for (MapTag choice : optionChoices.filter(MapTag.class, scriptEntry.getContext())) {
-                                                ElementTag choiceName = (ElementTag) choice.getObject("name");
-                                                ElementTag choiceValue = (ElementTag) choice.getObject("value");
-                                                if (choiceName == null) {
-                                                    Debug.echoError(scriptEntry.getContext(), "Command option choices must specify a name!");
-                                                    scriptEntry.setFinished(true);
-                                                    return;
-                                                } 
-                                                else if (choiceValue == null) {
-                                                    Debug.echoError(scriptEntry.getContext(), "Command option choices must specify a value!");
-                                                    scriptEntry.setFinished(true);
-                                                    return;
-                                                }
-                                                if (optionType == OptionType.STRING) {
-                                                    optionData.addChoice(choiceName.asString(), choiceValue.asString());
-                                                }
-                                                else {
-                                                    optionData.addChoice(choiceName.asString(), choiceValue.asInt());
-                                                }
-                                            }
+                                        else if (optionType == OptionType.SUB_COMMAND_GROUP) {
+                                            data.addSubcommandGroups(new SubcommandGroupData(optionName.asString(), optionDescription.asString()));
                                         }
-                                        data.addOptions(optionData);
-                                    }   
+                                        */
+                                        else {
+                                            OptionData optionData = new OptionData(optionType, optionName.asString(), optionDescription.asString(), optionIsRequired == null ? true : optionIsRequired.asBoolean());
+                                            if (optionChoices != null) {
+                                                if (optionType != OptionType.STRING && optionType != OptionType.INTEGER) {
+                                                    Debug.echoError(scriptEntry.getContext(), "Command options with choices must be either STRING or INTEGER!");
+                                                    scriptEntry.setFinished(true);
+                                                    return;
+                                                }
+                                                for (MapTag choice : optionChoices.filter(MapTag.class, scriptEntry.getContext())) {
+                                                    ElementTag choiceName = (ElementTag) choice.getObject("name");
+                                                    ElementTag choiceValue = (ElementTag) choice.getObject("value");
+                                                    if (choiceName == null) {
+                                                        Debug.echoError(scriptEntry.getContext(), "Command option choices must specify a name!");
+                                                        scriptEntry.setFinished(true);
+                                                        return;
+                                                    } 
+                                                    else if (choiceValue == null) {
+                                                        Debug.echoError(scriptEntry.getContext(), "Command option choices must specify a value!");
+                                                        scriptEntry.setFinished(true);
+                                                        return;
+                                                    }
+                                                    if (optionType == OptionType.STRING) {
+                                                        optionData.addChoice(choiceName.asString(), choiceValue.asString());
+                                                    }
+                                                    else {
+                                                        optionData.addChoice(choiceName.asString(), choiceValue.asInt());
+                                                    }
+                                                }
+                                            }
+                                            data.addOptions(optionData);
+                                        }   
+                                    }
+                                }
+                                CommandCreateAction action = null;
+                                if (group == null) {
+                                    DenizenDiscordBot.globalSlashCommand.warn(scriptEntry);
+                                    action = client.upsertCommand(data);
+                                } 
+                                else {
+                                    action = group.getGuild().upsertCommand(data);
+                                }
+                                action.setDefaultEnabled(isEnabled);
+                                Command slashCommand = action.complete();
+                                scriptEntry.addObject("command", new DiscordCommandTag(id.asString(), group == null ? null : group.getGuild(), slashCommand));
+                                break;
+                            }
+                            case PERMS: {
+                                if (enableFor == null && disableFor == null) {
+                                    Debug.echoError(scriptEntry.getContext(), "Must specify privileges!");
+                                    scriptEntry.setFinished(true);
+                                    return;
+                                } 
+                                else if (group == null) {
+                                    Debug.echoError(scriptEntry.getContext(), "Must specify a group!");
+                                    scriptEntry.setFinished(true);
+                                    return;
+                                }
+                                Command bestMatch = matchCommandByName(scriptEntry, name, client, group);
+                                if (bestMatch == null) {
+                                    return;
+                                }
+                                List<CommandPrivilege> privileges = new ArrayList<>();
+                                if (enableFor != null) {
+                                    addPrivileges(scriptEntry, true, enableFor, privileges);
+                                }
+                                if (disableFor != null) {
+                                    addPrivileges(scriptEntry, false, disableFor, privileges);
+                                }                            
+                                bestMatch.editCommand().setDefaultEnabled(isEnabled).complete();
+                                group.guild.updateCommandPrivilegesById(bestMatch.getIdLong(), privileges).complete();
+                                break;
+                            }
+                            case DELETE: {
+                                Command bestMatch = matchCommandByName(scriptEntry, name, client, group);
+                                if (bestMatch == null) {
+                                    return;
+                                }
+                                if (group == null) {
+                                    client.deleteCommandById(bestMatch.getIdLong()).complete();
+                                } 
+                                else {
+                                    group.getGuild().deleteCommandById(bestMatch.getIdLong()).complete();
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case DEFER: {
+                        if (interaction == null) {
+                            Debug.echoError(scriptEntry.getContext(), "Must specify an interaction!");
+                            scriptEntry.setFinished(true);
+                            return;
+                        } 
+                        else if (interaction.getInteraction() == null) {
+                            Debug.echoError(scriptEntry.getContext(), "Invalid interaction! Has it expired?");
+                            scriptEntry.setFinished(true);
+                            return;
+                        }
+                        interaction.getInteraction().deferReply(isEphermal).complete();
+                        break;
+                    }
+                    case REPLY: {
+                        if (interaction == null) {
+                            Debug.echoError(scriptEntry.getContext(), "Must specify an interaction!");
+                            scriptEntry.setFinished(true);
+                            return;
+                        } 
+                        else if (interaction.getInteraction() == null) {
+                            Debug.echoError(scriptEntry.getContext(), "Invalid interaction! Has it expired?");
+                            scriptEntry.setFinished(true);
+                            return;
+                        }
+                        /**
+                         * Messages aren't allowed to have attachments in ephermal messages
+                         * Since you can't see if the acknowledged message is ephermal or not, this is a requirement so we don't have to try/catch
+                         */
+                        else if (message == null) {
+                            Debug.echoError(scriptEntry.getContext(), "Must have a message!");
+                            scriptEntry.setFinished(true);
+                            return;
+                        }
+                        MessageEmbed embed = null;
+                        List<ActionRow> actionRows = DiscordMessageCommand.createRows(scriptEntry, rows);
+                        if (message != null && message.asString().startsWith("discordembed@")) {
+                            embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.getContext()).build();
+                        }
+                        if (interaction.getInteraction().isAcknowledged()) {
+                            WebhookMessageAction<Message> action = null;
+                            InteractionHook hook = interaction.getInteraction().getHook();
+                            if (embed != null) {
+                                action = hook.sendMessageEmbeds(embed);
+                            } 
+                            else {
+                                action = hook.sendMessage(message.asString());
+                            }
+                            if (attachFileName != null) {
+                                if (attachFileText != null) {
+                                    action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
+                                } 
+                                else {
+                                    Debug.echoError("Failed to send attachment - missing content?");
                                 }
                             }
-                            CommandCreateAction action = null;
-                            if (group == null) {
-                                DenizenDiscordBot.globalSlashCommand.warn(scriptEntry);
-                                action = client.upsertCommand(data);
-                            } 
-                            else {
-                                action = group.getGuild().upsertCommand(data);
-                            }
-                            action.setDefaultEnabled(isEnabled);
-                            Command slashCommand = action.complete();
-                            scriptEntry.addObject("command", new DiscordCommandTag(id.asString(), group == null ? null : group.getGuild(), slashCommand));
-                            break;
-                        }
-                        case PERMS: {
-                            if (enableFor == null && disableFor == null) {
-                                Debug.echoError(scriptEntry.getContext(), "Must specify privileges!");
-                                scriptEntry.setFinished(true);
-                                return;
-                            } 
-                            else if (group == null) {
-                                Debug.echoError(scriptEntry.getContext(), "Must specify a group!");
+                            if (action == null) {
+                                Debug.echoError("Failed to send message - missing content?");
                                 scriptEntry.setFinished(true);
                                 return;
                             }
-                            Command bestMatch = matchCommandByName(scriptEntry, name, client, group);
-                            if (bestMatch == null) {
-                                return;
+                            if (actionRows != null) {
+                                action.addActionRows(actionRows);
                             }
-                            List<CommandPrivilege> privileges = new ArrayList<>();
-                            if (enableFor != null) {
-                                addPrivileges(scriptEntry, true, enableFor, privileges);
-                            }
-                            if (disableFor != null) {
-                                addPrivileges(scriptEntry, false, disableFor, privileges);
-                            }                            
-                            bestMatch.editCommand().setDefaultEnabled(isEnabled).complete();
-                            group.guild.updateCommandPrivilegesById(bestMatch.getIdLong(), privileges).complete();
-                            break;
-                        }
-                        case DELETE: {
-                            Command bestMatch = matchCommandByName(scriptEntry, name, client, group);
-                            if (bestMatch == null) {
-                                return;
-                            }
-                            if (group == null) {
-                                client.deleteCommandById(bestMatch.getIdLong()).complete();
+                            action.complete();
+                        } else {
+                            ReplyAction action = null;
+                            Interaction replyTo = interaction.getInteraction();
+                            if (embed != null) {
+                                action = replyTo.replyEmbeds(embed);
                             } 
                             else {
-                                group.getGuild().deleteCommandById(bestMatch.getIdLong()).complete();
+                                action = replyTo.reply(message.asString());
                             }
-                            break;
+                            if (attachFileName != null) {
+                                if (attachFileText != null) {
+                                    action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
+                                } 
+                                else {
+                                    Debug.echoError("Failed to send attachment - missing content?");
+                                }
+                            }
+                            if (action == null) {
+                                Debug.echoError("Failed to send message - missing content?");
+                                scriptEntry.setFinished(true);
+                                return;
+                            }
+                            if (actionRows != null) {
+                                action.addActionRows(actionRows);
+                            }
+                            action.setEphemeral(isEphermal);
+                            action.complete();
                         }
+                        break;
                     }
-                    break;
-                }
-                case DEFER: {
-                    if (interaction == null) {
-                        Debug.echoError(scriptEntry.getContext(), "Must specify an interaction!");
-                        scriptEntry.setFinished(true);
-                        return;
-                    } 
-                    else if (interaction.getInteraction() == null) {
-                        Debug.echoError(scriptEntry.getContext(), "Invalid interaction! Has it expired?");
-                        scriptEntry.setFinished(true);
-                        return;
-                    }
-                    interaction.getInteraction().deferReply(isEphermal).complete();
-                    break;
-                }
-                case REPLY: {
-                    if (interaction == null) {
-                        Debug.echoError(scriptEntry.getContext(), "Must specify an interaction!");
-                        scriptEntry.setFinished(true);
-                        return;
-                    } 
-                    else if (interaction.getInteraction() == null) {
-                        Debug.echoError(scriptEntry.getContext(), "Invalid interaction! Has it expired?");
-                        scriptEntry.setFinished(true);
-                        return;
-                    }
-                    /**
-                     * Messages aren't allowed to have attachments in ephermal messages
-                     * Since you can't see if the acknowledged message is ephermal or not, this is a requirement so we don't have to try/catch
-                     */
-                    else if (message == null) {
-                        Debug.echoError(scriptEntry.getContext(), "Must have a message!");
-                        scriptEntry.setFinished(true);
-                        return;
-                    }
-                    MessageEmbed embed = null;
-                    List<ActionRow> actionRows = DiscordMessageCommand.createRows(scriptEntry, rows);
-                    if (message != null && message.asString().startsWith("discordembed@")) {
-                        embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.getContext()).build();
-                    }
-                    if (interaction.getInteraction().isAcknowledged()) {
-                        WebhookMessageAction<Message> action = null;
-                        InteractionHook hook = interaction.getInteraction().getHook();
-                        if (embed != null) {
-                            action = hook.sendMessageEmbeds(embed);
+                    case DELETE: {
+                        if (interaction == null) {
+                            Debug.echoError(scriptEntry.getContext(), "Must specify an interaction!");
+                            scriptEntry.setFinished(true);
+                            return;
                         } 
-                        else {
-                            action = hook.sendMessage(message.asString());
-                        }
-                        if (attachFileName != null) {
-                            if (attachFileText != null) {
-                                action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
-                            } 
-                            else {
-                                Debug.echoError("Failed to send attachment - missing content?");
-                            }
-                        }
-                        if (action == null) {
-                            Debug.echoError("Failed to send message - missing content?");
+                        else if (interaction.getInteraction() == null) {
+                            Debug.echoError(scriptEntry.getContext(), "Invalid interaction! Has it expired?");
                             scriptEntry.setFinished(true);
                             return;
                         }
-                        if (actionRows != null) {
-                            action.addActionRows(actionRows);
-                        }
-                        action.complete();
-                    } else {
-                        ReplyAction action = null;
-                        Interaction replyTo = interaction.getInteraction();
-                        if (embed != null) {
-                            action = replyTo.replyEmbeds(embed);
-                        } 
-                        else {
-                            action = replyTo.reply(message.asString());
-                        }
-                        if (attachFileName != null) {
-                            if (attachFileText != null) {
-                                action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
-                            } 
-                            else {
-                                Debug.echoError("Failed to send attachment - missing content?");
-                            }
-                        }
-                        if (action == null) {
-                            Debug.echoError("Failed to send message - missing content?");
-                            scriptEntry.setFinished(true);
-                            return;
-                        }
-                        if (actionRows != null) {
-                            action.addActionRows(actionRows);
-                        }
-                        action.setEphemeral(isEphermal);
-                        action.complete();
+                        interaction.getInteraction().getHook().deleteOriginal().complete();
+                        break;
                     }
-                    break;
                 }
-                case DELETE: {
-                    if (interaction == null) {
-                        Debug.echoError(scriptEntry.getContext(), "Must specify an interaction!");
-                        scriptEntry.setFinished(true);
-                        return;
-                    } 
-                    else if (interaction.getInteraction() == null) {
-                        Debug.echoError(scriptEntry.getContext(), "Invalid interaction! Has it expired?");
-                        scriptEntry.setFinished(true);
-                        return;
-                    }
-                    interaction.getInteraction().getHook().deleteOriginal().complete();
-                    break;
-                }
+            } catch (Exception e) {
+                Debug.echoError(e);
             }
             scriptEntry.setFinished(true);
         });
