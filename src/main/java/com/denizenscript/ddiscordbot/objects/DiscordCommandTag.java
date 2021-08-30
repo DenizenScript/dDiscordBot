@@ -40,7 +40,7 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
     //
     // @plugin dDiscordBot
     // @description
-    // A DiscordCommandTag is an object that represents a created slash command  on Discord, as a bot-specific reference.
+    // A DiscordCommandTag is an object that represents a created slash command on Discord, as a bot-specific reference.
     //
     // This object type is flaggable.
     // Flags on this object type will be stored in: plugins/dDiscordBot/flags/bot_(botname).dat, under special sub-key "__commands"
