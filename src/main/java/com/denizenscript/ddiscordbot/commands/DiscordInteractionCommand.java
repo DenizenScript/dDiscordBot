@@ -261,22 +261,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         List<ListTag> rows = (List<ListTag>) scriptEntry.getObjectTag("rows");
         ElementTag message = scriptEntry.getElement("message");
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id.debug()
-                    + instruction.debug()
-                    + (commandInstruction != null ? commandInstruction.debug() : "")
-                    + (group != null ? group.debug() : "")
-                    + (name != null ? name.debug() : "")
-                    + (description != null ? description.debug() : "")
-                    + (options != null ? ArgumentHelper.debugList("Options", options) : "")
-                    + (enabled != null ? enabled.debug() : "")
-                    + (enableFor != null ? enableFor.debug() : "")
-                    + (disableFor != null ? disableFor.debug() : "")
-                    + (interaction != null ? interaction.debug() : "")
-                    + (ephermal != null ? ephermal.debug() : "")
-                    + (attachFileName != null ? attachFileName.debug() : "")
-                    + (attachFileText != null ? attachFileText.debug() : "")
-                    + (rows != null ? ArgumentHelper.debugList("Rows", rows) : "")
-                    + (message != null ? message.debug() : ""));
+            Debug.report(scriptEntry, getName(), id, instruction, commandInstruction, group, name, description, options != null ? ArgumentHelper.debugList("options", options) : options, enabled, enableFor, disableFor, interaction, ephermal, attachFileName, attachFileText, rows != null ? ArgumentHelper.debugList("rows", rows) : rows, message);
         }
         DiscordInteractionInstruction instructionEnum = DiscordInteractionInstruction.valueOf(instruction.asString().toUpperCase());
         if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
