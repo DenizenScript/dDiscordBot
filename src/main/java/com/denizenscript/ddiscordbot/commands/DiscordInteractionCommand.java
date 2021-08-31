@@ -148,11 +148,11 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
             }
             else if (!scriptEntry.hasObject("description")
                     && arg.matchesPrefix("description")) {
-                scriptEntry.addObject("description", new ElementTag(arg.getValue()));
+                scriptEntry.addObject("description", arg.asElement());
             }
             else if (!scriptEntry.hasObject("options")
                     && arg.matchesPrefix("options")) {
-                scriptEntry.addObject("options", ListTag.getListFor(TagManager.tagObject(arg.getValue(), scriptEntry.getContext()), scriptEntry.getContext()).filter(MapTag.class, scriptEntry));
+                scriptEntry.addObject("options", arg.asType(ListTag.class).filter(MapTag.class, scriptEntry));
             }
             else if (!scriptEntry.hasObject("enabled")
                     && arg.matchesPrefix("enabled")) {
