@@ -242,7 +242,6 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void execute(ScriptEntry scriptEntry) {
         ElementTag id = scriptEntry.getElement("id");

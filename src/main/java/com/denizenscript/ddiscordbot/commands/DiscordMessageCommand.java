@@ -162,7 +162,6 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void execute(ScriptEntry scriptEntry) {
         ElementTag id = scriptEntry.getElement("id");
