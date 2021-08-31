@@ -210,7 +210,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         String matchString = CoreUtilities.toLowerCase(name.asString());
         Command bestMatch = null;
         for (Command cmd : retrievedCmds) {
-            String commandName = CoreUtilities.toLowerCase(cmd.getName());
+            String commandName = cmd.getName();
             if (matchString.equals(commandName)) {
                 bestMatch = cmd;
                 break;
