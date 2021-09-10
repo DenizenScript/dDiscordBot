@@ -306,18 +306,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                             scriptEntry.setFinished(true);
                                             return;
                                         }
-                                        OptionType optionType = null;
-                                        for (OptionType val : OptionType.values()) {
-                                            if (val.name().toUpperCase().replace("_", "").equals(typeStr.asString().toUpperCase().replace("_", ""))) {
-                                                optionType = val;
-                                                break;
-                                            }
-                                        }
-                                        if (optionType == null) {
-                                            Debug.echoError(scriptEntry, "Invalid option type!");
-                                            scriptEntry.setFinished(true);
-                                            return;
-                                        }
+                                        OptionType optionType = OptionType.valueOf(typeStr.toString().toUpperCase());
                                         ElementTag optionName = (ElementTag) option.getObject("name");
                                         ElementTag optionDescription = (ElementTag) option.getObject("description");
                                         ElementTag optionIsRequired = (ElementTag) option.getObject("required");
