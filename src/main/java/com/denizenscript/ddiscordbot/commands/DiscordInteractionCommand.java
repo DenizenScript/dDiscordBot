@@ -3,6 +3,7 @@ package com.denizenscript.ddiscordbot.commands;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.DiscordCommandTag;
@@ -14,6 +15,7 @@ import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.ArgumentHelper;
+import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
@@ -23,6 +25,7 @@ import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.tags.TagManager;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
+import com.denizenscript.denizencore.utilities.text.StringHolder;
 
 import org.bukkit.Bukkit;
 
@@ -69,15 +72,15 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
     // To create (or delete) a command in a specific Discord guild, use the "group" argument. If not present, a global command will be created. NOTE: Global slash commands take up to an hour to register.
     // When creating, both a name and description are required.
     //
-    // The "options" argument controls the command parameters. It is a ListTag of MapTags that can sometimes hold ListTags. It is recommended to use external YAML files as a simpler form of data representation when creating commands. See <@link command yaml>.
-    // All option MapTags must have "type", "name", and "description" keys, with an optional "required" key (defaulting to true). The "type" key can be one of: STRING, INTEGER, BOOLEAN, USER, CHANNEL, ROLE, MENTIONABLE, SUBCOMMAND, or SUBCOMMANDGROUP.
-    // Additionally, the option map can include a "choices" key, which is a ListTag of MapTags that have a "name" (what displays to the user) and a "value" (what gets passed to you).
+    // The "options" argument controls the command parameters. It is a MapTag of ordered MapTags that can sometimes hold ordered MapTags. It is recommended to use the <@link command definemap> command as a simpler form of data representation when creating commands.
+    // All option MapTags must have "type", "name", and "description" keys, with an optional "required" key (defaulting to true). The "type" key can be one of: STRING, INTEGER, BOOLEAN, USER, CHANNEL, ROLE, MENTIONABLE.
+    // Additionally, the option map can include a "choices" key, which is a MapTag of ordered MapTags that have a "name" (what displays to the user) and a "value" (what gets passed to the client).
     // 
     // You can use the "enabled" argument to set whether the command should be enabled for everyone by default.
     // To edit the permissions of a command (who can use it, and who can't), use the "perms" instruction. Permissions MUST be edited AFTER creation.
     // Use the "enable_for" and "disable_for" arguments (ListTags of DiscordUserTags or DiscordRoleTags) when editing permissions.
     //
-    // You DO NOT need to create a command on startup every time! Once a command is created, it will persist until deleted.
+    // You DO NOT need to create a command on startup every time! Once a command is created, it will persist until you delete it.
     // Using the "create" instruction on an existing command will update it.
     //
     // Otherwise, you can defer, reply to, or delete an interaction. These instructions all require the "interaction" argument.
@@ -100,8 +103,15 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
     // - debug log <entry[mycmd].command.name>
     //
     // @Usage
-    // Use to create a global slash command with one option.
-    // - ~discordinteraction id:mybot command create name:animal "description:Pick your favorite!" "options:<list_single[<map[type=string;name=animal;description=Your favorite animal]>]>"
+    // Use to create a global slash command with one option, using the <@link command definemap>.
+    // - definemap options:
+    //     1:
+    //       type: string
+    //       name: animal
+    //       description: Your favorite animal
+    //       required: true
+    //
+    // - ~discordinteraction id:mybot command create name:animal "description:Pick your favorite!" options:<[options]>
     //
     // @Usage
     // Use to edit the permissions of a command.
@@ -151,8 +161,9 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                 scriptEntry.addObject("description", arg.asElement());
             }
             else if (!scriptEntry.hasObject("options")
-                    && arg.matchesPrefix("options")) {
-                scriptEntry.addObject("options", arg.asType(ListTag.class).filter(MapTag.class, scriptEntry));
+                    && arg.matchesPrefix("options")
+                    && arg.matchesArgumentType(MapTag.class)) {
+                scriptEntry.addObject("options", arg.asType(MapTag.class));
             }
             else if (!scriptEntry.hasObject("enabled")
                     && arg.matchesPrefix("enabled")) {
@@ -253,7 +264,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         DiscordGroupTag group = scriptEntry.getObjectTag("group");
         ElementTag name = scriptEntry.getElement("name");
         ElementTag description = scriptEntry.getElement("description");
-        List<MapTag> options = (List<MapTag>) scriptEntry.getObjectTag("options");
+        MapTag options = scriptEntry.getObjectTag("options");
         ElementTag enabled = scriptEntry.getElement("enabled");
         ListTag enableFor = scriptEntry.getObjectTag("enable_for");
         ListTag disableFor = scriptEntry.getObjectTag("disable_for");
@@ -264,7 +275,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         List<ListTag> rows = (List<ListTag>) scriptEntry.getObjectTag("rows");
         ElementTag message = scriptEntry.getElement("message");
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id, instruction, commandInstruction, group, name, description, options != null ? ArgumentHelper.debugList("options", options) : options, enabled, enableFor, disableFor, interaction, ephermal, attachFileName, attachFileText, rows != null ? ArgumentHelper.debugList("rows", rows) : rows, message);
+            Debug.report(scriptEntry, getName(), id, instruction, commandInstruction, group, name, description, options, enabled, enableFor, disableFor, interaction, ephermal, attachFileName, attachFileText, rows != null ? ArgumentHelper.debugList("rows", rows) : rows, message);
         }
         DiscordInteractionInstruction instructionEnum = DiscordInteractionInstruction.valueOf(instruction.asString().toUpperCase());
         if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
@@ -299,7 +310,8 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                 }
                                 CommandData data = new CommandData(name.asString(), description.asString());
                                 if (options != null) {
-                                    for (MapTag option : options) {
+                                    for (Map.Entry<StringHolder, ObjectTag> subValue : options.map.entrySet()) {
+                                        MapTag option = subValue.getValue().asType(MapTag.class, scriptEntry.getContext());
                                         ElementTag typeStr = (ElementTag) option.getObject("type");
                                         if (typeStr == null) {
                                             Debug.echoError(scriptEntry, "Command options must specify a type!");
@@ -310,7 +322,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                         ElementTag optionName = (ElementTag) option.getObject("name");
                                         ElementTag optionDescription = (ElementTag) option.getObject("description");
                                         ElementTag optionIsRequired = (ElementTag) option.getObject("required");
-                                        ListTag optionChoices = (ListTag) option.getObject("choices");
+                                        MapTag optionChoices = (MapTag) option.getObject("choices");
                                         if (optionName == null) {
                                             Debug.echoError(scriptEntry, "Command options must specify a name!");
                                             scriptEntry.setFinished(true);
@@ -340,7 +352,8 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                                     scriptEntry.setFinished(true);
                                                     return;
                                                 }
-                                                for (MapTag choice : optionChoices.filter(MapTag.class, scriptEntry.getContext())) {
+                                                for (Map.Entry<StringHolder, ObjectTag> subChoiceValue : optionChoices.map.entrySet()) {
+                                                    MapTag choice = subChoiceValue.getValue().asType(MapTag.class, scriptEntry.getContext());
                                                     ElementTag choiceName = (ElementTag) choice.getObject("name");
                                                     ElementTag choiceValue = (ElementTag) choice.getObject("value");
                                                     if (choiceName == null) {
