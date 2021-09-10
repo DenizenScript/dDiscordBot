@@ -541,7 +541,8 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                         break;
                     }
                 }
-            } catch (Exception e) {
+            } 
+            catch (Exception e) {
                 Debug.echoError(e);
             }
             scriptEntry.setFinished(true);
