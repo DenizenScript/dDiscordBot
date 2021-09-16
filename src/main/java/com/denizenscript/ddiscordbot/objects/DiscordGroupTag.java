@@ -15,6 +15,7 @@ import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.interactions.commands.Command;
 
 public class DiscordGroupTag implements ObjectTag, FlaggableObject {
 
@@ -199,6 +200,21 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         });
 
         // <--[tag]
+        // @attribute <DiscordGroupTag.commands>
+        // @returns ListTag(DiscordCommandTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of all commands in the group.
+        // -->
+        registerTag("commands", (attribute, object) -> {
+            ListTag list = new ListTag();
+            for (Command command : object.getGuild().retrieveCommands().complete()) {
+                list.addObject(new DiscordCommandTag(object.bot, object.getGuild(), command));
+            }
+            return list;
+        });
+
+        // <--[tag]
         // @attribute <DiscordGroupTag.member[<name>]>
         // @returns DiscordUserTag
         // @plugin dDiscordBot
@@ -286,6 +302,35 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
                 return null;
             }
             return new DiscordRoleTag(object.bot, bestMatch);
+        });
+
+        // <--[tag]
+        // @attribute <DiscordGroupTag.command[<name>]>
+        // @returns DiscordCommandTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the guild command that best matches the input name, or null if there's no match.
+        // -->
+        registerTag("command", (attribute, object) -> {
+            if (!attribute.hasContext(1)) {
+                return null;
+            }
+            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            Command bestMatch = null;
+            for (Command command : object.getGuild().retrieveCommands().complete()) {
+                String commandName = CoreUtilities.toLowerCase(command.getName());
+                if (matchString.equals(commandName)) {
+                    bestMatch = command;
+                    break;
+                }
+                if (commandName.contains(matchString)) {
+                    bestMatch = command;
+                }
+            }
+            if (bestMatch == null) {
+                return null;
+            }
+            return new DiscordCommandTag(object.bot, object.getGuild(), bestMatch);
         });
 
         // <--[tag]
