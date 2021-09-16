@@ -14,7 +14,6 @@ import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
-
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
@@ -88,7 +87,7 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
                 }
                 break;
             case "interaction":
-                return new DiscordInteractionTag(botID, getEvent().getInteraction());
+                return DiscordInteractionTag.getOrCreate(botID, getEvent().getInteraction());
             case "command":
                 return new DiscordCommandTag(botID, getEvent().isFromGuild() ? getEvent().getGuild().getIdLong() : 0, getEvent().getCommandIdLong());
             case "options": {
@@ -96,7 +95,7 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
                 for (OptionMapping mapping : getEvent().getOptions()) {
                     ObjectTag result;
                     switch (mapping.getType()) {
-                        case STRING: 
+                        case STRING:
                         case SUB_COMMAND:
                         case SUB_COMMAND_GROUP:
                             result = new ElementTag(mapping.getAsString()); break;
@@ -111,7 +110,7 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
                             else {
                                 result = new DiscordUserTag(botID, mapping.getAsMentionable().getIdLong());
                             }
-                            break; 
+                            break;
                         }
                         case ROLE: result = new DiscordRoleTag(botID, mapping.getAsRole()); break;
                         case USER: result = new DiscordUserTag(botID, mapping.getAsUser()); break;
@@ -119,13 +118,13 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
                     }
                     options.put(new StringHolder(mapping.getName()), result);
                 }
-                return new MapTag(options);    
+                return new MapTag(options);
             }
         }
-        
+
         return super.getContext(name);
     }
-    
+
     @Override
     public String getName() {
         return "DiscordSlashCommand";

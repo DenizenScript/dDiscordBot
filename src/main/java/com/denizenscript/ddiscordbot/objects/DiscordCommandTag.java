@@ -1,10 +1,7 @@
 package com.denizenscript.ddiscordbot.objects;
 
-import java.util.List;
-
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordConnection;
-import com.denizenscript.denizen.utilities.debugging.Debug;
 import com.denizenscript.denizencore.flags.AbstractFlagTracker;
 import com.denizenscript.denizencore.flags.FlaggableObject;
 import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
@@ -19,14 +16,15 @@ import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-
+import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.Command.Choice;
-import net.dv8tion.jda.api.interactions.commands.Command.Option;
+
+import java.util.List;
 
 public class DiscordCommandTag implements ObjectTag, FlaggableObject {
+
     // <--[ObjectType]
     // @name DiscordCommandTag
     // @prefix discordcommand
@@ -176,7 +174,7 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
     }
 
     public static void registerTags() {
-        
+
         AbstractFlagTracker.registerFlagHandlers(tagProcessor);
 
         // <--[tag]
@@ -217,11 +215,11 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
         // @returns ListTag(MapTag)
         // @plugin dDiscordBot
         // @description
-        // Returns the option MapTags of the command. This is the same value as the one provided when creating a command.
+        // Returns the option MapTags of the command. This is the same value as the one provided when creating a command, as documented in <@link command DiscordCommand>.
         // -->
         registerTag("options", (attribute, object) -> {
             ListTag options = new ListTag();
-            for (Option option : object.getCommand().getOptions()) {
+            for (Command.Option option : object.getCommand().getOptions()) {
                 MapTag map = new MapTag();
                 map.putObject("type", new ElementTag(option.getType().toString().toLowerCase().replaceAll("_", "")));
                 map.putObject("name", new ElementTag(option.getName()));
@@ -229,7 +227,7 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
                 map.putObject("required", new ElementTag(option.isRequired()));
                 if (option.getType() == OptionType.STRING || option.getType() == OptionType.INTEGER) {
                     ListTag choices = new ListTag();
-                    for (Choice choice : option.getChoices()) {
+                    for (Command.Choice choice : option.getChoices()) {
                         MapTag choiceData = new MapTag();
                         choiceData.putObject("name", new ElementTag(choice.getName()));
                         if (option.getType() == OptionType.STRING) {

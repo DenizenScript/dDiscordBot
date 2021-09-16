@@ -11,7 +11,6 @@ import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
-import com.denizenscript.denizencore.tags.TagManager;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
@@ -69,7 +68,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to message an embed to a Discord channel.
-    // - ~discordmessage id:mybot channel:<discord[mybot].group[Denizen].channel[bot-spam]> "<discord_embed.with[title].as[hi].with[description].as[This is an embed!]>"
+    // - ~discordmessage id:mybot channel:<discord[mybot].group[Denizen].channel[bot-spam]> "<discord_embed[title=hi;description=this is an embed!]>"
     //
     // @Usage
     // Use to message a Discord channel and record the ID.
@@ -127,7 +126,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             }
             else if (!scriptEntry.hasObject("rows")
                     && arg.matchesPrefix("rows")) {
-                scriptEntry.addObject("rows", ListTag.getListFor(TagManager.tagObject(arg.getValue(), scriptEntry.getContext()), scriptEntry.getContext()).filter(ListTag.class, scriptEntry));
+                scriptEntry.addObject("rows", ListTag.getListFor(arg.object, scriptEntry.getContext()).filter(ListTag.class, scriptEntry));
             }
             else if (!scriptEntry.hasObject("message")) {
                 scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
@@ -150,7 +149,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             for (ListTag row : rows) {
                 List<Button> buttons = new ArrayList<>();
                 for (DiscordButtonTag button : row.filter(DiscordButtonTag.class, scriptEntry.getContext())) {
-                    Button built = button.build(scriptEntry.getContext());
+                    Button built = button.build();
                     if (built != null) {
                         buttons.add(built);
                     }

@@ -1,9 +1,5 @@
 package com.denizenscript.ddiscordbot.objects;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-
 import com.denizenscript.denizencore.objects.Fetchable;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
@@ -14,10 +10,13 @@ import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
-
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
 
 public class DiscordButtonTag implements ObjectTag {
 
@@ -68,30 +67,24 @@ public class DiscordButtonTag implements ObjectTag {
 
     public DiscordButtonTag(Button button) {
         buttonData = new MapTag();
-
-        if (button.getStyle() != null && button.getStyle().name() != null) {
-            buttonData.putObject("style", new ElementTag(button.getStyle().name()));
-        }
+        buttonData.putObject("style", new ElementTag(button.getStyle().name()));
+        buttonData.putObject("label", new ElementTag(button.getLabel()));
         if (button.getId() != null) {
             buttonData.putObject("id", new ElementTag(button.getId()));
         }
-        if (button.getLabel() != null) {
-            buttonData.putObject("label", new ElementTag(button.getLabel()));
-        }
-        if (button.getEmoji() != null && button.getEmoji().getName() != null) {
+        if (button.getEmoji() != null) {
             buttonData.putObject("emoji", new ElementTag(button.getEmoji().getName()));
         }
     }
 
-    public Button build(TagContext context) {
+    public Button build() {
         ObjectTag style = buttonData.getObject("style");
         ObjectTag id = buttonData.getObject("id");
         ObjectTag label = buttonData.getObject("label");
         ObjectTag emoji = buttonData.getObject("emoji");
-        ButtonStyle styleData = null;
+        ButtonStyle styleData;
         Button button = null;
         boolean isValidType = false;
-        
         for (ButtonStyle val : ButtonStyle.values()) {
             if (val.name().toUpperCase().equals(
                 style.toString().toUpperCase()

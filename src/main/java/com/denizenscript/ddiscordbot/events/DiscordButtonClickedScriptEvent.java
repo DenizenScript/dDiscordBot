@@ -6,7 +6,6 @@ import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordInteractionTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
-
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
 public class DiscordButtonClickedScriptEvent extends DiscordScriptEvent {
@@ -78,14 +77,14 @@ public class DiscordButtonClickedScriptEvent extends DiscordScriptEvent {
                 }
                 break;
             case "interaction":
-                return new DiscordInteractionTag(botID, getEvent().getInteraction());
+                return DiscordInteractionTag.getOrCreate(botID, getEvent().getInteraction());
             case "button":
                 return new DiscordButtonTag(getEvent().getButton());
         }
 
         return super.getContext(name);
     }
-    
+
     @Override
     public String getName() {
         return "DiscordButtonClicked";

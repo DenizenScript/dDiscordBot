@@ -1,10 +1,6 @@
 package com.denizenscript.ddiscordbot;
 
-import com.denizenscript.ddiscordbot.commands.DiscordCommand;
-import com.denizenscript.ddiscordbot.commands.DiscordConnectCommand;
-import com.denizenscript.ddiscordbot.commands.DiscordInteractionCommand;
-import com.denizenscript.ddiscordbot.commands.DiscordMessageCommand;
-import com.denizenscript.ddiscordbot.commands.DiscordReactCommand;
+import com.denizenscript.ddiscordbot.commands.*;
 import com.denizenscript.ddiscordbot.events.*;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -38,6 +34,7 @@ public class DenizenDiscordBot extends JavaPlugin {
         instance = this;
         try {
             DenizenCore.getCommandRegistry().registerCommand(DiscordCommand.class);
+            DenizenCore.getCommandRegistry().registerCommand(DiscordCommandCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordConnectCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordInteractionCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordMessageCommand.class);
