@@ -126,7 +126,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             }
             else if (!scriptEntry.hasObject("rows")
                     && arg.matchesPrefix("rows")) {
-                scriptEntry.addObject("rows", ListTag.getListFor(arg.object, scriptEntry.getContext()).filter(ListTag.class, scriptEntry));
+                scriptEntry.addObject("rows", arg.asType(ListTag.class).filter(ListTag.class, scriptEntry));
             }
             else if (!scriptEntry.hasObject("message")) {
                 scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));

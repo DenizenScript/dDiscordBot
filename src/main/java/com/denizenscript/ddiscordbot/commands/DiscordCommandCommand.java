@@ -11,7 +11,6 @@ import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
-import com.denizenscript.denizencore.tags.TagManager;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
@@ -136,11 +135,11 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
             }
             else if (!scriptEntry.hasObject("enable_for")
                     && arg.matchesPrefix("enable_for")) {
-                scriptEntry.addObject("enable_for", ListTag.getListFor(TagManager.tagObject(arg.getValue(), scriptEntry.getContext()), scriptEntry.getContext()));
+                scriptEntry.addObject("enable_for", arg.asType(ListTag.class));
             }
             else if (!scriptEntry.hasObject("disable_for")
                     && arg.matchesPrefix("disable_for")) {
-                scriptEntry.addObject("disable_for", ListTag.getListFor(TagManager.tagObject(arg.getValue(), scriptEntry.getContext()), scriptEntry.getContext()));
+                scriptEntry.addObject("disable_for", arg.asType(ListTag.class));
             }
             else {
                 arg.reportUnhandled();
