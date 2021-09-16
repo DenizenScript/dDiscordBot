@@ -106,6 +106,21 @@ public class DenizenDiscordBot extends JavaPlugin {
                 return DiscordChannelTag.valueOf(attribute.getContext(1), attribute.context);
             });
             // <--[tag]
+            // @attribute <discord_command[<command>]>
+            // @returns DiscordCommandTag
+            // @plugin dDiscordBot
+            // @description
+            // Returns a Discord Command object constructed from the input value.
+            // Refer to <@link objecttype DiscordCommandTag>.
+            // -->
+            TagManager.registerTagHandler("discord_command", (attribute) -> {
+                if (!attribute.hasContext(1)) {
+                    attribute.echoError("Discord command tag base must have input.");
+                    return null;
+                }
+                return DiscordCommandTag.valueOf(attribute.getContext(1), attribute.context);
+            });
+            // <--[tag]
             // @attribute <discord_embed[(<embed>)]>
             // @returns DiscordEmbedTag
             // @plugin dDiscordBot
@@ -134,6 +149,21 @@ public class DenizenDiscordBot extends JavaPlugin {
                     return null;
                 }
                 return DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+            });
+            // <--[tag]
+            // @attribute <discord_interaction[<interaction>]>
+            // @returns DiscordInteractionTag
+            // @plugin dDiscordBot
+            // @description
+            // Returns a Discord Interaction object constructed from the input value.
+            // Refer to <@link objecttype DiscordInteractionTag>.
+            // -->
+            TagManager.registerTagHandler("discord_interaction", (attribute) -> {
+                if (!attribute.hasContext(1)) {
+                    attribute.echoError("Discord interaction tag base must have input.");
+                    return null;
+                }
+                return DiscordInteractionTag.valueOf(attribute.getContext(1), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_message[<message>]>
