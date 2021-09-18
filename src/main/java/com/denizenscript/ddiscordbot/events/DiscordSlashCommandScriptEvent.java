@@ -32,7 +32,7 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
     // @Switch group:<group_id> to only process the event for a specified Discord group.
     // @Switch name:<command_name> to only process the event for a specified Discord slash command.
     //
-    // @Triggers when a Discord user clicks a slash command.
+    // @Triggers when a Discord user uses a slash command.
     //
     // @Plugin dDiscordBot
     //

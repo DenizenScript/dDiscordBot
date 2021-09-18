@@ -28,14 +28,14 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
 
     public DiscordInteractionCommand() {
         setName("discordinteraction");
-        setSyntax("discordinteraction [defer/reply/delete] (interaction:<interaction>) (ephemeral:true/{false}) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)");
-        setRequiredArguments(3, 7);
+        setSyntax("discordinteraction [defer/reply/delete] [interaction:<interaction>] (ephemeral:true/{false}) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)");
+        setRequiredArguments(2, 7);
     }
 
     // <--[command]
     // @Name discordinteraction
-    // @Syntax discordinteraction [defer/reply/delete] (interaction:<interaction>) (ephemeral:true/{false}) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)
-    // @Required 3
+    // @Syntax discordinteraction [defer/reply/delete] [interaction:<interaction>] (ephemeral:true/{false}) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)
+    // @Required 2
     // @Maximum 7
     // @Short Manages Discord interactions.
     // @Plugin dDiscordBot
