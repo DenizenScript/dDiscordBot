@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -90,6 +91,11 @@ public class DiscordConnection extends ListenerAdapter {
     public void onButtonClick(ButtonClickEvent event) {
         autoHandle(event, DiscordButtonClickedScriptEvent.instance);
     }
+
+    @Override
+    public void onSelectionMenu(SelectionMenuEvent event) {
+        autoHandle(event, DiscordSelectionUsedScriptEvent.instance);
+    };
 
     public void autoHandle(Event event, DiscordScriptEvent scriptEvent) {
         Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
