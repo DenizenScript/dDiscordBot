@@ -218,7 +218,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // @plugin dDiscordBot
             // @description
             // Returns a blank DiscordSelectionTag instance, to be filled with data via the with.as tag.
-            // Or, if given an input, returns a Discord Embed object constructed from the input value.
+            // Or, if given an input, returns a Discord Selection object constructed from the input value.
             // Refer to <@link objecttype DiscordSelectionTag>.
             // -->
             TagManager.registerTagHandler("discord_selection", (attribute) -> {

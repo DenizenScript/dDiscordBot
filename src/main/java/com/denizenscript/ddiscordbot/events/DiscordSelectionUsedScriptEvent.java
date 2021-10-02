@@ -84,7 +84,6 @@ public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
             case "options":
                 return DiscordSelectionTag.getSelectionOptions(getEvent().getSelectedOptions());
         }
-
         return super.getContext(name);
     }
 

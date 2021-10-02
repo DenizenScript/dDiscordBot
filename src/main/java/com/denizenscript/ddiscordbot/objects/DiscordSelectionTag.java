@@ -152,7 +152,7 @@ public class DiscordSelectionTag implements ObjectTag {
         // @returns DiscordSelectionTag
         // @plugin dDiscordBot
         // @description
-        // Returns a copy of this Button tag, with the map of keys to values applied.
+        // Returns a copy of this Selection tag, with the map of keys to values applied.
         // Refer to <@link tag DiscordSelectionTag.with.as>.
         // -->
         registerTag("with_map", (attribute, object) -> {
