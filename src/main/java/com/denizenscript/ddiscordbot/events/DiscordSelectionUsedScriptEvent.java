@@ -35,7 +35,7 @@ public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
     // <context.group> returns the group.
     // <context.interaction> returns the interaction.
     // <context.menu> returns the selection menu.
-    // <context.options> returns the selected options.
+    // <context.option> returns the selected option.
     //
     // -->
 
@@ -81,8 +81,8 @@ public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
                 return DiscordInteractionTag.getOrCreate(botID, getEvent().getInteraction());
             case "menu":
                 return new DiscordSelectionTag(getEvent().getSelectionMenu());
-            case "options":
-                return DiscordSelectionTag.getSelectionOptions(getEvent().getSelectedOptions());
+            case "option":
+                return DiscordSelectionTag.getSelectionOption(getEvent().getSelectedOptions().get(0));
         }
         return super.getContext(name);
     }

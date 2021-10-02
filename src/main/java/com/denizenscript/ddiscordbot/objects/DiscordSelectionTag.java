@@ -67,20 +67,24 @@ public class DiscordSelectionTag implements ObjectTag {
         menuData = map;
     }
 
+    public static MapTag getSelectionOption(SelectOption selectOption) {
+        MapTag options = new MapTag();
+        options.putObject("label", new ElementTag(selectOption.getLabel()));
+        options.putObject("value", new ElementTag(selectOption.getValue()));
+        if (selectOption.getDescription() != null) {
+            options.putObject("description", new ElementTag(selectOption.getDescription()));
+        }
+        if (selectOption.getEmoji() != null) {
+            options.putObject("emoji", new ElementTag(selectOption.getEmoji().getName()));
+        }
+        return options;
+    }
+
     public static ListTag getSelectionOptions(List<SelectOption> selectOptions) {
         ListTag optionList = new ListTag();
         if (selectOptions != null) {
             for (SelectOption option : selectOptions) {
-                MapTag options = new MapTag();
-                options.putObject("label", new ElementTag(option.getLabel()));
-                options.putObject("value", new ElementTag(option.getValue()));
-                if (option.getDescription() != null) {
-                    options.putObject("description", new ElementTag(option.getDescription()));
-                }
-                if (option.getEmoji() != null) {
-                    options.putObject("emoji", new ElementTag(option.getEmoji().getName()));
-                }
-                optionList.addObject(options);
+                optionList.addObject(getSelectionOption(option));
             }
         }
         return optionList;
