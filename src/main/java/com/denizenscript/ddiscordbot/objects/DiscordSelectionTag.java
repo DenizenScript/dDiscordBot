@@ -3,6 +3,7 @@ package com.denizenscript.ddiscordbot.objects;
 import com.denizenscript.denizencore.objects.Fetchable;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
+import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
@@ -66,10 +67,11 @@ public class DiscordSelectionTag implements ObjectTag {
         menuData = map;
     }
 
-    public static MapTag getSelectionOptions(List<SelectOption> selectOptions) {
-        MapTag options = new MapTag();
+    public static ListTag getSelectionOptions(List<SelectOption> selectOptions) {
+        ListTag optionList = new ListTag();
         if (selectOptions != null) {
             for (SelectOption option : selectOptions) {
+                MapTag options = new MapTag();
                 options.putObject("label", new ElementTag(option.getLabel()));
                 options.putObject("value", new ElementTag(option.getValue()));
                 if (option.getDescription() != null) {
@@ -78,9 +80,10 @@ public class DiscordSelectionTag implements ObjectTag {
                 if (option.getEmoji() != null) {
                     options.putObject("emoji", new ElementTag(option.getEmoji().getName()));
                 }
+                optionList.addObject(options);
             }
         }
-        return options;
+        return optionList;
     }
 
     public DiscordSelectionTag(SelectionMenu menu) {
