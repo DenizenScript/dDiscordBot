@@ -80,22 +80,18 @@ public class DiscordSelectionTag implements ObjectTag {
         return options;
     }
 
-    public static ListTag getSelectionOptions(List<SelectOption> selectOptions) {
-        ListTag optionList = new ListTag();
-        if (selectOptions != null) {
-            for (SelectOption option : selectOptions) {
-                optionList.addObject(getSelectionOption(option));
-            }
-        }
-        return optionList;
-    }
-
     public DiscordSelectionTag(SelectionMenu menu) {
         menuData = new MapTag();
         if (menu.getId() != null) {
             menuData.putObject("id", new ElementTag(menu.getId()));
         }
-        menuData.putObject("options", DiscordSelectionTag.getSelectionOptions(menu.getOptions()));
+        ListTag options = new ListTag();
+        if (menu.getOptions() != null) {
+            for (SelectOption option : menu.getOptions()) {
+                options.addObject(DiscordSelectionTag.getSelectionOption(option));
+            }
+        }
+        menuData.putObject("options", options);
     }
 
     public SelectionMenu.Builder build(TagContext context) {
