@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 public class DiscordSelectionTag implements ObjectTag {
@@ -86,24 +85,19 @@ public class DiscordSelectionTag implements ObjectTag {
             menuData.putObject("id", new ElementTag(menu.getId()));
         }
         ListTag options = new ListTag();
-        if (menu.getOptions() != null) {
-            for (SelectOption option : menu.getOptions()) {
-                options.addObject(DiscordSelectionTag.getSelectionOption(option));
-            }
+        for (SelectOption option : menu.getOptions()) {
+            options.addObject(DiscordSelectionTag.getSelectionOption(option));
         }
         menuData.putObject("options", options);
     }
 
     public SelectionMenu.Builder build(TagContext context) {
         ObjectTag id = menuData.getObject("id");
-        MapTag options = (MapTag) menuData.getObject("options");
-        SelectionMenu.Builder menu = null;
-        if (id != null) {
-            menu = SelectionMenu.create(id.toString());
-        }
-        else {
+        if (id == null) {
             return null;
         }
+        SelectionMenu.Builder menu = SelectionMenu.create(id.toString());
+        MapTag options = (MapTag) menuData.getObject("options");
         if (options != null) {
             for (ObjectTag optionObj : options.map.values()) {
                 MapTag option = optionObj.asType(MapTag.class, context);
@@ -125,14 +119,10 @@ public class DiscordSelectionTag implements ObjectTag {
                     menu.addOption(label.toString(), value.toString(), description.toString());
                 }
                 else if (description == null) {
-                    if (emojiData != null) {
-                        menu.addOption(label.toString(), value.toString(), emojiData);
-                    }
+                    menu.addOption(label.toString(), value.toString(), emojiData);
                 }
                 else {
-                    if (emojiData != null) {
-                        menu.addOption(label.toString(), value.toString(), description.toString(), emojiData);
-                    }
+                    menu.addOption(label.toString(), value.toString(), description.toString(), emojiData);
                 }
             }
         }

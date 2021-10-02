@@ -112,6 +112,9 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         if (!scriptEntry.hasObject("instruction")) {
             throw new InvalidArgumentsException("Must have an instruction!");
         }
+        if (!scriptEntry.hasObject("interaction")) {
+            throw new InvalidArgumentsException("Must have an interaction!");
+        }
     }
 
     @Override
