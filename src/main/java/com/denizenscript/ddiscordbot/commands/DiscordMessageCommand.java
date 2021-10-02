@@ -16,7 +16,7 @@ import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.bukkit.Bukkit;
 
@@ -147,14 +147,20 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         List<ActionRow> actionRows = new ArrayList<>();
         if (rows != null) {
             for (ListTag row : rows) {
-                List<Button> buttons = new ArrayList<>();
-                for (DiscordButtonTag button : row.filter(DiscordButtonTag.class, scriptEntry.getContext())) {
-                    Button built = button.build();
+                List<Component> components = new ArrayList<>();
+                for (String component : row) {
+                    Component built = null;
+                    if (component.startsWith("discordbutton@")) {
+                        built = DiscordButtonTag.valueOf(component, scriptEntry.getContext()).build();
+                    }
+                    else if (component.startsWith("discordselection@")) {
+                        built = DiscordSelectionTag.valueOf(component, scriptEntry.getContext()).build(scriptEntry.getContext()).build();
+                    }
                     if (built != null) {
-                        buttons.add(built);
+                        components.add(built);
                     }
                 }
-                actionRows.add(ActionRow.of(buttons));
+                actionRows.add(ActionRow.of(components));
             }
             return actionRows;
         }

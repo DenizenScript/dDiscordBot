@@ -45,6 +45,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             ScriptEvent.registerScriptEvent(DiscordMessageReactionAddScriptEvent.instance = new DiscordMessageReactionAddScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageReactionRemoveScriptEvent.instance = new DiscordMessageReactionRemoveScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageReceivedScriptEvent.instance = new DiscordMessageReceivedScriptEvent());
+            ScriptEvent.registerScriptEvent(DiscordSelectionUsedScriptEvent.instance = new DiscordSelectionUsedScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordSlashCommandScriptEvent.instance = new DiscordSlashCommandScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserJoinsScriptEvent.instance = new DiscordUserJoinsScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserLeavesScriptEvent.instance = new DiscordUserLeavesScriptEvent());
@@ -60,6 +61,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             ObjectFetcher.registerWithObjectFetcher(DiscordMessageTag.class, DiscordMessageTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordReactionTag.class, DiscordReactionTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordRoleTag.class, DiscordRoleTag.tagProcessor);
+            ObjectFetcher.registerWithObjectFetcher(DiscordSelectionTag.class, DiscordSelectionTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordUserTag.class, DiscordUserTag.tagProcessor);
             // <--[tag]
             // @attribute <discord[<bot-id>]>
@@ -209,6 +211,21 @@ public class DenizenDiscordBot extends JavaPlugin {
                     return null;
                 }
                 return DiscordRoleTag.valueOf(attribute.getContext(1), attribute.context);
+            });
+            // <--[tag]
+            // @attribute <discord_selection[(<menu>)]>
+            // @returns DiscordSelectionTag
+            // @plugin dDiscordBot
+            // @description
+            // Returns a blank DiscordSelectionTag instance, to be filled with data via the with.as tag.
+            // Or, if given an input, returns a Discord Selection object constructed from the input value.
+            // Refer to <@link objecttype DiscordSelectionTag>.
+            // -->
+            TagManager.registerTagHandler("discord_selection", (attribute) -> {
+                if (!attribute.hasContext(1)) {
+                    return new DiscordSelectionTag();
+                }
+                return DiscordSelectionTag.valueOf(attribute.getContext(1), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_user[<user>]>

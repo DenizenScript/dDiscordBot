@@ -51,7 +51,7 @@ public class DiscordButtonTag implements ObjectTag {
     }
 
     public static boolean matches(String arg) {
-        if (arg.startsWith("discordembed@")) {
+        if (arg.startsWith("discordbutton@")) {
             return true;
         }
         return MapTag.matches(arg);
@@ -195,7 +195,7 @@ public class DiscordButtonTag implements ObjectTag {
         // @returns MapTag
         // @plugin dDiscordBot
         // @description
-        // Returns the MapTag internally backing this embed tag.
+        // Returns the MapTag internally backing this button tag.
         // -->
         registerTag("map", (attribute, object) -> {
             return object.buttonData.duplicate();
