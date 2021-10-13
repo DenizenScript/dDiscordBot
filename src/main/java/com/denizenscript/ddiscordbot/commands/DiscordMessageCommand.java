@@ -177,7 +177,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         ElementTag noMention = scriptEntry.getElement("no_mention");
         ElementTag attachFileName = scriptEntry.getElement("attach_file_name");
         ElementTag attachFileText = scriptEntry.getElement("attach_file_text");
-        List<ListTag> rows = (List<ListTag>) scriptEntry.getObjectTag("rows");
+        List<ListTag> rows = scriptEntry.getObjectTag("rows");
         if (scriptEntry.dbCallShouldDebug()) {
             Debug.report(scriptEntry, getName(), id.debug()
                     + (channel != null ? channel.debug() : "")

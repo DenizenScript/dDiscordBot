@@ -3,6 +3,9 @@ package com.denizenscript.ddiscordbot;
 import com.denizenscript.ddiscordbot.commands.*;
 import com.denizenscript.ddiscordbot.events.*;
 import com.denizenscript.ddiscordbot.objects.*;
+import com.denizenscript.ddiscordbot.properties.DiscordTimeTagProperties;
+import com.denizenscript.denizencore.objects.core.TimeTag;
+import com.denizenscript.denizencore.objects.properties.PropertyParser;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.events.ScriptEvent;
@@ -33,12 +36,14 @@ public class DenizenDiscordBot extends JavaPlugin {
         Debug.log("dDiscordBot loaded!");
         instance = this;
         try {
+            // Commands
             DenizenCore.getCommandRegistry().registerCommand(DiscordCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordCommandCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordConnectCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordInteractionCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordMessageCommand.class);
             DenizenCore.getCommandRegistry().registerCommand(DiscordReactCommand.class);
+            // Events
             ScriptEvent.registerScriptEvent(DiscordButtonClickedScriptEvent.instance = new DiscordButtonClickedScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageDeletedScriptEvent.instance = new DiscordMessageDeletedScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageModifiedScriptEvent.instance = new DiscordMessageModifiedScriptEvent());
@@ -51,6 +56,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             ScriptEvent.registerScriptEvent(DiscordUserLeavesScriptEvent.instance = new DiscordUserLeavesScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserNicknameChangeScriptEvent.instance = new DiscordUserNicknameChangeScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordUserRoleChangeScriptEvent.instance = new DiscordUserRoleChangeScriptEvent());
+            // Objects
             ObjectFetcher.registerWithObjectFetcher(DiscordBotTag.class, DiscordBotTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordButtonTag.class, DiscordButtonTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordChannelTag.class, DiscordChannelTag.tagProcessor);
@@ -63,6 +69,8 @@ public class DenizenDiscordBot extends JavaPlugin {
             ObjectFetcher.registerWithObjectFetcher(DiscordRoleTag.class, DiscordRoleTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordSelectionTag.class, DiscordSelectionTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordUserTag.class, DiscordUserTag.tagProcessor);
+            // Extension properties
+            PropertyParser.registerProperty(DiscordTimeTagProperties.class, TimeTag.class);
             // <--[tag]
             // @attribute <discord[<bot-id>]>
             // @returns DiscordBotTag

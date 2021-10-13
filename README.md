@@ -3,9 +3,11 @@ dDiscordBot: Adds a Discord Bot to Denizen!
 
 **Download (Dev builds)**: https://ci.citizensnpcs.co/job/dDiscordBot/
 
-Only works if you know how to operate a Discord bot, of course! https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token
+Only works if you know how to operate a Discord bot, of course! Refer to any public guide, such as [this one](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token) or [this one](https://discordpy.readthedocs.io/en/stable/discord.html).
 
-It's strongly recommended you enable the `Server Members Intent` in the Discord bot settings.
+It's strongly recommended you enable the `Server Members Intent` in the Discord bot settings. Bot functionality is limited if you don't.
+
+View guide page here: https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
 
 #### Need help using dDiscordBot? Try one of these places:
 
