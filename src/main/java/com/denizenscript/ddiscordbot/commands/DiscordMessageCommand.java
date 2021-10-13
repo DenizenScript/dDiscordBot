@@ -145,6 +145,9 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     }
 
     public static List<ActionRow> createRows(ScriptEntry scriptEntry, ObjectTag rowsObj) {
+        if (rowsObj == null) {
+            return null;
+        }
         Collection<ObjectTag> rows = CoreUtilities.objectToList(rowsObj, scriptEntry.getContext());
         List<ActionRow> actionRows = new ArrayList<>();
         for (ObjectTag row : rows) {

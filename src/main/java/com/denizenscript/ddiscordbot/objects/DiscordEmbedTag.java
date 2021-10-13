@@ -267,6 +267,7 @@ public class DiscordEmbedTag implements ObjectTag {
         // timestamp: TimeTag
         // title: ElementTag
         // title_url: ElementTag of a URL (requires title set)
+        // See also <@link tag DiscordEmbedTag.add_field.value> and <@link tag DiscordEmbedTag.add_inline_field.value>.
         // -->
         registerTag("with", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();

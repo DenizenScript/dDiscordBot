@@ -86,7 +86,7 @@ public class DiscordSelectionTag implements ObjectTag {
         }
         ListTag options = new ListTag();
         for (SelectOption option : menu.getOptions()) {
-            options.addObject(DiscordSelectionTag.getSelectionOption(option));
+            options.addObject(getSelectionOption(option));
         }
         menuData.putObject("options", options);
     }
