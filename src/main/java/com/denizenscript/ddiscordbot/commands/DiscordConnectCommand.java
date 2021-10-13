@@ -46,6 +46,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
     // @Maximum 3
     // @Short Connects to Discord.
     // @Plugin dDiscordBot
+    // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
     //
     // @Description

@@ -6,6 +6,7 @@ import com.denizenscript.ddiscordbot.objects.DiscordInteractionTag;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.ArgumentHelper;
+import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
@@ -39,6 +40,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
     // @Maximum 7
     // @Short Manages Discord interactions.
     // @Plugin dDiscordBot
+    // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
     //
     // @Description
@@ -100,7 +102,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
             }
             else if (!scriptEntry.hasObject("rows")
                     && arg.matchesPrefix("rows")) {
-                scriptEntry.addObject("rows", arg.asType(ListTag.class).filter(ListTag.class, scriptEntry));
+                scriptEntry.addObject("rows", arg.object);
             }
             else if (!scriptEntry.hasObject("message")) {
                 scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
@@ -124,10 +126,11 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         ElementTag ephemeral = scriptEntry.getElement("ephemeral");
         ElementTag attachFileName = scriptEntry.getElement("attach_file_name");
         ElementTag attachFileText = scriptEntry.getElement("attach_file_text");
-        List<ListTag> rows = scriptEntry.getObjectTag("rows");
+        ObjectTag rows = scriptEntry.getObjectTag("rows");
         ElementTag message = scriptEntry.getElement("message");
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), instruction, interaction, ephemeral, attachFileName, attachFileText, rows != null ? ArgumentHelper.debugList("rows", rows) : null, message);
+            // Note: attachFileText intentionally at end
+            Debug.report(scriptEntry, getName(), instruction, interaction, ephemeral, rows, message, attachFileName, attachFileText);
         }
         DiscordInteractionInstruction instructionEnum = DiscordInteractionInstruction.valueOf(instruction.asString().toUpperCase());
         boolean isEphemeral = ephemeral != null && ephemeral.asBoolean();

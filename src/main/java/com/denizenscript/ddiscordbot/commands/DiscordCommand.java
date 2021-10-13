@@ -40,6 +40,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // @Maximum 12
     // @Short Interacts with Discord.
     // @Plugin dDiscordBot
+    // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
     //
     // @Description

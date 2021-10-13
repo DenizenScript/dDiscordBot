@@ -33,6 +33,7 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
     // @Maximum 6
     // @Short Manages message reactions on Discord.
     // @Plugin dDiscordBot
+    // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
     //
     // @Description

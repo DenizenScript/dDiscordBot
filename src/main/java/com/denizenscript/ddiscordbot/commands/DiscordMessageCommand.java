@@ -5,9 +5,8 @@ import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Argument;
-import com.denizenscript.denizencore.objects.ArgumentHelper;
+import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
-import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
@@ -22,6 +21,7 @@ import org.bukkit.Bukkit;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class DiscordMessageCommand extends AbstractCommand implements Holdable {
@@ -39,6 +39,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // @Maximum 7
     // @Short Sends a message to a Discord channel.
     // @Plugin dDiscordBot
+    // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
     //
     // @Description
@@ -86,7 +87,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // @Usage
     // Use to send a message and attach a button to it.
     // - define my_button <discord_button.with[style].as[primary].with[id].as[my_button].with[label].as[Hello]>
-    // - ~discordmessage id:mybot channel:<discord[mybot].channel[testing]> rows:<list_single[<list_single[<[my_button]>]>]> "Hello world!"
+    // - ~discordmessage id:mybot channel:<discord[mybot].channel[testing]> rows:<[my_button]> "Hello world!"
     //
     // -->
 
@@ -126,7 +127,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             }
             else if (!scriptEntry.hasObject("rows")
                     && arg.matchesPrefix("rows")) {
-                scriptEntry.addObject("rows", arg.asType(ListTag.class).filter(ListTag.class, scriptEntry));
+                scriptEntry.addObject("rows", arg.object);
             }
             else if (!scriptEntry.hasObject("message")) {
                 scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
@@ -143,28 +144,25 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         }
     }
 
-    public static List<ActionRow> createRows(ScriptEntry scriptEntry, List<ListTag> rows) {
+    public static List<ActionRow> createRows(ScriptEntry scriptEntry, ObjectTag rowsObj) {
+        Collection<ObjectTag> rows = CoreUtilities.objectToList(rowsObj, scriptEntry.getContext());
         List<ActionRow> actionRows = new ArrayList<>();
-        if (rows != null) {
-            for (ListTag row : rows) {
-                List<Component> components = new ArrayList<>();
-                for (String component : row) {
-                    Component built = null;
-                    if (component.startsWith("discordbutton@")) {
-                        built = DiscordButtonTag.valueOf(component, scriptEntry.getContext()).build();
-                    }
-                    else if (component.startsWith("discordselection@")) {
-                        built = DiscordSelectionTag.valueOf(component, scriptEntry.getContext()).build(scriptEntry.getContext()).build();
-                    }
-                    if (built != null) {
-                        components.add(built);
-                    }
+        for (ObjectTag row : rows) {
+            List<Component> components = new ArrayList<>();
+            for (ObjectTag component : CoreUtilities.objectToList(row, scriptEntry.getContext())) {
+                if (component.canBeType(DiscordButtonTag.class)) {
+                    components.add(component.asType(DiscordButtonTag.class, scriptEntry.getContext()).build());
                 }
-                actionRows.add(ActionRow.of(components));
+                else if (component.canBeType(DiscordSelectionTag.class)) {
+                    components.add(component.asType(DiscordSelectionTag.class, scriptEntry.getContext()).build(scriptEntry.getContext()).build());
+                }
+                else {
+                    Debug.echoError("Unrecognized component list entry '" + component + "'");
+                }
             }
-            return actionRows;
+            actionRows.add(ActionRow.of(components));
         }
-        return null;
+        return actionRows;
     }
 
     @Override
@@ -177,19 +175,11 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         ElementTag noMention = scriptEntry.getElement("no_mention");
         ElementTag attachFileName = scriptEntry.getElement("attach_file_name");
         ElementTag attachFileText = scriptEntry.getElement("attach_file_text");
-        List<ListTag> rows = scriptEntry.getObjectTag("rows");
+        ObjectTag rows = scriptEntry.getObjectTag("rows");
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id.debug()
-                    + (channel != null ? channel.debug() : "")
-                    + (message != null ? message.debug() : "")
-                    + (user != null ? user.debug() : "")
-                    + (reply != null ? reply.debug() : "")
-                    + (attachFileName != null ? attachFileName.debug() : "")
-                    + (attachFileText != null ? attachFileText.debug() : "")
-                    + (noMention != null ? noMention.debug() : "")
-                    + (rows != null ? ArgumentHelper.debugList("Rows", rows) : ""));
+            // Note: attachFileText intentionally at end
+            Debug.report(scriptEntry, getName(), id, channel, message, user, reply, noMention, rows, attachFileName, attachFileText);
         }
-
         Runnable runner = () -> {
             DiscordConnection connection = DenizenDiscordBot.instance.connections.get(id.asString());
             if (connection == null) {
@@ -271,7 +261,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                     Debug.echoError("Failed to send attachment - missing content?");
                 }
             }
-            List<ActionRow> actionRows = DiscordMessageCommand.createRows(scriptEntry, rows);
+            List<ActionRow> actionRows = createRows(scriptEntry, rows);
             if (actionRows != null) {
                 action.setActionRows(actionRows);
             }

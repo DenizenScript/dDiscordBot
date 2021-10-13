@@ -45,6 +45,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
     // @Maximum 9
     // @Short Manages Discord slash commands.
     // @Plugin dDiscordBot
+    // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
     //
     // @Description
