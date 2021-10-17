@@ -199,18 +199,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         ElementTag url = scriptEntry.getElement("url");
         ElementTag messageId = scriptEntry.getElement("message_id");
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id.debug()
-                    + (channel != null ? channel.debug() : "")
-                    + instruction.debug()
-                    + (message != null ? message.debug() : "")
-                    + (user != null ? user.debug() : "")
-                    + (guild != null ? guild.debug() : "")
-                    + (role != null ? role.debug() : "")
-                    + (status != null ? status.debug() : "")
-                    + (activity != null ? activity.debug() : "")
-                    + (url != null ? url.debug() : "")
-                    + (tokenFile != null ? tokenFile.debug() : "")
-                    + (messageId != null ? messageId.debug() : ""));
+            Debug.report(scriptEntry, getName(), id, channel, instruction, message, user, guild, role, status, activity, url, tokenFile, messageId);
         }
         Supplier<Boolean> requireClientID = () -> {
             if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {

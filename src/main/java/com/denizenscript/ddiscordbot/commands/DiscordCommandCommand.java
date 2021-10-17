@@ -64,7 +64,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
     //
     // You can use the "enabled" argument to set whether the command should be enabled for everyone by default.
     // To edit the permissions of a command (who can use it, and who can't), use the "perms" instruction. Permissions MUST be edited AFTER creation.
-    // Use the "enable_for" and "disable_for" arguments (ListTags of DiscordUserTags or DiscordRoleTags) when editing permissions.
+    // Use the "enable_for" and "disable_for" arguments (ListTags of DiscordUserTags or DiscordRoleTags - note: actual objects not raw IDs) when editing permissions.
     //
     // You DO NOT need to create a command on startup every time! Once a command is created, it will persist until you delete it.
     // Using the "create" instruction on an existing command will update it.
@@ -224,6 +224,9 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
             Debug.echoError("Failed to process DiscordInteraction command: unknown bot ID!");
             scriptEntry.setFinished(true);
             return;
+        }
+        if (group != null && group.bot == null) {
+            group.bot = id.asString();
         }
         JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
