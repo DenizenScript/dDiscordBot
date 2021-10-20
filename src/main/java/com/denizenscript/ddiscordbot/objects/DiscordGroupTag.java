@@ -139,7 +139,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the name of the group.
         // -->
-        registerTag("name", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "name", (attribute, object) -> {
             return new ElementTag(object.getGuild().getName());
         });
 
@@ -150,7 +150,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the ID number of the group.
         // -->
-        registerTag("id", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "id", (attribute, object) -> {
             return new ElementTag(object.guild_id);
         });
 
@@ -161,7 +161,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of all channels in the group.
         // -->
-        registerTag("channels", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "channels", (attribute, object) -> {
             ListTag list = new ListTag();
             for (TextChannel chan : object.getGuild().getTextChannels()) {
                 list.addObject(new DiscordChannelTag(object.bot, chan));
@@ -176,7 +176,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of all users in the group.
         // -->
-        registerTag("members", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "members", (attribute, object) -> {
             ListTag list = new ListTag();
             for (Member member : object.getGuild().getMembers()) {
                 list.addObject(new DiscordUserTag(object.bot, member.getUser()));
@@ -191,7 +191,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of all roles in the group.
         // -->
-        registerTag("roles", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "roles", (attribute, object) -> {
             ListTag list = new ListTag();
             for (Role role : object.getGuild().getRoles()) {
                 list.addObject(new DiscordRoleTag(object.bot, role));
@@ -206,7 +206,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of all commands in the group.
         // -->
-        registerTag("commands", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "commands", (attribute, object) -> {
             ListTag list = new ListTag();
             for (Command command : object.getGuild().retrieveCommands().complete()) {
                 list.addObject(new DiscordCommandTag(object.bot, object.getGuild(), command));
@@ -225,7 +225,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // (this happens more often than you might expect - many users accidentally join new Discord groups from the
         // web on a temporary web account, then rejoin on a local client with their 'real' account).
         // -->
-        registerTag("member", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordUserTag.class, "member", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -253,7 +253,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the channel that best matches the input name, or null if there's no match.
         // -->
-        registerTag("channel", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordChannelTag.class, "channel", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -282,7 +282,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the role that best matches the input name, or null if there's no match.
         // -->
-        registerTag("role", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordRoleTag.class, "role", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -311,7 +311,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the guild command that best matches the input name, or null if there's no match.
         // -->
-        registerTag("command", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordCommandTag.class, "command", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -340,7 +340,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of emoji names in the group.
         // -->
-        registerTag("emoji_names", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "emoji_names", (attribute, object) -> {
             ListTag result = new ListTag();
             for (Emote emote : object.getGuild().getEmotes()) {
                 result.add(emote.getName());
@@ -355,7 +355,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the ID of the emoji that best matches the input name, or null if there's no match.
         // -->
-        registerTag("emoji_id", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "emoji_id", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -379,10 +379,6 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
     }
 
     public static ObjectTagProcessor<DiscordGroupTag> tagProcessor = new ObjectTagProcessor<>();
-
-    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordGroupTag> runnable, String... variants) {
-        tagProcessor.registerTag(name, runnable, variants);
-    }
 
     @Override
     public ObjectTag getObjectAttribute(Attribute attribute) {

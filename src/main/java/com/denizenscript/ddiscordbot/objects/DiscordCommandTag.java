@@ -184,7 +184,7 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the ID of the command.
         // -->
-        registerTag("id", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "id", (attribute, object) -> {
             return new ElementTag(object.command_id);
         });
 
@@ -195,7 +195,7 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the name of the command.
         // -->
-        registerTag("name", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "name", (attribute, object) -> {
             return new ElementTag(object.getCommand().getName());
         });
 
@@ -206,7 +206,7 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the description of the command.
         // -->
-        registerTag("description", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "description", (attribute, object) -> {
             return new ElementTag(object.getCommand().getDescription());
         });
 
@@ -217,7 +217,7 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the option MapTags of the command. This is the same value as the one provided when creating a command, as documented in <@link command DiscordCommand>.
         // -->
-        registerTag("options", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "options", (attribute, object) -> {
             ListTag options = new ListTag();
             for (Command.Option option : object.getCommand().getOptions()) {
                 MapTag map = new MapTag();
@@ -247,10 +247,6 @@ public class DiscordCommandTag implements ObjectTag, FlaggableObject {
     }
 
     public static ObjectTagProcessor<DiscordCommandTag> tagProcessor = new ObjectTagProcessor<>();
-
-    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordCommandTag> runnable, String... variants) {
-        tagProcessor.registerTag(name, runnable, variants);
-    }
 
     @Override
     public ObjectTag getObjectAttribute(Attribute attribute) {

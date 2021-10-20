@@ -196,7 +196,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         // Returns the ID of the reaction emote.
         // For custom emoji, this is a numeric ID. For default emoji, this is the unicode symbol.
         // -->
-        registerTag("id", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "id", (attribute, object) -> {
             return new ElementTag(object.emote.isEmoji() ? object.emote.getEmoji() : object.emote.getEmote().getId());
         });
 
@@ -207,7 +207,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the message this reaction is attached to.
         // -->
-        registerTag("message", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordMessageTag.class, "message", (attribute, object) -> {
             if (object.message == null) {
                 return new DiscordMessageTag(object.bot, object.channel_id, object.message_id);
             }
@@ -223,7 +223,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the amount of times this reaction exists on the message.
         // -->
-        registerTag("count", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "count", (attribute, object) -> {
             if (object.getReaction().hasCount()) {
                 return new ElementTag(object.getReaction().getCount());
             }
@@ -237,7 +237,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the name of the emoji.
         // -->
-        registerTag("name", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "name", (attribute, object) -> {
             return new ElementTag(object.emote.getName());
         });
 
@@ -248,7 +248,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns whether the emote reacted is animated (an "animoji").
         // -->
-        registerTag("is_animated", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "is_animated", (attribute, object) -> {
             return new ElementTag(object.emote.isEmote() && object.emote.getEmote().isAnimated());
         });
 
@@ -259,7 +259,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the list of users that added this reaction to the message.
         // -->
-        registerTag("reactors", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "reactors", (attribute, object) -> {
             ListTag users = new ListTag();
             for (User user : object.getReaction().retrieveUsers().complete()) {
                 users.addObject(new DiscordUserTag(object.bot, user));
@@ -269,10 +269,6 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
     }
 
     public static ObjectTagProcessor<DiscordReactionTag> tagProcessor = new ObjectTagProcessor<>();
-
-    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordReactionTag> runnable, String... variants) {
-        tagProcessor.registerTag(name, runnable, variants);
-    }
 
     @Override
     public ObjectTag getObjectAttribute(Attribute attribute) {

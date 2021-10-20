@@ -135,7 +135,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the name of the channel.
         // -->
-        registerTag("name", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "name", (attribute, object) -> {
             MessageChannel chan = object.getChannel();
             String name;
             if (chan instanceof GuildChannel) {
@@ -158,7 +158,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // Returns the type of the channel.
         // Will be any of: TEXT, PRIVATE, VOICE, GROUP, CATEGORY, STORE, UNKNOWN.
         // -->
-        registerTag("channel_type", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "channel_type", (attribute, object) -> {
             return new ElementTag(object.getChannel().getType().name());
         }, "type");
 
@@ -169,7 +169,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the ID number of the channel.
         // -->
-        registerTag("id", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "id", (attribute, object) -> {
             return new ElementTag(object.channel_id);
         });
 
@@ -180,7 +180,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the raw mention string for the channel.
         // -->
-        registerTag("mention", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "mention", (attribute, object) -> {
             return new ElementTag("<#" + object.channel_id + ">");
         });
 
@@ -191,7 +191,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the group that owns this channel.
         // -->
-        registerTag("group", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordGroupTag.class, "group", (attribute, object) -> {
             MessageChannel chan = object.getChannel();
             Guild guild;
             if (chan instanceof GuildChannel) {
@@ -210,7 +210,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of the messages that are pinned in the channel.
         // -->
-        registerTag("pinned_messages", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "pinned_messages", (attribute, object) -> {
             ListTag list = new ListTag();
             for (Message message : object.getChannel().retrievePinnedMessages().complete()) {
                 list.addObject(new DiscordMessageTag(object.bot, message));
@@ -225,7 +225,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the first message sent in the channel.
         // -->
-        registerTag("first_message", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordMessageTag.class, "first_message", (attribute, object) -> {
             Message first = object.getChannel().getHistoryFromBeginning(1).complete().getRetrievedHistory().get(0);
             return new DiscordMessageTag(object.bot, first);
         });
@@ -237,7 +237,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the last message sent in the channel.
         // -->
-        registerTag("last_message", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordMessageTag.class, "last_message", (attribute, object) -> {
             if (object.getChannel().hasLatestMessage()) {
                 return new DiscordMessageTag(object.bot, object.channel_id, object.getChannel().getLatestMessageIdLong());
             }
@@ -248,10 +248,6 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
     }
 
     public static ObjectTagProcessor<DiscordChannelTag> tagProcessor = new ObjectTagProcessor<>();
-
-    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordChannelTag> runnable, String... variants) {
-        tagProcessor.registerTag(name, runnable, variants);
-    }
 
     @Override
     public ObjectTag getObjectAttribute(Attribute attribute) {

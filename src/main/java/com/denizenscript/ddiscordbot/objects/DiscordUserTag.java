@@ -166,7 +166,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the user name of the user.
         // -->
-        registerTag("name", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "name", (attribute, object) -> {
             if (object.getUserForTag(attribute) == null) {
                 return null;
             }
@@ -180,7 +180,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the discriminator ID of the user.
         // -->
-        registerTag("discriminator", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "discriminator", (attribute, object) -> {
             if (object.getUserForTag(attribute) == null) {
                 return null;
             }
@@ -194,7 +194,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a boolean indicating whether the user is a bot.
         // -->
-        registerTag("is_bot", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "is_bot", (attribute, object) -> {
             if (object.getUserForTag(attribute) == null) {
                 return null;
             }
@@ -208,7 +208,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the URL to the user's avatar.
         // -->
-        registerTag("avatar_url", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "avatar_url", (attribute, object) -> {
             if (object.getUserForTag(attribute) == null) {
                 return null;
             }
@@ -222,7 +222,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the group-specific nickname of the user (if any).
         // -->
-        registerTag("nickname", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "nickname", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -250,7 +250,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the ID number of the user.
         // -->
-        registerTag("id", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "id", (attribute, object) -> {
             return new ElementTag(object.user_id);
 
         });
@@ -262,7 +262,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the raw mention string for the user.
         // -->
-        registerTag("mention", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "mention", (attribute, object) -> {
             return new ElementTag("<@" + object.user_id + ">");
         });
 
@@ -274,7 +274,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Returns the status of the user, as seen from the given group.
         // Can be any of: online, dnd, idle, invisible, offline.
         // -->
-        registerTag("status", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "status", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -297,7 +297,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Can be any of: DEFAULT, STREAMING, LISTENING, WATCHING, CUSTOM_STATUS, COMPETING.
         // Not present for all users.
         // -->
-        registerTag("activity_type", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "activity_type", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -323,7 +323,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Returns the name of the activity of the user, as seen from the given group.
         // Not present for all users.
         // -->
-        registerTag("activity_name", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "activity_name", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -349,7 +349,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Returns the stream URL of the activity of the user, as seen from the given group.
         // Not present for all users.
         // -->
-        registerTag("activity_url", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "activity_url", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -377,7 +377,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of all roles the user has in the given group.
         // -->
-        registerTag("roles", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "roles", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -397,10 +397,6 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
     }
 
     public static ObjectTagProcessor<DiscordUserTag> tagProcessor = new ObjectTagProcessor<>();
-
-    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordUserTag> runnable, String... variants) {
-        tagProcessor.registerTag(name, runnable, variants);
-    }
 
     @Override
     public ObjectTag getObjectAttribute(Attribute attribute) {

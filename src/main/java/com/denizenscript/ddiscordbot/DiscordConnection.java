@@ -95,7 +95,7 @@ public class DiscordConnection extends ListenerAdapter {
     @Override
     public void onSelectionMenu(SelectionMenuEvent event) {
         autoHandle(event, DiscordSelectionUsedScriptEvent.instance);
-    };
+    }
 
     public void autoHandle(Event event, DiscordScriptEvent scriptEvent) {
         Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {

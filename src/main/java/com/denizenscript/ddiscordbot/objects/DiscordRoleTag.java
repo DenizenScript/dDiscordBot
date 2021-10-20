@@ -170,7 +170,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the name of the role.
         // -->
-        registerTag("name", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "name", (attribute, object) -> {
             return new ElementTag(object.role.getName());
         });
 
@@ -181,7 +181,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the ID number of the role.
         // -->
-        registerTag("id", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "id", (attribute, object) -> {
             return new ElementTag(object.role_id);
         });
 
@@ -192,7 +192,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the raw mention string of the role.
         // -->
-        registerTag("mention", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "mention", (attribute, object) -> {
             return new ElementTag(object.role.getAsMention());
         });
 
@@ -203,7 +203,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the group that owns this role.
         // -->
-        registerTag("group", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordGroupTag.class, "group", (attribute, object) -> {
             return new DiscordGroupTag(object.bot, object.role.getGuild());
         });
 
@@ -214,7 +214,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the display color of the role, if any.
         // -->
-        registerTag("color", (attribute, object) -> {
+        tagProcessor.registerTag(ColorTag.class, "color", (attribute, object) -> {
             Color color = object.role.getColor();
             if (color == null) {
                 return null;
@@ -224,10 +224,6 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
     }
 
     public static ObjectTagProcessor<DiscordRoleTag> tagProcessor = new ObjectTagProcessor<>();
-
-    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordRoleTag> runnable, String... variants) {
-        tagProcessor.registerTag(name, runnable, variants);
-    }
 
     @Override
     public ObjectTag getObjectAttribute(Attribute attribute) {

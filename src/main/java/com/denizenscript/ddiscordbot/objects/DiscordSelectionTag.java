@@ -145,7 +145,7 @@ public class DiscordSelectionTag implements ObjectTag {
         // Returns a copy of this Selection tag, with the map of keys to values applied.
         // Refer to <@link tag DiscordSelectionTag.with.as>.
         // -->
-        registerTag("with_map", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordSelectionTag.class, "with_map", (attribute, object) -> {
             DiscordSelectionTag menu = object.duplicate();
             if (!attribute.hasContext(1)) {
                 attribute.echoError("Invalid selection.with_map[...] tag: must have an input value.");
@@ -182,7 +182,7 @@ public class DiscordSelectionTag implements ObjectTag {
         // - description: ElementTag
         // - emoji: ElementTag
         // -->
-        registerTag("with", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordSelectionTag.class, "with", (attribute, object) -> {
             DiscordSelectionTag menu = object.duplicate();
             if (!attribute.hasContext(1)) {
                 attribute.echoError("Invalid selection.with[...] tag: must have an input value.");
@@ -213,16 +213,12 @@ public class DiscordSelectionTag implements ObjectTag {
         // @description
         // Returns the MapTag internally backing this selection tag.
         // -->
-        registerTag("map", (attribute, object) -> {
+        tagProcessor.registerTag(MapTag.class, "map", (attribute, object) -> {
             return object.menuData.duplicate();
         });
     }
 
     public static ObjectTagProcessor<DiscordSelectionTag> tagProcessor = new ObjectTagProcessor<>();
-
-    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordSelectionTag> runnable, String... variants) {
-        tagProcessor.registerTag(name, runnable, variants);
-    }
 
     @Override
     public ObjectTag getObjectAttribute(Attribute attribute) {

@@ -78,7 +78,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // @description
             // Returns the Discord bot for the given bot ID.
             // -->
-            TagManager.registerTagHandler("discord", (attribute) -> {
+            TagManager.registerTagHandler(DiscordBotTag.class, "discord", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     attribute.echoError("Discord tag base must have input.");
                     return null;
@@ -94,7 +94,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Or, if given an input, returns a Discord Button object constructed from the input value.
             // Refer to <@link objecttype DiscordButtonTag>.
             // -->
-            TagManager.registerTagHandler("discord_button", (attribute) -> {
+            TagManager.registerTagHandler(DiscordButtonTag.class, "discord_button", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     return new DiscordButtonTag();
                 }
@@ -108,7 +108,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Returns a Discord Channel object constructed from the input value.
             // Refer to <@link objecttype DiscordChannelTag>.
             // -->
-            TagManager.registerTagHandler("discord_channel", (attribute) -> {
+            TagManager.registerTagHandler(DiscordChannelTag.class, "discord_channel", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     attribute.echoError("Discord channel tag base must have input.");
                     return null;
@@ -123,7 +123,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Returns a Discord Command object constructed from the input value.
             // Refer to <@link objecttype DiscordCommandTag>.
             // -->
-            TagManager.registerTagHandler("discord_command", (attribute) -> {
+            TagManager.registerTagHandler(DiscordCommandTag.class, "discord_command", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     attribute.echoError("Discord command tag base must have input.");
                     return null;
@@ -139,7 +139,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Or, if given an input, returns a Discord Embed object constructed from the input value.
             // Refer to <@link objecttype DiscordEmbedTag>.
             // -->
-            TagManager.registerTagHandler("discord_embed", (attribute) -> {
+            TagManager.registerTagHandler(DiscordEmbedTag.class, "discord_embed", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     return new DiscordEmbedTag();
                 }
@@ -153,7 +153,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Returns a Discord Group object constructed from the input value.
             // Refer to <@link objecttype DiscordGroupTag>.
             // -->
-            TagManager.registerTagHandler("discord_group", (attribute) -> {
+            TagManager.registerTagHandler(DiscordGroupTag.class, "discord_group", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     attribute.echoError("Discord group tag base must have input.");
                     return null;
@@ -168,7 +168,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Returns a Discord Interaction object constructed from the input value.
             // Refer to <@link objecttype DiscordInteractionTag>.
             // -->
-            TagManager.registerTagHandler("discord_interaction", (attribute) -> {
+            TagManager.registerTagHandler(DiscordInteractionTag.class, "discord_interaction", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     attribute.echoError("Discord interaction tag base must have input.");
                     return null;
@@ -183,7 +183,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Returns a Discord Message object constructed from the input value.
             // Refer to <@link objecttype DiscordMessageTag>.
             // -->
-            TagManager.registerTagHandler("discord_message", (attribute) -> {
+            TagManager.registerTagHandler(DiscordMessageTag.class, "discord_message", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     attribute.echoError("Discord message tag base must have input.");
                     return null;
@@ -198,7 +198,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Returns a Discord Reaction object constructed from the input value.
             // Refer to <@link objecttype DiscordReactionTag>.
             // -->
-            TagManager.registerTagHandler("discord_reaction", (attribute) -> {
+            TagManager.registerTagHandler(DiscordReactionTag.class, "discord_reaction", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     attribute.echoError("Discord reaction tag base must have input.");
                     return null;
@@ -213,7 +213,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Returns a Discord Role object constructed from the input value.
             // Refer to <@link objecttype DiscordRoleTag>.
             // -->
-            TagManager.registerTagHandler("discord_role", (attribute) -> {
+            TagManager.registerTagHandler(DiscordRoleTag.class, "discord_role", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     attribute.echoError("Discord role tag base must have input.");
                     return null;
@@ -229,7 +229,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Or, if given an input, returns a Discord Selection object constructed from the input value.
             // Refer to <@link objecttype DiscordSelectionTag>.
             // -->
-            TagManager.registerTagHandler("discord_selection", (attribute) -> {
+            TagManager.registerTagHandler(DiscordSelectionTag.class, "discord_selection", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     return new DiscordSelectionTag();
                 }
@@ -243,7 +243,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Returns a Discord User object constructed from the input value.
             // Refer to <@link objecttype DiscordUserTag>.
             // -->
-            TagManager.registerTagHandler("discord_user", (attribute) -> {
+            TagManager.registerTagHandler(DiscordUserTag.class, "discord_user", (attribute) -> {
                 if (!attribute.hasContext(1)) {
                     attribute.echoError("Discord user tag base must have input.");
                     return null;

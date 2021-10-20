@@ -94,7 +94,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the name of the bot.
         // -->
-        registerTag("name", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "name", (attribute, object) -> {
             return new ElementTag(object.bot);
 
         });
@@ -106,7 +106,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the bot's own Discord user object.
         // -->
-        registerTag("self_user", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordUserTag.class, "self_user", (attribute, object) -> {
             DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
             if (connection == null) {
                 return null;
@@ -122,7 +122,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of all groups (aka 'guilds' or 'servers') that this Discord bot has access to.
         // -->
-        registerTag("groups", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "groups", (attribute, object) -> {
             DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
             if (connection == null) {
                 return null;
@@ -141,7 +141,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of all application commands.
         // -->
-        registerTag("commands", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "commands", (attribute, object) -> {
             DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
             if (connection == null) {
                 return null;
@@ -160,7 +160,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the Discord group (aka 'guild' or 'server') that best matches the input name, or null if there's no match.
         // -->
-        registerTag("group", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordGroupTag.class, "group", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -194,7 +194,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the application command that best matches the input name, or null if there's no match.
         // -->
-        registerTag("command", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordCommandTag.class, "command", (attribute, object) -> {
             if (!attribute.hasContext(1)) {
                 return null;
             }
@@ -222,10 +222,6 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
     }
 
     public static ObjectTagProcessor<DiscordBotTag> tagProcessor = new ObjectTagProcessor<>();
-
-    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordBotTag> runnable, String... variants) {
-        tagProcessor.registerTag(name, runnable, variants);
-    }
 
     @Override
     public ObjectTag getObjectAttribute(Attribute attribute) {

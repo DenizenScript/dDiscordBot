@@ -185,7 +185,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the ID of the message.
         // -->
-        registerTag("id", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "id", (attribute, object) -> {
             return new ElementTag(object.message_id);
         });
 
@@ -196,7 +196,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the channel that the message was sent to.
         // -->
-        registerTag("channel", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordChannelTag.class, "channel", (attribute, object) -> {
             return new DiscordChannelTag(object.bot, object.channel_id);
         });
 
@@ -207,7 +207,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the full text of the message.
         // -->
-        registerTag("text", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "text", (attribute, object) -> {
             return new ElementTag(object.getMessage().getContentRaw());
         });
 
@@ -218,7 +218,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the stripped text of the message (format codes like bold removed).
         // -->
-        registerTag("text_stripped", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "text_stripped", (attribute, object) -> {
             return new ElementTag(object.getMessage().getContentStripped());
         });
 
@@ -229,7 +229,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the display text of the message (special codes like pings formatted to how they should look for users).
         // -->
-        registerTag("text_display", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "text_display", (attribute, object) -> {
             return new ElementTag(object.getMessage().getContentDisplay());
         });
 
@@ -240,7 +240,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the text of the message, with '@' mentions removed.
         // -->
-        registerTag("text_no_mentions", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "text_no_mentions", (attribute, object) -> {
             return new ElementTag(stripMentions(object.getMessage().getContentRaw(), object.getMessage().getMentionedUsers()));
         });
 
@@ -251,7 +251,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the author of the message.
         // -->
-        registerTag("author", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordUserTag.class, "author", (attribute, object) -> {
             return new DiscordUserTag(object.bot, object.getMessage().getAuthor());
         });
 
@@ -262,7 +262,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns whether this message was edited.
         // -->
-        registerTag("was_edited", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "was_edited", (attribute, object) -> {
             return new ElementTag(object.getMessage().isEdited());
         });
 
@@ -273,7 +273,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns whether this message is pinned.
         // -->
-        registerTag("is_pinned", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "is_pinned", (attribute, object) -> {
             return new ElementTag(object.getMessage().isPinned());
         });
 
@@ -284,7 +284,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of users mentioned (pinged) by this message.
         // -->
-        registerTag("mentioned_users", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "mentioned_users", (attribute, object) -> {
             ListTag list = new ListTag();
             for (User user : object.getMessage().getMentionedUsers()) {
                 list.addObject(new DiscordUserTag(object.bot, user));
@@ -299,7 +299,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns true if the message was sent in a direct (private) channel, or false if in a public channel.
         // -->
-        registerTag("is_direct", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "is_direct", (attribute, object) -> {
             return new ElementTag(object.getChannel() instanceof PrivateChannel);
         });
 
@@ -310,7 +310,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of "embed" formatted data on this message.
         // -->
-        registerTag("embed", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "embed", (attribute, object) -> {
             ListTag list = new ListTag();
             for (MessageEmbed embed : object.getMessage().getEmbeds()) {
                 list.addObject(new DiscordEmbedTag(embed));
@@ -325,7 +325,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns a list of reaction on this message.
         // -->
-        registerTag("reactions", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "reactions", (attribute, object) -> {
             ListTag list = new ListTag();
             for (MessageReaction reaction : object.getMessage().getReactions()) {
                 list.addObject(new DiscordReactionTag(object.bot, object.getMessage(), reaction));
@@ -341,7 +341,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // Returns a list of the last (specified number) messages sent in the channel prior to this message.
         // The list is ordered from most recent to least recent.
         // -->
-        registerTag("previous_messages", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "previous_messages", (attribute, object) -> {
             int limit = attribute.getIntContext(1);
             MessageHistory history = object.getChannel().getHistoryBefore(object.message_id, limit).complete();
             ListTag list = new ListTag();
@@ -359,7 +359,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // Returns a list of the next (specified number) messages sent in the channel after this message.
         // The list is ordered from most recent to least recent.
         // -->
-        registerTag("next_messages", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "next_messages", (attribute, object) -> {
             int limit = attribute.getIntContext(1);
             MessageHistory history = object.getChannel().getHistoryAfter(object.message_id, limit).complete();
             ListTag list = new ListTag();
@@ -376,7 +376,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the message that this message was in reply to (if any).
         // -->
-        registerTag("replied_to", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordMessageTag.class, "replied_to", (attribute, object) -> {
             Message message = object.getMessage().getReferencedMessage();
             if (message == null) {
                 return null;
@@ -392,7 +392,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // Returns a list of attachment URLs for this message. Most messages will return an empty list, or a single-entry list,
         // however it is possible in some cases for a single message to have multiple attachments.
         // -->
-        registerTag("attachments", (attribute, object) -> {
+        tagProcessor.registerTag(ListTag.class, "attachments", (attribute, object) -> {
             ListTag result = new ListTag();
             for (Message.Attachment attachment : object.getMessage().getAttachments()) {
                 result.addObject(new ElementTag(attachment.getUrl()));
@@ -402,10 +402,6 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
     }
 
     public static ObjectTagProcessor<DiscordMessageTag> tagProcessor = new ObjectTagProcessor<>();
-
-    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordMessageTag> runnable, String... variants) {
-        tagProcessor.registerTag(name, runnable, variants);
-    }
 
     @Override
     public ObjectTag getObjectAttribute(Attribute attribute) {

@@ -219,7 +219,7 @@ public class DiscordEmbedTag implements ObjectTag {
         // Returns a copy of this Embed tag, with the map of keys to values applied.
         // Refer to <@link tag DiscordEmbedTag.with.as>.
         // -->
-        registerTag("with_map", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordEmbedTag.class, "with_map", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();
             if (!attribute.hasContext(1)) {
                 attribute.echoError("Invalid embed.with_map[...] tag: must have an input value.");
@@ -269,7 +269,7 @@ public class DiscordEmbedTag implements ObjectTag {
         // title_url: ElementTag of a URL (requires title set)
         // See also <@link tag DiscordEmbedTag.add_field.value> and <@link tag DiscordEmbedTag.add_inline_field.value>.
         // -->
-        registerTag("with", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordEmbedTag.class, "with", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();
             if (!attribute.hasContext(1)) {
                 attribute.echoError("Invalid embed.with[...] tag: must have an input value.");
@@ -306,7 +306,7 @@ public class DiscordEmbedTag implements ObjectTag {
         // @description
         // Returns the MapTag internally backing this embed tag.
         // -->
-        registerTag("map", (attribute, object) -> {
+        tagProcessor.registerTag(MapTag.class, "map", (attribute, object) -> {
             return object.embedData.duplicate();
         });
 
@@ -317,7 +317,7 @@ public class DiscordEmbedTag implements ObjectTag {
         // @description
         // Returns a copy of this Embed tag, with a field added with the given title and value.
         // -->
-        registerTag("add_field", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordEmbedTag.class, "add_field", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();
             if (!attribute.hasContext(1)) {
                 attribute.echoError("Invalid embed.add_field[...] tag: must have an input title.");
@@ -352,7 +352,7 @@ public class DiscordEmbedTag implements ObjectTag {
         // @description
         // Returns a copy of this Embed tag, with an inline field added with the given title and value.
         // -->
-        registerTag("add_inline_field", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordEmbedTag.class, "add_inline_field", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();
             if (!attribute.hasContext(1)) {
                 attribute.echoError("Invalid embed.add_inline_field[...] tag: must have an input title.");
@@ -383,10 +383,6 @@ public class DiscordEmbedTag implements ObjectTag {
     }
 
     public static ObjectTagProcessor<DiscordEmbedTag> tagProcessor = new ObjectTagProcessor<>();
-
-    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordEmbedTag> runnable, String... variants) {
-        tagProcessor.registerTag(name, runnable, variants);
-    }
 
     @Override
     public ObjectTag getObjectAttribute(Attribute attribute) {

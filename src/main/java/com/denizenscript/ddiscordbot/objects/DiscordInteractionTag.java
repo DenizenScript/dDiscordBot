@@ -162,7 +162,7 @@ public class DiscordInteractionTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the ID of the interaction.
         // -->
-        registerTag("id", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "id", (attribute, object) -> {
             return new ElementTag(object.interaction_id);
         });
 
@@ -173,7 +173,7 @@ public class DiscordInteractionTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the channel that the interaction was created in.
         // -->
-        registerTag("channel", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordChannelTag.class, "channel", (attribute, object) -> {
             return new DiscordChannelTag(object.bot, object.interaction.getMessageChannel());
         });
 
@@ -184,7 +184,7 @@ public class DiscordInteractionTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns true if the interaction was sent in a direct (private) channel, or false if in a public channel.
         // -->
-        registerTag("is_direct", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "is_direct", (attribute, object) -> {
             return new ElementTag(object.interaction.getMessageChannel() instanceof PrivateChannel);
         });
 
@@ -196,16 +196,12 @@ public class DiscordInteractionTag implements ObjectTag, FlaggableObject {
         // @description
         // Returns the user of the interaction.
         // -->
-        registerTag("user", (attribute, object) -> {
+        tagProcessor.registerTag(DiscordUserTag.class, "user", (attribute, object) -> {
             return new DiscordUserTag(object.bot, object.interaction.getUser());
         });
     }
 
     public static ObjectTagProcessor<DiscordInteractionTag> tagProcessor = new ObjectTagProcessor<>();
-
-    public static void registerTag(String name, TagRunnable.ObjectInterface<DiscordInteractionTag> runnable, String... variants) {
-        tagProcessor.registerTag(name, runnable, variants);
-    }
 
     @Override
     public ObjectTag getObjectAttribute(Attribute attribute) {
