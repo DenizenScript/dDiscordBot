@@ -76,7 +76,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
 
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
-        for (Argument arg : scriptEntry.getProcessedArgs()) {
+        for (Argument arg : scriptEntry) {
             if (!scriptEntry.hasObject("instruction")
                     && arg.matchesEnum(DiscordInteractionInstruction.values())) {
                 scriptEntry.addObject("instruction", arg.asElement());

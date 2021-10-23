@@ -10,7 +10,6 @@ import com.denizenscript.denizencore.objects.core.TimeTag;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
-import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -28,7 +27,8 @@ public class DiscordEmbedTag implements ObjectTag {
     // @prefix discordembed
     // @base ElementTag
     // @format
-    // The identity format for Discord embeds is a map of embed data. Do not alter raw embed data, use the with.as tag instead.
+    // The identity format for Discord embeds is a map of embed data.
+    // The map matches the key set documented at <@link tag DiscordEmbedTag.with.as>, along with a "fields" key as a ListTag of MapTags with keys "title", "value", and "inline".
     //
     // @plugin dDiscordBot
     // @description
