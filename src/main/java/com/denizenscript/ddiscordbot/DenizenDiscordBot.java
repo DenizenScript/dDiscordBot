@@ -37,12 +37,12 @@ public class DenizenDiscordBot extends JavaPlugin {
         instance = this;
         try {
             // Commands
-            DenizenCore.getCommandRegistry().registerCommand(DiscordCommand.class);
-            DenizenCore.getCommandRegistry().registerCommand(DiscordCommandCommand.class);
-            DenizenCore.getCommandRegistry().registerCommand(DiscordConnectCommand.class);
-            DenizenCore.getCommandRegistry().registerCommand(DiscordInteractionCommand.class);
-            DenizenCore.getCommandRegistry().registerCommand(DiscordMessageCommand.class);
-            DenizenCore.getCommandRegistry().registerCommand(DiscordReactCommand.class);
+            DenizenCore.commandRegistry.registerCommand(DiscordCommand.class);
+            DenizenCore.commandRegistry.registerCommand(DiscordCommandCommand.class);
+            DenizenCore.commandRegistry.registerCommand(DiscordConnectCommand.class);
+            DenizenCore.commandRegistry.registerCommand(DiscordInteractionCommand.class);
+            DenizenCore.commandRegistry.registerCommand(DiscordMessageCommand.class);
+            DenizenCore.commandRegistry.registerCommand(DiscordReactCommand.class);
             // Events
             ScriptEvent.registerScriptEvent(DiscordButtonClickedScriptEvent.instance = new DiscordButtonClickedScriptEvent());
             ScriptEvent.registerScriptEvent(DiscordMessageDeletedScriptEvent.instance = new DiscordMessageDeletedScriptEvent());
