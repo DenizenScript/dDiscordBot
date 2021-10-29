@@ -226,10 +226,10 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // web on a temporary web account, then rejoin on a local client with their 'real' account).
         // -->
         tagProcessor.registerTag(DiscordUserTag.class, "member", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
-            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            String matchString = CoreUtilities.toLowerCase(attribute.getParam());
             int discrimMark = matchString.indexOf('#');
             String discrimVal = null;
             if (discrimMark > 0 && discrimMark == matchString.length() - 5) {
@@ -254,10 +254,10 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // Returns the channel that best matches the input name, or null if there's no match.
         // -->
         tagProcessor.registerTag(DiscordChannelTag.class, "channel", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
-            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            String matchString = CoreUtilities.toLowerCase(attribute.getParam());
             TextChannel bestMatch = null;
             for (TextChannel chan : object.getGuild().getTextChannels()) {
                 String chanName = CoreUtilities.toLowerCase(chan.getName());
@@ -283,10 +283,10 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // Returns the role that best matches the input name, or null if there's no match.
         // -->
         tagProcessor.registerTag(DiscordRoleTag.class, "role", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
-            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            String matchString = CoreUtilities.toLowerCase(attribute.getParam());
             Role bestMatch = null;
             for (Role role : object.getGuild().getRoles()) {
                 String roleName = CoreUtilities.toLowerCase(role.getName());
@@ -312,10 +312,10 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // Returns the guild command that best matches the input name, or null if there's no match.
         // -->
         tagProcessor.registerTag(DiscordCommandTag.class, "command", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
-            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            String matchString = CoreUtilities.toLowerCase(attribute.getParam());
             Command bestMatch = null;
             for (Command command : object.getGuild().retrieveCommands().complete()) {
                 String commandName = CoreUtilities.toLowerCase(command.getName());
@@ -356,10 +356,10 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // Returns the ID of the emoji that best matches the input name, or null if there's no match.
         // -->
         tagProcessor.registerTag(ElementTag.class, "emoji_id", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
-            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            String matchString = CoreUtilities.toLowerCase(attribute.getParam());
             Emote bestMatch = null;
             for (Emote emote : object.getGuild().getEmotes()) {
                 String emoteName = CoreUtilities.toLowerCase(emote.getName());

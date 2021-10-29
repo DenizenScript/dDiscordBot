@@ -221,11 +221,11 @@ public class DiscordEmbedTag implements ObjectTag {
         // -->
         tagProcessor.registerTag(DiscordEmbedTag.class, "with_map", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 attribute.echoError("Invalid embed.with_map[...] tag: must have an input value.");
                 return null;
             }
-            MapTag map = MapTag.getMapFor(attribute.getContextObject(1), attribute.context);
+            MapTag map = MapTag.getMapFor(attribute.getParamObject(), attribute.context);
             for (Map.Entry<StringHolder, ObjectTag> entry : map.map.entrySet()) {
                 String key = entry.getKey().low;
                 if (!acceptedWithKeys.contains(key)) {
@@ -271,20 +271,20 @@ public class DiscordEmbedTag implements ObjectTag {
         // -->
         tagProcessor.registerTag(DiscordEmbedTag.class, "with", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 attribute.echoError("Invalid embed.with[...] tag: must have an input value.");
                 return null;
             }
-            String key = CoreUtilities.toLowerCase(attribute.getContext(1));
+            String key = CoreUtilities.toLowerCase(attribute.getParam());
             if (!acceptedWithKeys.contains(key)) {
                 attribute.echoError("Invalid embed.with[...] tag: unknown key '" + key + "' given.");
                 return null;
             }
             attribute.fulfill(1);
-            if (!attribute.startsWith("as") || !attribute.hasContext(1)) {
+            if (!attribute.startsWith("as") || !attribute.hasParam()) {
                 attribute.echoError("embed.with[...] must be followed by as[...].");
             }
-            ObjectTag val = attribute.getContextObject(1);
+            ObjectTag val = attribute.getParamObject();
             if (key.equals("timestamp")) {
                 val = val.asType(TimeTag.class, attribute.context);
             }
@@ -319,16 +319,16 @@ public class DiscordEmbedTag implements ObjectTag {
         // -->
         tagProcessor.registerTag(DiscordEmbedTag.class, "add_field", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 attribute.echoError("Invalid embed.add_field[...] tag: must have an input title.");
                 return null;
             }
-            String title = attribute.getContext(1);
+            String title = attribute.getParam();
             attribute.fulfill(1);
-            if (!attribute.startsWith("value") || !attribute.hasContext(1)) {
+            if (!attribute.startsWith("value") || !attribute.hasParam()) {
                 attribute.echoError("embed.add_field[...] must be followed by value[...].");
             }
-            String value = attribute.getContext(1);
+            String value = attribute.getParam();
             MapTag fieldMap = new MapTag();
             fieldMap.putObject("title", new ElementTag(title));
             fieldMap.putObject("value", new ElementTag(value));
@@ -354,16 +354,16 @@ public class DiscordEmbedTag implements ObjectTag {
         // -->
         tagProcessor.registerTag(DiscordEmbedTag.class, "add_inline_field", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 attribute.echoError("Invalid embed.add_inline_field[...] tag: must have an input title.");
                 return null;
             }
-            String title = attribute.getContext(1);
+            String title = attribute.getParam();
             attribute.fulfill(1);
-            if (!attribute.startsWith("value") || !attribute.hasContext(1)) {
+            if (!attribute.startsWith("value") || !attribute.hasParam()) {
                 attribute.echoError("embed.add_inline_field[...] must be followed by value[...].");
             }
-            String value = attribute.getContext(1);
+            String value = attribute.getParam();
             MapTag fieldMap = new MapTag();
             fieldMap.putObject("title", new ElementTag(title));
             fieldMap.putObject("value", new ElementTag(value));

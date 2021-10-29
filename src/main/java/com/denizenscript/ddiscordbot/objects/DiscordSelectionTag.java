@@ -147,11 +147,11 @@ public class DiscordSelectionTag implements ObjectTag {
         // -->
         tagProcessor.registerTag(DiscordSelectionTag.class, "with_map", (attribute, object) -> {
             DiscordSelectionTag menu = object.duplicate();
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 attribute.echoError("Invalid selection.with_map[...] tag: must have an input value.");
                 return null;
             }
-            MapTag map = MapTag.getMapFor(attribute.getContextObject(1), attribute.context);
+            MapTag map = MapTag.getMapFor(attribute.getParamObject(), attribute.context);
             for (Map.Entry<StringHolder, ObjectTag> entry : map.map.entrySet()) {
                 String key = entry.getKey().low;
                 if (!acceptedWithKeys.contains(key)) {
@@ -184,20 +184,20 @@ public class DiscordSelectionTag implements ObjectTag {
         // -->
         tagProcessor.registerTag(DiscordSelectionTag.class, "with", (attribute, object) -> {
             DiscordSelectionTag menu = object.duplicate();
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 attribute.echoError("Invalid selection.with[...] tag: must have an input value.");
                 return null;
             }
-            String key = CoreUtilities.toLowerCase(attribute.getContext(1));
+            String key = CoreUtilities.toLowerCase(attribute.getParam());
             if (!acceptedWithKeys.contains(key)) {
                 attribute.echoError("Invalid selection.with[...] tag: unknown key '" + key + "' given.");
                 return null;
             }
             attribute.fulfill(1);
-            if (!attribute.startsWith("as") || !attribute.hasContext(1)) {
+            if (!attribute.startsWith("as") || !attribute.hasParam()) {
                 attribute.echoError("selection.with[...] must be followed by as[...].");
             }
-            ObjectTag val = attribute.getContextObject(1);
+            ObjectTag val = attribute.getParamObject();
             if (val == null) {
                 attribute.echoError("selection.with[...].as[...] value is invalid.");
                 return null;

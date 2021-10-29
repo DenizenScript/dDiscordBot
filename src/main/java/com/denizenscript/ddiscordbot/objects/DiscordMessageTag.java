@@ -342,7 +342,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // The list is ordered from most recent to least recent.
         // -->
         tagProcessor.registerTag(ListTag.class, "previous_messages", (attribute, object) -> {
-            int limit = attribute.getIntContext(1);
+            int limit = attribute.getIntParam();
             MessageHistory history = object.getChannel().getHistoryBefore(object.message_id, limit).complete();
             ListTag list = new ListTag();
             for (Message message : history.getRetrievedHistory()) {
@@ -360,7 +360,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         // The list is ordered from most recent to least recent.
         // -->
         tagProcessor.registerTag(ListTag.class, "next_messages", (attribute, object) -> {
-            int limit = attribute.getIntContext(1);
+            int limit = attribute.getIntParam();
             MessageHistory history = object.getChannel().getHistoryAfter(object.message_id, limit).complete();
             ListTag list = new ListTag();
             for (Message message : history.getRetrievedHistory()) {

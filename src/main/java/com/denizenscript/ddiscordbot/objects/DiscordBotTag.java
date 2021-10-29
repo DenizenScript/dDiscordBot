@@ -161,14 +161,14 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
         // Returns the Discord group (aka 'guild' or 'server') that best matches the input name, or null if there's no match.
         // -->
         tagProcessor.registerTag(DiscordGroupTag.class, "group", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
             DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
             if (connection == null) {
                 return null;
             }
-            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            String matchString = CoreUtilities.toLowerCase(attribute.getParam());
             Guild bestMatch = null;
             for (Guild guild : connection.client.getGuilds()) {
                 String guildName = CoreUtilities.toLowerCase(guild.getName());
@@ -195,14 +195,14 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
         // Returns the application command that best matches the input name, or null if there's no match.
         // -->
         tagProcessor.registerTag(DiscordCommandTag.class, "command", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
             DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
             if (connection == null) {
                 return null;
             }
-            String matchString = CoreUtilities.toLowerCase(attribute.getContext(1));
+            String matchString = CoreUtilities.toLowerCase(attribute.getParam());
             Command bestMatch = null;
             for (Command command : connection.client.retrieveCommands().complete()) {
                 String commandName = CoreUtilities.toLowerCase(command.getName());

@@ -223,10 +223,10 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Returns the group-specific nickname of the user (if any).
         // -->
         tagProcessor.registerTag(ElementTag.class, "nickname", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
-            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
+            DiscordGroupTag group = attribute.paramAsType(DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }
@@ -275,10 +275,10 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Can be any of: online, dnd, idle, invisible, offline.
         // -->
         tagProcessor.registerTag(ElementTag.class, "status", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
-            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
+            DiscordGroupTag group = attribute.paramAsType(DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }
@@ -298,10 +298,10 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Not present for all users.
         // -->
         tagProcessor.registerTag(ElementTag.class, "activity_type", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
-            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
+            DiscordGroupTag group = attribute.paramAsType(DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }
@@ -324,10 +324,10 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Not present for all users.
         // -->
         tagProcessor.registerTag(ElementTag.class, "activity_name", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
-            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
+            DiscordGroupTag group = attribute.paramAsType(DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }
@@ -350,10 +350,10 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Not present for all users.
         // -->
         tagProcessor.registerTag(ElementTag.class, "activity_url", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
-            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
+            DiscordGroupTag group = attribute.paramAsType(DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }
@@ -378,10 +378,10 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
         // Returns a list of all roles the user has in the given group.
         // -->
         tagProcessor.registerTag(ListTag.class, "roles", (attribute, object) -> {
-            if (!attribute.hasContext(1)) {
+            if (!attribute.hasParam()) {
                 return null;
             }
-            DiscordGroupTag group = attribute.contextAsType(1, DiscordGroupTag.class);
+            DiscordGroupTag group = attribute.paramAsType(DiscordGroupTag.class);
             if (group == null) {
                 return null;
             }

@@ -53,8 +53,8 @@ public class DiscordTimeTagProperties implements Property {
         // -->
         PropertyParser.<DiscordTimeTagProperties, ElementTag>registerTag(ElementTag.class, "format_discord", (attribute, object) -> {
             long stamp = object.time.millis() / 1000;
-            if (attribute.hasContext(1)) {
-                return new ElementTag("<t:" + stamp + ":" + attribute.getContext(1) + ">");
+            if (attribute.hasParam()) {
+                return new ElementTag("<t:" + stamp + ":" + attribute.getParam() + ">");
             }
             return new ElementTag("<t:" + stamp + ">");
         });

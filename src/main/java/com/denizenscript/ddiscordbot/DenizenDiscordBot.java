@@ -79,11 +79,11 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Returns the Discord bot for the given bot ID.
             // -->
             TagManager.registerTagHandler(DiscordBotTag.class, "discord", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     attribute.echoError("Discord tag base must have input.");
                     return null;
                 }
-                return DiscordBotTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordBotTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_button[(<button>)]>
@@ -95,10 +95,10 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Refer to <@link objecttype DiscordButtonTag>.
             // -->
             TagManager.registerTagHandler(DiscordButtonTag.class, "discord_button", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     return new DiscordButtonTag();
                 }
-                return DiscordButtonTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordButtonTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_channel[<channel>]>
@@ -109,11 +109,11 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Refer to <@link objecttype DiscordChannelTag>.
             // -->
             TagManager.registerTagHandler(DiscordChannelTag.class, "discord_channel", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     attribute.echoError("Discord channel tag base must have input.");
                     return null;
                 }
-                return DiscordChannelTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordChannelTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_command[<command>]>
@@ -124,11 +124,11 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Refer to <@link objecttype DiscordCommandTag>.
             // -->
             TagManager.registerTagHandler(DiscordCommandTag.class, "discord_command", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     attribute.echoError("Discord command tag base must have input.");
                     return null;
                 }
-                return DiscordCommandTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordCommandTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_embed[(<embed>)]>
@@ -140,10 +140,10 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Refer to <@link objecttype DiscordEmbedTag>.
             // -->
             TagManager.registerTagHandler(DiscordEmbedTag.class, "discord_embed", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     return new DiscordEmbedTag();
                 }
-                return DiscordEmbedTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordEmbedTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_group[<group>]>
@@ -154,11 +154,11 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Refer to <@link objecttype DiscordGroupTag>.
             // -->
             TagManager.registerTagHandler(DiscordGroupTag.class, "discord_group", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     attribute.echoError("Discord group tag base must have input.");
                     return null;
                 }
-                return DiscordGroupTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordGroupTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_interaction[<interaction>]>
@@ -169,11 +169,11 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Refer to <@link objecttype DiscordInteractionTag>.
             // -->
             TagManager.registerTagHandler(DiscordInteractionTag.class, "discord_interaction", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     attribute.echoError("Discord interaction tag base must have input.");
                     return null;
                 }
-                return DiscordInteractionTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordInteractionTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_message[<message>]>
@@ -184,11 +184,11 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Refer to <@link objecttype DiscordMessageTag>.
             // -->
             TagManager.registerTagHandler(DiscordMessageTag.class, "discord_message", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     attribute.echoError("Discord message tag base must have input.");
                     return null;
                 }
-                return DiscordMessageTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordMessageTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_reaction[<reaction>]>
@@ -199,11 +199,11 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Refer to <@link objecttype DiscordReactionTag>.
             // -->
             TagManager.registerTagHandler(DiscordReactionTag.class, "discord_reaction", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     attribute.echoError("Discord reaction tag base must have input.");
                     return null;
                 }
-                return DiscordReactionTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordReactionTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_role[<role>]>
@@ -214,11 +214,11 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Refer to <@link objecttype DiscordRoleTag>.
             // -->
             TagManager.registerTagHandler(DiscordRoleTag.class, "discord_role", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     attribute.echoError("Discord role tag base must have input.");
                     return null;
                 }
-                return DiscordRoleTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordRoleTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_selection[(<menu>)]>
@@ -230,10 +230,10 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Refer to <@link objecttype DiscordSelectionTag>.
             // -->
             TagManager.registerTagHandler(DiscordSelectionTag.class, "discord_selection", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     return new DiscordSelectionTag();
                 }
-                return DiscordSelectionTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordSelectionTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_user[<user>]>
@@ -244,11 +244,11 @@ public class DenizenDiscordBot extends JavaPlugin {
             // Refer to <@link objecttype DiscordUserTag>.
             // -->
             TagManager.registerTagHandler(DiscordUserTag.class, "discord_user", (attribute) -> {
-                if (!attribute.hasContext(1)) {
+                if (!attribute.hasParam()) {
                     attribute.echoError("Discord user tag base must have input.");
                     return null;
                 }
-                return DiscordUserTag.valueOf(attribute.getContext(1), attribute.context);
+                return DiscordUserTag.valueOf(attribute.getParam(), attribute.context);
             });
         }
         catch (Throwable ex) {
