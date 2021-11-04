@@ -49,16 +49,11 @@ public class DiscordButtonClickedScriptEvent extends DiscordScriptEvent {
 
     @Override
     public boolean matches(ScriptPath path) {
-        if (!path.checkSwitch("channel", getEvent().getChannel().getId())) {
+        if (!tryChannel(path, getEvent().getChannel())) {
             return false;
         }
-        if (path.switches.containsKey("group")) {
-            if (!getEvent().isFromGuild()) {
-                return false;
-            }
-            if (!path.checkSwitch("group", getEvent().getGuild().getId())) {
-                return false;
-            }
+        if (!tryGuild(path, getEvent().isFromGuild() ? getEvent().getGuild() : null)) {
+            return false;
         }
         if (!path.checkSwitch("id", getEvent().getButton().getId())) {
             return false;

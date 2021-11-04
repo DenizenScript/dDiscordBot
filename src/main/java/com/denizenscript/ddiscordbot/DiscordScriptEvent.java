@@ -3,6 +3,8 @@ package com.denizenscript.ddiscordbot;
 import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
 import com.denizenscript.denizen.events.BukkitScriptEvent;
 import com.denizenscript.denizencore.objects.ObjectTag;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
 
 public abstract class DiscordScriptEvent extends BukkitScriptEvent {
@@ -37,5 +39,41 @@ public abstract class DiscordScriptEvent extends BukkitScriptEvent {
     @Override
     public void destroy() {
         enabled = false;
+    }
+
+    public static boolean tryChannel(ScriptPath path, MessageChannel channel) {
+        String text = path.switches.get("channel");
+        if (text == null) {
+            return true;
+        }
+        if (channel == null) {
+            return false;
+        }
+        MatchHelper matcher = createMatcher(text);
+        if (matcher.doesMatch(channel.getId())) {
+            return true;
+        }
+        if (matcher.doesMatch(channel.getName())) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean tryGuild(ScriptPath path, Guild guild) {
+        String text = path.switches.get("group");
+        if (text == null) {
+            return true;
+        }
+        if (guild == null) {
+            return false;
+        }
+        MatchHelper matcher = createMatcher(text);
+        if (matcher.doesMatch(guild.getId())) {
+            return true;
+        }
+        if (matcher.doesMatch(guild.getName())) {
+            return true;
+        }
+        return false;
     }
 }

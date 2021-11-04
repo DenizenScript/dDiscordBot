@@ -37,7 +37,7 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
 
     @Override
     public boolean matches(ScriptPath path) {
-        if (!path.checkSwitch("group", getEvent().getGuild().getId())) {
+        if (!tryGuild(path, getEvent().getGuild())) {
             return false;
         }
         return super.matches(path);

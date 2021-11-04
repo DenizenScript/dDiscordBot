@@ -65,7 +65,7 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
 
     @Override
     public boolean matches(ScriptPath path) {
-        if (!path.checkSwitch("group", getGenericEvent().getGuild().getId())) {
+        if (!tryGuild(path, getGenericEvent().getGuild())) {
             return false;
         }
         return super.matches(path);
