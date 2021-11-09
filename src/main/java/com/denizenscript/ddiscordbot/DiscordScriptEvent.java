@@ -15,7 +15,7 @@ public abstract class DiscordScriptEvent extends BukkitScriptEvent {
 
     @Override
     public boolean matches(ScriptPath path) {
-        if (!path.checkSwitch("for", botID)) {
+        if (!runGenericSwitchCheck(path, "for", botID)) {
             return false;
         }
         return super.matches(path);

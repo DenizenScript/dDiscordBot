@@ -127,12 +127,7 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
         DiscordUserTag user = scriptEntry.getObjectTag("user");
         ElementTag reaction = scriptEntry.getElement("reaction");
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id.debug()
-                    + instruction.debug()
-                    + (channel != null ? channel.debug() : "")
-                    + (user != null ? user.debug() : "")
-                    + message.debug()
-                    + reaction.debug());
+            Debug.report(scriptEntry, getName(), id, instruction, channel, user, message, reaction);
         }
         JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
         if (message.channel_id == 0) {
