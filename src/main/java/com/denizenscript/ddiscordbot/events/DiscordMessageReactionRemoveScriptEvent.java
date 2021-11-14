@@ -6,13 +6,10 @@ import com.denizenscript.denizencore.objects.ObjectTag;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 
 public class DiscordMessageReactionRemoveScriptEvent extends DiscordScriptEvent {
-    public static DiscordMessageReactionRemoveScriptEvent instance;
 
     // <--[event]
     // @Events
     // discord message reaction removed
-    //
-    // @Regex ^on discord message reaction removed
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
@@ -34,13 +31,16 @@ public class DiscordMessageReactionRemoveScriptEvent extends DiscordScriptEvent 
     //
     // -->
 
-    public MessageReactionRemoveEvent getEvent() {
-        return (MessageReactionRemoveEvent) event;
+    public static DiscordMessageReactionRemoveScriptEvent instance;
+
+    public DiscordMessageReactionRemoveScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord message reaction removed");
+        registerSwitches("for", "channel", "group");
     }
 
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord message reaction removed");
+    public MessageReactionRemoveEvent getEvent() {
+        return (MessageReactionRemoveEvent) event;
     }
 
     @Override

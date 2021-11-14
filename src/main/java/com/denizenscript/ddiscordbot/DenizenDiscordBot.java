@@ -44,18 +44,18 @@ public class DenizenDiscordBot extends JavaPlugin {
             DenizenCore.commandRegistry.registerCommand(DiscordMessageCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordReactCommand.class);
             // Events
-            ScriptEvent.registerScriptEvent(DiscordButtonClickedScriptEvent.instance = new DiscordButtonClickedScriptEvent());
-            ScriptEvent.registerScriptEvent(DiscordMessageDeletedScriptEvent.instance = new DiscordMessageDeletedScriptEvent());
-            ScriptEvent.registerScriptEvent(DiscordMessageModifiedScriptEvent.instance = new DiscordMessageModifiedScriptEvent());
-            ScriptEvent.registerScriptEvent(DiscordMessageReactionAddScriptEvent.instance = new DiscordMessageReactionAddScriptEvent());
-            ScriptEvent.registerScriptEvent(DiscordMessageReactionRemoveScriptEvent.instance = new DiscordMessageReactionRemoveScriptEvent());
-            ScriptEvent.registerScriptEvent(DiscordMessageReceivedScriptEvent.instance = new DiscordMessageReceivedScriptEvent());
-            ScriptEvent.registerScriptEvent(DiscordSelectionUsedScriptEvent.instance = new DiscordSelectionUsedScriptEvent());
-            ScriptEvent.registerScriptEvent(DiscordSlashCommandScriptEvent.instance = new DiscordSlashCommandScriptEvent());
-            ScriptEvent.registerScriptEvent(DiscordUserJoinsScriptEvent.instance = new DiscordUserJoinsScriptEvent());
-            ScriptEvent.registerScriptEvent(DiscordUserLeavesScriptEvent.instance = new DiscordUserLeavesScriptEvent());
-            ScriptEvent.registerScriptEvent(DiscordUserNicknameChangeScriptEvent.instance = new DiscordUserNicknameChangeScriptEvent());
-            ScriptEvent.registerScriptEvent(DiscordUserRoleChangeScriptEvent.instance = new DiscordUserRoleChangeScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordButtonClickedScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordMessageDeletedScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordMessageModifiedScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordMessageReactionAddScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordMessageReactionRemoveScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordMessageReceivedScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordSelectionUsedScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordSlashCommandScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordUserJoinsScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordUserLeavesScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordUserNicknameChangeScriptEvent());
+            ScriptEvent.registerScriptEvent(new DiscordUserRoleChangeScriptEvent());
             // Objects
             ObjectFetcher.registerWithObjectFetcher(DiscordBotTag.class, DiscordBotTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordButtonTag.class, DiscordButtonTag.tagProcessor);

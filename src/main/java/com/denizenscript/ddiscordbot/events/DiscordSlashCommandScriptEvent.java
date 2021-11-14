@@ -19,13 +19,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
 
-    public static DiscordSlashCommandScriptEvent instance;
-
     // <--[event]
     // @Events
     // discord slash command
-    //
-    // @Regex ^on discord slash command$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
@@ -48,13 +44,16 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
     //
     // -->
 
-    public SlashCommandEvent getEvent() {
-        return (SlashCommandEvent) event;
+    public static DiscordSlashCommandScriptEvent instance;
+
+    public DiscordSlashCommandScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord slash command");
+        registerSwitches("for", "channel", "group", "name");
     }
 
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord slash command");
+    public SlashCommandEvent getEvent() {
+        return (SlashCommandEvent) event;
     }
 
     @Override

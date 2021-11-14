@@ -9,13 +9,9 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameE
 
 public class DiscordUserNicknameChangeScriptEvent extends DiscordScriptEvent {
 
-    public static DiscordUserNicknameChangeScriptEvent instance;
-
     // <--[event]
     // @Events
     // discord user nickname changes
-    //
-    // @Regex ^on discord user nickname changes$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
@@ -34,13 +30,16 @@ public class DiscordUserNicknameChangeScriptEvent extends DiscordScriptEvent {
     // <context.new_name> returns the user's new nickname (if any).
     // -->
 
-    public GuildMemberUpdateNicknameEvent getEvent() {
-        return (GuildMemberUpdateNicknameEvent) event;
+    public static DiscordUserNicknameChangeScriptEvent instance;
+
+    public DiscordUserNicknameChangeScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord user nickname changes");
+        registerSwitches("for", "group");
     }
 
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord user nickname changes");
+    public GuildMemberUpdateNicknameEvent getEvent() {
+        return (GuildMemberUpdateNicknameEvent) event;
     }
 
     @Override

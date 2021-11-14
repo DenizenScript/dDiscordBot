@@ -15,13 +15,10 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 
 public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
-    public static DiscordMessageModifiedScriptEvent instance;
 
     // <--[event]
     // @Events
     // discord message modified
-    //
-    // @Regex ^on discord message modified$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
@@ -41,13 +38,16 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
     //
     // -->
 
-    public MessageUpdateEvent getEvent() {
-        return (MessageUpdateEvent) event;
+    public static DiscordMessageModifiedScriptEvent instance;
+
+    public DiscordMessageModifiedScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord message modified");
+        registerSwitches("for", "channel", "group");
     }
 
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord message modified");
+    public MessageUpdateEvent getEvent() {
+        return (MessageUpdateEvent) event;
     }
 
     @Override

@@ -8,13 +8,9 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
 public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
 
-    public static DiscordUserJoinsScriptEvent instance;
-
     // <--[event]
     // @Events
     // discord user joins
-    //
-    // @Regex ^on discord user joins$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
@@ -31,6 +27,14 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
     // <context.user> returns the user.
     // -->
 
+    public static DiscordUserJoinsScriptEvent instance;
+
+    public DiscordUserJoinsScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord user joins");
+        registerSwitches("for", "group");
+    }
+
     public GuildMemberJoinEvent getEvent() {
         return (GuildMemberJoinEvent) event;
     }
@@ -41,11 +45,6 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
             return false;
         }
         return super.matches(path);
-    }
-
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord user joins");
     }
 
     @Override

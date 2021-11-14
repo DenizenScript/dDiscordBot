@@ -8,13 +8,9 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 
 public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
 
-    public static DiscordUserLeavesScriptEvent instance;
-
     // <--[event]
     // @Events
     // discord user leaves
-    //
-    // @Regex ^on discord user leaves$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
@@ -31,6 +27,14 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
     // <context.user> returns the user.
     // -->
 
+    public static DiscordUserLeavesScriptEvent instance;
+
+    public DiscordUserLeavesScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord user leaves");
+        registerSwitches("for", "group");
+    }
+
     public GuildMemberRemoveEvent getEvent() {
         return (GuildMemberRemoveEvent) event;
     }
@@ -41,11 +45,6 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
             return false;
         }
         return super.matches(path);
-    }
-
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord user leaves");
     }
 
     @Override

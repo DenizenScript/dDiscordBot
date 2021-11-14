@@ -16,13 +16,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
 
-    public static DiscordMessageReceivedScriptEvent instance;
-
     // <--[event]
     // @Events
     // discord message received
-    //
-    // @Regex ^on discord message received$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
@@ -43,13 +39,16 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     //
     // -->
 
-    public MessageReceivedEvent getEvent() {
-        return (MessageReceivedEvent) event;
+    public static DiscordMessageReceivedScriptEvent instance;
+
+    public DiscordMessageReceivedScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord message reaction received");
+        registerSwitches("for", "channel", "group", "message");
     }
 
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord message received");
+    public MessageReceivedEvent getEvent() {
+        return (MessageReceivedEvent) event;
     }
 
     @Override

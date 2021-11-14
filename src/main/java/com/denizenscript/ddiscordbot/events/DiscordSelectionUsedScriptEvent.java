@@ -10,13 +10,9 @@ import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 
 public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
 
-    public static DiscordSelectionUsedScriptEvent instance;
-
     // <--[event]
     // @Events
     // discord selection used
-    //
-    // @Regex ^on discord selection used$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
@@ -39,13 +35,16 @@ public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
     //
     // -->
 
-    public SelectionMenuEvent getEvent() {
-        return (SelectionMenuEvent) event;
+    public static DiscordSelectionUsedScriptEvent instance;
+
+    public DiscordSelectionUsedScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord selection used");
+        registerSwitches("for", "channel", "group", "id");
     }
 
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord selection used");
+    public SelectionMenuEvent getEvent() {
+        return (SelectionMenuEvent) event;
     }
 
     @Override

@@ -10,13 +10,9 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
 public class DiscordButtonClickedScriptEvent extends DiscordScriptEvent {
 
-    public static DiscordButtonClickedScriptEvent instance;
-
     // <--[event]
     // @Events
     // discord button clicked
-    //
-    // @Regex ^on discord button clicked$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
@@ -38,13 +34,16 @@ public class DiscordButtonClickedScriptEvent extends DiscordScriptEvent {
     //
     // -->
 
-    public ButtonClickEvent getEvent() {
-        return (ButtonClickEvent) event;
+    public static DiscordButtonClickedScriptEvent instance;
+
+    public DiscordButtonClickedScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord button clicked");
+        registerSwitches("for", "channel", "group", "id");
     }
 
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord button clicked");
+    public ButtonClickEvent getEvent() {
+        return (ButtonClickEvent) event;
     }
 
     @Override

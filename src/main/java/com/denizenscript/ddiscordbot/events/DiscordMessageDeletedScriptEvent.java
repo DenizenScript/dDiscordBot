@@ -13,13 +13,9 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 
 public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
 
-    public static DiscordMessageDeletedScriptEvent instance;
-
     // <--[event]
     // @Events
     // discord message deleted
-    //
-    // @Regex ^on discord message deleted$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
@@ -40,13 +36,16 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     //
     // -->
 
-    public MessageDeleteEvent getEvent() {
-        return (MessageDeleteEvent) event;
+    public static DiscordMessageDeletedScriptEvent instance;
+
+    public DiscordMessageDeletedScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord message deleted");
+        registerSwitches("for", "channel", "group");
     }
 
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord message deleted");
+    public MessageDeleteEvent getEvent() {
+        return (MessageDeleteEvent) event;
     }
 
     @Override

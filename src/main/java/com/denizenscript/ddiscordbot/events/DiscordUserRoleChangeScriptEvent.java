@@ -15,13 +15,9 @@ import java.util.List;
 
 public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
 
-    public static DiscordUserRoleChangeScriptEvent instance;
-
     // <--[event]
     // @Events
     // discord user role changes
-    //
-    // @Regex ^on discord user role changes$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
@@ -42,6 +38,14 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
     // <context.removed_roles> returns a list of the user's removed role set.
     // -->
 
+    public static DiscordUserRoleChangeScriptEvent instance;
+
+    public DiscordUserRoleChangeScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord user role changes");
+        registerSwitches("for", "group");
+    }
+
     public boolean isAdding() {
         return event instanceof GuildMemberRoleAddEvent;
     }
@@ -56,11 +60,6 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
 
     public GenericGuildMemberEvent getGenericEvent() {
         return (GenericGuildMemberEvent) event;
-    }
-
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord user role changes");
     }
 
     @Override

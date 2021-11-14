@@ -6,13 +6,10 @@ import com.denizenscript.denizencore.objects.ObjectTag;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 public class DiscordMessageReactionAddScriptEvent extends DiscordScriptEvent {
-    public static DiscordMessageReactionAddScriptEvent instance;
 
     // <--[event]
     // @Events
     // discord message reaction added
-    //
-    // @Regex ^on discord message reaction added$
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
@@ -34,13 +31,16 @@ public class DiscordMessageReactionAddScriptEvent extends DiscordScriptEvent {
     //
     // -->
 
-    public MessageReactionAddEvent getEvent() {
-        return (MessageReactionAddEvent) event;
+    public static DiscordMessageReactionAddScriptEvent instance;
+
+    public DiscordMessageReactionAddScriptEvent() {
+        instance = this;
+        registerCouldMatcher("discord message reaction added");
+        registerSwitches("for", "channel", "group");
     }
 
-    @Override
-    public boolean couldMatch(ScriptPath path) {
-        return path.eventLower.startsWith("discord message reaction added");
+    public MessageReactionAddEvent getEvent() {
+        return (MessageReactionAddEvent) event;
     }
 
     @Override
