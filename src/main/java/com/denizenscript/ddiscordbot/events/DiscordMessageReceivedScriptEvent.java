@@ -43,7 +43,7 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
 
     public DiscordMessageReceivedScriptEvent() {
         instance = this;
-        registerCouldMatcher("discord message reaction received");
+        registerCouldMatcher("discord message received");
         registerSwitches("for", "channel", "group", "message");
     }
 
