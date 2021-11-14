@@ -380,6 +380,20 @@ public class DiscordEmbedTag implements ObjectTag {
             fieldList.addObject(fieldMap);
             return embed;
         });
+
+        // <--[tag]
+        // @attribute <DiscordEmbedTag.output_length>
+        // @returns ElementTag(Number)
+        // @plugin dDiscordBot
+        // @description
+        // Returns the total number of displayed characters this embed contains.
+        // Discord rejects embeds with a total character count above 6000.
+        // There are other limits for embed objects, refer to <@link url https://discordjs.guide/popular-topics/embeds.html#embed-limits>
+        //
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "output_length", (attribute, object) -> {
+            return new ElementTag(object.duplicate().build(attribute.context).length());
+        });
     }
 
     public static ObjectTagProcessor<DiscordEmbedTag> tagProcessor = new ObjectTagProcessor<>();
