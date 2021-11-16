@@ -64,7 +64,7 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
         if (!tryGuild(path, getEvent().isFromGuild() ? getEvent().getGuild() : null)) {
             return false;
         }
-        if (!path.checkSwitch("name", getEvent().getName())) {
+        if (!runGenericSwitchCheck(path, "name", getEvent().getName())) {
             return false;
         }
         return super.matches(path);

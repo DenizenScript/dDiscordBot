@@ -55,7 +55,7 @@ public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
         if (!tryGuild(path, getEvent().isFromGuild() ? getEvent().getGuild() : null)) {
             return false;
         }
-        if (!path.checkSwitch("id", getEvent().getSelectionMenu().getId())) {
+        if (!runGenericSwitchCheck(path, "id", getEvent().getSelectionMenu().getId())) {
             return false;
         }
         return super.matches(path);

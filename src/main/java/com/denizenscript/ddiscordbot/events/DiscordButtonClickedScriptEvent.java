@@ -54,7 +54,7 @@ public class DiscordButtonClickedScriptEvent extends DiscordScriptEvent {
         if (!tryGuild(path, getEvent().isFromGuild() ? getEvent().getGuild() : null)) {
             return false;
         }
-        if (!path.checkSwitch("id", getEvent().getButton().getId())) {
+        if (!runGenericSwitchCheck(path, "id", getEvent().getButton().getId())) {
             return false;
         }
         return super.matches(path);
