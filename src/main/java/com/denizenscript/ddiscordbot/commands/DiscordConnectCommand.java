@@ -202,7 +202,10 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
                 });
                 Debug.echoError(ex);
             }
-            Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, ender);
+            Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
+                conn.flags = SavableMapFlagTracker.loadFlagFile(flagFilePathFor(conn.botID));
+                ender.run();
+            });
         }
     }
 
@@ -248,7 +251,6 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
                 return;
             }
             codeRaw = codeRaw.trim();
-            dc.flags = SavableMapFlagTracker.loadFlagFile(flagFilePathFor(id.asString()));
             DiscordConnectThread dct = new DiscordConnectThread();
             dct.queue = scriptEntry.getResidingQueue();
             dct.code = codeRaw;

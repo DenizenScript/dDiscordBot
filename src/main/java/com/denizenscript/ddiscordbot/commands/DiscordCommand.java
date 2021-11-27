@@ -5,7 +5,6 @@ import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizen.Denizen;
 import com.denizenscript.denizen.utilities.Utilities;
-import com.denizenscript.denizencore.flags.SavableMapFlagTracker;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
@@ -274,7 +273,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                             codeRaw = codeRaw.trim();
                         }
                         DiscordConnection dc = new DiscordConnection();
-                        dc.flags = SavableMapFlagTracker.loadFlagFile(DiscordConnectCommand.flagFilePathFor(id.asString()));
                         dc.botID = id.asString();
                         DenizenDiscordBot.instance.connections.put(id.asString(), dc);
                         DiscordConnectCommand.DiscordConnectThread dct = new DiscordConnectCommand.DiscordConnectThread();
