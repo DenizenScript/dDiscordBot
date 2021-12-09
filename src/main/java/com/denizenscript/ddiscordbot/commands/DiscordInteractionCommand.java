@@ -48,8 +48,10 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
     //
     // The "ephemeral" argument can be used to have the reply message be visible to that one user.
     //
-    // You should almost always defer an interaction before replying. A defer will override a reply in terms of being ephemeral.
+    // You should usually defer an interaction before replying.
+    // If you defer, the 'ephemeral' option can only be set by the defer - you cannot change it with the later reply.
     // Replying to an interaction uses similar logic to normal messaging. See <@link command discordmessage>.
+    // If you deferred without using 'ephemeral', the 'delete' option will delete the "Thinking..." message.
     //
     // Slash commands and replies to interactions, have limitations. See <@link url https://gist.github.com/MinnDevelopment/b883b078fdb69d0e568249cc8bf37fe9>.
     //
@@ -59,6 +61,10 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
     //
     // @Tags
     // <entry[saveName].command> returns the DiscordCommandTag of a slash command upon creation, when the command is ~waited for.
+    //
+    // @Usage
+    // Use to quickly reply to a slash command interaction.
+    // - ~discordinteraction reply interaction:<context.interaction> "hello!"
     //
     // @Usage
     // Use to defer and reply to a slash command interaction.

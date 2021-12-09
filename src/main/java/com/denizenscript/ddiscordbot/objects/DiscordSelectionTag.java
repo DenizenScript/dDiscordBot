@@ -106,7 +106,7 @@ public class DiscordSelectionTag implements ObjectTag {
                 ElementTag emoji = (ElementTag) option.getObject("emoji");
                 Emoji emojiData = null;
                 if (emoji != null) {
-                    emojiData = Emoji.fromUnicode(emoji.toString());
+                    emojiData = Emoji.fromMarkdown(emoji.toString());
                 }
                 if (label == null || value == null) {
                     return null;

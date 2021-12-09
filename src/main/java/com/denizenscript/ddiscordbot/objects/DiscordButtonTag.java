@@ -77,41 +77,18 @@ public class DiscordButtonTag implements ObjectTag {
     }
 
     public Button build() {
-        ObjectTag style = buttonData.getObject("style");
         ObjectTag id = buttonData.getObject("id");
-        ObjectTag label = buttonData.getObject("label");
-        ObjectTag emoji = buttonData.getObject("emoji");
-        ButtonStyle styleData;
-        Button button = null;
-        boolean isValidType = false;
-        for (ButtonStyle val : ButtonStyle.values()) {
-            if (val.name().toUpperCase().equals(
-                style.toString().toUpperCase()
-            )) {
-                isValidType = true;
-                break;
-            }
-        }
-        if (!isValidType) {
+        if (id == null) {
             return null;
         }
-        styleData = ButtonStyle.valueOf(style.toString().toUpperCase());
+        ObjectTag label = buttonData.getObject("label");
+        ObjectTag emoji = buttonData.getObject("emoji");
+        ObjectTag style = buttonData.getObject("style");
+        ButtonStyle styleData = ButtonStyle.PRIMARY;
         if (style != null) {
             styleData = ButtonStyle.valueOf(style.toString().toUpperCase());
         }
-        if (id != null) {
-            if (emoji != null) {
-                Emoji emojiData = Emoji.fromUnicode(emoji.toString());
-                if (emojiData != null) {
-                    button = Button.of(styleData, id.toString(), emojiData);
-                }
-            } else {
-                if (label != null) {
-                    button = Button.of(styleData, id.toString(), label.toString());
-                }
-            }
-        }
-        return button;
+        return Button.of(styleData, id.toString(), label == null ? null : label.toString(), emoji == null ? null : Emoji.fromMarkdown(emoji.toString()));
     }
 
     public MapTag buttonData;

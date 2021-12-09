@@ -71,6 +71,8 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
     //
     // Slash commands and replies to interactions, have limitations. See <@link url https://gist.github.com/MinnDevelopment/b883b078fdb69d0e568249cc8bf37fe9>.
     //
+    // See also Discord's internal API documentation for commands: <@link url https://discord.com/developers/docs/interactions/application-commands>
+    //
     // Generally used alongside <@link command discordinteraction>
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
