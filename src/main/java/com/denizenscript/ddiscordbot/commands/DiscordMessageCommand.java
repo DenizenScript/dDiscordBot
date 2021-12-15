@@ -78,7 +78,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to send a message to a user through a private channel.
-    // - ~discordmessage id:mybot message user:<[user]> "Hello world!"
+    // - ~discordmessage id:mybot user:<[user]> "Hello world!"
     //
     // @Usage
     // Use to send a text-file message to a channel.
