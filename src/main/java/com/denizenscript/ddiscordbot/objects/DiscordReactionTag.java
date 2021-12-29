@@ -131,9 +131,9 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         if (channel != null) {
             return channel;
         }
-        channel = getBot().client.getTextChannelById(channel_id);
-        if (channel == null) {
-            channel = getBot().client.getPrivateChannelById(channel_id);
+        Channel result = getBot().getChannel(channel_id);
+        if (result instanceof MessageChannel) {
+            channel = (MessageChannel) result;
         }
         return channel;
     }

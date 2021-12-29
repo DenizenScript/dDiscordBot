@@ -3,6 +3,7 @@ package com.denizenscript.ddiscordbot;
 import com.denizenscript.ddiscordbot.events.*;
 import com.denizenscript.denizencore.flags.SavableMapFlagTracker;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -30,6 +31,18 @@ public class DiscordConnection extends ListenerAdapter {
 
     public void registerHandlers() {
         client.addEventListener(this);
+    }
+
+    public Channel getChannel(long id) {
+        Channel result = client.getGuildChannelById(id);
+        if (result != null) {
+            return result;
+        }
+        result = client.getPrivateChannelById(id);
+        if (result != null) {
+            return result;
+        }
+        return null;
     }
 
     @Override

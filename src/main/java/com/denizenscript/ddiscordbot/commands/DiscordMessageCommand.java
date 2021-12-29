@@ -193,13 +193,16 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             JDA client = connection.client;
             MessageChannel toChannel = null;
             if (reply != null && reply.channel_id != 0) {
-                toChannel = client.getTextChannelById(reply.channel_id);
-                if (toChannel == null) {
-                    toChannel = client.getPrivateChannelById(reply.channel_id);
+                Channel result = connection.getChannel(reply.channel_id);
+                if (result instanceof MessageChannel) {
+                    toChannel = (MessageChannel) result;
                 }
             }
             else if (channel != null) {
-                toChannel = client.getTextChannelById(channel.channel_id);
+                Channel result = connection.getChannel(channel.channel_id);
+                if (result instanceof MessageChannel) {
+                    toChannel = (MessageChannel) result;
+                }
             }
             else if (user != null) {
                 User userObj = client.getUserById(user.user_id);

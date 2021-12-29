@@ -96,18 +96,18 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         return DenizenDiscordBot.instance.connections.get(bot);
     }
 
-    public MessageChannel getChannel() {
+    public Channel getChannel() {
         if (channel != null) {
             return channel;
         }
         if (bot == null) {
             return null;
         }
-        channel = getBot().client.getTextChannelById(channel_id);
+        channel = getBot().getChannel(channel_id);
         return channel;
     }
 
-    public MessageChannel channel;
+    public Channel channel;
 
     public String bot;
 
@@ -135,18 +135,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // Returns the name of the channel.
         // -->
         tagProcessor.registerTag(ElementTag.class, "name", (attribute, object) -> {
-            MessageChannel chan = object.getChannel();
-            String name;
-            if (chan instanceof GuildChannel) {
-                name = ((GuildChannel) chan).getName();
-            }
-            else if (chan instanceof PrivateChannel) {
-                name = "private";
-            }
-            else {
-                name = "unknown";
-            }
-            return new ElementTag(name);
+            return new ElementTag(object.getChannel().getName());
         });
 
         // <--[tag]
@@ -155,7 +144,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // @plugin dDiscordBot
         // @description
         // Returns the type of the channel.
-        // Will be any of: TEXT, PRIVATE, VOICE, GROUP, CATEGORY, STORE, UNKNOWN.
+        // Will be any of: TEXT, PRIVATE, VOICE, GROUP, CATEGORY, NEWS, STORE, STAGE, GUILD_NEWS_THREAD, GUILD_PUBLIC_THREAD, GUILD_PRIVATE_THREAD, or UNKNOWN.
         // -->
         tagProcessor.registerTag(ElementTag.class, "channel_type", (attribute, object) -> {
             return new ElementTag(object.getChannel().getType().name());
@@ -170,6 +159,23 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // -->
         tagProcessor.registerTag(ElementTag.class, "id", (attribute, object) -> {
             return new ElementTag(object.channel_id);
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.parent>
+        // @returns DiscordChannelTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the parent channel of this thread channel (if this channel is a thread).
+        // -->
+        tagProcessor.registerTag(DiscordChannelTag.class, "parent", (attribute, object) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                attribute.echoError("Cannot get 'parent' tag: this channel is not a thread.");
+                return null;
+            }
+            GuildMessageChannel parent = ((ThreadChannel) channel).getParentMessageChannel();
+            return new DiscordChannelTag(object.bot, parent);
         });
 
         // <--[tag]
@@ -191,7 +197,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // Returns the group that owns this channel.
         // -->
         tagProcessor.registerTag(DiscordGroupTag.class, "group", (attribute, object) -> {
-            MessageChannel chan = object.getChannel();
+            Channel chan = object.getChannel();
             Guild guild;
             if (chan instanceof GuildChannel) {
                 guild = ((GuildChannel) chan).getGuild();
@@ -211,7 +217,11 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // -->
         tagProcessor.registerTag(ListTag.class, "pinned_messages", (attribute, object) -> {
             ListTag list = new ListTag();
-            for (Message message : object.getChannel().retrievePinnedMessages().complete()) {
+            MessageChannel channel = (MessageChannel) object.getChannel();
+            if (channel == null) {
+                return null;
+            }
+            for (Message message : channel.retrievePinnedMessages().complete()) {
                 list.addObject(new DiscordMessageTag(object.bot, message));
             }
             return list;
@@ -225,7 +235,11 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // Returns the first message sent in the channel.
         // -->
         tagProcessor.registerTag(DiscordMessageTag.class, "first_message", (attribute, object) -> {
-            Message first = object.getChannel().getHistoryFromBeginning(1).complete().getRetrievedHistory().get(0);
+            MessageChannel channel = (MessageChannel) object.getChannel();
+            if (channel == null) {
+                return null;
+            }
+            Message first = channel.getHistoryFromBeginning(1).complete().getRetrievedHistory().get(0);
             return new DiscordMessageTag(object.bot, first);
         });
 
@@ -237,8 +251,12 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         // Returns the last message sent in the channel.
         // -->
         tagProcessor.registerTag(DiscordMessageTag.class, "last_message", (attribute, object) -> {
-            if (object.getChannel().hasLatestMessage()) {
-                return new DiscordMessageTag(object.bot, object.channel_id, object.getChannel().getLatestMessageIdLong());
+            MessageChannel channel = (MessageChannel) object.getChannel();
+            if (channel == null) {
+                return null;
+            }
+            if (channel.hasLatestMessage()) {
+                return new DiscordMessageTag(object.bot, object.channel_id, channel.getLatestMessageIdLong());
             }
             else {
                 return null;

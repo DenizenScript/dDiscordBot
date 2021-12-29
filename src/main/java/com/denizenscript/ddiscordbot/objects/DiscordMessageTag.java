@@ -129,9 +129,9 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
         if (bot == null) {
             return null;
         }
-        channel = getBot().client.getTextChannelById(channel_id);
-        if (channel == null) {
-            channel = getBot().client.getPrivateChannelById(channel_id);
+        Channel result = getBot().getChannel(channel_id);
+        if (result instanceof MessageChannel) {
+            channel = (MessageChannel) result;
         }
         return channel;
     }
