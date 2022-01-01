@@ -1,6 +1,7 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
@@ -8,6 +9,7 @@ import com.denizenscript.ddiscordbot.objects.DiscordMessageTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.tags.TagContext;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 
@@ -32,11 +34,13 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     // <context.channel> returns the channel.
     // <context.group> returns the group.
     // <context.old_message_valid> returns whether the old message is available (it may be lost due to caching).
-    // <context.old_message> returns the original DiscordMessageText (data may be missing if not cached).
+    // <context.old_message> returns the original DiscordMessageTag (data may be missing if not cached).
     //
     // -->
 
     public static DiscordMessageDeletedScriptEvent instance;
+
+    public Message oldMessage;
 
     public DiscordMessageDeletedScriptEvent() {
         instance = this;
@@ -59,6 +63,18 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
         return super.matches(path);
     }
 
+    public Message getOldMessage() {
+        if (oldMessage != null) {
+            return oldMessage;
+        }
+        DiscordConnection connection = getConnection();
+        if (connection == null) {
+            return null;
+        }
+        oldMessage = connection.cache.getMessage(getEvent().getChannel().getIdLong(), getEvent().getMessageIdLong());
+        return oldMessage;
+    }
+
     @Override
     public ObjectTag getContext(String name) {
         switch (name) {
@@ -70,11 +86,12 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
                 }
                 break;
             case "old_message":
-                return new DiscordMessageTag(botID, getEvent().getChannel().getIdLong(), getEvent().getMessageIdLong());
-
-            // TODO: Message cache?
+                Message oldMessage = getOldMessage();
+                if (oldMessage != null) {
+                    return new DiscordMessageTag(botID, oldMessage);
+                }
             case "old_message_valid":
-                return new ElementTag(false);
+                return new ElementTag(getOldMessage() != null);
             case "message":
             case "formatted_message":
             case "no_mention_message":

@@ -1,0 +1,7 @@
+# If true: messages can be looked up by ID by tags.
+# If false: valid message objects from events will work, or messages in cache will work, but others will not.
+Allow message lookup: true
+
+# Number of recent messages to cache per-channel.
+# Can be zero to disable caching.
+Message cache size: 128

@@ -142,7 +142,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         if (message != null) {
             return message;
         }
-        message = getChannel().retrieveMessageById(message_id).complete();
+        message = getBot().getMessage(channel_id, message_id);
         return message;
     }
 

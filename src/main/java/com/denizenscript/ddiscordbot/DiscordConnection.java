@@ -4,6 +4,8 @@ import com.denizenscript.ddiscordbot.events.*;
 import com.denizenscript.denizencore.flags.SavableMapFlagTracker;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Channel;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -21,6 +23,8 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 
+import java.util.function.Consumer;
+
 public class DiscordConnection extends ListenerAdapter {
 
     public String botID;
@@ -28,6 +32,23 @@ public class DiscordConnection extends ListenerAdapter {
     public JDA client;
 
     public SavableMapFlagTracker flags;
+
+    public CacheHelper cache = new CacheHelper();
+
+    public Message getMessage(long channel, long message) {
+        Message result = cache.getMessage(channel, message);
+        if (result != null) {
+            return result;
+        }
+        if (!DenizenDiscordBot.allowMessageRetrieval) {
+            return null;
+        }
+        Channel chan = getChannel(channel);
+        if (!(chan instanceof MessageChannel)) {
+            return null;
+        }
+        return ((MessageChannel) chan).retrieveMessageById(message).complete();
+    }
 
     public void registerHandlers() {
         client.addEventListener(this);
@@ -57,12 +78,17 @@ public class DiscordConnection extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        cache.onMessageReceived(event);
         autoHandle(event, DiscordMessageReceivedScriptEvent.instance);
     }
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
-        autoHandle(event, DiscordMessageModifiedScriptEvent.instance);
+        Message oldMessage = cache.getMessage(event.getChannel().getIdLong(), event.getMessageIdLong());
+        cache.onMessageUpdate(event);
+        autoHandle(event, DiscordMessageModifiedScriptEvent.instance, (e) -> {
+            e.oldMessage = oldMessage;
+        });
     }
 
     @Override
@@ -111,9 +137,16 @@ public class DiscordConnection extends ListenerAdapter {
     }
 
     public void autoHandle(Event event, DiscordScriptEvent scriptEvent) {
+        autoHandle(event, scriptEvent, null);
+    }
+
+    public <T extends DiscordScriptEvent> void autoHandle(Event event, T scriptEvent, Consumer<T> configure) {
         Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
             if (!scriptEvent.enabled) {
                 return;
+            }
+            if (configure != null) {
+                configure.accept(scriptEvent);
             }
             scriptEvent.botID = botID;
             scriptEvent.event = event;

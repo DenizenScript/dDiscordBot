@@ -15,6 +15,7 @@ import com.denizenscript.denizencore.utilities.debugging.FutureWarning;
 import com.denizenscript.denizencore.utilities.debugging.SlowWarning;
 import com.denizenscript.denizencore.utilities.debugging.Warning;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -31,10 +32,20 @@ public class DenizenDiscordBot extends JavaPlugin {
 
     public HashMap<String, DiscordConnection> connections = new HashMap<>();
 
+    public static boolean allowMessageRetrieval = true;
+
+    public static int messageCacheSize = 128;
+
     @Override
     public void onEnable() {
         Debug.log("dDiscordBot loaded!");
         instance = this;
+        saveDefaultConfig();
+        FileConfiguration config = getConfig();
+        if (config != null) {
+            allowMessageRetrieval = config.getBoolean("Allow message lookup", true);
+            messageCacheSize = config.getInt("Message cache size", 128);
+        }
         try {
             // Commands
             DenizenCore.commandRegistry.registerCommand(DiscordCommand.class);

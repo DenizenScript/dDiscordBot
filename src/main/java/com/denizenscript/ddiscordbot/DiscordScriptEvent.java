@@ -13,6 +13,14 @@ public abstract class DiscordScriptEvent extends BukkitScriptEvent {
 
     public Event event;
 
+    public DiscordBotTag getBot() {
+        return new DiscordBotTag(botID);
+    }
+
+    public DiscordConnection getConnection() {
+        return DenizenDiscordBot.instance.connections.get(botID);
+    }
+
     @Override
     public boolean matches(ScriptPath path) {
         if (!runGenericSwitchCheck(path, "for", botID)) {
@@ -24,7 +32,7 @@ public abstract class DiscordScriptEvent extends BukkitScriptEvent {
     @Override
     public ObjectTag getContext(String name) {
         if (name.equals("bot")) {
-            return new DiscordBotTag(botID);
+            return getBot();
         }
         return super.getContext(name);
     }

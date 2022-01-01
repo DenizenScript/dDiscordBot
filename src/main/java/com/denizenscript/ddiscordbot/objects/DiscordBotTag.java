@@ -74,12 +74,20 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
 
     @Override
     public AbstractFlagTracker getFlagTracker() {
-        return DenizenDiscordBot.instance.connections.get(bot).flags;
+        DiscordConnection conn = getConnection();
+        if (conn != null) {
+            return conn.flags;
+        }
+        return null;
     }
 
     @Override
     public void reapplyTracker(AbstractFlagTracker tracker) {
         // Nothing to do.
+    }
+
+    public DiscordConnection getConnection() {
+        return DenizenDiscordBot.instance.connections.get(bot);
     }
 
     public static void registerTags() {
@@ -106,7 +114,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
         // Returns the bot's own Discord user object.
         // -->
         tagProcessor.registerTag(DiscordUserTag.class, "self_user", (attribute, object) -> {
-            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
+            DiscordConnection connection = object.getConnection();
             if (connection == null) {
                 return null;
             }
@@ -122,7 +130,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
         // Returns a list of all groups (aka 'guilds' or 'servers') that this Discord bot has access to.
         // -->
         tagProcessor.registerTag(ListTag.class, "groups", (attribute, object) -> {
-            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
+            DiscordConnection connection = object.getConnection();
             if (connection == null) {
                 return null;
             }
@@ -141,7 +149,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
         // Returns a list of all application commands.
         // -->
         tagProcessor.registerTag(ListTag.class, "commands", (attribute, object) -> {
-            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
+            DiscordConnection connection = object.getConnection();
             if (connection == null) {
                 return null;
             }
@@ -163,7 +171,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
             if (!attribute.hasParam()) {
                 return null;
             }
-            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
+            DiscordConnection connection = object.getConnection();
             if (connection == null) {
                 return null;
             }
@@ -197,7 +205,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
             if (!attribute.hasParam()) {
                 return null;
             }
-            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(object.bot);
+            DiscordConnection connection = object.getConnection();
             if (connection == null) {
                 return null;
             }

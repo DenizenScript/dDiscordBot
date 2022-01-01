@@ -10,6 +10,7 @@ import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.tags.TagContext;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
@@ -35,10 +36,14 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
     // <context.channel> returns the channel.
     // <context.group> returns the group.
     // <context.new_message> returns the message as it now exists, as a DiscordMessageTag.
+    // <context.old_message_valid> returns whether the old message is available (it may be lost due to caching).
+    // <context.old_message> returns the original DiscordMessageTag (data may be missing if not cached).
     //
     // -->
 
     public static DiscordMessageModifiedScriptEvent instance;
+
+    public Message oldMessage;
 
     public DiscordMessageModifiedScriptEvent() {
         instance = this;
@@ -73,12 +78,10 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
                 break;
             case "new_message":
                 return new DiscordMessageTag(botID, getEvent().getMessage());
-
-            // TODO: Message cache
             case "old_message_valid":
-                return new ElementTag(false);
+                return new ElementTag(oldMessage != null);
             case "old_message":
-                return null;
+                return oldMessage == null ? null : new DiscordMessageTag(botID, oldMessage);
             case "old_no_mention_message":
             case "old_formatted_message":
                 DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
