@@ -15,7 +15,7 @@ import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.*;
 
-public class DiscordChannelTag implements ObjectTag, FlaggableObject {
+public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable {
 
     // <--[ObjectType]
     // @name DiscordChannelTag
@@ -179,6 +179,107 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
         });
 
         // <--[tag]
+        // @attribute <DiscordChannelTag.thread_members>
+        // @returns ListTag(DiscordUserTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns the list of users joined into this thread channel (if this channel is a thread).
+        // -->
+        tagProcessor.registerTag(ListTag.class, "thread_members", (attribute, object) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                attribute.echoError("Cannot get 'thread_members' tag: this channel is not a thread.");
+                return null;
+            }
+            ListTag result = new ListTag();
+            for (Member member : ((ThreadChannel) channel).getMembers()) {
+                result.addObject(new DiscordUserTag(object.bot, member.getUser()));
+            }
+            return result;
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.is_archived>
+        // @returns ElementTag(Boolean)
+        // @plugin dDiscordBot
+        // @description
+        // Returns true if the thread is archived, or false if it is still open.
+        // Only applicable to thread-channels.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "is_archived", (attribute, object) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                attribute.echoError("Cannot get 'is_archived' tag: this channel is not a thread channel.");
+                return null;
+            }
+            return new ElementTag(((ThreadChannel) channel).isArchived());
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.threads>
+        // @returns ListTag(DiscordChannelTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns the list of all (archived or not) thread channels inside this text channel.
+        // -->
+        tagProcessor.registerTag(ListTag.class, "threads", (attribute, object) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof TextChannel)) {
+                attribute.echoError("Cannot get 'threads' tag: this channel is not a text channel.");
+                return null;
+            }
+            ListTag result = new ListTag();
+            for (ThreadChannel thread : ((TextChannel) channel).getThreadChannels()) {
+                result.addObject(new DiscordChannelTag(object.bot, thread));
+            }
+            return result;
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.active_threads>
+        // @returns ListTag(DiscordChannelTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns the list of all current (non-archived) thread channels inside this text channel.
+        // -->
+        tagProcessor.registerTag(ListTag.class, "active_threads", (attribute, object) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof TextChannel)) {
+                attribute.echoError("Cannot get 'active_threads' tag: this channel is not a text channel.");
+                return null;
+            }
+            ListTag result = new ListTag();
+            for (ThreadChannel thread : ((TextChannel) channel).getThreadChannels()) {
+                if (!thread.isArchived()) {
+                    result.addObject(new DiscordChannelTag(object.bot, thread));
+                }
+            }
+            return result;
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.archived_threads>
+        // @returns ListTag(DiscordChannelTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns the list of all archived thread channels inside this text channel.
+        // -->
+        tagProcessor.registerTag(ListTag.class, "archived_threads", (attribute, object) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof TextChannel)) {
+                attribute.echoError("Cannot get 'archived_threads' tag: this channel is not a text channel.");
+                return null;
+            }
+            ListTag result = new ListTag();
+            for (ThreadChannel thread : ((TextChannel) channel).getThreadChannels()) {
+                if (thread.isArchived()) {
+                    result.addObject(new DiscordChannelTag(object.bot, thread));
+                }
+            }
+            return result;
+        });
+
+        // <--[tag]
         // @attribute <DiscordChannelTag.mention>
         // @returns ElementTag
         // @plugin dDiscordBot
@@ -320,5 +421,54 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject {
             this.prefix = prefix;
         }
         return this;
+    }
+
+    @Override
+    public void applyProperty(Mechanism mechanism) {
+        Debug.echoError("Cannot apply properties to a DiscordChannelTag!");
+    }
+
+    @Override
+    public void adjust(Mechanism mechanism) {
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name add_thread_member
+        // @input DiscordUserTag
+        // @description
+        // Adds the specified user to this thread.
+        // -->
+        if (mechanism.matches("add_thread_member") && mechanism.requireObject(DiscordUserTag.class)) {
+            Channel channel = getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                mechanism.echoError("Cannot adjust 'add_thread_member' tag: this channel is not a thread.");
+                return;
+            }
+            DiscordUserTag user = mechanism.valueAsType(DiscordUserTag.class);
+            if (user.bot == null) {
+                user.bot = bot;
+            }
+            ((ThreadChannel) channel).addThreadMember(user.getUser()).submit();
+        }
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name remove_thread_member
+        // @input DiscordUserTag
+        // @description
+        // Removes the specified user from this thread.
+        // -->
+        if (mechanism.matches("remove_thread_member") && mechanism.requireObject(DiscordUserTag.class)) {
+            Channel channel = getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                mechanism.echoError("Cannot adjust 'remove_thread_member' tag: this channel is not a thread.");
+                return;
+            }
+            DiscordUserTag user = mechanism.valueAsType(DiscordUserTag.class);
+            if (user.bot == null) {
+                user.bot = bot;
+            }
+            ((ThreadChannel) channel).removeThreadMember(user.getUser()).submit();
+        }
     }
 }
