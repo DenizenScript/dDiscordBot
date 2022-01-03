@@ -86,7 +86,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         this.channel_id = channelId;
     }
 
-    public DiscordChannelTag(String bot, MessageChannel channel) {
+    public DiscordChannelTag(String bot, Channel channel) {
         this.bot = bot;
         this.channel = channel;
         channel_id = channel.getIdLong();
@@ -199,20 +199,50 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         });
 
         // <--[tag]
-        // @attribute <DiscordChannelTag.is_archived>
+        // @attribute <DiscordChannelTag.is_thread>
         // @returns ElementTag(Boolean)
+        // @plugin dDiscordBot
+        // @description
+        // Returns true if the channel is a thread, or false if it is some other type of channel.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "is_thread", (attribute, object) -> {
+            return new ElementTag(object.getChannel() instanceof ThreadChannel);
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.is_thread_archived>
+        // @returns ElementTag(Boolean)
+        // @mechanism DiscordChannelTag.is_thread_archived
         // @plugin dDiscordBot
         // @description
         // Returns true if the thread is archived, or false if it is still open.
         // Only applicable to thread-channels.
         // -->
-        tagProcessor.registerTag(ElementTag.class, "is_archived", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "is_thread_archived", (attribute, object) -> {
             Channel channel = object.getChannel();
             if (!(channel instanceof ThreadChannel)) {
                 attribute.echoError("Cannot get 'is_archived' tag: this channel is not a thread channel.");
                 return null;
             }
             return new ElementTag(((ThreadChannel) channel).isArchived());
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.is_thread_locked>
+        // @returns ElementTag(Boolean)
+        // @mechanism DiscordChannelTag.is_thread_locked
+        // @plugin dDiscordBot
+        // @description
+        // Returns true if the thread is locked (cannot be pulled from archive).
+        // Only applicable to thread-channels.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "is_thread_locked", (attribute, object) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                attribute.echoError("Cannot get 'is_thread_locked' tag: this channel is not a thread channel.");
+                return null;
+            }
+            return new ElementTag(((ThreadChannel) channel).isLocked());
         });
 
         // <--[tag]
@@ -441,7 +471,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         if (mechanism.matches("add_thread_member") && mechanism.requireObject(DiscordUserTag.class)) {
             Channel channel = getChannel();
             if (!(channel instanceof ThreadChannel)) {
-                mechanism.echoError("Cannot adjust 'add_thread_member' tag: this channel is not a thread.");
+                mechanism.echoError("Cannot adjust 'add_thread_member': this channel is not a thread.");
                 return;
             }
             DiscordUserTag user = mechanism.valueAsType(DiscordUserTag.class);
@@ -461,7 +491,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         if (mechanism.matches("remove_thread_member") && mechanism.requireObject(DiscordUserTag.class)) {
             Channel channel = getChannel();
             if (!(channel instanceof ThreadChannel)) {
-                mechanism.echoError("Cannot adjust 'remove_thread_member' tag: this channel is not a thread.");
+                mechanism.echoError("Cannot adjust 'remove_thread_member': this channel is not a thread.");
                 return;
             }
             DiscordUserTag user = mechanism.valueAsType(DiscordUserTag.class);
@@ -469,6 +499,42 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
                 user.bot = bot;
             }
             ((ThreadChannel) channel).removeThreadMember(user.getUser()).submit();
+        }
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name is_thread_archived
+        // @input ElementTag(Boolean)
+        // @description
+        // Changes whether this thread is archived.
+        // @tags
+        // <DiscordChannelTag.is_thread_archived>
+        // -->
+        if (mechanism.matches("is_thread_archived") && mechanism.requireBoolean()) {
+            Channel channel = getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                mechanism.echoError("Cannot adjust 'thread_archived': this channel is not a thread.");
+                return;
+            }
+            ((ThreadChannel) channel).getManager().setArchived(mechanism.getValue().asBoolean()).submit();
+        }
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name is_thread_locked
+        // @input ElementTag(Boolean)
+        // @description
+        // Changes whether this thread is locked (can't be pulled from archive by non-moderators).
+        // @tags
+        // <DiscordChannelTag.is_thread_locked>
+        // -->
+        if (mechanism.matches("is_thread_locked") && mechanism.requireBoolean()) {
+            Channel channel = getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                mechanism.echoError("Cannot adjust 'is_thread_locked': this channel is not a thread.");
+                return;
+            }
+            ((ThreadChannel) channel).getManager().setLocked(mechanism.getValue().asBoolean()).submit();
         }
     }
 }

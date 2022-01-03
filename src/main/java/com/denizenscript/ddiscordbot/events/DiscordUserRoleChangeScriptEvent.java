@@ -43,7 +43,7 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
     public DiscordUserRoleChangeScriptEvent() {
         instance = this;
         registerCouldMatcher("discord user role changes");
-        registerSwitches("for", "group");
+        registerSwitches("group");
     }
 
     public boolean isAdding() {

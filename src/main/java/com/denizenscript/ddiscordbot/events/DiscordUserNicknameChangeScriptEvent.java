@@ -35,7 +35,7 @@ public class DiscordUserNicknameChangeScriptEvent extends DiscordScriptEvent {
     public DiscordUserNicknameChangeScriptEvent() {
         instance = this;
         registerCouldMatcher("discord user nickname changes");
-        registerSwitches("for", "group");
+        registerSwitches("group");
     }
 
     public GuildMemberUpdateNicknameEvent getEvent() {

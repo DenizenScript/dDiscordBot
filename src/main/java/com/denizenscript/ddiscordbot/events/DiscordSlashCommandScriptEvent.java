@@ -49,7 +49,7 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
     public DiscordSlashCommandScriptEvent() {
         instance = this;
         registerCouldMatcher("discord slash command");
-        registerSwitches("for", "channel", "group", "name");
+        registerSwitches("channel", "group", "name");
     }
 
     public SlashCommandEvent getEvent() {

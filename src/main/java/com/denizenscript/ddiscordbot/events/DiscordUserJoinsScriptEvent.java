@@ -32,7 +32,7 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
     public DiscordUserJoinsScriptEvent() {
         instance = this;
         registerCouldMatcher("discord user joins");
-        registerSwitches("for", "group");
+        registerSwitches("group");
     }
 
     public GuildMemberJoinEvent getEvent() {

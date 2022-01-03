@@ -1,21 +1,22 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
+import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
-import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.thread.ThreadHiddenEvent;
 
-public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
+public class DiscordThreadArchivedScriptEvent extends DiscordScriptEvent {
 
     // <--[event]
     // @Events
-    // discord user leaves
+    // discord thread archived
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
+    // @Switch parent:<channel_id> to only process the event for a specific parent channel ID.
     //
-    // @Triggers when a Discord user leaves a guild.
+    // @Triggers when a Discord thread is archived.
     //
     // @Plugin dDiscordBot
     //
@@ -24,24 +25,27 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
     // @Context
     // <context.bot> returns the relevant Discord bot object.
     // <context.group> returns the group.
-    // <context.user> returns the user.
+    // <context.thread> returns the thread channel.
     // -->
 
-    public static DiscordUserLeavesScriptEvent instance;
+    public static DiscordThreadArchivedScriptEvent instance;
 
-    public DiscordUserLeavesScriptEvent() {
+    public DiscordThreadArchivedScriptEvent() {
         instance = this;
-        registerCouldMatcher("discord user leaves");
-        registerSwitches("group");
+        registerCouldMatcher("discord thread archived");
+        registerSwitches("group", "parent");
     }
 
-    public GuildMemberRemoveEvent getEvent() {
-        return (GuildMemberRemoveEvent) event;
+    public ThreadHiddenEvent getEvent() {
+        return (ThreadHiddenEvent) event;
     }
 
     @Override
     public boolean matches(ScriptPath path) {
         if (!tryGuild(path, getEvent().getGuild())) {
+            return false;
+        }
+        if (!tryChannel(path, getEvent().getThread().getParentChannel(), "parent")) {
             return false;
         }
         return super.matches(path);
@@ -52,14 +56,14 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
         switch (name) {
             case "group":
                 return new DiscordGroupTag(botID, getEvent().getGuild());
-            case "user":
-                return new DiscordUserTag(botID, getEvent().getUser());
+            case "thread":
+                return new DiscordChannelTag(botID, getEvent().getThread());
         }
         return super.getContext(name);
     }
 
     @Override
     public String getName() {
-        return "DiscordUserLeaves";
+        return "DiscordThreadArchived";
     }
 }

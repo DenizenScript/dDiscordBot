@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.channel.ChannelCreateEvent;
+import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
@@ -20,9 +22,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
+import net.dv8tion.jda.api.events.thread.ThreadHiddenEvent;
+import net.dv8tion.jda.api.events.thread.ThreadRevealedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 
+import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public class DiscordConnection extends ListenerAdapter {
@@ -134,6 +139,26 @@ public class DiscordConnection extends ListenerAdapter {
     @Override
     public void onSelectionMenu(SelectionMenuEvent event) {
         autoHandle(event, DiscordSelectionUsedScriptEvent.instance);
+    }
+
+    @Override
+    public void onChannelCreate(@Nonnull ChannelCreateEvent event) {
+        autoHandle(event, DiscordChannelCreateScriptEvent.instance);
+    }
+
+    @Override
+    public void onChannelDelete(@Nonnull ChannelDeleteEvent event) {
+        autoHandle(event, DiscordChannelDeleteScriptEvent.instance);
+    }
+
+    @Override
+    public void onThreadRevealed(@Nonnull ThreadRevealedEvent event) {
+        autoHandle(event, DiscordThreadRevealedScriptEvent.instance);
+    }
+
+    @Override
+    public void onThreadHidden(@Nonnull ThreadHiddenEvent event) {
+        autoHandle(event, DiscordThreadArchivedScriptEvent.instance);
     }
 
     public void autoHandle(Event event, DiscordScriptEvent scriptEvent) {

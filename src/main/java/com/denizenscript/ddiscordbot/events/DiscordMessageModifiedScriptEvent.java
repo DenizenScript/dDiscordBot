@@ -48,7 +48,7 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
     public DiscordMessageModifiedScriptEvent() {
         instance = this;
         registerCouldMatcher("discord message modified");
-        registerSwitches("for", "channel", "group");
+        registerSwitches("channel", "group");
     }
 
     public MessageUpdateEvent getEvent() {

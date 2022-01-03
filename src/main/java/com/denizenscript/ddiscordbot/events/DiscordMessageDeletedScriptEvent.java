@@ -45,7 +45,7 @@ public class DiscordMessageDeletedScriptEvent extends DiscordScriptEvent {
     public DiscordMessageDeletedScriptEvent() {
         instance = this;
         registerCouldMatcher("discord message deleted");
-        registerSwitches("for", "channel", "group");
+        registerSwitches("channel", "group");
     }
 
     public MessageDeleteEvent getEvent() {

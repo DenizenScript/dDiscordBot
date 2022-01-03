@@ -36,7 +36,7 @@ public class DiscordMessageReactionRemoveScriptEvent extends DiscordScriptEvent 
     public DiscordMessageReactionRemoveScriptEvent() {
         instance = this;
         registerCouldMatcher("discord message reaction removed");
-        registerSwitches("for", "channel", "group");
+        registerSwitches("channel", "group");
     }
 
     public MessageReactionRemoveEvent getEvent() {

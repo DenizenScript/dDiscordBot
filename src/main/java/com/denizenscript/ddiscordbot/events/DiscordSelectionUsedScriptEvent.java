@@ -40,7 +40,7 @@ public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
     public DiscordSelectionUsedScriptEvent() {
         instance = this;
         registerCouldMatcher("discord selection used");
-        registerSwitches("for", "channel", "group", "id");
+        registerSwitches("channel", "group", "id");
     }
 
     public SelectionMenuEvent getEvent() {

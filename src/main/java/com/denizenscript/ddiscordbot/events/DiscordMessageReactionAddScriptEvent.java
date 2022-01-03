@@ -36,7 +36,7 @@ public class DiscordMessageReactionAddScriptEvent extends DiscordScriptEvent {
     public DiscordMessageReactionAddScriptEvent() {
         instance = this;
         registerCouldMatcher("discord message reaction added");
-        registerSwitches("for", "channel", "group");
+        registerSwitches("channel", "group");
     }
 
     public MessageReactionAddEvent getEvent() {

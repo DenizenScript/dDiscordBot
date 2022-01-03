@@ -39,7 +39,7 @@ public class DiscordButtonClickedScriptEvent extends DiscordScriptEvent {
     public DiscordButtonClickedScriptEvent() {
         instance = this;
         registerCouldMatcher("discord button clicked");
-        registerSwitches("for", "channel", "group", "id");
+        registerSwitches("channel", "group", "id");
     }
 
     public ButtonClickEvent getEvent() {

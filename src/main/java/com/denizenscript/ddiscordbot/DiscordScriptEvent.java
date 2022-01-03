@@ -3,11 +3,15 @@ package com.denizenscript.ddiscordbot;
 import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
 import com.denizenscript.denizen.events.BukkitScriptEvent;
 import com.denizenscript.denizencore.objects.ObjectTag;
+import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
 
 public abstract class DiscordScriptEvent extends BukkitScriptEvent {
+
+    public DiscordScriptEvent() {
+        registerSwitches("for");
+    }
 
     public String botID;
 
@@ -49,8 +53,12 @@ public abstract class DiscordScriptEvent extends BukkitScriptEvent {
         enabled = false;
     }
 
-    public static boolean tryChannel(ScriptPath path, MessageChannel channel) {
-        String text = path.switches.get("channel");
+    public static boolean tryChannel(ScriptPath path, Channel channel) {
+        return tryChannel(path, channel, "channel");
+    }
+
+    public static boolean tryChannel(ScriptPath path, Channel channel, String switchName) {
+        String text = path.switches.get(switchName);
         if (text == null) {
             return true;
         }

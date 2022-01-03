@@ -1,21 +1,21 @@
 package com.denizenscript.ddiscordbot.events;
 
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
+import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
-import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 
-public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
+public class DiscordChannelDeleteScriptEvent extends DiscordScriptEvent {
 
     // <--[event]
     // @Events
-    // discord user leaves
+    // discord channel deleted
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
     //
-    // @Triggers when a Discord user leaves a guild.
+    // @Triggers when a Discord channel is created.
     //
     // @Plugin dDiscordBot
     //
@@ -24,19 +24,19 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
     // @Context
     // <context.bot> returns the relevant Discord bot object.
     // <context.group> returns the group.
-    // <context.user> returns the user.
+    // <context.channel> returns the new channel.
     // -->
 
-    public static DiscordUserLeavesScriptEvent instance;
+    public static DiscordChannelDeleteScriptEvent instance;
 
-    public DiscordUserLeavesScriptEvent() {
+    public DiscordChannelDeleteScriptEvent() {
         instance = this;
-        registerCouldMatcher("discord user leaves");
+        registerCouldMatcher("discord channel deleted");
         registerSwitches("group");
     }
 
-    public GuildMemberRemoveEvent getEvent() {
-        return (GuildMemberRemoveEvent) event;
+    public ChannelDeleteEvent getEvent() {
+        return (ChannelDeleteEvent) event;
     }
 
     @Override
@@ -52,14 +52,14 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
         switch (name) {
             case "group":
                 return new DiscordGroupTag(botID, getEvent().getGuild());
-            case "user":
-                return new DiscordUserTag(botID, getEvent().getUser());
+            case "channel":
+                return new DiscordChannelTag(botID, getEvent().getChannel());
         }
         return super.getContext(name);
     }
 
     @Override
     public String getName() {
-        return "DiscordUserLeaves";
+        return "DiscordChannelDeleted";
     }
 }
