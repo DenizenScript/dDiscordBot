@@ -6,9 +6,7 @@ import com.denizenscript.denizen.utilities.debugging.Debug;
 import com.denizenscript.denizencore.flags.AbstractFlagTracker;
 import com.denizenscript.denizencore.flags.FlaggableObject;
 import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
-import com.denizenscript.denizencore.objects.ArgumentHelper;
-import com.denizenscript.denizencore.objects.Fetchable;
-import com.denizenscript.denizencore.objects.ObjectTag;
+import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.tags.Attribute;
@@ -19,7 +17,7 @@ import net.dv8tion.jda.api.entities.*;
 
 import java.util.List;
 
-public class DiscordMessageTag implements ObjectTag, FlaggableObject {
+public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable {
 
     // <--[ObjectType]
     // @name DiscordMessageTag
@@ -451,5 +449,32 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject {
             this.prefix = prefix;
         }
         return this;
+    }
+
+
+    @Override
+    public void applyProperty(Mechanism mechanism) {
+        Debug.echoError("Cannot apply properties to a DiscordMessageTag!");
+    }
+
+    @Override
+    public void adjust(Mechanism mechanism) {
+
+        // <--[mechanism]
+        // @object DiscordMessageTag
+        // @name delete
+        // @input None
+        // @description
+        // Deletes the message.
+        // -->
+        if (mechanism.matches("delete")) {
+            Message message = getMessage();
+            try {
+                message.delete().submit();
+            }
+            catch (Throwable ex) {
+                mechanism.echoError("Failed to delete message: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
+            }
+        }
     }
 }
