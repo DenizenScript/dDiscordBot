@@ -42,7 +42,7 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
     // OR specify a DiscordChannelTag parent and optionally mark it private (otherwise it's public).
     //
     // @Tags
-    // <entry[saveName].created_thread>
+    // <entry[saveName].created_thread> returns the newly created thread.
     //
     // @Usage
     // Use to create a new thread for a specific message and send a bot message to it.
@@ -89,7 +89,7 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
             }
         }
         else if (channel == null) {
-            throw new InvalidArgumentsRuntimeException("Missing message or channel/initial_message argument!");
+            throw new InvalidArgumentsRuntimeException("Missing message or channel argument!");
         }
         if (scriptEntry.dbCallShouldDebug()) {
             Debug.report(scriptEntry, getName(), id, name, message, channel, isPrivate ? db("private", true) : "");
