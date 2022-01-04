@@ -114,6 +114,11 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
     public long channel_id;
 
     @Override
+    public DiscordChannelTag duplicate() {
+        return new DiscordChannelTag(bot, channel_id);
+    }
+
+    @Override
     public AbstractFlagTracker getFlagTracker() {
         return new RedirectionFlagTracker(getBot().flags, "__channels." + channel_id);
     }

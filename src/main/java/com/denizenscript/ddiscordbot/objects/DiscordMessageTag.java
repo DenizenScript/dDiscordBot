@@ -153,6 +153,11 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
     public long message_id;
 
     @Override
+    public DiscordMessageTag duplicate() {
+        return new DiscordMessageTag(bot, channel_id, message_id);
+    }
+
+    @Override
     public AbstractFlagTracker getFlagTracker() {
         return new RedirectionFlagTracker(getBot().flags, "__messages." + channel_id + "." + message_id);
     }
