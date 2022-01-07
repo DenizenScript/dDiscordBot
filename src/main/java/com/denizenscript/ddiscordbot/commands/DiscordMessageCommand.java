@@ -220,7 +220,10 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             }
             Message replyTo = null;
             if (reply != null) {
-                replyTo = reply.bot != null ? reply.getMessage() : toChannel.retrieveMessageById(reply.message_id).complete();
+                replyTo = reply.bot != null ? reply.getMessage() : null;
+                if (replyTo == null) {
+                    toChannel.retrieveMessageById(reply.message_id).complete();
+                }
             }
             MessageAction action = null;
             boolean isFile = false;

@@ -157,7 +157,7 @@ public class DiscordConnection extends ListenerAdapter {
     }
 
     @Override
-    public void onThreadHidden(@Nonnull ThreadHiddenEvent event) {
+    public void onThreadHidden(@Nonnull ThreadHiddenEvent event) { // TODO: Is 'hidden' the same as 'archived'?
         autoHandle(event, DiscordThreadArchivedScriptEvent.instance);
     }
 

@@ -18,6 +18,8 @@ public class DiscordThreadRevealedScriptEvent extends DiscordScriptEvent {
     //
     // @Triggers when a Discord thread is pulled out of archive.
     //
+    // @Warning Not currently function. Will likely function in the future.
+    //
     // @Plugin dDiscordBot
     //
     // @Group Discord

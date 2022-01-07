@@ -18,6 +18,8 @@ public class DiscordThreadArchivedScriptEvent extends DiscordScriptEvent {
     //
     // @Triggers when a Discord thread is archived.
     //
+    // @Warning Not currently function. Will likely function in the future.
+    //
     // @Plugin dDiscordBot
     //
     // @Group Discord
