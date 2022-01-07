@@ -222,7 +222,12 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             if (reply != null) {
                 replyTo = reply.bot != null ? reply.getMessage() : null;
                 if (replyTo == null) {
-                    toChannel.retrieveMessageById(reply.message_id).complete();
+                    replyTo = toChannel.retrieveMessageById(reply.message_id).complete();
+                }
+                if (replyTo == null) {
+                    Debug.echoError("Failed to process DiscordMessage reply: invalid message to reply to!");
+                    scriptEntry.setFinished(true);
+                    return;
                 }
             }
             MessageAction action = null;
