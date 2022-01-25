@@ -233,7 +233,7 @@ public class DiscordSelectionTag implements ObjectTag {
 
     @Override
     public String debuggable() {
-        return "discordselection@" + menuData.debuggable();
+        return "<LG>discordselection@<Y>" + menuData.debuggable();
     }
 
     @Override

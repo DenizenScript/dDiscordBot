@@ -194,7 +194,7 @@ public class DiscordButtonTag implements ObjectTag {
 
     @Override
     public String debuggable() {
-        return "discordbutton@" + buttonData.debuggable();
+        return "<LG>discordbutton@<Y>" + buttonData.debuggable();
     }
 
     @Override

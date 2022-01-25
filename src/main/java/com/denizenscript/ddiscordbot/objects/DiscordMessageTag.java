@@ -192,6 +192,17 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         });
 
         // <--[tag]
+        // @attribute <DiscordMessageTag.url>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the full jump URL to this message.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "url", (attribute, object) -> {
+            return new ElementTag(object.getMessage().getJumpUrl());
+        });
+
+        // <--[tag]
         // @attribute <DiscordMessageTag.channel>
         // @returns DiscordChannelTag
         // @plugin dDiscordBot

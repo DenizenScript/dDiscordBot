@@ -412,7 +412,7 @@ public class DiscordEmbedTag implements ObjectTag {
 
     @Override
     public String debuggable() {
-        return "discordembed@" + embedData.debuggable();
+        return "<LG>discordembed@<Y>" + embedData.debuggable();
     }
 
     @Override
