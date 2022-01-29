@@ -83,6 +83,9 @@ public class DiscordSelectionTag implements ObjectTag {
         if (menu.getId() != null) {
             menuData.putObject("id", new ElementTag(menu.getId()));
         }
+        if (menu.getPlaceholder() != null) {
+            menuData.putObject("placeholder", new ElementTag(menu.getPlaceholder()));
+        }
         ListTag options = new ListTag();
         for (SelectOption option : menu.getOptions()) {
             options.addObject(getSelectionOption(option));
@@ -92,10 +95,14 @@ public class DiscordSelectionTag implements ObjectTag {
 
     public SelectionMenu.Builder build(TagContext context) {
         ObjectTag id = menuData.getObject("id");
+        ObjectTag placeholder = menuData.getObject("placeholder");
         if (id == null) {
             return null;
         }
         SelectionMenu.Builder menu = SelectionMenu.create(id.toString());
+        if (placeholder != null) {
+            menu.setPlaceholder(placeholder.toString());
+        }
         MapTag options = (MapTag) menuData.getObject("options");
         if (options != null) {
             for (ObjectTag optionObj : options.map.values()) {
@@ -131,7 +138,7 @@ public class DiscordSelectionTag implements ObjectTag {
     public MapTag menuData;
 
     public static HashSet<String> acceptedWithKeys = new HashSet<>(Arrays.asList(
-        "id", "options"
+        "id", "options", "placeholder"
     ));
 
     public static void registerTags() {
@@ -175,6 +182,7 @@ public class DiscordSelectionTag implements ObjectTag {
         // Returns a copy of this Selection tag, with the specified data key set to the specified value.
         // The following keys are accepted, with values of the listed type:
         // id: ElementTag
+        // placeholder: ElementTag
         // options: MapTag where the values are also a MapTag consisting of:
         // - label: ElementTag
         // - value: ElementTag
