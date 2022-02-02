@@ -91,7 +91,7 @@ public class DiscordChannelCommand extends AbstractCommand implements Holdable {
         ElementTag description = scriptEntry.argForPrefixAsElement("description", null);
         ElementTag category = scriptEntry.argForPrefixAsElement("category", null);
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id, instruction, group, channel, name, description);
+            Debug.report(scriptEntry, getName(), id, instruction, group, channel, name, description, category);
         }
         if (group != null && group.bot == null) {
             group.bot = id.asString();
