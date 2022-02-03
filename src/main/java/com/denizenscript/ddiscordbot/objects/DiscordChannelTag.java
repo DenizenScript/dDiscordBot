@@ -545,6 +545,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // <--[mechanism]
         // @object DiscordChannelTag
         // @name delete
+        // @input None
         // @description
         // Deletes this channel.
         // -->

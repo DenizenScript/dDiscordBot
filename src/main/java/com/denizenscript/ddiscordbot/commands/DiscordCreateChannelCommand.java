@@ -17,12 +17,12 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
 
     public DiscordCreateChannelCommand() {
         setName("discordcreatechannel");
-        setSyntax("discordcreatechannel [id:<id>] [group:<group_id>] [name:<name>] (description:<description>) (category:<category_id>) (position:<#>)");
+        setSyntax("discordcreatechannel [id:<id>] [group:<group>] [name:<name>] (description:<description>) (category:<category_id>) (position:<#>)");
         setRequiredArguments(3, 6);
     }
     // <--[command]
     // @Name discordcreatechannel
-    // @Syntax discordcreatechannel [id:<id>] [group:<group_id>] [name:<name>] (description:<description>) (category:<category_id>) (position:<#>)
+    // @Syntax discordcreatechannel [id:<id>] [group:<group>] [name:<name>] (description:<description>) (category:<category_id>) (position:<#>)
     // @Required 3
     // @Maximum 6
     // @Short Creates text channels on Discord.
