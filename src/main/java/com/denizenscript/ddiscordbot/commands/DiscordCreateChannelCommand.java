@@ -27,7 +27,6 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
     // @Maximum 5
     // @Short Creates text channels on Discord.
     // @Plugin dDiscordBot
-    // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
     //
     // @Description
