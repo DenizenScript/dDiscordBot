@@ -73,7 +73,7 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
         if (group != null && group.bot == null) {
             group.bot = id.asString();
         }
-        Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
+        Runnable runner = () -> {
             try {
                 ChannelAction<TextChannel> action = group.getGuild().createTextChannel(name.asString());
                 if (description != null) {
@@ -97,6 +97,9 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
             catch (Exception e) {
                 Debug.echoError(e);
             }
+        };
+        Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
+            runner.run();
             scriptEntry.setFinished(true);
         });
     }
