@@ -24,7 +24,7 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
     // @Name discordcreatechannel
     // @Syntax discordcreatechannel [id:<id>] [group:<group_id>] [name:<name>] (description:<description>) (category:<category_id>) (position:<#>)
     // @Required 3
-    // @Maximum 5
+    // @Maximum 6
     // @Short Creates text channels on Discord.
     // @Plugin dDiscordBot
     // @Group external
