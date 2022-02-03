@@ -32,9 +32,9 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
     // @Group Discord
     //
     // @Context
-    // <context.bot> returns the relevant Discord bot object.
-    // <context.channel> returns the channel.
-    // <context.group> returns the group.
+    // <context.bot> returns the relevant DiscordBotTag.
+    // <context.channel> returns the DiscordChannelTag.
+    // <context.group> returns the DiscordGroupTag.
     // <context.new_message> returns the message received, as a DiscordMessageTag.
     //
     // -->

@@ -22,9 +22,9 @@ public class DiscordUserLeavesScriptEvent extends DiscordScriptEvent {
     // @Group Discord
     //
     // @Context
-    // <context.bot> returns the relevant Discord bot object.
-    // <context.group> returns the group.
-    // <context.user> returns the user.
+    // <context.bot> returns the relevant DiscordBotTag.
+    // <context.group> returns the DiscordGroupTag.
+    // <context.user> returns the DiscordUserTag.
     // -->
 
     public static DiscordUserLeavesScriptEvent instance;

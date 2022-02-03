@@ -22,9 +22,9 @@ public class DiscordChannelDeleteScriptEvent extends DiscordScriptEvent {
     // @Group Discord
     //
     // @Context
-    // <context.bot> returns the relevant Discord bot object.
-    // <context.group> returns the group.
-    // <context.channel> returns the new channel.
+    // <context.bot> returns the relevant DiscordBotTag.
+    // <context.group> returns the DiscordGroupTag.
+    // <context.channel> returns the DiscordChannelTag.
     // -->
 
     public static DiscordChannelDeleteScriptEvent instance;

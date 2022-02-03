@@ -22,12 +22,12 @@ public class DiscordMessageReactionRemoveScriptEvent extends DiscordScriptEvent 
     // @Group Discord
     //
     // @Context
-    // <context.bot> returns the relevant Discord bot object.
-    // <context.channel> returns the channel.
-    // <context.group> returns the group.
-    // <context.message> returns the message.
-    // <context.user> returns the user that removed the reaction.
-    // <context.reaction> returns the old reaction.
+    // <context.bot> returns the relevant DiscordBotTag.
+    // <context.channel> returns the DiscordChannelTag.
+    // <context.group> returns the DiscordGroupTag.
+    // <context.message> returns the DiscordMessageTag.
+    // <context.user> returns the DiscordUserTag that removed the reaction.
+    // <context.reaction> returns the old DiscordReactionTag.
     //
     // -->
 

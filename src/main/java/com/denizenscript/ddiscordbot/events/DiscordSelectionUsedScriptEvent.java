@@ -26,12 +26,12 @@ public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
     // @Group Discord
     //
     // @Context
-    // <context.bot> returns the relevant Discord bot object.
-    // <context.channel> returns the channel.
-    // <context.group> returns the group.
-    // <context.interaction> returns the interaction.
-    // <context.menu> returns the selection menu.
-    // <context.option> returns the selected option.
+    // <context.bot> returns the relevant DiscordBotTag.
+    // <context.channel> returns the DiscordChannelTag.
+    // <context.group> returns the DiscordGroupTag.
+    // <context.interaction> returns the DiscordInteractionTag.
+    // <context.menu> returns the selection menu as a DiscordSelectionTag.
+    // <context.option> returns the selected option as a MapTag.
     //
     // -->
 

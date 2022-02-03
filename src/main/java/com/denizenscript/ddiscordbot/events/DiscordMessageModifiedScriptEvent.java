@@ -32,9 +32,9 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
     // @Group Discord
     //
     // @Context
-    // <context.bot> returns the relevant Discord bot object.
-    // <context.channel> returns the channel.
-    // <context.group> returns the group.
+    // <context.bot> returns the relevant DiscordBotTag.
+    // <context.channel> returns the DiscordChannelTag.
+    // <context.group> returns the DiscordGroupTag.
     // <context.new_message> returns the message as it now exists, as a DiscordMessageTag.
     // <context.old_message_valid> returns whether the old message is available (it may be lost due to caching).
     // <context.old_message> returns the original DiscordMessageTag (data may be missing if not cached).

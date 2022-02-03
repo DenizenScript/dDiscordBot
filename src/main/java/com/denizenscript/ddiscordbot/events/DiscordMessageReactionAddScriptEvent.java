@@ -22,9 +22,9 @@ public class DiscordMessageReactionAddScriptEvent extends DiscordScriptEvent {
     // @Group Discord
     //
     // @Context
-    // <context.bot> returns the relevant Discord bot object.
-    // <context.channel> returns the channel.
-    // <context.group> returns the group.
+    // <context.bot> returns the relevant DiscordBotTag.
+    // <context.channel> returns the DiscordChannelTag.
+    // <context.group> returns the DiscordGroupTag.
     // <context.message> returns the message.
     // <context.user> returns the user that added the reaction.
     // <context.reaction> returns the new reaction.

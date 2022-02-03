@@ -35,12 +35,12 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
     // @Group Discord
     //
     // @Context
-    // <context.bot> returns the relevant Discord bot object.
-    // <context.channel> returns the channel.
-    // <context.group> returns the group.
-    // <context.interaction> returns the interaction.
-    // <context.command> returns the command.
-    // <context.options> returns the supplied options.
+    // <context.bot> returns the relevant DiscordBotTag.
+    // <context.channel> returns the DiscordChannelTag.
+    // <context.group> returns the DiscordGroupTag.
+    // <context.interaction> returns the DiscordInteractionTag.
+    // <context.command> returns the DiscordCommandTag.
+    // <context.options> returns the supplied options as a MapTag.
     //
     // -->
 
@@ -85,7 +85,7 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
             case "command":
                 return new DiscordCommandTag(botID, getEvent().isFromGuild() ? getEvent().getGuild().getIdLong() : 0, getEvent().getCommandIdLong());
             case "options": {
-                Map<StringHolder, ObjectTag> options = new HashMap<>();
+                MapTag options = new MapTag();
                 for (OptionMapping mapping : getEvent().getOptions()) {
                     ObjectTag result;
                     switch (mapping.getType()) {
@@ -110,9 +110,9 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
                         case USER: result = new DiscordUserTag(botID, mapping.getAsUser()); break;
                         default: result = new ElementTag(botID, null);
                     }
-                    options.put(new StringHolder(mapping.getName()), result);
+                    options.putObject(mapping.getName(), result);
                 }
-                return new MapTag(options);
+                return options;
             }
         }
 

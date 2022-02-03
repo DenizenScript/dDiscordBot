@@ -25,9 +25,9 @@ public class DiscordThreadArchivedScriptEvent extends DiscordScriptEvent {
     // @Group Discord
     //
     // @Context
-    // <context.bot> returns the relevant Discord bot object.
-    // <context.group> returns the group.
-    // <context.thread> returns the thread channel.
+    // <context.bot> returns the relevant DiscordBotTag.
+    // <context.group> returns the DiscordGroupTag.
+    // <context.thread> returns the thread DiscordChannelTag.
     // -->
 
     public static DiscordThreadArchivedScriptEvent instance;

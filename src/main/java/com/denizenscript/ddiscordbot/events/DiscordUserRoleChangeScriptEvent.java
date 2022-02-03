@@ -29,13 +29,13 @@ public class DiscordUserRoleChangeScriptEvent extends DiscordScriptEvent {
     // @Group Discord
     //
     // @Context
-    // <context.bot> returns the relevant Discord bot object.
-    // <context.group> returns the group.
-    // <context.user> returns the user.
-    // <context.old_roles> returns a list of the user's previous role set.
-    // <context.new_roles> returns a list of the user's new role set.
-    // <context.added_roles> returns a list of the user's added role set.
-    // <context.removed_roles> returns a list of the user's removed role set.
+    // <context.bot> returns the relevant DiscordBotTag.
+    // <context.group> returns the DiscordGroupTag.
+    // <context.user> returns the DiscordUserTag.
+    // <context.old_roles> returns a ListTag of the user's previous DiscordRoleTag set.
+    // <context.new_roles> returns a ListTag of the user's new DiscordRoleTag set.
+    // <context.added_roles> returns a ListTag of the user's added DiscordRoleTag set.
+    // <context.removed_roles> returns a ListTag of the user's removed DiscordRoleTag set.
     // -->
 
     public static DiscordUserRoleChangeScriptEvent instance;

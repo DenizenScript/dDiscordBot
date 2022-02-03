@@ -26,11 +26,11 @@ public class DiscordButtonClickedScriptEvent extends DiscordScriptEvent {
     // @Group Discord
     //
     // @Context
-    // <context.bot> returns the relevant Discord bot object.
-    // <context.channel> returns the channel.
-    // <context.group> returns the group.
-    // <context.interaction> returns the interaction.
-    // <context.button> returns the button.
+    // <context.bot> returns the relevant DiscordBotTag.
+    // <context.channel> returns the DiscordChannelTag.
+    // <context.group> returns the DiscordGroupTag.
+    // <context.interaction> returns the DiscordInteractionTag.
+    // <context.button> returns the DiscordButtonTag.
     //
     // -->
 
