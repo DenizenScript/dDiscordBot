@@ -57,13 +57,10 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
             return false;
         }
         int comma = arg.indexOf(',');
-        if (comma == -1) {
-            return ArgumentHelper.matchesInteger(arg);
-        }
-        if (comma == arg.length() - 1) {
+        if (comma != -1) {
             return false;
         }
-        return ArgumentHelper.matchesInteger(arg.substring(comma + 1));
+        return true;
     }
 
     public DiscordBotTag(String bot) {
