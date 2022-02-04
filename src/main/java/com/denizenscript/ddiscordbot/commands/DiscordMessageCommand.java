@@ -8,7 +8,6 @@ import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
-import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -24,12 +23,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DiscordMessageCommand extends AbstractCommand implements Holdable {
+public class DiscordMessageCommand extends AbstractDiscordCommand implements Holdable {
 
     public DiscordMessageCommand() {
         setName("discordmessage");
         setSyntax("discordmessage [id:<id>] [reply:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (attach_file_name:<name> attach_file_text:<text>)");
         setRequiredArguments(3, 7);
+        setPrefixesHandled("id");
     }
 
     // <--[command]
@@ -94,11 +94,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("id")
-                    && arg.matchesPrefix("id")) {
-                scriptEntry.addObject("id", new ElementTag(CoreUtilities.toLowerCase(arg.getValue())));
-            }
-            else if (!scriptEntry.hasObject("attach_file_name")
+            if (!scriptEntry.hasObject("attach_file_name")
                     && arg.matchesPrefix("attach_file_name")) {
                 scriptEntry.addObject("attach_file_name", arg.asElement());
             }
@@ -136,9 +132,6 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                 arg.reportUnhandled();
             }
         }
-        if (!scriptEntry.hasObject("id")) {
-            throw new InvalidArgumentsException("Must have an ID!");
-        }
         if (!scriptEntry.hasObject("message") && !scriptEntry.hasObject("attach_file_name")) {
             throw new InvalidArgumentsException("Must have a message!");
         }
@@ -170,7 +163,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
     @Override
     public void execute(ScriptEntry scriptEntry) {
-        ElementTag id = scriptEntry.getElement("id");
+        DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
         DiscordChannelTag channel = scriptEntry.getObjectTag("channel");
         ElementTag message = scriptEntry.getElement("message");
         DiscordUserTag user = scriptEntry.getObjectTag("user");
@@ -181,15 +174,10 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         ObjectTag rows = scriptEntry.getObjectTag("rows");
         if (scriptEntry.dbCallShouldDebug()) {
             // Note: attachFileText intentionally at end
-            Debug.report(scriptEntry, getName(), id, channel, message, user, reply, noMention, rows, attachFileName, attachFileText);
+            Debug.report(scriptEntry, getName(), bot, channel, message, user, reply, noMention, rows, attachFileName, attachFileText);
         }
         Runnable runner = () -> {
-            DiscordConnection connection = DenizenDiscordBot.instance.connections.get(id.asString());
-            if (connection == null) {
-                Debug.echoError("Failed to process DiscordMessage command: unknown bot ID!");
-                scriptEntry.setFinished(true);
-                return;
-            }
+            DiscordConnection connection = bot.getConnection();
             JDA client = connection.client;
             MessageChannel toChannel = null;
             if (reply != null && reply.channel_id != 0) {
@@ -207,15 +195,13 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             else if (user != null) {
                 User userObj = client.getUserById(user.user_id);
                 if (userObj == null) {
-                    Debug.echoError("Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
-                    scriptEntry.setFinished(true);
+                    handleError(scriptEntry, "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
                     return;
                 }
                 toChannel = userObj.openPrivateChannel().complete();
             }
             if (toChannel == null) {
-                Debug.echoError("Failed to process DiscordMessage command: no channel given!");
-                scriptEntry.setFinished(true);
+                handleError(scriptEntry, "Failed to process DiscordMessage command: no channel given!");
                 return;
             }
             Message replyTo = null;
@@ -225,8 +211,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                     replyTo = toChannel.retrieveMessageById(reply.message_id).complete();
                 }
                 if (replyTo == null) {
-                    Debug.echoError("Failed to process DiscordMessage reply: invalid message to reply to!");
-                    scriptEntry.setFinished(true);
+                    handleError(scriptEntry, "Failed to process DiscordMessage reply: invalid message to reply to!");
                     return;
                 }
             }
@@ -263,8 +248,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                 }
             }
             if (action == null) {
-                Debug.echoError("Failed to send message - missing content?");
-                scriptEntry.setFinished(true);
+                handleError(scriptEntry, "Failed to send message - missing content?");
                 return;
             }
             if (!isFile && attachFileName != null) {
@@ -272,7 +256,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                     action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
                 }
                 else {
-                    Debug.echoError("Failed to send attachment - missing content?");
+                    handleError(scriptEntry, "Failed to send attachment - missing content?");
                 }
             }
             List<ActionRow> actionRows = createRows(scriptEntry, rows);
@@ -283,11 +267,13 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                 action = action.mentionRepliedUser(false);
             }
             Message sentMessage = action.complete();
-            scriptEntry.addObject("message", new DiscordMessageTag(id.asString(), sentMessage));
-            scriptEntry.setFinished(true);
+            scriptEntry.addObject("message", new DiscordMessageTag(bot.bot, sentMessage));
         };
         if (scriptEntry.shouldWaitFor()) {
-            Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, runner);
+            Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
+                runner.run();
+                scriptEntry.setFinished(true);
+            });
         }
         else {
             Debug.echoError("DiscordMessage command ran without ~waitable. This will freeze the server. If you wanted your server to freeze, ignore this message.");

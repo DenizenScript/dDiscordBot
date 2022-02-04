@@ -6,7 +6,6 @@ import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
-import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -19,12 +18,13 @@ import org.bukkit.Bukkit;
 
 import java.util.List;
 
-public class DiscordReactCommand extends AbstractCommand implements Holdable {
+public class DiscordReactCommand extends AbstractDiscordCommand implements Holdable {
 
     public DiscordReactCommand() {
         setName("discordreact");
         setSyntax("discordreact [id:<id>] [message:<message_id>] [add/remove/clear] [reaction:<reaction>/all] (user:<user>)");
         setRequiredArguments(4, 6);
+        setPrefixesHandled("id");
     }
     // <--[command]
     // @Name discordreact
@@ -73,11 +73,7 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("id")
-                    && arg.matchesPrefix("id")) {
-                scriptEntry.addObject("id", new ElementTag(CoreUtilities.toLowerCase(arg.getValue())));
-            }
-            else if (!scriptEntry.hasObject("instruction")
+            if (!scriptEntry.hasObject("instruction")
                     && arg.matchesEnum(DiscordReactInstruction.values())) {
                 scriptEntry.addObject("instruction", arg.asElement());
             }
@@ -104,9 +100,6 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
                 arg.reportUnhandled();
             }
         }
-        if (!scriptEntry.hasObject("id")) {
-            throw new InvalidArgumentsException("Must have an ID!");
-        }
         if (!scriptEntry.hasObject("instruction")) {
             throw new InvalidArgumentsException("Must have an instruction!");
         }
@@ -120,16 +113,16 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
 
     @Override
     public void execute(ScriptEntry scriptEntry) {
-        ElementTag id = scriptEntry.getElement("id");
+        DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
         ElementTag instruction = scriptEntry.getElement("instruction");
         DiscordChannelTag channel = scriptEntry.getObjectTag("channel");
         DiscordMessageTag message = scriptEntry.getObjectTag("message");
         DiscordUserTag user = scriptEntry.getObjectTag("user");
         ElementTag reaction = scriptEntry.getElement("reaction");
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id, instruction, channel, user, message, reaction);
+            Debug.report(scriptEntry, getName(), bot, instruction, channel, user, message, reaction);
         }
-        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+        JDA client = bot.getConnection().client;
         if (message.channel_id == 0) {
             if (channel != null) {
                 message.channel_id = channel.channel_id;
@@ -140,7 +133,7 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
                 return;
             }
         }
-        message.bot = id.asString();
+        message.bot = bot.bot;
         Message msg = message.getMessage();
         if (msg == null) {
             Debug.echoError("Unknown message, cannot add reaction.");
@@ -213,9 +206,7 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
         final RestAction<Void> actWait = action;
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             actWait.onErrorMap(t -> {
-                Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
-                    Debug.echoError(t);
-                });
+                handleError(scriptEntry, t);
                 return null;
             });
             actWait.complete();

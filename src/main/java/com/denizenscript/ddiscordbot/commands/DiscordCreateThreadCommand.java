@@ -1,20 +1,19 @@
 package com.denizenscript.ddiscordbot.commands;
 
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
-import com.denizenscript.ddiscordbot.DiscordConnection;
+import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordMessageTag;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
-import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.*;
 import org.bukkit.Bukkit;
 
-public class DiscordCreateThreadCommand extends AbstractCommand implements Holdable {
+public class DiscordCreateThreadCommand extends AbstractDiscordCommand implements Holdable {
 
     public DiscordCreateThreadCommand() {
         setName("discordcreatethread");
@@ -61,24 +60,12 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
         // Legacy parseArgs not used
     }
 
-    public static void handleError(ScriptEntry entry, String message) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, () -> {
-            Debug.echoError(entry, "Error in DiscordCreateThread command: " + message);
-        });
-    }
-    public static void handleError(ScriptEntry entry, Throwable ex) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, () -> {
-            Debug.echoError(entry, "Exception in DiscordCreateThread command:");
-            Debug.echoError(ex);
-        });
-    }
-
     @Override
     public void execute(ScriptEntry scriptEntry) {
-        ElementTag id = scriptEntry.requiredArgForPrefixAsElement("id");
+        DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
         ElementTag name = scriptEntry.requiredArgForPrefixAsElement("name");
         DiscordMessageTag message = scriptEntry.argForPrefix("message", DiscordMessageTag.class, true);
-        DiscordChannelTag channel = scriptEntry.argForPrefix("channel", DiscordChannelTag.class, true);
+        DiscordChannelTag channel = scriptEntry.argForPrefix("parent", DiscordChannelTag.class, true);
         boolean isPrivate = scriptEntry.argAsBoolean("private");
         if (message != null) {
             if (channel != null || isPrivate) {
@@ -92,19 +79,14 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
             throw new InvalidArgumentsRuntimeException("Missing message or channel argument!");
         }
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id, name, message, channel, isPrivate ? db("private", true) : "");
-        }
-        DiscordConnection bot = DenizenDiscordBot.instance.connections.get(id.asString());
-        if (bot == null) {
-            Debug.echoError("Invalid bot ID. Are you sure the bot is connected, or did you make a typo?");
-            return;
+            Debug.report(scriptEntry, getName(), bot, name, message, channel, isPrivate ? db("private", true) : "");
         }
         Runnable runner = () -> {
             if (message != null) {
                 DiscordMessageTag forMessage = message;
-                if (forMessage.bot == null || !forMessage.bot.equals(id.asString())) {
+                if (forMessage.bot == null || !forMessage.bot.equals(bot.bot)) {
                     forMessage = forMessage.duplicate();
-                    forMessage.bot = id.asString();
+                    forMessage.bot = bot.bot;
                 }
                 Message actualMessage = forMessage.getMessage();
                 if (actualMessage == null) {
@@ -122,7 +104,7 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
                 try {
                     ThreadChannel created = ((TextChannel) actualMessage.getChannel()).createThreadChannel(name.asString(), actualMessage.getIdLong()).complete();
                     if (created != null) {
-                        scriptEntry.addObject("created_thread", new DiscordChannelTag(id.asString(), created));
+                        scriptEntry.addObject("created_thread", new DiscordChannelTag(bot.bot, created));
                     }
                 }
                 catch (Throwable ex) {
@@ -131,9 +113,9 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
             }
             else {
                 DiscordChannelTag forChannel = channel;
-                if (forChannel.bot == null || !forChannel.bot.equals(id.asString())) {
+                if (forChannel.bot == null || !forChannel.bot.equals(bot.bot)) {
                     forChannel = forChannel.duplicate();
-                    forChannel.bot = id.asString();
+                    forChannel.bot = bot.bot;
                 }
                 Channel actualChannel = forChannel.getChannel();
                 if (actualChannel == null) {
@@ -155,7 +137,7 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
                 try {
                     ThreadChannel created = ((TextChannel) actualChannel).createThreadChannel(name.asString(), isPrivate).complete();
                     if (created != null) {
-                        scriptEntry.addObject("created_thread", new DiscordChannelTag(id.asString(), created));
+                        scriptEntry.addObject("created_thread", new DiscordChannelTag(bot.bot, created));
                     }
                 }
                 catch (Throwable ex) {

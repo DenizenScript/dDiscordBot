@@ -9,7 +9,6 @@ import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
-import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -30,12 +29,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DiscordCommandCommand extends AbstractCommand implements Holdable {
+public class DiscordCommandCommand extends AbstractDiscordCommand implements Holdable {
 
     public DiscordCommandCommand() {
         setName("discordcommand");
         setSyntax("discordcommand [id:<id>] [create/perms/delete] (group:<group>) (name:<name>) (description:<description>) (options:<options>) (enabled:{true}/false) (enable_for:<list>) (disable_for:<list>)");
         setRequiredArguments(3, 9);
+        setPrefixesHandled("id");
     }
 
     // <--[command]
@@ -106,11 +106,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("id")
-                    && arg.matchesPrefix("id")) {
-                scriptEntry.addObject("id", new ElementTag(CoreUtilities.toLowerCase(arg.getValue())));
-            }
-            else if (!scriptEntry.hasObject("instruction")
+            if (!scriptEntry.hasObject("instruction")
                     && arg.matchesEnum(DiscordCommandInstruction.values())) {
                 scriptEntry.addObject("instruction", arg.asElement());
             }
@@ -210,7 +206,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
 
     @Override
     public void execute(ScriptEntry scriptEntry) {
-        ElementTag id = scriptEntry.getElement("id");
+        DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
         ElementTag commandInstruction = scriptEntry.getElement("instruction");
         DiscordGroupTag group = scriptEntry.getObjectTag("group");
         ElementTag name = scriptEntry.getElement("name");
@@ -220,17 +216,12 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
         ListTag enableFor = scriptEntry.getObjectTag("enable_for");
         ListTag disableFor = scriptEntry.getObjectTag("disable_for");
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id, commandInstruction, group, name, description, options, enabled, enableFor, disableFor);
-        }
-        if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
-            Debug.echoError("Failed to process DiscordInteraction command: unknown bot ID!");
-            scriptEntry.setFinished(true);
-            return;
+            Debug.report(scriptEntry, getName(), bot, commandInstruction, group, name, description, options, enabled, enableFor, disableFor);
         }
         if (group != null && group.bot == null) {
-            group.bot = id.asString();
+            group.bot = bot.bot;
         }
-        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+        JDA client = bot.getConnection().client;
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             try {
                 if (commandInstruction == null) {
@@ -332,7 +323,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                         }
                         action.setDefaultEnabled(isEnabled);
                         Command slashCommand = action.complete();
-                        scriptEntry.addObject("command", new DiscordCommandTag(id.asString(), group == null ? null : group.getGuild(), slashCommand));
+                        scriptEntry.addObject("command", new DiscordCommandTag(bot.bot, group == null ? null : group.getGuild(), slashCommand));
                         break;
                     }
                     case PERMS: {

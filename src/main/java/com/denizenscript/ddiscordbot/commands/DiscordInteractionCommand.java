@@ -8,7 +8,6 @@ import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
-import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.Message;
@@ -23,7 +22,7 @@ import org.bukkit.Bukkit;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class DiscordInteractionCommand extends AbstractCommand implements Holdable {
+public class DiscordInteractionCommand extends AbstractDiscordCommand implements Holdable {
 
     public DiscordInteractionCommand() {
         setName("discordinteraction");
@@ -138,32 +137,20 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         }
         DiscordInteractionInstruction instructionEnum = DiscordInteractionInstruction.valueOf(instruction.asString().toUpperCase());
         boolean isEphemeral = ephemeral != null && ephemeral.asBoolean();
-        Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
+        Runnable runner = () -> {
             try {
                 switch (instructionEnum) {
                     case DEFER: {
-                        if (interaction == null) {
-                            Debug.echoError(scriptEntry, "Must specify an interaction!");
-                            scriptEntry.setFinished(true);
-                            return;
-                        }
-                        else if (interaction.interaction == null) {
-                            Debug.echoError(scriptEntry, "Invalid interaction! Has it expired?");
-                            scriptEntry.setFinished(true);
+                        if (interaction.interaction == null) {
+                            handleError(scriptEntry, "Invalid interaction! Has it expired?");
                             return;
                         }
                         interaction.interaction.deferReply(isEphemeral).complete();
                         break;
                     }
                     case REPLY: {
-                        if (interaction == null) {
-                            Debug.echoError(scriptEntry, "Must specify an interaction!");
-                            scriptEntry.setFinished(true);
-                            return;
-                        }
-                        else if (interaction.interaction == null) {
-                            Debug.echoError(scriptEntry, "Invalid interaction! Has it expired?");
-                            scriptEntry.setFinished(true);
+                        if (interaction.interaction == null) {
+                            handleError(scriptEntry, "Invalid interaction! Has it expired?");
                             return;
                         }
                         /*
@@ -171,8 +158,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                          * Since you can't see if the acknowledged message is ephemeral or not, this is a requirement so we don't have to try/catch
                          */
                         else if (message == null) {
-                            Debug.echoError(scriptEntry, "Must have a message!");
-                            scriptEntry.setFinished(true);
+                            handleError(scriptEntry, "Must have a message!");
                             return;
                         }
                         MessageEmbed embed = null;
@@ -194,7 +180,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                     action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
                                 }
                                 else {
-                                    Debug.echoError("Failed to send attachment - missing content?");
+                                    handleError(scriptEntry, "Failed to send attachment - missing content?");
                                 }
                             }
                             if (actionRows != null) {
@@ -215,7 +201,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                     action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
                                 }
                                 else {
-                                    Debug.echoError("Failed to send attachment - missing content?");
+                                    handleError(scriptEntry, "Failed to send attachment - missing content?");
                                 }
                             }
                             if (actionRows != null) {
@@ -227,14 +213,8 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                         break;
                     }
                     case DELETE: {
-                        if (interaction == null) {
-                            Debug.echoError(scriptEntry, "Must specify an interaction!");
-                            scriptEntry.setFinished(true);
-                            return;
-                        }
-                        else if (interaction.interaction == null) {
-                            Debug.echoError(scriptEntry, "Invalid interaction! Has it expired?");
-                            scriptEntry.setFinished(true);
+                        if (interaction.interaction == null) {
+                            handleError(scriptEntry, "Invalid interaction! Has it expired?");
                             return;
                         }
                         interaction.interaction.getHook().deleteOriginal().complete();
@@ -242,9 +222,12 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                     }
                 }
             }
-            catch (Exception e) {
-                Debug.echoError(e);
+            catch (Exception ex) {
+                handleError(scriptEntry, ex);
             }
+        };
+        Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
+            runner.run();
             scriptEntry.setFinished(true);
         });
     }

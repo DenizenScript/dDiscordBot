@@ -10,9 +10,7 @@ import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
-import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
-import com.denizenscript.denizencore.scripts.queues.ScriptQueue;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.ReflectionHelper;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -31,9 +29,12 @@ import java.lang.invoke.MethodHandle;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class DiscordConnectCommand extends AbstractCommand implements Holdable {
+public class DiscordConnectCommand extends AbstractDiscordCommand implements Holdable {
+
+    public static DiscordConnectCommand instance;
 
     public DiscordConnectCommand() {
+        instance = this;
         setName("discordconnect");
         setSyntax("discordconnect [id:<id>] [tokenfile:<file>] (intents:<intent>|...)");
         setRequiredArguments(2, 3);
@@ -153,7 +154,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
 
         public Runnable ender;
 
-        public ScriptQueue queue;
+        public ScriptEntry scriptEntry;
 
         public HashSet<GatewayIntent> intents = new HashSet<>(Arrays.asList(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EMOJIS, GatewayIntent.GUILD_MESSAGE_REACTIONS,
                 GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGE_REACTIONS, GatewayIntent.DIRECT_MESSAGES));
@@ -187,8 +188,10 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
                     if (Debug.verbose) {
                         Debug.echoError(ex);
                     }
-                    DiscordCommand.errorMessage(queue, "Discord full connection attempt failed.");
-                    Debug.log("Discord using fallback connection path - connecting with intents disabled. Enable the members intent in your bot's settings (at https://discord.com/developers/applications ) to fix this.");
+                    instance.handleError(scriptEntry, "Discord full connection attempt failed.");
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, () -> {
+                        Debug.log("Discord using fallback connection path - connecting with intents disabled. Enable the members intent in your bot's settings (at https://discord.com/developers/applications ) to fix this.");
+                    });
                     // If startup failure, try without intents
                     JDA jda = JDABuilder.createDefault(code).build();
                     conn.client = jda;
@@ -223,7 +226,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
             Debug.report(scriptEntry, getName(), id, tokenFile, intents);
         }
         if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
-            DiscordCommand.errorMessage(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
+            Debug.echoError("Failed to connect: duplicate ID!");
             return;
         }
         DiscordConnection dc = new DiscordConnection();
@@ -232,27 +235,27 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             File f = new File(Denizen.getInstance().getDataFolder(), tokenFile.asString());
             if (!Utilities.canReadFile(f)) {
-                DiscordCommand.errorMessage(scriptEntry.getResidingQueue(), "Cannot read from that token file path due to security settings in Denizen/config.yml.");
+                handleError(scriptEntry, "Cannot read from that token file path due to security settings in Denizen/config.yml.");
                 scriptEntry.setFinished(true);
                 DenizenDiscordBot.instance.connections.remove(id.asString());
                 return;
             }
             if (!f.exists()) {
-                DiscordCommand.errorMessage(scriptEntry.getResidingQueue(), "Invalid tokenfile specified. File does not exist.");
+                handleError(scriptEntry, "Invalid tokenfile specified. File does not exist.");
                 scriptEntry.setFinished(true);
                 DenizenDiscordBot.instance.connections.remove(id.asString());
                 return;
             }
             String codeRaw = CoreUtilities.journallingLoadFile(f.getAbsolutePath());
             if (codeRaw == null || codeRaw.length() < 5 || codeRaw.length() > 200) {
-                DiscordCommand.errorMessage(scriptEntry.getResidingQueue(), "Invalid tokenfile specified. File content doesn't look like a bot token.");
+                handleError(scriptEntry, "Invalid tokenfile specified. File content doesn't look like a bot token.");
                 scriptEntry.setFinished(true);
                 DenizenDiscordBot.instance.connections.remove(id.asString());
                 return;
             }
             codeRaw = codeRaw.trim();
             DiscordConnectThread dct = new DiscordConnectThread();
-            dct.queue = scriptEntry.getResidingQueue();
+            dct.scriptEntry = scriptEntry;
             dct.code = codeRaw;
             dct.conn = dc;
             dct.ender = () -> scriptEntry.setFinished(true);

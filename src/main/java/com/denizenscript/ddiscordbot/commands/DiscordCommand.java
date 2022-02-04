@@ -10,9 +10,7 @@ import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
-import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
-import com.denizenscript.denizencore.scripts.queues.ScriptQueue;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -24,7 +22,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class DiscordCommand extends AbstractCommand implements Holdable {
+public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
 
     public DiscordCommand() {
         setName("discord");
@@ -178,10 +176,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         DiscordConnectCommand.fixJDALogger();
     }
 
-    public static void errorMessage(ScriptQueue queue, String message) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, () -> Debug.echoError(queue, message), 0);
-    }
-
     @Override
     public void execute(ScriptEntry scriptEntry) {
         ElementTag id = scriptEntry.getElement("id");
@@ -202,7 +196,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         }
         Supplier<Boolean> requireClientID = () -> {
             if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
-                errorMessage(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: unknown ID!");
+                handleError(scriptEntry, "Failed to process Discord " + instruction.asString() + " command: unknown ID!");
                 scriptEntry.setFinished(true);
                 return true;
             }
@@ -210,7 +204,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         };
         Function<JDA, Boolean> requireClientObject = (_client) -> {
             if (_client == null) {
-                errorMessage(scriptEntry.getResidingQueue(), "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                handleError(scriptEntry, "The Discord bot '" + id.asString() + "'is not yet loaded.");
                 scriptEntry.setFinished(true);
                 return true;
             }
@@ -218,7 +212,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         };
         BiFunction<Object, String, Boolean> requireObject = (obj, name) -> {
             if (obj == null) {
-                errorMessage(scriptEntry.getResidingQueue(), "Failed to process Discord " + instruction.asString() + " command: no " + name + " given!");
+                handleError(scriptEntry, "Failed to process Discord " + instruction.asString() + " command: no " + name + " given!");
                 scriptEntry.setFinished(true);
                 return true;
             }
@@ -231,6 +225,12 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         Supplier<Boolean> requireRole = () -> requireObject.apply(role, "role");
         Supplier<Boolean> requireMessageId = () -> requireObject.apply(messageId, "message_id");
         DiscordInstruction instructionEnum = DiscordInstruction.valueOf(instruction.asString().toUpperCase());
+        if (instructionEnum == DiscordInstruction.CONNECT) {
+            if (code != null && scriptEntry.dbCallShouldDebug() && com.denizenscript.denizen.utilities.debugging.Debug.record) {
+                handleError(scriptEntry, "You almost recorded debug of your Discord token - record automatically disabled to protect you.");
+                com.denizenscript.denizen.utilities.debugging.Debug.record = false;
+            }
+        }
         Runnable executeCore = () -> {
             try {
                 switch (instructionEnum) {
@@ -240,12 +240,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                             requireObject.apply(null, "tokenfile");
                             break;
                         }
-                        if (code != null && scriptEntry.dbCallShouldDebug() && com.denizenscript.denizen.utilities.debugging.Debug.record) {
-                            Debug.echoError("You almost recorded debug of your Discord token - record automatically disabled to protect you.");
-                            com.denizenscript.denizen.utilities.debugging.Debug.record = false;
-                        }
                         if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
-                            Debug.echoError(scriptEntry.getResidingQueue(), "Failed to connect: duplicate ID!");
+                            handleError(scriptEntry, "Failed to connect: duplicate ID!");
                             break;
                         }
                         String codeRaw;
@@ -255,18 +251,18 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         else {
                             File f = new File(Denizen.getInstance().getDataFolder(), tokenFile.asString());
                             if (!Utilities.canReadFile(f)) {
-                                Debug.echoError("Cannot read from that token file path due to security settings in Denizen/config.yml.");
+                                handleError(scriptEntry, "Cannot read from that token file path due to security settings in Denizen/config.yml.");
                                 scriptEntry.setFinished(true);
                                 break;
                             }
                             if (!f.exists()) {
-                                Debug.echoError("Invalid tokenfile specified. File does not exist.");
+                                handleError(scriptEntry, "Invalid tokenfile specified. File does not exist.");
                                 scriptEntry.setFinished(true);
                                 break;
                             }
                             codeRaw = CoreUtilities.journallingLoadFile(f.getAbsolutePath());
                             if (codeRaw == null || codeRaw.length() < 5 || codeRaw.length() > 200) {
-                                Debug.echoError("Invalid tokenfile specified. File content doesn't look like a bot token.");
+                                handleError(scriptEntry, "Invalid tokenfile specified. File content doesn't look like a bot token.");
                                 scriptEntry.setFinished(true);
                                 break;
                             }
@@ -295,7 +291,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                             dc.client.awaitStatus(JDA.Status.SHUTDOWN);
                         }
                         catch (InterruptedException ex) {
-                            Debug.echoError(ex);
+                            handleError(scriptEntry, ex);
                         }
                         scriptEntry.setFinished(true);
                         break;
@@ -320,7 +316,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         if (channel == null) {
                             User userObj = client.getUserById(user.user_id);
                             if (userObj == null) {
-                                errorMessage(scriptEntry.getResidingQueue(), "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
+                                handleError(scriptEntry, "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
                                 scriptEntry.setFinished(true);
                                 return;
                             }
@@ -330,7 +326,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                             textChan = client.getTextChannelById(channel.channel_id);
                         }
                         if (textChan == null) {
-                            errorMessage(scriptEntry.getResidingQueue(), "No channel to send message to (channel ID invalid, or not a text channel?).");
+                            handleError(scriptEntry, "No channel to send message to (channel ID invalid, or not a text channel?).");
                             scriptEntry.setFinished(true);
                             return;
                         }
@@ -495,7 +491,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                 }
             }
             catch (Throwable ex) {
-                Debug.echoError(ex);
+                handleError(scriptEntry, ex);
                 scriptEntry.setFinished(true);
             }
         };
