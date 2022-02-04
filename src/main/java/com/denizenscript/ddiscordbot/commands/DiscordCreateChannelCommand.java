@@ -3,11 +3,12 @@ package com.denizenscript.ddiscordbot.commands;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
-import com.denizenscript.denizen.utilities.debugging.Debug;
+import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
@@ -56,7 +57,20 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
     // -->
 
     @Override
-    public void parseArgs(ScriptEntry scriptEntry) {
+    public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
+        // Legacy parseArgs not used
+    }
+
+    public static void handleError(ScriptEntry entry, String message) {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, () -> {
+            Debug.echoError(entry, "Error in DiscordCreateChannel command: " + message);
+        });
+    }
+    public static void handleError(ScriptEntry entry, Throwable ex) {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, () -> {
+            Debug.echoError(entry, "Exception in DiscordCreateChannel command:");
+            Debug.echoError(ex);
+        });
     }
 
     @Override
@@ -82,7 +96,7 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
                 if (category != null) {
                     Category resultCategory = group.getGuild().getCategoryById(category.asString());
                     if (resultCategory == null) {
-                        Debug.echoError("Invalid category!");
+                        handleError(scriptEntry, "Invalid category!");
                         scriptEntry.setFinished(true);
                         return;
                     }
@@ -94,8 +108,8 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
                 TextChannel resultChannel = action.complete();
                 scriptEntry.addObject("channel", new DiscordChannelTag(id.asString(), resultChannel));
             }
-            catch (Exception e) {
-                Debug.echoError(e);
+            catch (Exception ex) {
+                handleError(scriptEntry, ex);
             }
         };
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
