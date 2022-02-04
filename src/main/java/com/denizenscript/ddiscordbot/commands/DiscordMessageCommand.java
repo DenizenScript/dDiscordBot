@@ -185,11 +185,19 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                 if (result instanceof MessageChannel) {
                     toChannel = (MessageChannel) result;
                 }
+                else {
+                    handleError(scriptEntry, "Invalid reply message channel ID given.");
+                    return;
+                }
             }
             else if (channel != null) {
                 Channel result = connection.getChannel(channel.channel_id);
                 if (result instanceof MessageChannel) {
                     toChannel = (MessageChannel) result;
+                }
+                else {
+                    handleError(scriptEntry, "Invalid channel ID given.");
+                    return;
                 }
             }
             else if (user != null) {
