@@ -33,6 +33,8 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
     // @Description
     // Creates text channels on Discord.
     //
+    // This functionality requires the Manage Channels permission.
+    //
     // You can specify the channel "topic" (description) with the "description" argument.
     //
     // You can specify the channel's parent category with the "category" argument.
