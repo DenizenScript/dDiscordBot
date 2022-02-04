@@ -398,6 +398,27 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
                 return null;
             }
         });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.connected_users>
+        // @returns ListTag(DiscordUserTag)
+        // @plugin dDiscordBot
+        // @description
+        // If the channel is a voice channel, returns the users connected to it.
+        // -->
+        tagProcessor.registerTag(ListTag.class, "connected_users", (attribute, object) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof AudioChannel)) {
+                attribute.echoError("Cannot get 'connected_users' tag: this channel is not a voice channel.");
+                return null;
+            }
+            AudioChannel audioChannel = (AudioChannel) channel;
+            ListTag result = new ListTag();
+            for (Member member : audioChannel.getMembers()) {
+                result.addObject(new DiscordUserTag(object.bot, member.getUser()));
+            }
+            return result;
+        });
     }
 
     public static ObjectTagProcessor<DiscordChannelTag> tagProcessor = new ObjectTagProcessor<>();
