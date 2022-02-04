@@ -13,13 +13,11 @@ import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 
 import java.util.List;
 
-public class DiscordUserTag implements ObjectTag, FlaggableObject {
+public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
 
     // <--[ObjectType]
     // @name DiscordUserTag
@@ -451,5 +449,47 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject {
             this.prefix = prefix;
         }
         return this;
+    }
+
+    @Override
+    public void applyProperty(Mechanism mechanism) {
+        Debug.echoError("Cannot apply a property to a DiscordUserTag!");
+    }
+
+    @Override
+    public void adjust(Mechanism mechanism) {
+
+        // <--[mechanism]
+        // @object DiscordUserTag
+        // @name move
+        // @input DiscordChannelTag
+        // @description
+        // If this user is connected to a voice channel, moves them to the specified voice channel.
+        // -->
+        if (mechanism.matches("move") && mechanism.requireObject(DiscordChannelTag.class)) {
+            DiscordChannelTag channel = mechanism.valueAsType(DiscordChannelTag.class);
+            GuildChannel guildChannel;
+            if (channel.getChannel() instanceof GuildChannel) {
+                guildChannel = (GuildChannel) channel.getChannel();
+            }
+            else {
+                mechanism.echoError("Invalid channel!");
+                return;
+            }
+            if (guildChannel.getType() != ChannelType.VOICE) {
+                mechanism.echoError("Input must be a voice channel!");
+                return;
+            }
+            Member member = guildChannel.getGuild().getMember(getUser());
+            if (member == null) {
+                mechanism.echoError("Invalid group member!");
+                return;
+            }
+            if (member.getVoiceState() == null || !member.getVoiceState().inAudioChannel()) {
+                mechanism.echoError("User isn't in a voice channel!");
+                return;
+            }
+            guildChannel.getGuild().moveVoiceMember(member, (AudioChannel) channel.getChannel()).complete();
+        }
     }
 }
