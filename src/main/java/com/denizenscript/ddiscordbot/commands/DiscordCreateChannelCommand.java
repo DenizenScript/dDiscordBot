@@ -1,31 +1,33 @@
 package com.denizenscript.ddiscordbot.commands;
 
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
-import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
-import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
-import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
+import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import org.bukkit.Bukkit;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DiscordCreateChannelCommand extends AbstractDiscordCommand implements Holdable {
 
     public DiscordCreateChannelCommand() {
         setName("discordcreatechannel");
-        setSyntax("discordcreatechannel [id:<id>] [group:<group>] [name:<name>] (description:<description>) (category:<category_id>) (position:<#>)");
-        setRequiredArguments(3, 6);
+        setSyntax("discordcreatechannel [id:<id>] [group:<group>] [name:<name>] (description:<description>) (category:<category_id>) (position:<#>) (roles:<list>) (users:<list>)");
+        setRequiredArguments(3, 8);
     }
     // <--[command]
     // @Name discordcreatechannel
-    // @Syntax discordcreatechannel [id:<id>] [group:<group>] [name:<name>] (description:<description>) (category:<category_id>) (position:<#>)
+    // @Syntax discordcreatechannel [id:<id>] [group:<group>] [name:<name>] (description:<description>) (category:<category_id>) (position:<#>) (roles:<list>) (users:<list>)
     // @Required 3
-    // @Maximum 6
+    // @Maximum 8
     // @Short Creates text channels on Discord.
     // @Plugin dDiscordBot
     // @Group external
@@ -41,6 +43,10 @@ public class DiscordCreateChannelCommand extends AbstractDiscordCommand implemen
     // By default, the channel will not be attached to any category.
     //
     // You can optionally specify the channel's position in the list as an integer with the "position" argument.
+    //
+    // You can optionally specify the roles or users that are able to view the channel.
+    // The "roles" argument takes a list of DiscordRoleTags, and the "users" argument takes a list of DiscordUserTags.
+    // Specifying either of these arguments will create a private channel (disabled for @everyone).
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
@@ -71,6 +77,8 @@ public class DiscordCreateChannelCommand extends AbstractDiscordCommand implemen
         ElementTag description = scriptEntry.argForPrefixAsElement("description", null);
         ElementTag category = scriptEntry.argForPrefixAsElement("category", null);
         ElementTag position = scriptEntry.argForPrefixAsElement("position", null);
+        List<DiscordRoleTag> roles = scriptEntry.argForPrefixList("roles", DiscordRoleTag.class, true);
+        List<DiscordUserTag> users = scriptEntry.argForPrefixList("users", DiscordUserTag.class, true);
         if (scriptEntry.dbCallShouldDebug()) {
             Debug.report(scriptEntry, getName(), bot, group, name, description, category);
         }
@@ -93,6 +101,21 @@ public class DiscordCreateChannelCommand extends AbstractDiscordCommand implemen
                 }
                 if (position != null) {
                     action = action.setPosition(position.asInt());
+                }
+                List<Permission> permissions = new ArrayList<>();
+                permissions.add(Permission.VIEW_CHANNEL);
+                if (roles != null || users != null) {
+                    action = action.addRolePermissionOverride(group.guild_id, null, permissions);
+                }
+                if (roles != null) {
+                    for (DiscordRoleTag role : roles) {
+                        action = action.addRolePermissionOverride(role.role_id, permissions, null);
+                    }
+                }
+                if (users != null) {
+                    for (DiscordUserTag user : users) {
+                        action = action.addMemberPermissionOverride(user.user_id, permissions, null);
+                    }
                 }
                 TextChannel resultChannel = action.complete();
                 scriptEntry.addObject("channel", new DiscordChannelTag(bot.bot, resultChannel));
