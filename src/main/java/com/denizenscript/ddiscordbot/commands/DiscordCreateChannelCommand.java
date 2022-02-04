@@ -13,8 +13,9 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import org.bukkit.Bukkit;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class DiscordCreateChannelCommand extends AbstractDiscordCommand implements Holdable {
 
@@ -46,7 +47,7 @@ public class DiscordCreateChannelCommand extends AbstractDiscordCommand implemen
     //
     // You can optionally specify the roles or users that are able to view the channel.
     // The "roles" argument takes a list of DiscordRoleTags, and the "users" argument takes a list of DiscordUserTags.
-    // Specifying either of these arguments will create a private channel (disabled for @everyone).
+    // Specifying either of these arguments will create a private channel (hidden for anyone not in the lists).
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
@@ -102,8 +103,7 @@ public class DiscordCreateChannelCommand extends AbstractDiscordCommand implemen
                 if (position != null) {
                     action = action.setPosition(position.asInt());
                 }
-                List<Permission> permissions = new ArrayList<>();
-                permissions.add(Permission.VIEW_CHANNEL);
+                Set<Permission> permissions = Collections.singleton(Permission.VIEW_CHANNEL);
                 if (roles != null || users != null) {
                     action = action.addRolePermissionOverride(group.guild_id, null, permissions);
                 }
