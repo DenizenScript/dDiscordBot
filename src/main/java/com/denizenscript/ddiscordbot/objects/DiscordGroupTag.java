@@ -162,7 +162,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // -->
         tagProcessor.registerTag(ListTag.class, "channels", (attribute, object) -> {
             ListTag list = new ListTag();
-            for (TextChannel chan : object.getGuild().getTextChannels()) {
+            for (GuildChannel chan : object.getGuild().getChannels()) {
                 list.addObject(new DiscordChannelTag(object.bot, chan));
             }
             return list;
@@ -257,8 +257,8 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
                 return null;
             }
             String matchString = CoreUtilities.toLowerCase(attribute.getParam());
-            TextChannel bestMatch = null;
-            for (TextChannel chan : object.getGuild().getTextChannels()) {
+            GuildChannel bestMatch = null;
+            for (GuildChannel chan : object.getGuild().getChannels()) {
                 String chanName = CoreUtilities.toLowerCase(chan.getName());
                 if (matchString.equals(chanName)) {
                     bestMatch = chan;
