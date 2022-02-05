@@ -27,6 +27,8 @@ public class DenizenDiscordBot extends JavaPlugin {
     public static Warning oldMessageContexts = new SlowWarning("dDiscordBot contexts relating to message data are now provided by DiscordMessageTag.");
     public static Warning oldMessageCommand = new SlowWarning("dDiscordBot's 'discord message' sub-command has been moved to a base 'discordmessage' command.");
     public static Warning oldConnectCommand = new FutureWarning("dDiscordBot's 'discord connect' sub-command has been moved to a base 'discordconnect' command.");
+    public static Warning oldStopTyping = new FutureWarning("dDiscordBot's 'discord stop_typing' sub-command is deprecated as it does nothing.");
+    public static Warning oldDeleteMessage = new FutureWarning("dDiscordBot's 'discord delete_message' sub-command is deprecated in favor of 'adjust <[message]> delete'.");
 
     public static DenizenDiscordBot instance;
 
