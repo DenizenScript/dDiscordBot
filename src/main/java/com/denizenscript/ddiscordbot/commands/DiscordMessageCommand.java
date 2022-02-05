@@ -30,6 +30,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
         setSyntax("discordmessage [id:<id>] [reply:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (attach_file_name:<name> attach_file_text:<text>)");
         setRequiredArguments(3, 7);
         setPrefixesHandled("id");
+        isProcedural = false;
     }
 
     // <--[command]

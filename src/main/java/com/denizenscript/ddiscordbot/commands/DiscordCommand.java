@@ -28,6 +28,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
         setName("discord");
         setSyntax("discord [id:<id>] [disconnect/add_role/start_typing/stop_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message/delete_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
         setRequiredArguments(2, 12);
+        isProcedural = false;
     }
 
     // <--[command]

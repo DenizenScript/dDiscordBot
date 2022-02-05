@@ -24,6 +24,7 @@ public class DiscordCreateChannelCommand extends AbstractDiscordCommand implemen
         setName("discordcreatechannel");
         setSyntax("discordcreatechannel [id:<id>] [group:<group>] [name:<name>] (description:<description>) (type:<type>) (category:<category_id>) (position:<#>) (roles:<list>) (users:<list>)");
         setRequiredArguments(3, 9);
+        isProcedural = false;
     }
     // <--[command]
     // @Name discordcreatechannel
@@ -39,7 +40,7 @@ public class DiscordCreateChannelCommand extends AbstractDiscordCommand implemen
     //
     // This functionality requires the Manage Channels permission.
     //
-    // You can optionally specify the channel description (aka "topic") with the "description" argument. (type:<type>)
+    // You can optionally specify the channel description (aka "topic") with the "description" argument.
     //
     // You can optionally specify the channel type. Valid types are TEXT, NEWS, CATEGORY, and VOICE.
     // Only text and news channels can have a description.

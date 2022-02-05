@@ -21,6 +21,7 @@ public class DiscordCreateThreadCommand extends AbstractDiscordCommand implement
         setRequiredArguments(3, 4);
         setPrefixesHandled("id", "name", "message", "parent");
         setBooleansHandled("private");
+        isProcedural = false;
     }
     // <--[command]
     // @Name discordcreatethread

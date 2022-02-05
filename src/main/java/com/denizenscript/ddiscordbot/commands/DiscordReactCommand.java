@@ -25,6 +25,7 @@ public class DiscordReactCommand extends AbstractDiscordCommand implements Holda
         setSyntax("discordreact [id:<id>] [message:<message_id>] [add/remove/clear] [reaction:<reaction>/all] (user:<user>)");
         setRequiredArguments(4, 6);
         setPrefixesHandled("id");
+        isProcedural = false;
     }
     // <--[command]
     // @Name discordreact

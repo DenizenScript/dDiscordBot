@@ -36,6 +36,7 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
         setSyntax("discordcommand [id:<id>] [create/perms/delete] (group:<group>) (name:<name>) (description:<description>) (options:<options>) (enabled:{true}/false) (enable_for:<list>) (disable_for:<list>)");
         setRequiredArguments(3, 9);
         setPrefixesHandled("id");
+        isProcedural = false;
     }
 
     // <--[command]

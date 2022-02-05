@@ -38,6 +38,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
         setName("discordconnect");
         setSyntax("discordconnect [id:<id>] [tokenfile:<file>] (intents:<intent>|...)");
         setRequiredArguments(2, 3);
+        isProcedural = false;
     }
 
     // <--[command]

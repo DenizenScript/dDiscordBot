@@ -28,6 +28,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
         setName("discordinteraction");
         setSyntax("discordinteraction [defer/reply/delete] [interaction:<interaction>] (ephemeral:true/{false}) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)");
         setRequiredArguments(2, 7);
+        isProcedural = false;
     }
 
     // <--[command]
