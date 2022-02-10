@@ -1,8 +1,5 @@
 package com.denizenscript.ddiscordbot.events;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordCommandTag;
@@ -13,7 +10,6 @@ import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
-import com.denizenscript.denizencore.utilities.text.StringHolder;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 

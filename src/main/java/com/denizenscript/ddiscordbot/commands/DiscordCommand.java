@@ -280,12 +280,6 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                             dc.flags.saveToFile(DiscordConnectCommand.flagFilePathFor(id.asString()));
                         }
                         dc.client.shutdown();
-                        try {
-                            dc.client.awaitStatus(JDA.Status.SHUTDOWN);
-                        }
-                        catch (InterruptedException ex) {
-                            handleError(scriptEntry, ex);
-                        }
                         scriptEntry.setFinished(true);
                         break;
                     }
