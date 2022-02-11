@@ -31,7 +31,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
         setSyntax("discordinteraction [defer/reply/edit/delete] [interaction:<interaction>] (ephemeral) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)");
         setRequiredArguments(2, 7);
         setPrefixesHandled("interaction", "rows", "attach_file_name", "attach_file_text");
-        setBooleansHandled("ephermal");
+        setBooleansHandled("ephemeral");
         isProcedural = false;
     }
 
