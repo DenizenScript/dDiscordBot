@@ -358,6 +358,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         break;
                     }
                     case EDIT_MESSAGE: {
+                        DenizenDiscordBot.oldEditMessage.warn(scriptEntry);
                         if (requireClientID.get() || requireChannel.get() || requireMessage.get() || requireMessageId.get()) {
                             return;
                         }

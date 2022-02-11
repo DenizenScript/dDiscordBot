@@ -28,7 +28,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
 
     public DiscordMessageCommand() {
         setName("discordmessage");
-        setSyntax("discordmessage [id:<id>] [reply:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (attach_file_name:<name> attach_file_text:<text>)");
+        setSyntax("discordmessage [id:<id>] [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (attach_file_name:<name> attach_file_text:<text>)");
         setRequiredArguments(3, 7);
         setPrefixesHandled("id");
         isProcedural = false;
@@ -36,7 +36,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
 
     // <--[command]
     // @Name discordmessage
-    // @Syntax discordmessage [id:<id>] (reply:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (attach_file_name:<name> attach_file_text:<text>)
+    // @Syntax discordmessage [id:<id>] (reply:<message>/edit:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (attach_file_name:<name> attach_file_text:<text>)
     // @Required 3
     // @Maximum 7
     // @Short Sends a message to a Discord channel.
@@ -51,6 +51,8 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     //
     // You can send the message to: a channel or user, or optionally in reply to a previous message.
     // If sending as a reply, optionally use "no_mention" to disable the default reply pinging the original user.
+    //
+    // You can edit an existing message by using "edit:<message>".
     //
     // You can use "attach_file_name:<name>" and "attach_file_text:<text>" to attach a text file with longer content than a normal message allows.
     //
@@ -96,46 +98,10 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         for (Argument arg : scriptEntry) {
-            /*if (!scriptEntry.hasObject("attach_file_name")
-                    && arg.matchesPrefix("attach_file_name")) {
-                scriptEntry.addObject("attach_file_name", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("attach_file_text")
-                    && arg.matchesPrefix("attach_file_text")) {
-                scriptEntry.addObject("attach_file_text", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("channel")
-                    && arg.matchesPrefix("to", "channel")
-                    && arg.matchesArgumentType(DiscordChannelTag.class)) {
-                scriptEntry.addObject("channel", arg.asType(DiscordChannelTag.class));
-            }
-            else if (!scriptEntry.hasObject("user")
-                    && arg.matchesPrefix("to", "user")
-                    && arg.matchesArgumentType(DiscordUserTag.class)) {
-                scriptEntry.addObject("user", arg.asType(DiscordUserTag.class));
-            }
-            else if (!scriptEntry.hasObject("reply")
-                    && arg.matchesPrefix("reply")
-                    && arg.matchesArgumentType(DiscordMessageTag.class)) {
-                scriptEntry.addObject("reply", arg.asType(DiscordMessageTag.class));
-            }
-            else if (!scriptEntry.hasObject("no_mention")
-                    && arg.matches("no_mention")) {
-                scriptEntry.addObject("no_mention", new ElementTag(true));
-            }
-            else if (!scriptEntry.hasObject("rows")
-                    && arg.matchesPrefix("rows")) {
-                scriptEntry.addObject("rows", arg.object);
-            }*/
-            if (!scriptEntry.hasObject("message")) {
+            if (!scriptEntry.hasObject("message")
+                    && !arg.hasPrefix()) {
                 scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
             }
-            else {
-                arg.reportUnhandled();
-            }
-        }
-        if (!scriptEntry.hasObject("message") && !scriptEntry.hasObject("attach_file_name")) {
-            throw new InvalidArgumentsException("Must have a message!");
         }
     }
 
@@ -180,6 +146,10 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
             Debug.report(scriptEntry, getName(), bot, channel, message, user, reply, noMention, rows, attachFileName, attachFileText);
         }
         Runnable runner = () -> {
+            if (message == null && attachFileName == null) {
+                handleError(scriptEntry, "Must have a message!");
+                return;
+            }
             DiscordConnection connection = bot.getConnection();
             JDA client = connection.client;
             MessageChannel toChannel = null;
@@ -190,6 +160,16 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                 }
                 else {
                     handleError(scriptEntry, "Invalid reply message channel ID given.");
+                    return;
+                }
+            }
+            else if (edit != null && edit.channel_id != 0) {
+                Channel result = connection.getChannel(edit.channel_id);
+                if (result instanceof MessageChannel) {
+                    toChannel = (MessageChannel) result;
+                }
+                else {
+                    handleError(scriptEntry, "Invalid edit message channel ID given.");
                     return;
                 }
             }
@@ -246,6 +226,9 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                 if (reply != null) {
                     action = replyTo.replyEmbeds(embed);
                 }
+                else if (edit != null) {
+                    action = toChannel.editMessageEmbedsById(edit.message_id, embed);
+                }
                 else {
                     action = toChannel.sendMessageEmbeds(embed);
                 }
@@ -253,6 +236,9 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
             else {
                 if (reply != null) {
                     action = replyTo.reply(message.asString());
+                }
+                else if (edit != null) {
+                    action = toChannel.editMessageById(edit.message_id, message.asString());
                 }
                 else {
                     action = toChannel.sendMessage(message.asString());
