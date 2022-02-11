@@ -93,7 +93,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
             }
             else if (!scriptEntry.hasObject("message")
                     && !arg.hasPrefix()) {
-                scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
+                scriptEntry.addObject("message", arg.getRawObject());
             }
             else {
                 arg.reportUnhandled();
@@ -108,8 +108,8 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
         boolean ephemeral = scriptEntry.argAsBoolean("ephemeral");
         ElementTag attachFileName = scriptEntry.argForPrefixAsElement("attach_file_name", null);
         ElementTag attachFileText = scriptEntry.argForPrefixAsElement("attach_file_text", null);
-        ListTag rows = scriptEntry.argForPrefix("rows", ListTag.class, true);
-        ElementTag message = scriptEntry.getElement("message");
+        ObjectTag rows = scriptEntry.argForPrefix("rows", ObjectTag.class, true);
+        ObjectTag message = scriptEntry.getObjectTag("message");
         if (scriptEntry.dbCallShouldDebug()) {
             // Note: attachFileText intentionally at end
             Debug.report(scriptEntry, getName(), instruction, interaction, ephemeral, rows, message, attachFileName, attachFileText);
@@ -142,8 +142,8 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                         }
                         MessageEmbed embed = null;
                         List<ActionRow> actionRows = DiscordMessageCommand.createRows(scriptEntry, rows);
-                        if (message.asString().startsWith("discordembed@")) {
-                            embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.getContext()).build();
+                        if (message.shouldBeType(DiscordEmbedTag.class)) {
+                            embed = message.asType(DiscordEmbedTag.class, scriptEntry.context).build(scriptEntry.getContext()).build();
                         }
                         if (instructionEnum == DiscordInteractionInstruction.EDIT) {
                             WebhookMessageUpdateAction<Message> action;
@@ -152,7 +152,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                                 action = hook.editOriginalEmbeds(embed);
                             }
                             else {
-                                action = hook.editOriginal(message.asString());
+                                action = hook.editOriginal(message.toString());
                             }
                             if (attachFileName != null) {
                                 if (attachFileText != null) {
@@ -174,7 +174,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                                 action = hook.sendMessageEmbeds(embed);
                             }
                             else {
-                                action = hook.sendMessage(message.asString());
+                                action = hook.sendMessage(message.toString());
                             }
                             if (attachFileName != null) {
                                 if (attachFileText != null) {
@@ -195,7 +195,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                                 action = replyTo.replyEmbeds(embed);
                             }
                             else {
-                                action = replyTo.reply(message.asString());
+                                action = replyTo.reply(message.toString());
                             }
                             if (attachFileName != null) {
                                 if (attachFileText != null) {

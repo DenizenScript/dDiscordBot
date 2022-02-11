@@ -4,7 +4,6 @@ import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordMessageTag;
-import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
@@ -55,11 +54,6 @@ public class DiscordCreateThreadCommand extends AbstractDiscordCommand implement
     // - ~discordmessage id:mybot channel:<[some_channel]> "I created thread <&lt>#<entry[thread].created_thread.id><&gt>!"
     //
     // -->
-
-    @Override
-    public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
-        // Legacy parseArgs not used
-    }
 
     @Override
     public void execute(ScriptEntry scriptEntry) {

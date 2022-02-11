@@ -4,10 +4,10 @@ import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
+import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
-import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
@@ -94,14 +94,19 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     // - define my_button <discord_button.with[style].as[primary].with[id].as[my_button].with[label].as[Hello]>
     // - ~discordmessage id:mybot channel:<discord[mybot].channel[testing]> rows:<[my_button]> "Hello world!"
     //
+    // @Usage
+    // Use to send a message to a Discord channel, then edit it after 5 seconds.
+    // - ~discordmessage id:mybot channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!" save:msg
+    // - wait 5s
+    // - ~discordmessage id:mybot edit:<entry[msg].message> "Goodbye!"
+    //
     // -->
 
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("message")
-                    && !arg.hasPrefix()) {
-                scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
+            if (!scriptEntry.hasObject("message")) {
+                scriptEntry.addObject("message", arg.getRawObject());
             }
             else {
                 arg.reportUnhandled();
@@ -137,23 +142,22 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     public void execute(ScriptEntry scriptEntry) {
         DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
         DiscordChannelTag channel = scriptEntry.argForPrefix("channel", DiscordChannelTag.class, true);
-        ElementTag message = scriptEntry.getElement("message");
+        ObjectTag message = scriptEntry.getObjectTag("message");
         DiscordUserTag user = scriptEntry.argForPrefix("user", DiscordUserTag.class, true);
         DiscordMessageTag reply = scriptEntry.argForPrefix("reply", DiscordMessageTag.class, true);
         DiscordMessageTag edit = scriptEntry.argForPrefix("edit", DiscordMessageTag.class, true);
         boolean noMention = scriptEntry.argAsBoolean("no_mention");
         ElementTag attachFileName = scriptEntry.argForPrefixAsElement("attach_file_name", null);
         ElementTag attachFileText = scriptEntry.argForPrefixAsElement("attach_file_text", null);
-        ListTag rows = scriptEntry.argForPrefix("rows", ListTag.class, true);
+        ObjectTag rows = scriptEntry.argForPrefix("rows", ObjectTag.class, true);
         if (scriptEntry.dbCallShouldDebug()) {
             // Note: attachFileText intentionally at end
             Debug.report(scriptEntry, getName(), bot, channel, message, user, reply, noMention, rows, attachFileName, attachFileText);
         }
+        if (message == null && attachFileName == null) {
+            throw new InvalidArgumentsRuntimeException("Must have a message!");
+        }
         Runnable runner = () -> {
-            if (message == null && attachFileName == null) {
-                handleError(scriptEntry, "Must have a message!");
-                return;
-            }
             DiscordConnection connection = bot.getConnection();
             JDA client = connection.client;
             MessageChannel toChannel = null;
@@ -212,7 +216,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
             }
             MessageAction action = null;
             boolean isFile = false;
-            if (message == null || message.asString().length() == 0) {
+            if (message == null || message.toString().length() == 0) {
                 if (attachFileName != null) {
                     if (attachFileText != null) {
                         if (reply != null) {
@@ -225,8 +229,8 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                     }
                 }
             }
-            else if (message.asString().startsWith("discordembed@")) {
-                MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
+            else if (message.shouldBeType(DiscordEmbedTag.class)) {
+                MessageEmbed embed = message.asType(DiscordEmbedTag.class, scriptEntry.context).build(scriptEntry.context).build();
                 if (reply != null) {
                     action = replyTo.replyEmbeds(embed);
                 }
@@ -239,13 +243,13 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
             }
             else {
                 if (reply != null) {
-                    action = replyTo.reply(message.asString());
+                    action = replyTo.reply(message.toString());
                 }
                 else if (edit != null) {
-                    action = toChannel.editMessageById(edit.message_id, message.asString());
+                    action = toChannel.editMessageById(edit.message_id, message.toString());
                 }
                 else {
-                    action = toChannel.sendMessage(message.asString());
+                    action = toChannel.sendMessage(message.toString());
                 }
             }
             if (action == null) {

@@ -2,7 +2,6 @@ package com.denizenscript.ddiscordbot.commands;
 
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.*;
-import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
@@ -25,6 +24,7 @@ public class DiscordCreateChannelCommand extends AbstractDiscordCommand implemen
         setSyntax("discordcreatechannel [id:<id>] [group:<group>] [name:<name>] (description:<description>) (type:<type>) (category:<category_id>) (position:<#>) (roles:<list>) (users:<list>)");
         setRequiredArguments(3, 9);
         isProcedural = false;
+        setPrefixesHandled("id", "group", "name", "description", "type", "category", "position", "roles", "users");
     }
     // <--[command]
     // @Name discordcreatechannel
@@ -70,11 +70,6 @@ public class DiscordCreateChannelCommand extends AbstractDiscordCommand implemen
     // - debug log "Created channel '<entry[stuff].channel.name>'"
     //
     // -->
-
-    @Override
-    public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
-        // Legacy parseArgs not used
-    }
 
     @Override
     public void execute(ScriptEntry scriptEntry) {
