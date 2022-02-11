@@ -7,6 +7,7 @@ import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
+import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
@@ -95,7 +96,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("attach_file_name")
+            /*if (!scriptEntry.hasObject("attach_file_name")
                     && arg.matchesPrefix("attach_file_name")) {
                 scriptEntry.addObject("attach_file_name", arg.asElement());
             }
@@ -125,8 +126,8 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
             else if (!scriptEntry.hasObject("rows")
                     && arg.matchesPrefix("rows")) {
                 scriptEntry.addObject("rows", arg.object);
-            }
-            else if (!scriptEntry.hasObject("message")) {
+            }*/
+            if (!scriptEntry.hasObject("message")) {
                 scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
             }
             else {
@@ -165,14 +166,15 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     @Override
     public void execute(ScriptEntry scriptEntry) {
         DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
-        DiscordChannelTag channel = scriptEntry.getObjectTag("channel");
+        DiscordChannelTag channel = scriptEntry.argForPrefix("channel", DiscordChannelTag.class, true);
         ElementTag message = scriptEntry.getElement("message");
-        DiscordUserTag user = scriptEntry.getObjectTag("user");
-        DiscordMessageTag reply = scriptEntry.getObjectTag("reply");
-        ElementTag noMention = scriptEntry.getElement("no_mention");
-        ElementTag attachFileName = scriptEntry.getElement("attach_file_name");
-        ElementTag attachFileText = scriptEntry.getElement("attach_file_text");
-        ObjectTag rows = scriptEntry.getObjectTag("rows");
+        DiscordUserTag user = scriptEntry.argForPrefix("user", DiscordUserTag.class, true);
+        DiscordMessageTag reply = scriptEntry.argForPrefix("reply", DiscordMessageTag.class, true);
+        DiscordMessageTag edit = scriptEntry.argForPrefix("edit", DiscordMessageTag.class, true);
+        boolean noMention = scriptEntry.argAsBoolean("no_mention");
+        ElementTag attachFileName = scriptEntry.argForPrefixAsElement("attach_file_name", null);
+        ElementTag attachFileText = scriptEntry.argForPrefixAsElement("attach_file_text", null);
+        ListTag rows = scriptEntry.argForPrefix("rows", ListTag.class, true);
         if (scriptEntry.dbCallShouldDebug()) {
             // Note: attachFileText intentionally at end
             Debug.report(scriptEntry, getName(), bot, channel, message, user, reply, noMention, rows, attachFileName, attachFileText);
@@ -272,7 +274,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
             if (actionRows != null) {
                 action.setActionRows(actionRows);
             }
-            if (noMention != null && noMention.asBoolean()) {
+            if (noMention) {
                 action = action.mentionRepliedUser(false);
             }
             Message sentMessage = action.complete();
