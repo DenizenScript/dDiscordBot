@@ -28,14 +28,16 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
 
     public DiscordInteractionCommand() {
         setName("discordinteraction");
-        setSyntax("discordinteraction [defer/reply/edit/delete] [interaction:<interaction>] (ephemeral:true/{false}) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)");
+        setSyntax("discordinteraction [defer/reply/edit/delete] [interaction:<interaction>] (ephemeral) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)");
         setRequiredArguments(2, 7);
+        setPrefixesHandled("interaction", "rows", "attach_file_name", "attach_file_text");
+        setBooleansHandled("ephermal");
         isProcedural = false;
     }
 
     // <--[command]
     // @Name discordinteraction
-    // @Syntax discordinteraction [defer/reply/delete] [interaction:<interaction>] (ephemeral:true/{false}) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)
+    // @Syntax discordinteraction [defer/reply/delete] [interaction:<interaction>] (ephemeral) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)
     // @Required 2
     // @Maximum 7
     // @Short Manages Discord interactions.
@@ -92,6 +94,9 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
             else if (!scriptEntry.hasObject("message")
                     && !arg.hasPrefix()) {
                 scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
+            }
+            else {
+                arg.reportUnhandled();
             }
         }
     }

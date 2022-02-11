@@ -30,7 +30,8 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
         setName("discordmessage");
         setSyntax("discordmessage [id:<id>] [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (attach_file_name:<name> attach_file_text:<text>)");
         setRequiredArguments(3, 7);
-        setPrefixesHandled("id");
+        setPrefixesHandled("id", "reply", "edit", "channel", "user", "attach_file_name", "attach_file_text");
+        setBooleansHandled("no_mention");
         isProcedural = false;
     }
 
@@ -101,6 +102,9 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
             if (!scriptEntry.hasObject("message")
                     && !arg.hasPrefix()) {
                 scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
+            }
+            else {
+                arg.reportUnhandled();
             }
         }
     }
