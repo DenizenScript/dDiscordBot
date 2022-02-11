@@ -26,14 +26,14 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
 
     public DiscordCommand() {
         setName("discord");
-        setSyntax("discord [id:<id>] [disconnect/add_role/start_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
+        setSyntax("discord [id:<id>] [disconnect/add_role/start_typing/remove_role/status (status:<status>) (activity:<activity>)/rename] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
         setRequiredArguments(2, 12);
         isProcedural = false;
     }
 
     // <--[command]
     // @Name discord
-    // @Syntax discord [id:<id>] [disconnect/add_role/start_typing/remove_role/status (status:<status>) (activity:<activity>)/rename/edit_message] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
+    // @Syntax discord [id:<id>] [disconnect/add_role/start_typing/remove_role/status (status:<status>) (activity:<activity>)/rename] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)
     // @Required 2
     // @Maximum 12
     // @Short Interacts with Discord.
@@ -86,10 +86,6 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
     // @Usage
     // Use to start typing in a specific channel.
     // - ~discord id:mybot start_typing channel:<[channel]>
-    //
-    // @Usage
-    // Use to edit a message the bot has already sent.
-    // - ~discord id:mybot edit_message channel:<[channel]> message_id:<[msg]> "Wow! It got edited!"
     //
     // -->
 
