@@ -28,16 +28,16 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
 
     public DiscordMessageCommand() {
         setName("discordmessage");
-        setSyntax("discordmessage [id:<id>] [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (attach_file_name:<name> attach_file_text:<text>)");
+        setSyntax("discordmessage [id:<id>] [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>)");
         setRequiredArguments(3, 7);
-        setPrefixesHandled("id", "reply", "edit", "channel", "user", "attach_file_name", "attach_file_text");
+        setPrefixesHandled("id", "reply", "edit", "channel", "user", "attach_file_name", "attach_file_text", "rows");
         setBooleansHandled("no_mention");
         isProcedural = false;
     }
 
     // <--[command]
     // @Name discordmessage
-    // @Syntax discordmessage [id:<id>] (reply:<message>/edit:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (attach_file_name:<name> attach_file_text:<text>)
+    // @Syntax discordmessage [id:<id>] (reply:<message>/edit:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>)
     // @Required 3
     // @Maximum 7
     // @Short Sends a message to a Discord channel.
