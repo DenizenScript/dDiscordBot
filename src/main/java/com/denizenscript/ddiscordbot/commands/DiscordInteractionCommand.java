@@ -7,6 +7,7 @@ import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
+import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -16,6 +17,7 @@ import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
+import net.dv8tion.jda.api.requests.restaction.WebhookMessageUpdateAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.bukkit.Bukkit;
 
@@ -26,7 +28,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
 
     public DiscordInteractionCommand() {
         setName("discordinteraction");
-        setSyntax("discordinteraction [defer/reply/delete] [interaction:<interaction>] (ephemeral:true/{false}) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)");
+        setSyntax("discordinteraction [defer/reply/edit/delete] [interaction:<interaction>] (ephemeral:true/{false}) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)");
         setRequiredArguments(2, 7);
         isProcedural = false;
     }
@@ -44,7 +46,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
     // @Description
     // Manages Discord interactions.
     //
-    // You can defer, reply to, or delete an interaction. These instructions all require the "interaction" argument.
+    // You can defer, reply to, edit, or delete an interaction. These instructions all require the "interaction" argument.
     //
     // The "ephemeral" argument can be used to have the reply message be visible to that one user.
     //
@@ -53,7 +55,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
     // Replying to an interaction uses similar logic to normal messaging. See <@link command discordmessage>.
     // If you deferred without using 'ephemeral', the 'delete' option will delete the "Thinking..." message.
     //
-    // Slash commands and replies to interactions, have limitations. See <@link url https://gist.github.com/MinnDevelopment/b883b078fdb69d0e568249cc8bf37fe9>.
+    // Slash commands, and replies to interactions, have limitations. See <@link url https://gist.github.com/MinnDevelopment/b883b078fdb69d0e568249cc8bf37fe9>.
     //
     // Generally used alongside <@link command discordcommand>
     //
@@ -78,7 +80,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
     //
     // -->
 
-    public enum DiscordInteractionInstruction { DEFER, REPLY, DELETE }
+    public enum DiscordInteractionInstruction { DEFER, REPLY, EDIT, DELETE }
 
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
@@ -87,57 +89,27 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                     && arg.matchesEnum(DiscordInteractionInstruction.values())) {
                 scriptEntry.addObject("instruction", arg.asElement());
             }
-            else if (!scriptEntry.hasObject("interaction")
-                    && arg.matchesPrefix("interaction")
-                    && arg.matchesArgumentType(DiscordInteractionTag.class)) {
-                scriptEntry.addObject("interaction", arg.asType(DiscordInteractionTag.class));
-            }
-            else if (!scriptEntry.hasObject("ephemeral")
-                    && arg.matchesPrefix("ephemeral")) {
-                scriptEntry.addObject("ephemeral", new ElementTag(arg.getValue()));
-            }
-            else if (!scriptEntry.hasObject("attach_file_name")
-                    && arg.matchesPrefix("attach_file_name")) {
-                scriptEntry.addObject("attach_file_name", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("attach_file_text")
-                    && arg.matchesPrefix("attach_file_text")) {
-                scriptEntry.addObject("attach_file_text", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("rows")
-                    && arg.matchesPrefix("rows")) {
-                scriptEntry.addObject("rows", arg.object);
-            }
-            else if (!scriptEntry.hasObject("message")) {
+            else if (!scriptEntry.hasObject("message")
+                    && !arg.hasPrefix()) {
                 scriptEntry.addObject("message", new ElementTag(arg.getRawValue()));
             }
-            else {
-                arg.reportUnhandled();
-            }
-        }
-        if (!scriptEntry.hasObject("instruction")) {
-            throw new InvalidArgumentsException("Must have an instruction!");
-        }
-        if (!scriptEntry.hasObject("interaction")) {
-            throw new InvalidArgumentsException("Must have an interaction!");
         }
     }
 
     @Override
     public void execute(ScriptEntry scriptEntry) {
         ElementTag instruction = scriptEntry.getElement("instruction");
-        DiscordInteractionTag interaction = scriptEntry.getObjectTag("interaction");
-        ElementTag ephemeral = scriptEntry.getElement("ephemeral");
-        ElementTag attachFileName = scriptEntry.getElement("attach_file_name");
-        ElementTag attachFileText = scriptEntry.getElement("attach_file_text");
-        ObjectTag rows = scriptEntry.getObjectTag("rows");
+        DiscordInteractionTag interaction = scriptEntry.requiredArgForPrefix("interaction", DiscordInteractionTag.class);
+        boolean ephemeral = scriptEntry.argAsBoolean("ephemeral");
+        ElementTag attachFileName = scriptEntry.argForPrefixAsElement("attach_file_name", null);
+        ElementTag attachFileText = scriptEntry.argForPrefixAsElement("attach_file_text", null);
+        ListTag rows = scriptEntry.argForPrefix("rows", ListTag.class, true);
         ElementTag message = scriptEntry.getElement("message");
         if (scriptEntry.dbCallShouldDebug()) {
             // Note: attachFileText intentionally at end
             Debug.report(scriptEntry, getName(), instruction, interaction, ephemeral, rows, message, attachFileName, attachFileText);
         }
         DiscordInteractionInstruction instructionEnum = DiscordInteractionInstruction.valueOf(instruction.asString().toUpperCase());
-        boolean isEphemeral = ephemeral != null && ephemeral.asBoolean();
         Runnable runner = () -> {
             try {
                 switch (instructionEnum) {
@@ -146,9 +118,10 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                             handleError(scriptEntry, "Invalid interaction! Has it expired?");
                             return;
                         }
-                        interaction.interaction.deferReply(isEphemeral).complete();
+                        interaction.interaction.deferReply(ephemeral).complete();
                         break;
                     }
+                    case EDIT:
                     case REPLY: {
                         if (interaction.interaction == null) {
                             handleError(scriptEntry, "Invalid interaction! Has it expired?");
@@ -167,7 +140,29 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                         if (message.asString().startsWith("discordembed@")) {
                             embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.getContext()).build();
                         }
-                        if (interaction.interaction.isAcknowledged()) {
+                        if (instructionEnum == DiscordInteractionInstruction.EDIT) {
+                            WebhookMessageUpdateAction<Message> action;
+                            InteractionHook hook = interaction.interaction.getHook();
+                            if (embed != null) {
+                                action = hook.editOriginalEmbeds(embed);
+                            }
+                            else {
+                                action = hook.editOriginal(message.asString());
+                            }
+                            if (attachFileName != null) {
+                                if (attachFileText != null) {
+                                    action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
+                                }
+                                else {
+                                    handleError(scriptEntry, "Failed to send attachment - missing content?");
+                                }
+                            }
+                            if (actionRows != null) {
+                                action = action.setActionRows(actionRows);
+                            }
+                            action.complete();
+                        }
+                        else if (interaction.interaction.isAcknowledged()) {
                             WebhookMessageAction<Message> action;
                             InteractionHook hook = interaction.interaction.getHook();
                             if (embed != null) {
@@ -178,14 +173,14 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                             }
                             if (attachFileName != null) {
                                 if (attachFileText != null) {
-                                    action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
+                                    action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
                                 }
                                 else {
                                     handleError(scriptEntry, "Failed to send attachment - missing content?");
                                 }
                             }
                             if (actionRows != null) {
-                                action.addActionRows(actionRows);
+                                action = action.addActionRows(actionRows);
                             }
                             action.complete();
                         } else {
@@ -206,9 +201,9 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                                 }
                             }
                             if (actionRows != null) {
-                                action.addActionRows(actionRows);
+                                action = action.addActionRows(actionRows);
                             }
-                            action.setEphemeral(isEphemeral);
+                            action = action.setEphemeral(ephemeral);
                             action.complete();
                         }
                         break;
