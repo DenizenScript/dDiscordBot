@@ -90,8 +90,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                     && arg.matchesEnum(DiscordInteractionInstruction.values())) {
                 scriptEntry.addObject("instruction", arg.asElement());
             }
-            else if (!scriptEntry.hasObject("message")
-                    && !arg.hasPrefix()) {
+            else if (!scriptEntry.hasObject("message")) {
                 scriptEntry.addObject("message", arg.getRawObject());
             }
             else {

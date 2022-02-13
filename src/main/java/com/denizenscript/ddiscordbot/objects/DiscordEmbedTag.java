@@ -80,10 +80,10 @@ public class DiscordEmbedTag implements ObjectTag {
             embedData.putObject("author_icon_url", new ElementTag(embed.getAuthor().getIconUrl()));
         }
         if (embed.getColor() != null) {
-            embedData.putObject("author_icon_url", new ColorTag(Color.fromRGB(embed.getColorRaw())));
+            embedData.putObject("color", new ColorTag(Color.fromRGB(embed.getColorRaw())));
         }
         if (embed.getDescription() != null) {
-            embedData.putObject("getDescription", new ElementTag(embed.getDescription()));
+            embedData.putObject("description", new ElementTag(embed.getDescription()));
         }
         if (embed.getFooter() != null && embed.getFooter().getText() != null) {
             embedData.putObject("footer", new ElementTag(embed.getFooter().getText()));
