@@ -85,7 +85,7 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
                 return new ElementTag(getEvent().getMessage().getId());
             case "no_mention_message":
                 DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
-                return new ElementTag(DiscordMessageTag.stripMentions(getEvent().getMessage().getContentRaw(), getEvent().getMessage().getMentionedUsers()));
+                return new ElementTag(DiscordMessageTag.stripMentions(getEvent().getMessage().getContentRaw()));
             case "formatted_message":
                 DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
                 return new ElementTag(getEvent().getMessage().getContentDisplay());

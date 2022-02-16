@@ -12,6 +12,7 @@ import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
+import com.denizenscript.denizencore.utilities.AsciiMatcher;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.*;
 
@@ -167,13 +168,28 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         // Nothing to do.
     }
 
-    public static String stripMentions(String message, List<User> mentioned) {
-        for (User user : mentioned) {
-            message = message.replace(user.getAsMention(), "")
-                    .replace("<@" +user.getId() + ">", "")
-                    .replace("<@!" +user.getId() + ">", "");
+    public static AsciiMatcher digits = new AsciiMatcher(AsciiMatcher.DIGITS);
+
+    public static String stripMentions(String message) {
+        StringBuilder output = new StringBuilder(message.length());
+        char[] rawChars = message.toCharArray();
+        for (int i = 0; i < rawChars.length; i++) {
+            char c = rawChars[i];
+            if (c == '<' && (i + 3) < rawChars.length && rawChars[i + 1] == '@') {
+                char next = rawChars[i + 2];
+                if (digits.isMatch(next) || next == '!' || next == '&') {
+                    int end = message.indexOf('>', i);
+                    if (end > i + 3 && end < i + 32) {
+                        if (digits.isOnlyMatches(message.substring(i + 3, end))) {
+                            i = end;
+                            continue;
+                        }
+                    }
+                }
+            }
+            output.append(c);
         }
-        return message;
+        return output.toString();
     }
 
     public static void registerTags() {
@@ -254,7 +270,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         // Returns the text of the message, with '@' mentions removed.
         // -->
         tagProcessor.registerTag(ElementTag.class, "text_no_mentions", (attribute, object) -> {
-            return new ElementTag(stripMentions(object.getMessage().getContentRaw(), object.getMessage().getMentionedUsers()));
+            return new ElementTag(stripMentions(object.getMessage().getContentRaw()));
         });
 
         // <--[tag]
@@ -470,7 +486,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
 
     @Override
     public void applyProperty(Mechanism mechanism) {
-        Debug.echoError("Cannot apply properties to a DiscordMessageTag!");
+        mechanism.echoError("Cannot apply properties to a DiscordMessageTag!");
     }
 
     @Override

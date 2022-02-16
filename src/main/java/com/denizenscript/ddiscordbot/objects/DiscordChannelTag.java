@@ -481,7 +481,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
 
     @Override
     public void applyProperty(Mechanism mechanism) {
-        Debug.echoError("Cannot apply properties to a DiscordChannelTag!");
+        mechanism.echoError("Cannot apply properties to a DiscordChannelTag!");
     }
 
     @Override
