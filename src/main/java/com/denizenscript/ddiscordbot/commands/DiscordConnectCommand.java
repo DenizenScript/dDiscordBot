@@ -89,7 +89,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
             }
             else if (!scriptEntry.hasObject("intents")
                     && arg.matchesPrefix("intents")
-                    && arg.matchesEnum(GatewayIntent.values())) {
+                    && arg.matchesEnum(GatewayIntent.class)) {
                 scriptEntry.addObject("intents", arg.asType(ListTag.class));
             }
             else {

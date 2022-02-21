@@ -99,7 +99,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                 scriptEntry.addObject("id", new ElementTag(CoreUtilities.toLowerCase(arg.getValue())));
             }
             else if (!scriptEntry.hasObject("instruction")
-                    && arg.matchesEnum(DiscordInstruction.values())) {
+                    && arg.matchesEnum(DiscordInstruction.class)) {
                 scriptEntry.addObject("instruction", arg.asElement());
             }
             else if (!scriptEntry.hasObject("code")

@@ -87,7 +87,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         for (Argument arg : scriptEntry) {
             if (!scriptEntry.hasObject("instruction")
-                    && arg.matchesEnum(DiscordInteractionInstruction.values())) {
+                    && arg.matchesEnum(DiscordInteractionInstruction.class)) {
                 scriptEntry.addObject("instruction", arg.asElement());
             }
             else if (!scriptEntry.hasObject("message")) {

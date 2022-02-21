@@ -108,7 +108,7 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         for (Argument arg : scriptEntry) {
             if (!scriptEntry.hasObject("instruction")
-                    && arg.matchesEnum(DiscordCommandInstruction.values())) {
+                    && arg.matchesEnum(DiscordCommandInstruction.class)) {
                 scriptEntry.addObject("instruction", arg.asElement());
             }
             else if (!scriptEntry.hasObject("group")

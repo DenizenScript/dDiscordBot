@@ -75,7 +75,7 @@ public class DiscordReactCommand extends AbstractDiscordCommand implements Holda
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         for (Argument arg : scriptEntry) {
             if (!scriptEntry.hasObject("instruction")
-                    && arg.matchesEnum(DiscordReactInstruction.values())) {
+                    && arg.matchesEnum(DiscordReactInstruction.class)) {
                 scriptEntry.addObject("instruction", arg.asElement());
             }
             else if (!scriptEntry.hasObject("channel")
