@@ -171,7 +171,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
     public static AsciiMatcher digits = new AsciiMatcher(AsciiMatcher.DIGITS);
 
     public static String stripMentions(String message) {
-        message = message.replace("@everyone", "");
+        message = message.replace("@everyone", "").replace("@here", "");
         StringBuilder output = new StringBuilder(message.length());
         char[] rawChars = message.toCharArray();
         for (int i = 0; i < rawChars.length; i++) {
