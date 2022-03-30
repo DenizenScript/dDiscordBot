@@ -5,10 +5,12 @@ import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.denizen.Denizen;
 import com.denizenscript.denizen.utilities.Utilities;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
+import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
 import com.denizenscript.denizencore.flags.SavableMapFlagTracker;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
+import com.denizenscript.denizencore.objects.core.SecretTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
@@ -36,14 +38,15 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
     public DiscordConnectCommand() {
         instance = this;
         setName("discordconnect");
-        setSyntax("discordconnect [id:<id>] [tokenfile:<file>] (intents:<intent>|...)");
+        setSyntax("discordconnect [id:<id>] [token:<secret>] (intents:<intent>|...)");
         setRequiredArguments(2, 3);
         isProcedural = false;
+        setPrefixesHandled("id", "tokenfile", "token", "intents");
     }
 
     // <--[command]
     // @Name discordconnect
-    // @Syntax discordconnect [id:<id>] [tokenfile:<file>] (intents:<intent>|...)
+    // @Syntax discordconnect [id:<id>] [token:<secret>] (intents:<intent>|...)
     // @Required 2
     // @Maximum 3
     // @Short Connects to Discord.
@@ -63,7 +66,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
     // And also may need to manually enable other intents if you specify any.
     // If the members intent is not enabled, a significant amount of dDiscordBot's functionality will not work.
     //
-    // Store your Discord bot token in a file, like "plugins/Denizen/data/discord_token.txt", with the token as the only content of the file, which you can then use like "tokenfile:data/discord_token.txt"
+    // Store your Discord bot token in the Denizen secrets file at 'plugins/Denizen/secrets.secret'. Refer to <@link ObjectType SecretTag> for usage info.
     //
     // The command should always be ~waited for. See <@link language ~waitable>.
     //
@@ -71,36 +74,15 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
     // <discord[<bot_id>]>
     //
     // @Usage
-    // Use to connect to Discord with a token stored in text file 'plugins/Denizen/data/discord_token.txt'.
-    // - ~discordconnect id:mybot tokenfile:data/discord_token.txt
+    // Use to connect to Discord with a token stored in secret file 'plugins/Denizen/secrets.secret'.
+    // - ~discordconnect id:mybot token:<secret[discord_bot_token]>
     //
     // -->
 
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("id")
-                    && arg.matchesPrefix("id")) {
-                scriptEntry.addObject("id", new ElementTag(CoreUtilities.toLowerCase(arg.getValue())));
-            }
-            else if (!scriptEntry.hasObject("tokenfile")
-                    && arg.matchesPrefix("tokenfile")) {
-                scriptEntry.addObject("tokenfile", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("intents")
-                    && arg.matchesPrefix("intents")
-                    && arg.matchesEnum(GatewayIntent.class)) {
-                scriptEntry.addObject("intents", arg.asType(ListTag.class));
-            }
-            else {
-                arg.reportUnhandled();
-            }
-        }
-        if (!scriptEntry.hasObject("id")) {
-            throw new InvalidArgumentsException("Must have an ID!");
-        }
-        if (!scriptEntry.hasObject("tokenfile")) {
-            throw new InvalidArgumentsException("Must have a tokenfile!");
+            arg.reportUnhandled();
         }
     }
 
@@ -220,11 +202,15 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
 
     @Override
     public void execute(ScriptEntry scriptEntry) {
-        ElementTag id = scriptEntry.getElement("id");
-        ElementTag tokenFile = scriptEntry.getElement("tokenfile");
-        ListTag intents = scriptEntry.getObjectTag("intents");
+        ElementTag id = scriptEntry.requiredArgForPrefixAsElement("id");
+        ElementTag tokenFile = scriptEntry.argForPrefixAsElement("tokenfile", null);
+        SecretTag token = scriptEntry.argForPrefix("token", SecretTag.class, true);
+        ListTag intents = scriptEntry.argForPrefix("intents", ListTag.class, true);
+        if (tokenFile == null && token == null) {
+            throw new InvalidArgumentsRuntimeException("Missing token SecretTag object!");
+        }
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id, tokenFile, intents);
+            Debug.report(scriptEntry, getName(), id, token, tokenFile, intents);
         }
         if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
             Debug.echoError("Failed to connect: duplicate ID!");
@@ -234,25 +220,31 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
         dc.botID = id.asString();
         DenizenDiscordBot.instance.connections.put(id.asString(), dc);
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
-            File f = new File(Denizen.getInstance().getDataFolder(), tokenFile.asString());
-            if (!Utilities.canReadFile(f)) {
-                handleError(scriptEntry, "Cannot read from that token file path due to security settings in Denizen/config.yml.");
-                scriptEntry.setFinished(true);
-                DenizenDiscordBot.instance.connections.remove(id.asString());
-                return;
+            String codeRaw;
+            if (tokenFile != null) {
+                File f = new File(Denizen.getInstance().getDataFolder(), tokenFile.asString());
+                if (!Utilities.canReadFile(f)) {
+                    handleError(scriptEntry, "Cannot read from that token file path due to security settings in Denizen/config.yml.");
+                    scriptEntry.setFinished(true);
+                    DenizenDiscordBot.instance.connections.remove(id.asString());
+                    return;
+                }
+                if (!f.exists()) {
+                    handleError(scriptEntry, "Invalid tokenfile specified. File does not exist.");
+                    scriptEntry.setFinished(true);
+                    DenizenDiscordBot.instance.connections.remove(id.asString());
+                    return;
+                }
+                codeRaw = CoreUtilities.journallingLoadFile(f.getAbsolutePath());
+                if (codeRaw == null || codeRaw.length() < 5 || codeRaw.length() > 200) {
+                    handleError(scriptEntry, "Invalid tokenfile specified. File content doesn't look like a bot token.");
+                    scriptEntry.setFinished(true);
+                    DenizenDiscordBot.instance.connections.remove(id.asString());
+                    return;
+                }
             }
-            if (!f.exists()) {
-                handleError(scriptEntry, "Invalid tokenfile specified. File does not exist.");
-                scriptEntry.setFinished(true);
-                DenizenDiscordBot.instance.connections.remove(id.asString());
-                return;
-            }
-            String codeRaw = CoreUtilities.journallingLoadFile(f.getAbsolutePath());
-            if (codeRaw == null || codeRaw.length() < 5 || codeRaw.length() > 200) {
-                handleError(scriptEntry, "Invalid tokenfile specified. File content doesn't look like a bot token.");
-                scriptEntry.setFinished(true);
-                DenizenDiscordBot.instance.connections.remove(id.asString());
-                return;
+            else {
+                codeRaw = token.getValue();
             }
             codeRaw = codeRaw.trim();
             DiscordConnectThread dct = new DiscordConnectThread();
@@ -261,8 +253,16 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
             dct.conn = dc;
             dct.ender = () -> scriptEntry.setFinished(true);
             if (intents != null) {
-                for (String intent : intents) {
-                    dct.intents.add(GatewayIntent.valueOf(intent.toUpperCase()));
+                try {
+                    for (String intent : intents) {
+                        dct.intents.add(GatewayIntent.valueOf(intent.toUpperCase()));
+                    }
+                }
+                catch (IllegalArgumentException ex) {
+                    Debug.echoError("Invalid 'intents' input - " + ex.getMessage());
+                    scriptEntry.setFinished(true);
+                    DenizenDiscordBot.instance.connections.remove(id.asString());
+                    return;
                 }
             }
             dct.start();

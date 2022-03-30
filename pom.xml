@@ -54,7 +54,7 @@
             <artifactId>denizen</artifactId>
             <version>${denizen.version}</version>
             <type>jar</type>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.dv8tion</groupId>
