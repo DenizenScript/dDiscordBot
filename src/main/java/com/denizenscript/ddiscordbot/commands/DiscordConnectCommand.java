@@ -222,6 +222,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             String codeRaw;
             if (tokenFile != null) {
+                DenizenDiscordBot.oldTokenFile.warn(scriptEntry);
                 File f = new File(Denizen.getInstance().getDataFolder(), tokenFile.asString());
                 if (!Utilities.canReadFile(f)) {
                     handleError(scriptEntry, "Cannot read from that token file path due to security settings in Denizen/config.yml.");
