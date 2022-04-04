@@ -13,6 +13,7 @@ import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.core.SecretTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.utilities.CoreConfiguration;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.ReflectionHelper;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -168,7 +169,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
                     jda.awaitReady();
                 }
                 catch (Exception ex) {
-                    if (Debug.verbose) {
+                    if (CoreConfiguration.debugVerbose) {
                         Debug.echoError(ex);
                     }
                     instance.handleError(scriptEntry, "Discord full connection attempt failed.");
