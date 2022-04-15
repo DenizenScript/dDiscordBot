@@ -6,7 +6,7 @@ import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordInteractionTag;
 import com.denizenscript.ddiscordbot.objects.DiscordSelectionTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 
 public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
 
@@ -43,8 +43,8 @@ public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
         registerSwitches("channel", "group", "id");
     }
 
-    public SelectionMenuEvent getEvent() {
-        return (SelectionMenuEvent) event;
+    public SelectMenuInteractionEvent getEvent() {
+        return (SelectMenuInteractionEvent) event;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
         if (!tryGuild(path, getEvent().isFromGuild() ? getEvent().getGuild() : null)) {
             return false;
         }
-        if (!runGenericSwitchCheck(path, "id", getEvent().getSelectionMenu().getId())) {
+        if (!runGenericSwitchCheck(path, "id", getEvent().getSelectMenu().getId())) {
             return false;
         }
         return super.matches(path);
@@ -74,7 +74,7 @@ public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
             case "interaction":
                 return DiscordInteractionTag.getOrCreate(botID, getEvent().getInteraction());
             case "menu":
-                return new DiscordSelectionTag(getEvent().getSelectionMenu());
+                return new DiscordSelectionTag(getEvent().getSelectMenu());
             case "option":
                 return DiscordSelectionTag.getSelectionOption(getEvent().getSelectedOptions().get(0));
         }

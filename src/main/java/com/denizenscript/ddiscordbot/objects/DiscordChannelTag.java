@@ -391,7 +391,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
             if (channel == null) {
                 return null;
             }
-            if (channel.hasLatestMessage()) {
+            if (channel.getLatestMessageIdLong() != 0) {
                 return new DiscordMessageTag(object.bot, object.channel_id, channel.getLatestMessageIdLong());
             }
             else {
