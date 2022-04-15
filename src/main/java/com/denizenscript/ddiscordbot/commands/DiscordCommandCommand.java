@@ -315,10 +315,10 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                         CommandCreateAction action;
                         if (group == null) {
                             Debug.log("Registering a slash command globally may take up to an hour.");
-                            action = (CommandCreateAction)client.upsertCommand(data);
+                            action = (CommandCreateAction) client.upsertCommand(data);
                         }
                         else {
-                            action = (CommandCreateAction)group.getGuild().upsertCommand(data);
+                            action = (CommandCreateAction) group.getGuild().upsertCommand(data);
                         }
                         action.setDefaultEnabled(isEnabled);
                         Command slashCommand = action.complete();

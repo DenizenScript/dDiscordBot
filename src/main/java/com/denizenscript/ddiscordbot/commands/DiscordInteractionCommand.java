@@ -123,7 +123,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                             return;
                         }
                         if (interaction.interaction instanceof IReplyCallback) {
-                            ((IReplyCallback)interaction.interaction).deferReply(ephemeral).complete();
+                            ((IReplyCallback) interaction.interaction).deferReply(ephemeral).complete();
                         } else {
                             handleError(scriptEntry, "Interaction is not a reply callback!");
                         }
@@ -150,7 +150,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                         }
                         if (instructionEnum == DiscordInteractionInstruction.EDIT) {
                             WebhookMessageUpdateAction<Message> action;
-                            InteractionHook hook = ((IDeferrableCallback)interaction.interaction).getHook();
+                            InteractionHook hook = ((IDeferrableCallback) interaction.interaction).getHook();
                             if (embed != null) {
                                 action = hook.editOriginalEmbeds(embed);
                             }
@@ -172,7 +172,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                         }
                         else if (interaction.interaction.isAcknowledged()) {
                             WebhookMessageAction<Message> action;
-                            InteractionHook hook = ((IDeferrableCallback)interaction.interaction).getHook();
+                            InteractionHook hook = ((IDeferrableCallback) interaction.interaction).getHook();
                             if (embed != null) {
                                 action = hook.sendMessageEmbeds(embed);
                             }
@@ -221,7 +221,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                             handleError(scriptEntry, "Invalid interaction! Has it expired?");
                             return;
                         }
-                        ((IDeferrableCallback)interaction.interaction).getHook().deleteOriginal().complete();
+                        ((IDeferrableCallback) interaction.interaction).getHook().deleteOriginal().complete();
                         break;
                     }
                 }
