@@ -46,6 +46,7 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>${bukkit.version}</version>
+            ,<type>jar</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
