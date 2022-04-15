@@ -46,7 +46,6 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>${bukkit.version}</version>
-            <type>jar</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -59,7 +58,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.3</version>
+            <version>5.0.0-alpha.9</version>
         </dependency>
     </dependencies>
 

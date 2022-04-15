@@ -10,7 +10,7 @@ import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
@@ -48,8 +48,8 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
         registerSwitches("channel", "group", "name");
     }
 
-    public SlashCommandEvent getEvent() {
-        return (SlashCommandEvent) event;
+    public SlashCommandInteractionEvent getEvent() {
+        return (SlashCommandInteractionEvent) event;
     }
 
     @Override

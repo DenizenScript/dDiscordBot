@@ -18,9 +18,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.commands.build.*;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
 import org.bukkit.Bukkit;
@@ -244,7 +242,7 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                             scriptEntry.setFinished(true);
                             return;
                         }
-                        CommandData data = new CommandData(name.asString(), description.asString());
+                        SlashCommandData data = Commands.slash(name.asString(), description.asString());
                         if (options != null) {
                             for (ObjectTag optionObj : options.map.values()) {
                                 MapTag option = optionObj.asType(MapTag.class, scriptEntry.getContext());
@@ -317,10 +315,10 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                         CommandCreateAction action;
                         if (group == null) {
                             Debug.log("Registering a slash command globally may take up to an hour.");
-                            action = client.upsertCommand(data);
+                            action = (CommandCreateAction)client.upsertCommand(data);
                         }
                         else {
-                            action = group.getGuild().upsertCommand(data);
+                            action = (CommandCreateAction)group.getGuild().upsertCommand(data);
                         }
                         action.setDefaultEnabled(isEnabled);
                         Command slashCommand = action.complete();

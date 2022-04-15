@@ -12,12 +12,13 @@ import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.callbacks.IDeferrableCallback;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageUpdateAction;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.bukkit.Bukkit;
 
 import java.nio.charset.StandardCharsets;
@@ -121,7 +122,11 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                             handleError(scriptEntry, "Invalid interaction! Has it expired?");
                             return;
                         }
-                        interaction.interaction.deferReply(ephemeral).complete();
+                        if (interaction.interaction instanceof IReplyCallback) {
+                            ((IReplyCallback)interaction.interaction).deferReply(ephemeral).complete();
+                        } else {
+                            handleError(scriptEntry, "Interaction is not a reply callback!");
+                        }
                         break;
                     }
                     case EDIT:
@@ -145,7 +150,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                         }
                         if (instructionEnum == DiscordInteractionInstruction.EDIT) {
                             WebhookMessageUpdateAction<Message> action;
-                            InteractionHook hook = interaction.interaction.getHook();
+                            InteractionHook hook = ((IDeferrableCallback)interaction.interaction).getHook();
                             if (embed != null) {
                                 action = hook.editOriginalEmbeds(embed);
                             }
@@ -167,7 +172,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                         }
                         else if (interaction.interaction.isAcknowledged()) {
                             WebhookMessageAction<Message> action;
-                            InteractionHook hook = interaction.interaction.getHook();
+                            InteractionHook hook = ((IDeferrableCallback)interaction.interaction).getHook();
                             if (embed != null) {
                                 action = hook.sendMessageEmbeds(embed);
                             }
@@ -187,8 +192,8 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                             }
                             action.complete();
                         } else {
-                            ReplyAction action;
-                            Interaction replyTo = interaction.interaction;
+                            ReplyCallbackAction action;
+                            IReplyCallback replyTo = (IReplyCallback) interaction.interaction;
                             if (embed != null) {
                                 action = replyTo.replyEmbeds(embed);
                             }
@@ -216,7 +221,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                             handleError(scriptEntry, "Invalid interaction! Has it expired?");
                             return;
                         }
-                        interaction.interaction.getHook().deleteOriginal().complete();
+                        ((IDeferrableCallback)interaction.interaction).getHook().deleteOriginal().complete();
                         break;
                     }
                 }

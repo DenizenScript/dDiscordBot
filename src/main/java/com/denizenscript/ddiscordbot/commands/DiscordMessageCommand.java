@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.bukkit.Bukkit;
 
@@ -121,7 +122,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
         Collection<ObjectTag> rows = CoreUtilities.objectToList(rowsObj, scriptEntry.getContext());
         List<ActionRow> actionRows = new ArrayList<>();
         for (ObjectTag row : rows) {
-            List<Component> components = new ArrayList<>();
+            List<ItemComponent> components = new ArrayList<>();
             for (ObjectTag component : CoreUtilities.objectToList(row, scriptEntry.getContext())) {
                 if (component.canBeType(DiscordButtonTag.class)) {
                     components.add(component.asType(DiscordButtonTag.class, scriptEntry.getContext()).build());

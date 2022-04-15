@@ -14,9 +14,9 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
@@ -127,17 +127,17 @@ public class DiscordConnection extends ListenerAdapter {
     }
 
     @Override
-    public void onSlashCommand(SlashCommandEvent event) {
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         autoHandle(event, DiscordSlashCommandScriptEvent.instance);
     }
 
     @Override
-    public void onButtonClick(ButtonClickEvent event) {
+    public void onButtonInteraction(ButtonInteractionEvent event) {
         autoHandle(event, DiscordButtonClickedScriptEvent.instance);
     }
 
     @Override
-    public void onSelectionMenu(SelectionMenuEvent event) {
+    public void onSelectMenuInteraction(SelectMenuInteractionEvent event) {
         autoHandle(event, DiscordSelectionUsedScriptEvent.instance);
     }
 
