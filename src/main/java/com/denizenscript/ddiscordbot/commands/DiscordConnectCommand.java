@@ -190,7 +190,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
                 Debug.echoError(ex);
             }
             Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
-                conn.flags = SavableMapFlagTracker.loadFlagFile(flagFilePathFor(conn.botID));
+                conn.flags = SavableMapFlagTracker.loadFlagFile(flagFilePathFor(conn.botID), true);
                 ender.run();
             });
         }
