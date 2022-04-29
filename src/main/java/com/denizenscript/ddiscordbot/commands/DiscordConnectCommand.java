@@ -190,7 +190,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
                 Debug.echoError(ex);
             }
             Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
-                conn.flags = SavableMapFlagTracker.loadFlagFile(flagFilePathFor(conn.botID));
+                conn.flags = SavableMapFlagTracker.loadFlagFile(flagFilePathFor(conn.botID), true);
                 ender.run();
             });
         }
@@ -203,7 +203,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
 
     @Override
     public void execute(ScriptEntry scriptEntry) {
-        ElementTag id = scriptEntry.requiredArgForPrefixAsElement("id");
+        ElementTag idElement = scriptEntry.requiredArgForPrefixAsElement("id");
         ElementTag tokenFile = scriptEntry.argForPrefixAsElement("tokenfile", null);
         SecretTag token = scriptEntry.argForPrefix("token", SecretTag.class, true);
         ListTag intents = scriptEntry.argForPrefix("intents", ListTag.class, true);
@@ -211,15 +211,16 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
             throw new InvalidArgumentsRuntimeException("Missing token SecretTag object!");
         }
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id, token, tokenFile, intents);
+            Debug.report(scriptEntry, getName(), idElement, token, tokenFile, intents);
         }
-        if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
+        String id = CoreUtilities.toLowerCase(idElement.asString());
+        if (DenizenDiscordBot.instance.connections.containsKey(id)) {
             Debug.echoError("Failed to connect: duplicate ID!");
             return;
         }
         DiscordConnection dc = new DiscordConnection();
-        dc.botID = id.asString();
-        DenizenDiscordBot.instance.connections.put(id.asString(), dc);
+        dc.botID = id;
+        DenizenDiscordBot.instance.connections.put(id, dc);
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             String codeRaw;
             if (tokenFile != null) {
@@ -228,20 +229,20 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
                 if (!Utilities.canReadFile(f)) {
                     handleError(scriptEntry, "Cannot read from that token file path due to security settings in Denizen/config.yml.");
                     scriptEntry.setFinished(true);
-                    DenizenDiscordBot.instance.connections.remove(id.asString());
+                    DenizenDiscordBot.instance.connections.remove(id);
                     return;
                 }
                 if (!f.exists()) {
                     handleError(scriptEntry, "Invalid tokenfile specified. File does not exist.");
                     scriptEntry.setFinished(true);
-                    DenizenDiscordBot.instance.connections.remove(id.asString());
+                    DenizenDiscordBot.instance.connections.remove(id);
                     return;
                 }
                 codeRaw = CoreUtilities.journallingLoadFile(f.getAbsolutePath());
                 if (codeRaw == null || codeRaw.length() < 5 || codeRaw.length() > 200) {
                     handleError(scriptEntry, "Invalid tokenfile specified. File content doesn't look like a bot token.");
                     scriptEntry.setFinished(true);
-                    DenizenDiscordBot.instance.connections.remove(id.asString());
+                    DenizenDiscordBot.instance.connections.remove(id);
                     return;
                 }
             }
@@ -263,7 +264,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
                 catch (IllegalArgumentException ex) {
                     Debug.echoError("Invalid 'intents' input - " + ex.getMessage());
                     scriptEntry.setFinished(true);
-                    DenizenDiscordBot.instance.connections.remove(id.asString());
+                    DenizenDiscordBot.instance.connections.remove(id);
                     return;
                 }
             }
