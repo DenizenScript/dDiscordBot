@@ -24,13 +24,13 @@ import java.util.Map;
 
 public class DenizenDiscordBot extends JavaPlugin {
 
-    public static Warning oldMessageContexts = new SlowWarning("dDiscordBot contexts relating to message data are now provided by DiscordMessageTag.");
-    public static Warning oldMessageCommand = new SlowWarning("dDiscordBot's 'discord message' sub-command has been moved to a base 'discordmessage' command.");
-    public static Warning oldConnectCommand = new FutureWarning("dDiscordBot's 'discord connect' sub-command has been moved to a base 'discordconnect' command.");
-    public static Warning oldStopTyping = new FutureWarning("dDiscordBot's 'discord stop_typing' sub-command is deprecated as it does nothing.");
-    public static Warning oldDeleteMessage = new FutureWarning("dDiscordBot's 'discord delete_message' sub-command is deprecated in favor of 'adjust <[message]> delete'.");
-    public static Warning oldEditMessage = new SlowWarning("dDiscordBot's 'discord edit_message' sub-command has been moved to the 'discordmessage' command.");
-    public static Warning oldTokenFile = new FutureWarning("dDiscordBot used to recommend 'tokenfile' for 'discordconnect', however it is now recommended that you use a SecretTag and the 'secrets.secret' file for the token.");
+    public static Warning oldMessageContexts = new SlowWarning("oldMessageContexts", "dDiscordBot contexts relating to message data are now provided by DiscordMessageTag.");
+    public static Warning oldMessageCommand = new SlowWarning("oldMessageCommand", "dDiscordBot's 'discord message' sub-command has been moved to a base 'discordmessage' command.");
+    public static Warning oldConnectCommand = new FutureWarning("oldConnectCommand", "dDiscordBot's 'discord connect' sub-command has been moved to a base 'discordconnect' command.");
+    public static Warning oldStopTyping = new FutureWarning("oldStopTyping", "dDiscordBot's 'discord stop_typing' sub-command is deprecated as it does nothing.");
+    public static Warning oldDeleteMessage = new FutureWarning("oldDeleteMessage", "dDiscordBot's 'discord delete_message' sub-command is deprecated in favor of 'adjust <[message]> delete'.");
+    public static Warning oldEditMessage = new SlowWarning("oldEditMessage", "dDiscordBot's 'discord edit_message' sub-command has been moved to the 'discordmessage' command.");
+    public static Warning oldTokenFile = new FutureWarning("oldTokenFile", "dDiscordBot used to recommend 'tokenfile' for 'discordconnect', however it is now recommended that you use a SecretTag and the 'secrets.secret' file for the token.");
 
     public static DenizenDiscordBot instance;
 

@@ -50,9 +50,7 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
     // @Description
     // Manages Discord slash commands.
     //
-    // You can manage slash commands using the "command" instruction, specifying further instructions.
-    //
-    // Using the "command" instruction, you can create a new slash command, or edit the permissions of or delete an existing command.
+    // You can create a new slash command, edit the permissions of an existing command, or delete an existing command.
     //
     // To create (or delete) a command in a specific Discord guild, use the "group" argument. If not present, a global command will be created. NOTE: Global slash commands take up to an hour to register.
     // When creating, both a name and description are required.
