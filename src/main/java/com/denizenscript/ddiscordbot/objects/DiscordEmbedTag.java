@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.bukkit.Color;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -114,7 +115,7 @@ public class DiscordEmbedTag implements ObjectTag {
                     fieldMap.putObject("title", new ElementTag(field.getName()));
                 }
                 if (field.getValue() != null) {
-                    fieldMap.putObject("title", new ElementTag(field.getValue()));
+                    fieldMap.putObject("value", new ElementTag(field.getValue()));
                 }
                 fieldMap.putObject("inline", new ElementTag(field.isInline()));
                 fields.addObject(fieldMap);
@@ -188,8 +189,8 @@ public class DiscordEmbedTag implements ObjectTag {
             }
         }
         if (fields != null) {
-            ListTag fieldList = ListTag.getListFor(fields, context);
-            for (ObjectTag field : fieldList.objectForms) {
+            Collection<ObjectTag> fieldList = CoreUtilities.objectToList(fields, context);
+            for (ObjectTag field : fieldList) {
                 MapTag fieldMap = MapTag.getMapFor(field, context);
                 if (fieldMap != null) {
                     ObjectTag fieldTitle = fieldMap.getObject("title");
@@ -267,7 +268,8 @@ public class DiscordEmbedTag implements ObjectTag {
         // timestamp: TimeTag
         // title: ElementTag
         // title_url: ElementTag of a URL (requires title set)
-        // See also <@link tag DiscordEmbedTag.add_field.value> and <@link tag DiscordEmbedTag.add_inline_field.value>.
+        // fields: generally don't use directly, but can be set to a list of maps wherein each sub-map has keys "title", "value", and "inline" (boolean)
+        // For fields, instead prefer <@link tag DiscordEmbedTag.add_field.value> and <@link tag DiscordEmbedTag.add_inline_field.value>.
         // -->
         tagProcessor.registerTag(DiscordEmbedTag.class, "with", (attribute, object) -> {
             DiscordEmbedTag embed = object.duplicate();
