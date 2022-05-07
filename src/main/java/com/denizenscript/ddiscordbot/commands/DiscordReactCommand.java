@@ -51,6 +51,9 @@ public class DiscordReactCommand extends AbstractDiscordCommand implements Holda
     // 'Add' requires basic add-reaction permissions.
     // 'Clear' requires 'manage messages' permission.
     //
+    // For custom emoji, the ID is the numeric ID. For default emoji, the ID is the unicode symbol of the emoji.
+    // In both cases, you can copy the correct value by typing the emoji into Discord and prefixing it with a "\" symbol, like "\:myemoji:" and sending it - the sent message will show the internal form of the emoji.
+    //
     // @Tags
     // <DiscordMessageTag.reactions>
     //
@@ -60,7 +63,7 @@ public class DiscordReactCommand extends AbstractDiscordCommand implements Holda
     //
     // @Usage
     // Use to remove a reaction from a previously sent message.
-    // - ~discordreact id:mybot message:<[some_message]> remove reaction:middle_finger
+    // - ~discordreact id:mybot message:<[some_message]> remove reaction:<[some_reaction_emoji]>
     //
     //
     // @Usage
