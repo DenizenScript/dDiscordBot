@@ -70,17 +70,17 @@ public class DiscordTextInputTag implements ObjectTag {
         if (textInput.getId() != null) {
             textInputData.putObject("id", new ElementTag(textInput.getId()));
         }
-        if(textInput.getMinLength() != -1) {
+        if (textInput.getMinLength() != -1) {
             textInputData.putObject("min_length", new ElementTag(textInput.getMinLength()));
         }
-        if(textInput.getMaxLength() != -1) {
+        if (textInput.getMaxLength() != -1) {
             textInputData.putObject("max_length", new ElementTag(textInput.getMaxLength()));
         }
         textInputData.putObject("is_required", new ElementTag(textInput.isRequired()));
-        if(textInput.getValue() != null) {
+        if (textInput.getValue() != null) {
             textInputData.putObject("value", new ElementTag(textInput.getValue()));
         }
-        if(textInput.getPlaceHolder() != null) {
+        if (textInput.getPlaceHolder() != null) {
             textInputData.putObject("placeholder", new ElementTag(textInput.getPlaceHolder()));
         }
     }
@@ -93,22 +93,20 @@ public class DiscordTextInputTag implements ObjectTag {
         ObjectTag label = textInputData.getObject("label");
         ObjectTag style = textInputData.getObject("style");
         TextInputStyle textInputStyle = TextInputStyle.SHORT;
-        if(style != null) {
-            textInputStyle = TextInputStyle.valueOf(style.toString().toUpperCase());
+        if (style != null) {
+            textInputStyle = style.asElement().asEnum(TextInputStyle.class);
         }
-
         TextInput.Builder textInput = TextInput.create(id.toString(), label.toString(), textInputStyle);
-
         ObjectTag minLength = textInputData.getObject("min_length");
-        if(minLength != null) {
+        if (minLength != null) {
             textInput.setMinLength(Integer.parseInt(minLength.toString()));
         }
         ObjectTag maxLength = textInputData.getObject("max_length");
-        if(maxLength != null) {
+        if (maxLength != null) {
             textInput.setMaxLength(Integer.parseInt(maxLength.toString()));
         }
         ObjectTag isRequired = textInputData.getObject("is_required");
-        if(isRequired != null) {
+        if (isRequired != null) {
             textInput.setRequired(Boolean.parseBoolean(isRequired.toString()));
         }
         ObjectTag value = textInputData.getObject("value");
@@ -150,7 +148,7 @@ public class DiscordTextInputTag implements ObjectTag {
                 }
                 ObjectTag val = entry.getValue();
                 if (val == null) {
-                    attribute.echoError("button.with_map[...] value is invalid.");
+                    attribute.echoError("text_input.with_map[...] value is invalid.");
                     return null;
                 }
                 textInput.textInputData.putObject(key, val);
@@ -168,14 +166,14 @@ public class DiscordTextInputTag implements ObjectTag {
         // style: short or paragraph
         // id: ElementTag
         // label: ElementTag
-        // min_length: ElementTag(number)
-        // max_length: ElementTag(number)
-        // is_required: ElementTag(boolean)
+        // min_length: ElementTag(Number)
+        // max_length: ElementTag(Number)
+        // is_required: ElementTag(Boolean)
         // value: ElementTag
         // placeholder: ElementTag
         // -->
         tagProcessor.registerTag(DiscordTextInputTag.class, "with", (attribute, object) -> {
-            DiscordTextInputTag button = object.duplicate();
+            DiscordTextInputTag textInput = object.duplicate();
             if (!attribute.hasParam()) {
                 attribute.echoError("Invalid text input.with[...] tag: must have an input value.");
                 return null;
@@ -194,8 +192,8 @@ public class DiscordTextInputTag implements ObjectTag {
                 attribute.echoError("text input.with[...].as[...] value is invalid.");
                 return null;
             }
-            button.textInputData.putObject(key, val);
-            return button;
+            textInput.textInputData.putObject(key, val);
+            return textInput;
         });
 
         // <--[tag]

@@ -34,7 +34,7 @@ public class DiscordModalCommand extends AbstractDiscordCommand implements Holda
     // @Syntax discordmodal [interaction:<interaction>] [name:<name>] [rows:<rows>] (title:<title>)
     // @Required 3
     // @Maximum 4
-    // @Short Manages Discord modals
+    // @Short Manages Discord modals.
     // @Plugin dDiscordBot
     // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
@@ -44,9 +44,6 @@ public class DiscordModalCommand extends AbstractDiscordCommand implements Holda
     // You should usually defer an interaction before using a modal.
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
-    //
-    // @Tags
-    // <entry[saveName].command> returns the DiscordCommandTag of a slash command upon creation, when the command is ~waited for.
     //
     // @Usage
     // Use to create a modal from text replies.
@@ -64,7 +61,7 @@ public class DiscordModalCommand extends AbstractDiscordCommand implements Holda
         ElementTag title = scriptEntry.argForPrefixAsElement("title", "");
         ObjectTag rows = scriptEntry.requiredArgForPrefix("rows", ObjectTag.class);
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), interaction, name, rows);
+            Debug.report(scriptEntry, getName(), interaction, name, rows, title);
         }
         Runnable runner = () -> {
             try {
@@ -72,33 +69,21 @@ public class DiscordModalCommand extends AbstractDiscordCommand implements Holda
                     handleError(scriptEntry, "Invalid interaction! Has it expired?");
                     return;
                 }
-                else if (rows == null) {
-                    handleError(scriptEntry, "Must have action rows!");
-                    return;
-                }
-                else if (name == null) {
-                    handleError(scriptEntry, "Must have a name!");
-                    return;
-                }
-                List<ActionRow> actionRows = DiscordModalCommand.createRows(scriptEntry, rows);
-
-                if(actionRows.isEmpty() || actionRows == null) {
+                List<ActionRow> actionRows = createRows(scriptEntry, rows);
+                if(actionRows == null || actionRows.isEmpty()) {
                     handleError(scriptEntry, "Invalid action rows!");
                     return;
                 }
-
                 if (!interaction.interaction.isAcknowledged()) {
-                    ModalCallbackAction action;
                     IModalCallback replyTo = (IModalCallback) interaction.interaction;
 
-                    Modal modal = Modal.create(name.toString(), title == null ? "" : title.toString())
+                    Modal modal = Modal.create(name.toString(), title.toString())
                             .addActionRows(actionRows)
                             .build();
 
-                    action = replyTo.replyModal(modal);
+                    ModalCallbackAction action = replyTo.replyModal(modal);
                     action.complete();
                 }
-
             }
             catch (Exception ex) {
                 handleError(scriptEntry, ex);
