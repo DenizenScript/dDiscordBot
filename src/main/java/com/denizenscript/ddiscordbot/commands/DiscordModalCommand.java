@@ -83,6 +83,9 @@ public class DiscordModalCommand extends AbstractDiscordCommand implements Holda
 
                     ModalCallbackAction action = replyTo.replyModal(modal);
                     action.complete();
+                } else {
+                    handleError(scriptEntry, "Interaction already acknowledged!");
+                    return;
                 }
             }
             catch (Exception ex) {
