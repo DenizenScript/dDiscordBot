@@ -58,8 +58,8 @@ public class DenizenDiscordBot extends JavaPlugin {
             DenizenCore.commandRegistry.registerCommand(DiscordCreateChannelCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordCreateThreadCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordInteractionCommand.class);
-            DenizenCore.commandRegistry.registerCommand(DiscordModalCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordMessageCommand.class);
+            DenizenCore.commandRegistry.registerCommand(DiscordModalCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordReactCommand.class);
             // Events
             ScriptEvent.registerScriptEvent(DiscordButtonClickedScriptEvent.class);
