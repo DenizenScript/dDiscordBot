@@ -297,7 +297,7 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                                         }
                                         */
                                 else {
-                                    OptionData optionData = new OptionData(optionType, optionName.asString(), optionDescription.asString(), optionIsRequired == null ? true : optionIsRequired.asBoolean());
+                                    OptionData optionData = new OptionData(optionType, optionName.asString(), optionDescription.asString(), optionIsRequired == null || optionIsRequired.asBoolean());
                                     if (optionChoices != null) {
                                         if (!optionType.canSupportChoices()) {
                                             Debug.echoError(scriptEntry, "Command options with choices must be STRING, INTEGER, or NUMBER!");

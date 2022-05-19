@@ -152,7 +152,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
         ObjectTag rows = scriptEntry.argForPrefix("rows", ObjectTag.class, true);
         if (scriptEntry.dbCallShouldDebug()) {
             // Note: attachFileText intentionally at end
-            Debug.report(scriptEntry, getName(), bot, channel, message, user, reply, noMention, rows, attachFileName, attachFileText);
+            Debug.report(scriptEntry, getName(), bot, channel, message, user, reply, db("no_mention", noMention), rows, attachFileName, attachFileText);
         }
         if (message == null && attachFileName == null) {
             throw new InvalidArgumentsRuntimeException("Must have a message!");
@@ -271,8 +271,13 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
             if (noMention) {
                 action = action.mentionRepliedUser(false);
             }
-            Message sentMessage = action.complete();
-            scriptEntry.addObject("message", new DiscordMessageTag(bot.bot, sentMessage));
+            try {
+                Message sentMessage = action.complete();
+                scriptEntry.addObject("message", new DiscordMessageTag(bot.bot, sentMessage));
+            }
+            catch (Throwable ex) {
+                handleError(scriptEntry, ex);
+            }
         };
         if (scriptEntry.shouldWaitFor()) {
             Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
