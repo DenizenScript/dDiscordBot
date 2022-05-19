@@ -170,7 +170,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
                 }
                 catch (Exception ex) {
                     if (CoreConfiguration.debugVerbose) {
-                        Debug.echoError(ex);
+                        instance.handleError(scriptEntry, ex);
                     }
                     instance.handleError(scriptEntry, "Discord full connection attempt failed.");
                     Bukkit.getScheduler().scheduleSyncDelayedTask(DenizenDiscordBot.instance, () -> {
@@ -186,8 +186,8 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
             catch (Exception ex) {
                 Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
                     DenizenDiscordBot.instance.connections.remove(conn.botID);
+                    Debug.echoError(ex);
                 });
-                Debug.echoError(ex);
             }
             Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
                 conn.flags = SavableMapFlagTracker.loadFlagFile(flagFilePathFor(conn.botID), true);

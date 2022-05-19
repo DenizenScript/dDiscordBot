@@ -67,9 +67,7 @@ public class DiscordTextInputTag implements ObjectTag {
         textInputData = new MapTag();
         textInputData.putObject("style", new ElementTag(textInput.getStyle().name()));
         textInputData.putObject("label", new ElementTag(textInput.getLabel()));
-        if (textInput.getId() != null) {
-            textInputData.putObject("id", new ElementTag(textInput.getId()));
-        }
+        textInputData.putObject("id", new ElementTag(textInput.getId()));
         if (textInput.getMinLength() != -1) {
             textInputData.putObject("min_length", new ElementTag(textInput.getMinLength()));
         }
@@ -113,7 +111,6 @@ public class DiscordTextInputTag implements ObjectTag {
         textInput.setValue(value == null ? null : value.toString());
         ObjectTag placeholder = textInputData.getObject("placeholder");
         textInput.setPlaceholder(placeholder == null ? null : placeholder.toString());
-
         return textInput.build();
     }
 
@@ -175,21 +172,21 @@ public class DiscordTextInputTag implements ObjectTag {
         tagProcessor.registerTag(DiscordTextInputTag.class, "with", (attribute, object) -> {
             DiscordTextInputTag textInput = object.duplicate();
             if (!attribute.hasParam()) {
-                attribute.echoError("Invalid text input.with[...] tag: must have an input value.");
+                attribute.echoError("Invalid text_input.with[...] tag: must have an input value.");
                 return null;
             }
             String key = CoreUtilities.toLowerCase(attribute.getParam());
             if (!acceptedWithKeys.contains(key)) {
-                attribute.echoError("Invalid text input.with[...] tag: unknown key '" + key + "' given.");
+                attribute.echoError("Invalid text_input.with[...] tag: unknown key '" + key + "' given.");
                 return null;
             }
             attribute.fulfill(1);
             if (!attribute.startsWith("as") || !attribute.hasParam()) {
-                attribute.echoError("text input.with[...] must be followed by as[...].");
+                attribute.echoError("text_input.with[...] must be followed by as[...].");
             }
             ObjectTag val = attribute.getParamObject();
             if (val == null) {
-                attribute.echoError("text input.with[...].as[...] value is invalid.");
+                attribute.echoError("text_input.with[...].as[...] value is invalid.");
                 return null;
             }
             textInput.textInputData.putObject(key, val);

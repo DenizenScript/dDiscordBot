@@ -108,7 +108,6 @@
                                     <include>org.slf4j:**</include>
                                     <include>com.squareup.okio:**</include>
                                     <include>org.jetbrains.kotlin:**</include>
-                                    <include>org.jetbrains:annotations:**</include>
                                     <include>net.sf.trove4j:**</include>
                                 </includes>
                             </artifactSet>
@@ -172,6 +171,10 @@
                                 <relocation>
                                     <pattern>gnu</pattern>
                                     <shadedPattern>com.denizenscript.shaded.gnu</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>kotlin</pattern>
+                                    <shadedPattern>com.denizenscript.shaded.kotlin</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

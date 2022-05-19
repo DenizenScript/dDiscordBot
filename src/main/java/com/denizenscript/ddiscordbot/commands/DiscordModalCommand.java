@@ -39,14 +39,22 @@ public class DiscordModalCommand extends AbstractDiscordCommand implements Holda
     // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
     //
+    // @Description
     // With this command you can respond to an interaction using a modal.
+    // A "modal" is a popup window that presents the user with a form to fill out.
     //
-    // You should usually defer an interaction before using a modal.
+    // You can specify the modal's internal name for matching with in events.
+    // You can specify the title as text to display to the user.
+    // You can specify rows of user-inputs using <@link objecttype DiscordTextInputTag>. At time of writing, Selection input is not supported.
+    //
+    // You can listen to the responses to forms using <@link event discord modal submitted>.
+    //
+    // You should usually defer an interaction using <@link command discordinteraction> before using a modal.
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
     // @Usage
-    // Use to create a modal from text replies.
+    // Use to create a modal that only requests one single direct text input.
     // - definemap rows:
     //      1:
     //          1: <discord_text_input.with[name].as[textinput].with[label].as[Type here!].with[style].as[short]>
@@ -76,14 +84,11 @@ public class DiscordModalCommand extends AbstractDiscordCommand implements Holda
                 }
                 if (!interaction.interaction.isAcknowledged()) {
                     IModalCallback replyTo = (IModalCallback) interaction.interaction;
-
-                    Modal modal = Modal.create(name.toString(), title.toString())
-                            .addActionRows(actionRows)
-                            .build();
-
+                    Modal modal = Modal.create(name.toString(), title.toString()).addActionRows(actionRows).build();
                     ModalCallbackAction action = replyTo.replyModal(modal);
                     action.complete();
-                } else {
+                }
+                else {
                     handleError(scriptEntry, "Interaction already acknowledged!");
                     return;
                 }

@@ -4,13 +4,11 @@ import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordInteractionTag;
-import com.denizenscript.ddiscordbot.objects.DiscordSelectionTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 
 import java.util.Map;
 import java.util.stream.Collectors;

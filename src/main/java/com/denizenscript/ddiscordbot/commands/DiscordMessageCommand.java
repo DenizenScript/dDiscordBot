@@ -57,7 +57,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     //
     // You can use "attach_file_name:<name>" and "attach_file_text:<text>" to attach a text file with longer content than a normal message allows.
     //
-    // You can use "rows" to attach action rows of components, such as buttons to the message.
+    // You can use "rows" to attach action rows of components, such as buttons to the message, using <@link objecttype DiscordButtonTag>, and <@link objecttype DiscordSelectionTag>.
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
