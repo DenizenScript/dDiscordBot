@@ -105,8 +105,8 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     @Override
     public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
         for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("message")) {
-                scriptEntry.addObject("message", arg.getRawObject());
+            if (!scriptEntry.hasObject("raw_message")) {
+                scriptEntry.addObject("raw_message", arg.getRawObject());
             }
             else {
                 arg.reportUnhandled();
@@ -142,7 +142,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     public void execute(ScriptEntry scriptEntry) {
         DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
         DiscordChannelTag channel = scriptEntry.argForPrefix("channel", DiscordChannelTag.class, true);
-        ObjectTag message = scriptEntry.getObjectTag("message");
+        ObjectTag message = scriptEntry.getObjectTag("raw_message");
         DiscordUserTag user = scriptEntry.argForPrefix("user", DiscordUserTag.class, true);
         DiscordMessageTag reply = scriptEntry.argForPrefix("reply", DiscordMessageTag.class, true);
         DiscordMessageTag edit = scriptEntry.argForPrefix("edit", DiscordMessageTag.class, true);
