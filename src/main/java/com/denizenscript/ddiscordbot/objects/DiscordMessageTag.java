@@ -316,7 +316,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         // -->
         tagProcessor.registerTag(ListTag.class, "mentioned_users", (attribute, object) -> {
             ListTag list = new ListTag();
-            for (User user : object.getMessage().getMentionedUsers()) {
+            for (User user : object.getMessage().getMentions().getUsers()) {
                 list.addObject(new DiscordUserTag(object.bot, user));
             }
             return list;

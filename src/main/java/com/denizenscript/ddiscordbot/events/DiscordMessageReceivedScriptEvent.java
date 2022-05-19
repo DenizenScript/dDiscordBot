@@ -95,7 +95,7 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
             case "mentions":
                 DenizenDiscordBot.oldMessageContexts.warn((TagContext) null);
                 ListTag list = new ListTag();
-                for (User user : getEvent().getMessage().getMentionedUsers()) {
+                for (User user : getEvent().getMessage().getMentions().getUsers()) {
                     list.addObject(new DiscordUserTag(botID, user));
                 }
                 return list;
