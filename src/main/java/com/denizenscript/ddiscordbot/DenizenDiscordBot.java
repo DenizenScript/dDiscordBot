@@ -59,6 +59,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             DenizenCore.commandRegistry.registerCommand(DiscordCreateThreadCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordInteractionCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordMessageCommand.class);
+            DenizenCore.commandRegistry.registerCommand(DiscordModalCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordReactCommand.class);
             // Events
             ScriptEvent.registerScriptEvent(DiscordButtonClickedScriptEvent.class);
@@ -69,6 +70,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             ScriptEvent.registerScriptEvent(DiscordMessageReactionAddScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordMessageReactionRemoveScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordMessageReceivedScriptEvent.class);
+            ScriptEvent.registerScriptEvent(DiscordModalSubmittedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordSelectionUsedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordSlashCommandScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordThreadArchivedScriptEvent.class);
@@ -89,6 +91,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             ObjectFetcher.registerWithObjectFetcher(DiscordReactionTag.class, DiscordReactionTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordRoleTag.class, DiscordRoleTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordSelectionTag.class, DiscordSelectionTag.tagProcessor);
+            ObjectFetcher.registerWithObjectFetcher(DiscordTextInputTag.class, DiscordTextInputTag.tagProcessor);
             ObjectFetcher.registerWithObjectFetcher(DiscordUserTag.class, DiscordUserTag.tagProcessor);
             // Extension properties
             PropertyParser.registerProperty(DiscordTimeTagProperties.class, TimeTag.class);
@@ -255,6 +258,21 @@ public class DenizenDiscordBot extends JavaPlugin {
                     return new DiscordSelectionTag();
                 }
                 return DiscordSelectionTag.valueOf(attribute.getParam(), attribute.context);
+            });
+            // <--[tag]
+            // @attribute <discord_text_input[(<button>)]>
+            // @returns DiscordTextInputTag
+            // @plugin dDiscordBot
+            // @description
+            // Returns a blank DiscordTextInputTag instance, to be filled with data via the with.as tag.
+            // Or, if given an input, returns a Discord TextInput object constructed from the input value.
+            // Refer to <@link objecttype DiscordTextInputTag>.
+            // -->
+            TagManager.registerTagHandler(DiscordTextInputTag.class, "discord_text_input", (attribute) -> {
+                if (!attribute.hasParam()) {
+                    return new DiscordTextInputTag();
+                }
+                return DiscordTextInputTag.valueOf(attribute.getParam(), attribute.context);
             });
             // <--[tag]
             // @attribute <discord_user[<user>]>
