@@ -57,7 +57,7 @@ public class DiscordModalCommand extends AbstractDiscordCommand implements Holda
     // Use to create a modal that only requests one single direct text input.
     // - definemap rows:
     //      1:
-    //          1: <discord_text_input.with[name].as[textinput].with[label].as[Type here!].with[style].as[short]>
+    //          1: <discord_text_input.with[id].as[textinput].with[label].as[Type here!].with[style].as[short]>
     // - ~discordmodal interaction:<context.interaction> name:example_modal title:Modal! rows:<[rows]>
     //
     // -->

@@ -31,32 +31,35 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
 
     public DiscordCommandCommand() {
         setName("discordcommand");
-        setSyntax("discordcommand [id:<id>] [create/perms/delete] (group:<group>) (name:<name>) (description:<description>) (options:<options>) (enabled:{true}/false) (enable_for:<list>) (disable_for:<list>)");
-        setRequiredArguments(3, 9);
-        setPrefixesHandled("id");
+        setSyntax("discordcommand [id:<id>] [create/perms/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>) (enabled:{true}/false) (enable_for:<list>) (disable_for:<list>)");
+        setRequiredArguments(3, 10);
+        setPrefixesHandled("id", "type");
         isProcedural = false;
     }
 
     // <--[command]
     // @Name discordcommand
-    // @Syntax discordcommand [id:<id>] [create/perms/delete] (group:<group>) (name:<name>) (description:<description>) (options:<options>) (enabled:{true}/false) (enable_for:<list>) (disable_for:<list>)
+    // @Syntax discordcommand [id:<id>] [create/perms/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>) (enabled:{true}/false) (enable_for:<list>) (disable_for:<list>)
     // @Required 3
-    // @Maximum 9
-    // @Short Manages Discord slash commands.
+    // @Maximum 10
+    // @Short Manages Discord application commands.
     // @Plugin dDiscordBot
     // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
     //
     // @Description
-    // Manages Discord slash commands.
+    // Manages Discord application commands.
     //
-    // You can create a new slash command, edit the permissions of an existing command, or delete an existing command.
+    // You can create a new command, edit the permissions of an existing command, or delete an existing command.
     //
-    // To create (or delete) a command in a specific Discord guild, use the "group" argument. If not present, a global command will be created. NOTE: Global slash commands take up to an hour to register.
+    // To create (or delete) a command in a specific Discord guild, use the "group" argument. If not present, a global command will be created. NOTE: Global commands take up to an hour to register.
     // When creating, both a name and description are required.
     //
+    // Commands can be slash commands - activated via typing "/", message commands - activated by right-clicking a message, or user commands - activated by right-clicking a user.
+    // "Description" and "options" are only valid for slash commands.
+    //
     // The "options" argument controls the command parameters. It is a MapTag of ordered MapTags that can sometimes hold ordered MapTags. It is recommended to use <@link command definemap> or a data script key when creating commands.
-    // All option MapTags must have "type", "name", and "description" keys, with an optional "required" key (defaulting to true). The "type" key can be one of: STRING, INTEGER, BOOLEAN, USER, CHANNEL, ROLE, MENTIONABLE.
+    // All option MapTags must have "type", "name", and "description" keys, with an optional "required" key (defaulting to true). The "type" key can be one of: STRING, INTEGER, BOOLEAN, USER, CHANNEL, ROLE, MENTIONABLE, NUMBER, ATTACHMENT.
     // Additionally, the option map can include a "choices" key, which is a MapTag of ordered MapTags that have a "name" (what displays to the user) and a "value" (what gets passed to the client).
     //
     // You can use the "enabled" argument to set whether the command should be enabled for everyone by default.
@@ -66,7 +69,7 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
     // You DO NOT need to create a command on startup every time! Once a command is created, it will persist until you delete it.
     // Using the "create" instruction on an existing command will update it.
     //
-    // Slash commands and replies to interactions, have limitations. See <@link url https://gist.github.com/MinnDevelopment/b883b078fdb69d0e568249cc8bf37fe9>.
+    // Commands and replies to interactions have limitations. See <@link url https://gist.github.com/MinnDevelopment/b883b078fdb69d0e568249cc8bf37fe9>.
     //
     // See also Discord's internal API documentation for commands: <@link url https://discord.com/developers/docs/interactions/application-commands>
     //
@@ -75,7 +78,7 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
     // @Tags
-    // <entry[saveName].command> returns the DiscordCommandTag of a slash command upon creation, when the command is ~waited for.
+    // <entry[saveName].command> returns the DiscordCommandTag of a command upon creation, when the command is ~waited for.
     //
     // @Usage
     // Use to create a simple slash command without options, which is disabled by default, and save it.
@@ -212,8 +215,9 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
         ElementTag enabled = scriptEntry.getElement("enabled");
         ListTag enableFor = scriptEntry.getObjectTag("enable_for");
         ListTag disableFor = scriptEntry.getObjectTag("disable_for");
+        ElementTag type = scriptEntry.argForPrefixAsElement("type", "slash");
         if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), bot, commandInstruction, group, name, description, options, enabled, enableFor, disableFor);
+            Debug.report(scriptEntry, getName(), bot, commandInstruction, group, name, description, options, enabled, enableFor, disableFor, type);
         }
         if (group != null && group.bot == null) {
             group.bot = bot.bot;
@@ -240,8 +244,24 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                             scriptEntry.setFinished(true);
                             return;
                         }
-                        SlashCommandData data = Commands.slash(name.asString(), description.asString());
+                        CommandData data;
+                        switch (CoreUtilities.toLowerCase(type.asString())) {
+                            case "message":
+                                data = Commands.message(name.asString());
+                                break;
+                            case "user":
+                                data = Commands.user(name.asString());
+                                break;
+                            default:
+                                data = Commands.slash(name.asString(), description.asString());
+                                break;
+                        }
                         if (options != null) {
+                            if (!(data instanceof SlashCommandData) && !options.map.isEmpty()) {
+                                Debug.echoError(scriptEntry, "Command options are only valid for SLASH commands.");
+                                scriptEntry.setFinished(true);
+                                return;
+                            }
                             for (ObjectTag optionObj : options.map.values()) {
                                 MapTag option = optionObj.asType(MapTag.class, scriptEntry.getContext());
                                 ElementTag typeStr = (ElementTag) option.getObject("type");
@@ -266,7 +286,7 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                                     return;
                                 }
                                 if (optionType == OptionType.SUB_COMMAND) {
-                                    data.addSubcommands(new SubcommandData(optionName.asString(), optionDescription.asString()));
+                                    ((SlashCommandData) data).addSubcommands(new SubcommandData(optionName.asString(), optionDescription.asString()));
                                 }
                                         /*
                                         support these later
@@ -279,8 +299,8 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                                 else {
                                     OptionData optionData = new OptionData(optionType, optionName.asString(), optionDescription.asString(), optionIsRequired == null ? true : optionIsRequired.asBoolean());
                                     if (optionChoices != null) {
-                                        if (optionType != OptionType.STRING && optionType != OptionType.INTEGER) {
-                                            Debug.echoError(scriptEntry, "Command options with choices must be either STRING or INTEGER!");
+                                        if (!optionType.canSupportChoices()) {
+                                            Debug.echoError(scriptEntry, "Command options with choices must be STRING, INTEGER, or NUMBER!");
                                             scriptEntry.setFinished(true);
                                             return;
                                         }
@@ -298,15 +318,18 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                                                 scriptEntry.setFinished(true);
                                                 return;
                                             }
-                                            if (optionType == OptionType.STRING) {
-                                                optionData.addChoice(choiceName.asString(), choiceValue.asString());
+                                            if (optionType == OptionType.INTEGER) {
+                                                optionData.addChoice(choiceName.asString(), choiceValue.asInt());
+                                            }
+                                            else if (optionType == OptionType.NUMBER) {
+                                                optionData.addChoice(choiceName.asString(), choiceValue.asDouble());
                                             }
                                             else {
-                                                optionData.addChoice(choiceName.asString(), choiceValue.asInt());
+                                                optionData.addChoice(choiceName.asString(), choiceValue.asString());
                                             }
                                         }
                                     }
-                                    data.addOptions(optionData);
+                                    ((SlashCommandData) data).addOptions(optionData);
                                 }
                             }
                         }

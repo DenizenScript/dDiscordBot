@@ -10,21 +10,21 @@ import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
+public class DiscordApplicationCommandScriptEvent extends DiscordScriptEvent {
 
     // <--[event]
     // @Events
-    // discord slash command
+    // discord application|slash|message|user command
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
     // @Switch name:<command_name> to only process the event for a specified Discord slash command.
     //
-    // @Triggers when a Discord user uses a slash command.
+    // @Triggers when a Discord user uses an application command.
     //
     // @Plugin dDiscordBot
     //
@@ -40,16 +40,16 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
     //
     // -->
 
-    public static DiscordSlashCommandScriptEvent instance;
+    public static DiscordApplicationCommandScriptEvent instance;
 
-    public DiscordSlashCommandScriptEvent() {
+    public DiscordApplicationCommandScriptEvent() {
         instance = this;
-        registerCouldMatcher("discord slash command");
+        registerCouldMatcher("discord application|slash|message|user command");
         registerSwitches("channel", "group", "name");
     }
 
-    public SlashCommandInteractionEvent getEvent() {
-        return (SlashCommandInteractionEvent) event;
+    public GenericCommandInteractionEvent getEvent() {
+        return (GenericCommandInteractionEvent) event;
     }
 
     @Override
@@ -117,6 +117,6 @@ public class DiscordSlashCommandScriptEvent extends DiscordScriptEvent {
 
     @Override
     public String getName() {
-        return "DiscordSlashCommand";
+        return "DiscordApplicationCommand";
     }
 }

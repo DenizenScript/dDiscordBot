@@ -18,6 +18,7 @@ import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.utilities.scheduling.OneTimeSchedulable;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.context.UserContextInteraction;
 
 import java.util.HashMap;
 import java.util.List;
@@ -197,6 +198,21 @@ public class DiscordInteractionTag implements ObjectTag, FlaggableObject {
         // -->
         tagProcessor.registerTag(DiscordUserTag.class, "user", (attribute, object) -> {
             return new DiscordUserTag(object.bot, object.interaction.getUser());
+        });
+
+
+        // <--[tag]
+        // @attribute <DiscordInteractionTag.target_user>
+        // @returns DiscordUserTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the user being targeted by the interaction.
+        // -->
+        tagProcessor.registerTag(DiscordUserTag.class, "target_user", (attribute, object) -> {
+            if (object.interaction instanceof UserContextInteraction) {
+                return new DiscordUserTag(object.bot, ((UserContextInteraction) object.interaction).getTarget());
+            }
+            return null;
         });
     }
 

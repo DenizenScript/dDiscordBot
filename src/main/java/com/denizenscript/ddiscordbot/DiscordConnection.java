@@ -15,6 +15,8 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -129,12 +131,22 @@ public class DiscordConnection extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        autoHandle(event, DiscordSlashCommandScriptEvent.instance);
+        autoHandle(event, DiscordApplicationCommandScriptEvent.instance);
     }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         autoHandle(event, DiscordButtonClickedScriptEvent.instance);
+    }
+
+    @Override
+    public void onMessageContextInteraction(MessageContextInteractionEvent event) {
+        autoHandle(event, DiscordApplicationCommandScriptEvent.instance);
+    }
+
+    @Override
+    public void onUserContextInteraction(UserContextInteractionEvent event) {
+        autoHandle(event, DiscordApplicationCommandScriptEvent.instance);
     }
 
     @Override

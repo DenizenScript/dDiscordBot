@@ -72,7 +72,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             ScriptEvent.registerScriptEvent(DiscordMessageReceivedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordModalSubmittedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordSelectionUsedScriptEvent.class);
-            ScriptEvent.registerScriptEvent(DiscordSlashCommandScriptEvent.class);
+            ScriptEvent.registerScriptEvent(DiscordApplicationCommandScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordThreadArchivedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordThreadRevealedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordUserJoinsScriptEvent.class);
