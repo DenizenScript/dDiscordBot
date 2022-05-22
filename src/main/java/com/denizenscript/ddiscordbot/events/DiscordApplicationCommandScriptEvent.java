@@ -91,6 +91,8 @@ public class DiscordApplicationCommandScriptEvent extends DiscordScriptEvent {
                             result = new ElementTag(mapping.getAsString()); break;
                         case BOOLEAN: result = new ElementTag(mapping.getAsBoolean()); break;
                         case INTEGER: result = new ElementTag(mapping.getAsLong()); break;
+                        case NUMBER: result = new ElementTag(mapping.getAsDouble()); break;
+                        case ATTACHMENT: result = new ElementTag(mapping.getAsAttachment().getUrl()); break;
                         case CHANNEL: result = new DiscordChannelTag(botID, mapping.getAsMessageChannel()); break;
                         case MENTIONABLE: {
                             String mention = mapping.getAsMentionable().getAsMention();

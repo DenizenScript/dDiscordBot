@@ -18,6 +18,7 @@ import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.utilities.scheduling.OneTimeSchedulable;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.context.MessageContextInteraction;
 import net.dv8tion.jda.api.interactions.commands.context.UserContextInteraction;
 
 import java.util.HashMap;
@@ -200,17 +201,30 @@ public class DiscordInteractionTag implements ObjectTag, FlaggableObject {
             return new DiscordUserTag(object.bot, object.interaction.getUser());
         });
 
-
         // <--[tag]
         // @attribute <DiscordInteractionTag.target_user>
         // @returns DiscordUserTag
         // @plugin dDiscordBot
         // @description
-        // Returns the user being targeted by the interaction.
+        // Returns the user being targeted by a USER application interaction.
         // -->
         tagProcessor.registerTag(DiscordUserTag.class, "target_user", (attribute, object) -> {
             if (object.interaction instanceof UserContextInteraction) {
                 return new DiscordUserTag(object.bot, ((UserContextInteraction) object.interaction).getTarget());
+            }
+            return null;
+        });
+
+        // <--[tag]
+        // @attribute <DiscordInteractionTag.target_message>
+        // @returns DiscordMessageTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the message being targeted by a MESSAGE application interaction.
+        // -->
+        tagProcessor.registerTag(DiscordMessageTag.class, "target_message", (attribute, object) -> {
+            if (object.interaction instanceof MessageContextInteraction) {
+                return new DiscordMessageTag(object.bot, ((MessageContextInteraction) object.interaction).getTarget());
             }
             return null;
         });

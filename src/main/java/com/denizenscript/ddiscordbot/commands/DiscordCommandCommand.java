@@ -239,11 +239,6 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                 boolean isEnabled = enabled == null || enabled.asBoolean();
                 switch (commandInstructionEnum) {
                     case CREATE: {
-                        if (description == null) {
-                            Debug.echoError(scriptEntry, "Must specify a description!");
-                            scriptEntry.setFinished(true);
-                            return;
-                        }
                         CommandData data;
                         switch (CoreUtilities.toLowerCase(type.asString())) {
                             case "message":
@@ -253,6 +248,11 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                                 data = Commands.user(name.asString());
                                 break;
                             default:
+                                if (description == null) {
+                                    Debug.echoError(scriptEntry, "Must specify a description!");
+                                    scriptEntry.setFinished(true);
+                                    return;
+                                }
                                 data = Commands.slash(name.asString(), description.asString());
                                 break;
                         }
