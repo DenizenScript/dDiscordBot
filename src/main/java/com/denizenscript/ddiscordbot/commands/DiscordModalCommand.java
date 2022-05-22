@@ -49,9 +49,11 @@ public class DiscordModalCommand extends AbstractDiscordCommand implements Holda
     //
     // You can listen to the responses to forms using <@link event discord modal submitted>.
     //
-    // You should usually defer an interaction using <@link command discordinteraction> before using a modal.
+    // You cannot defer an interaction before using a modal. It must be sent immediately.
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
+    //
+    // Note that the interaction can be any button or application command, but cannot be a modal submission - you cannot reply to a modal submit with a second modal.
     //
     // @Usage
     // Use to create a modal that only requests one single direct text input.

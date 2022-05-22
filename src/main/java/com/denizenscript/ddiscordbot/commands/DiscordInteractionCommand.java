@@ -52,7 +52,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
     //
     // The "ephemeral" argument can be used to have the reply message be visible to that one user.
     //
-    // You should usually defer an interaction before replying.
+    // You can defer an interaction before replying, which is useful if your reply may take more than a few seconds to be selected.
     // If you defer, the 'ephemeral' option can only be set by the defer - you cannot change it with the later reply.
     // Replying to an interaction uses similar logic to normal messaging. See <@link command discordmessage>.
     // If you deferred without using 'ephemeral', the 'delete' option will delete the "Thinking..." message.

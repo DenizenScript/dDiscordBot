@@ -14,7 +14,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.Command;
 
-public class DiscordBotTag implements ObjectTag, FlaggableObject {
+public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
 
     // <--[ObjectType]
     // @name DiscordBotTag
@@ -270,5 +270,14 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject {
             this.prefix = prefix;
         }
         return this;
+    }
+
+    public void applyProperty(Mechanism mechanism) {
+        mechanism.echoError("Cannot apply properties to Discord bots.");
+    }
+
+    @Override
+    public void adjust(Mechanism mechanism) {
+        AbstractFlagTracker.tryFlagAdjusts(this, mechanism);
     }
 }
