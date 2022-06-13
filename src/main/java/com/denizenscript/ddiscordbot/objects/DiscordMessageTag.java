@@ -214,6 +214,9 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         // @plugin dDiscordBot
         // @description
         // Returns the full jump URL to this message.
+        // This returns link text that looks something like "https://discord.com/channels/315163488085475337/315163488085475337/980909305589026906"
+        // Where the URL is Discord's webserver, followed by Group ID, Channel ID, then Message ID.
+        // DM messages follow a slightly different but very similar format.
         // -->
         tagProcessor.registerTag(ElementTag.class, "url", (attribute, object) -> {
             return new ElementTag(object.getMessage().getJumpUrl());

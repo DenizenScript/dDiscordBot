@@ -77,17 +77,14 @@ public class DiscordButtonTag implements ObjectTag {
     }
 
     public Button build() {
-        ObjectTag id = buttonData.getObject("id");
+        ElementTag id = buttonData.getElement("id");
         if (id == null) {
             return null;
         }
-        ObjectTag label = buttonData.getObject("label");
-        ObjectTag emoji = buttonData.getObject("emoji");
-        ObjectTag style = buttonData.getObject("style");
-        ButtonStyle styleData = ButtonStyle.PRIMARY;
-        if (style != null) {
-            styleData = ButtonStyle.valueOf(style.toString().toUpperCase());
-        }
+        ElementTag label = buttonData.getElement("label");
+        ElementTag emoji = buttonData.getElement("emoji");
+        ElementTag style = buttonData.getElement("style", "PRIMARY");
+        ButtonStyle styleData = style.asEnum(ButtonStyle.class);
         return Button.of(styleData, id.toString(), label == null ? null : label.toString(), emoji == null ? null : Emoji.fromMarkdown(emoji.toString()));
     }
 

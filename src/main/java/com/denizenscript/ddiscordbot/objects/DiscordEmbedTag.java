@@ -126,18 +126,18 @@ public class DiscordEmbedTag implements ObjectTag {
 
     public EmbedBuilder build(TagContext context) {
         EmbedBuilder builder = new EmbedBuilder();
-        ObjectTag author_name = embedData.getObject("author_name");
-        ObjectTag author_url = embedData.getObject("author_url");
-        ObjectTag author_icon_url = embedData.getObject("author_icon_url");
-        ObjectTag color = embedData.getObject("color");
-        ObjectTag description = embedData.getObject("description");
-        ObjectTag footer = embedData.getObject("footer");
-        ObjectTag footer_icon = embedData.getObject("footer_icon");
-        ObjectTag image = embedData.getObject("image");
-        ObjectTag thumbnail = embedData.getObject("thumbnail");
-        ObjectTag timestamp = embedData.getObject("timestamp");
-        ObjectTag title = embedData.getObject("title");
-        ObjectTag title_url = embedData.getObject("title_url");
+        ElementTag author_name = embedData.getElement("author_name");
+        ElementTag author_url = embedData.getElement("author_url");
+        ElementTag author_icon_url = embedData.getElement("author_icon_url");
+        ColorTag color = embedData.getObjectAs("color", ColorTag.class, context);
+        ElementTag description = embedData.getElement("description");
+        ElementTag footer = embedData.getElement("footer");
+        ElementTag footer_icon = embedData.getElement("footer_icon");
+        ElementTag image = embedData.getElement("image");
+        ElementTag thumbnail = embedData.getElement("thumbnail");
+        TimeTag timestamp = embedData.getObjectAs("timestamp", TimeTag.class, context);
+        ElementTag title = embedData.getElement("title");
+        ElementTag title_url = embedData.getElement("title_url");
         ObjectTag fields = embedData.getObject("fields");
         if (author_name != null) {
             if (author_url != null) {
@@ -158,7 +158,7 @@ public class DiscordEmbedTag implements ObjectTag {
             }
         }
         if (color != null) {
-            builder.setColor(ColorTag.valueOf(color.toString(), context).getColor().asRGB());
+            builder.setColor(color.getColor().asRGB());
         }
         if (description != null) {
             builder.setDescription(description.toString());
@@ -178,7 +178,7 @@ public class DiscordEmbedTag implements ObjectTag {
             builder.setThumbnail(thumbnail.toString());
         }
         if (timestamp != null) {
-            builder.setTimestamp(TimeTag.valueOf(timestamp.toString(), context).instant);
+            builder.setTimestamp(timestamp.instant);
         }
         if (title != null) {
             if (title_url != null) {
@@ -193,10 +193,10 @@ public class DiscordEmbedTag implements ObjectTag {
             for (ObjectTag field : fieldList) {
                 MapTag fieldMap = MapTag.getMapFor(field, context);
                 if (fieldMap != null) {
-                    ObjectTag fieldTitle = fieldMap.getObject("title");
-                    ObjectTag fieldValue = fieldMap.getObject("value");
-                    ObjectTag fieldInline = fieldMap.getObject("inline");
-                    builder.addField(fieldTitle.toString(), fieldValue.toString(), fieldInline != null && fieldInline.toString().equals("true"));
+                    ElementTag fieldTitle = fieldMap.getElement("title");
+                    ElementTag fieldValue = fieldMap.getElement("value");
+                    ElementTag fieldInline = fieldMap.getElement("inline");
+                    builder.addField(fieldTitle.toString(), fieldValue.toString(), fieldInline != null && fieldInline.asBoolean());
                 }
             }
         }
@@ -334,14 +334,10 @@ public class DiscordEmbedTag implements ObjectTag {
             MapTag fieldMap = new MapTag();
             fieldMap.putObject("title", new ElementTag(title));
             fieldMap.putObject("value", new ElementTag(value));
-            ObjectTag fieldsData = embed.embedData.getObject("fields");
-            ListTag fieldList;
-            if (fieldsData == null) {
+            ListTag fieldList = embed.embedData.getObjectAs("fields", ListTag.class, attribute.context);
+            if (fieldList == null) {
                 fieldList = new ListTag();
                 embed.embedData.putObject("fields", fieldList);
-            }
-            else {
-                fieldList = ListTag.getListFor(fieldsData, attribute.context);
             }
             fieldList.addObject(fieldMap);
             return embed;
@@ -370,14 +366,10 @@ public class DiscordEmbedTag implements ObjectTag {
             fieldMap.putObject("title", new ElementTag(title));
             fieldMap.putObject("value", new ElementTag(value));
             fieldMap.putObject("inline", new ElementTag("true"));
-            ObjectTag fieldsData = embed.embedData.getObject("fields");
-            ListTag fieldList;
-            if (fieldsData == null) {
+            ListTag fieldList = embed.embedData.getObjectAs("fields", ListTag.class, attribute.context);
+            if (fieldList == null) {
                 fieldList = new ListTag();
                 embed.embedData.putObject("fields", fieldList);
-            }
-            else {
-                fieldList = ListTag.getListFor(fieldsData, attribute.context);
             }
             fieldList.addObject(fieldMap);
             return embed;

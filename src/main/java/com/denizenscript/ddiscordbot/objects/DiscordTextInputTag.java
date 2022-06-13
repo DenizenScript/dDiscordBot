@@ -84,32 +84,29 @@ public class DiscordTextInputTag implements ObjectTag {
     }
 
     public TextInput build() {
-        ObjectTag id = textInputData.getObject("id");
+        ElementTag id = textInputData.getElement("id");
         if (id == null) {
             return null;
         }
-        ObjectTag label = textInputData.getObject("label");
-        ObjectTag style = textInputData.getObject("style");
-        TextInputStyle textInputStyle = TextInputStyle.SHORT;
-        if (style != null) {
-            textInputStyle = style.asElement().asEnum(TextInputStyle.class);
-        }
+        ElementTag label = textInputData.getElement("label");
+        ElementTag style = textInputData.getElement("style", "SHORT");
+        TextInputStyle textInputStyle = style.asEnum(TextInputStyle.class);
         TextInput.Builder textInput = TextInput.create(id.toString(), label.toString(), textInputStyle);
-        ObjectTag minLength = textInputData.getObject("min_length");
+        ElementTag minLength = textInputData.getElement("min_length");
         if (minLength != null) {
-            textInput.setMinLength(Integer.parseInt(minLength.toString()));
+            textInput.setMinLength(minLength.asInt());
         }
-        ObjectTag maxLength = textInputData.getObject("max_length");
+        ElementTag maxLength = textInputData.getElement("max_length");
         if (maxLength != null) {
-            textInput.setMaxLength(Integer.parseInt(maxLength.toString()));
+            textInput.setMaxLength(maxLength.asInt());
         }
-        ObjectTag isRequired = textInputData.getObject("is_required");
+        ElementTag isRequired = textInputData.getElement("is_required");
         if (isRequired != null) {
-            textInput.setRequired(Boolean.parseBoolean(isRequired.toString()));
+            textInput.setRequired(isRequired.asBoolean());
         }
-        ObjectTag value = textInputData.getObject("value");
+        ElementTag value = textInputData.getElement("value");
         textInput.setValue(value == null ? null : value.toString());
-        ObjectTag placeholder = textInputData.getObject("placeholder");
+        ElementTag placeholder = textInputData.getElement("placeholder");
         textInput.setPlaceholder(placeholder == null ? null : placeholder.toString());
         return textInput.build();
     }

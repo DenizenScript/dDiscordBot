@@ -264,17 +264,17 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                             }
                             for (ObjectTag optionObj : options.map.values()) {
                                 MapTag option = optionObj.asType(MapTag.class, scriptEntry.getContext());
-                                ElementTag typeStr = (ElementTag) option.getObject("type");
+                                ElementTag typeStr = option.getElement("type");
                                 if (typeStr == null) {
                                     Debug.echoError(scriptEntry, "Command options must specify a type!");
                                     scriptEntry.setFinished(true);
                                     return;
                                 }
-                                OptionType optionType = OptionType.valueOf(typeStr.toString().toUpperCase());
-                                ElementTag optionName = (ElementTag) option.getObject("name");
-                                ElementTag optionDescription = (ElementTag) option.getObject("description");
-                                ElementTag optionIsRequired = (ElementTag) option.getObject("required");
-                                MapTag optionChoices = (MapTag) option.getObject("choices");
+                                OptionType optionType = typeStr.asEnum(OptionType.class);
+                                ElementTag optionName = option.getElement("name");
+                                ElementTag optionDescription = option.getElement("description");
+                                ElementTag optionIsRequired = option.getElement("required");
+                                MapTag optionChoices = option.getObjectAs("choices", MapTag.class, scriptEntry.context);
                                 if (optionName == null) {
                                     Debug.echoError(scriptEntry, "Command options must specify a name!");
                                     scriptEntry.setFinished(true);
@@ -306,8 +306,8 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                                         }
                                         for (Map.Entry<StringHolder, ObjectTag> subChoiceValue : optionChoices.map.entrySet()) {
                                             MapTag choice = subChoiceValue.getValue().asType(MapTag.class, scriptEntry.getContext());
-                                            ElementTag choiceName = (ElementTag) choice.getObject("name");
-                                            ElementTag choiceValue = (ElementTag) choice.getObject("value");
+                                            ElementTag choiceName = choice.getElement("name");
+                                            ElementTag choiceValue = choice.getElement("value");
                                             if (choiceName == null) {
                                                 Debug.echoError(scriptEntry, "Command option choices must specify a name!");
                                                 scriptEntry.setFinished(true);

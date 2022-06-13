@@ -94,8 +94,8 @@ public class DiscordSelectionTag implements ObjectTag {
     }
 
     public SelectMenu.Builder build(TagContext context) {
-        ObjectTag id = menuData.getObject("id");
-        ObjectTag placeholder = menuData.getObject("placeholder");
+        ElementTag id = menuData.getElement("id");
+        ElementTag placeholder = menuData.getElement("placeholder");
         if (id == null) {
             return null;
         }
@@ -103,14 +103,14 @@ public class DiscordSelectionTag implements ObjectTag {
         if (placeholder != null) {
             menu.setPlaceholder(placeholder.toString());
         }
-        MapTag options = (MapTag) menuData.getObject("options");
+        MapTag options = menuData.getObjectAs("options", MapTag.class, context);
         if (options != null) {
             for (ObjectTag optionObj : options.map.values()) {
                 MapTag option = optionObj.asType(MapTag.class, context);
-                ElementTag label = (ElementTag) option.getObject("label");
-                ElementTag value = (ElementTag) option.getObject("value");
-                ElementTag description = (ElementTag) option.getObject("description");
-                ElementTag emoji = (ElementTag) option.getObject("emoji");
+                ElementTag label = option.getElement("label");
+                ElementTag value = option.getElement("value");
+                ElementTag description = option.getElement("description");
+                ElementTag emoji = option.getElement("emoji");
                 Emoji emojiData = null;
                 if (emoji != null) {
                     emojiData = Emoji.fromMarkdown(emoji.toString());
