@@ -4,6 +4,7 @@ import com.denizenscript.ddiscordbot.commands.*;
 import com.denizenscript.ddiscordbot.events.*;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.ddiscordbot.properties.DiscordTimeTagProperties;
+import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.core.TimeTag;
 import com.denizenscript.denizencore.objects.properties.PropertyParser;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -95,6 +96,22 @@ public class DenizenDiscordBot extends JavaPlugin {
             ObjectFetcher.registerWithObjectFetcher(DiscordUserTag.class, DiscordUserTag.tagProcessor);
             // Extension properties
             PropertyParser.registerProperty(DiscordTimeTagProperties.class, TimeTag.class);
+
+            // <--[tag]
+            // @attribute <discord_bots>
+            // @returns ListTag(DiscordBotTag)
+            // @plugin dDiscordBot
+            // @description
+            // Returns a list of all Discord bots currently loaded in dDiscordBot.
+            // -->
+            TagManager.registerTagHandler(ListTag.class, "discord_bots", (attribute) -> {
+                ListTag bots = new ListTag();
+                for (String bot : connections.keySet()) {
+                    bots.addObject(new DiscordBotTag(bot));
+                }
+                return bots;
+            });
+
             // <--[tag]
             // @attribute <discord[<bot-id>]>
             // @returns DiscordBotTag
@@ -109,6 +126,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordBotTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_button[(<button>)]>
             // @returns DiscordButtonTag
@@ -124,6 +142,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordButtonTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_channel[<channel>]>
             // @returns DiscordChannelTag
@@ -139,6 +158,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordChannelTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_command[<command>]>
             // @returns DiscordCommandTag
@@ -154,6 +174,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordCommandTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_embed[(<embed>)]>
             // @returns DiscordEmbedTag
@@ -169,6 +190,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordEmbedTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_group[<group>]>
             // @returns DiscordGroupTag
@@ -184,6 +206,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordGroupTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_interaction[<interaction>]>
             // @returns DiscordInteractionTag
@@ -199,6 +222,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordInteractionTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_message[<message>]>
             // @returns DiscordMessageTag
@@ -214,6 +238,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordMessageTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_reaction[<reaction>]>
             // @returns DiscordReactionTag
@@ -229,6 +254,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordReactionTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_role[<role>]>
             // @returns DiscordRoleTag
@@ -244,6 +270,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordRoleTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_selection[(<menu>)]>
             // @returns DiscordSelectionTag
@@ -259,6 +286,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordSelectionTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_text_input[(<button>)]>
             // @returns DiscordTextInputTag
@@ -274,6 +302,7 @@ public class DenizenDiscordBot extends JavaPlugin {
                 }
                 return DiscordTextInputTag.valueOf(attribute.getParam(), attribute.context);
             });
+
             // <--[tag]
             // @attribute <discord_user[<user>]>
             // @returns DiscordUserTag
