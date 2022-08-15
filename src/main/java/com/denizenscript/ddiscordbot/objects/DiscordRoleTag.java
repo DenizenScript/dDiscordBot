@@ -9,10 +9,12 @@ import com.denizenscript.denizencore.flags.FlaggableObject;
 import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
+import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
 import java.awt.Color;
@@ -219,6 +221,21 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
                 return null;
             }
             return new ColorTag(color.getRed(), color.getGreen(), color.getBlue());
+        });
+
+        // <--[tag]
+        // @attribute <DiscordRoleTag.users>
+        // @returns ListTag(DiscordUserTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of all users with this role.
+        // -->
+        tagProcessor.registerTag(ListTag.class, "users", (attribute, object) -> {
+            ListTag result = new ListTag();
+            for (Member member : object.role.getGuild().getMembersWithRoles(object.role)) {
+                result.addObject(new DiscordUserTag(object.bot, member.getUser()));
+            }
+            return result;
         });
     }
 
