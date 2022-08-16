@@ -391,6 +391,31 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
             }
             return list;
         });
+        
+        // <--[tag]
+        // @attribute <DiscordUserTag.permissions[<group>]>
+        // @returns ListTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of permissions that the user has in a certain group. You can get a list of possible outputs here: <@link url https://ci.dv8tion.net/job/JDA5/javadoc/net/dv8tion/jda/api/Permission.html>
+        // -->
+        tagProcessor.registerTag(ListTag.class, "permissions", (attribute, object) -> {
+            if (!attribute.hasParam()) {
+                return null;
+            }
+            DiscordGroupTag group = attribute.paramAsType(DiscordGroupTag.class);
+            if (group == null) {
+                return null;
+            }
+            if (object.getUserForTag(attribute) == null) {
+                return null;
+            }
+            ListTag list = new ListTag();
+            for (Permission perm : group.getGuild().getMember(object.getUser()).getPermissions()) {
+                list.addObject(new ElementTag(perm.name()));
+            }
+            return list;
+        });
     }
 
     public static ObjectTagProcessor<DiscordUserTag> tagProcessor = new ObjectTagProcessor<>();
