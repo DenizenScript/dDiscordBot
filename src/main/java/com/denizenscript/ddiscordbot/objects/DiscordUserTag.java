@@ -412,7 +412,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
             }
             ListTag list = new ListTag();
             for (Permission perm : group.getGuild().getMember(object.getUser()).getPermissions()) {
-                list.addObject(new ElementTag(perm.name()));
+                list.addObject(new ElementTag(perm.name(), true));
             }
             return list;
         });
