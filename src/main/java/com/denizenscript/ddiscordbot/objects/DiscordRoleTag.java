@@ -220,6 +220,21 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
             }
             return new ColorTag(color.getRed(), color.getGreen(), color.getBlue());
         });
+        
+        // <--[tag]
+        // @attribute <DiscordRoleTag.permissions>
+        // @returns ListTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of permissions that the role provides for users. You can get a list of possible outputs here: <@link url https://ci.dv8tion.net/job/JDA5/javadoc/net/dv8tion/jda/api/Permission.html>
+        // -->
+        tagProcessor.registerTag(ListTag.class, "permissions", (attribute, object) -> {
+            ListTag list = new ListTag();
+            for (Permission perm : object.role.getPermissions()) {
+                list.addObject(new ElementTag(perm.name(), true));
+            }
+            return list;
+        });
     }
 
     public static ObjectTagProcessor<DiscordRoleTag> tagProcessor = new ObjectTagProcessor<>();
