@@ -16,6 +16,9 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.Command;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class DiscordGroupTag implements ObjectTag, FlaggableObject {
 
     // <--[ObjectType]
@@ -374,6 +377,25 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
                 return null;
             }
             return new ElementTag(bestMatch.getId());
+        });
+
+        // <--[tag]
+        // @attribute <DiscordGroupTag.users_with_roles[<role>|...]>
+        // @returns ListTag(DiscordUserTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of all users in the group who have all the specified roles.
+        // -->
+        tagProcessor.registerTag(ListTag.class, "users_with_roles", (attribute, object) -> {
+            if (!attribute.hasParam()) {
+                return null;
+            }
+            List<Role> roles = attribute.paramAsType(ListTag.class).filter(DiscordRoleTag.class, attribute.context).stream().map(roleTag -> roleTag.role).collect(Collectors.toList());
+            ListTag result = new ListTag();
+            for (Member member : object.guild.getMembersWithRoles(roles)) {
+                result.addObject(new DiscordUserTag(object.bot, member.getUser()));
+            }
+            return result;
         });
     }
 
