@@ -13,6 +13,7 @@ import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 
 import java.util.List;
@@ -388,6 +389,31 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
             ListTag list = new ListTag();
             for (Role role : group.getGuild().getMember(object.getUser()).getRoles()) {
                 list.addObject(new DiscordRoleTag(object.bot, role));
+            }
+            return list;
+        });
+
+        // <--[tag]
+        // @attribute <DiscordUserTag.permissions[<group>]>
+        // @returns ListTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of permissions that the user has in a certain group. You can get a list of possible outputs here: <@link url https://ci.dv8tion.net/job/JDA5/javadoc/net/dv8tion/jda/api/Permission.html>
+        // -->
+        tagProcessor.registerTag(ListTag.class, "permissions", (attribute, object) -> {
+            if (!attribute.hasParam()) {
+                return null;
+            }
+            DiscordGroupTag group = attribute.paramAsType(DiscordGroupTag.class);
+            if (group == null) {
+                return null;
+            }
+            if (object.getUserForTag(attribute) == null) {
+                return null;
+            }
+            ListTag list = new ListTag();
+            for (Permission perm : group.getGuild().getMember(object.getUser()).getPermissions()) {
+                list.addObject(new ElementTag(perm.name(), true));
             }
             return list;
         });
