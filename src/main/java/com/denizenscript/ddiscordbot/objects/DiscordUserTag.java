@@ -13,6 +13,7 @@ import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 
 import java.util.List;
@@ -391,7 +392,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
             }
             return list;
         });
-        
+
         // <--[tag]
         // @attribute <DiscordUserTag.permissions[<group>]>
         // @returns ListTag
