@@ -388,7 +388,6 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // -->
         tagProcessor.registerTag(ListTag.class, "users_with_roles", (attribute, object) -> {
             if (!attribute.hasParam()) {
-                attribute.echoError("Invalid group.users_with_roles[...] tag: must have an input value.");
                 return null;
             }
             List<Role> roles = attribute.paramAsType(ListTag.class).filter(DiscordRoleTag.class, attribute.context).stream().map(roleTag -> roleTag.role).collect(Collectors.toList());
