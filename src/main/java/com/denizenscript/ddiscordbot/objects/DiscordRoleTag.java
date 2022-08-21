@@ -283,11 +283,6 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
     }
 
     @Override
-    public String getObjectType() {
-        return "DiscordRole";
-    }
-
-    @Override
     public String identify() {
         if (bot != null) {
             return "discordrole@" + bot + "," + guild_id + "," + role_id;

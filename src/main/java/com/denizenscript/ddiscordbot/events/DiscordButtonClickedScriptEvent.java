@@ -75,12 +75,6 @@ public class DiscordButtonClickedScriptEvent extends DiscordScriptEvent {
             case "message":
                 return new DiscordMessageTag(botID, getEvent().getMessage());
         }
-
         return super.getContext(name);
-    }
-
-    @Override
-    public String getName() {
-        return "DiscordButtonClicked";
     }
 }

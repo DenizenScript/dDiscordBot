@@ -113,12 +113,6 @@ public class DiscordApplicationCommandScriptEvent extends DiscordScriptEvent {
                 return options;
             }
         }
-
         return super.getContext(name);
-    }
-
-    @Override
-    public String getName() {
-        return "DiscordApplicationCommand";
     }
 }

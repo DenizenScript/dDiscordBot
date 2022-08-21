@@ -84,9 +84,4 @@ public class DiscordModalSubmittedScriptEvent extends DiscordScriptEvent {
         }
         return super.getContext(name);
     }
-
-    @Override
-    public String getName() {
-        return "DiscordModalSubmitted";
-    }
 }

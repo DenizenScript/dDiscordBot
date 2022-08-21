@@ -105,9 +105,4 @@ public class DiscordMessageReceivedScriptEvent extends DiscordScriptEvent {
         }
         return super.getContext(name);
     }
-
-    @Override
-    public String getName() {
-        return "DiscordMessageReceived";
-    }
 }

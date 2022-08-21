@@ -250,11 +250,6 @@ public class DiscordSelectionTag implements ObjectTag {
     }
 
     @Override
-    public String getObjectType() {
-        return "DiscordSelection";
-    }
-
-    @Override
     public String identify() {
         return "discordselection@" + menuData.identify();
     }

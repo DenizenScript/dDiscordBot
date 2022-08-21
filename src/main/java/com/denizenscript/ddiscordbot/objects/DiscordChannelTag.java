@@ -449,11 +449,6 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
     }
 
     @Override
-    public String getObjectType() {
-        return "DiscordChannel";
-    }
-
-    @Override
     public String identify() {
         if (bot != null) {
             return "discordchannel@" + bot + "," + channel_id;

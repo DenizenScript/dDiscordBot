@@ -245,11 +245,6 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
     }
 
     @Override
-    public String getObjectType() {
-        return "Discord";
-    }
-
-    @Override
     public String identify() {
         return "discord@" + bot;
     }

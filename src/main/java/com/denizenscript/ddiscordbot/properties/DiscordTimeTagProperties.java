@@ -51,7 +51,7 @@ public class DiscordTimeTagProperties implements Property {
         // For example: <util.time_now.format_discord> or <util.time_now.format_discord[R]>
         // Note that style input, if used, is case sensitive.
         // -->
-        PropertyParser.<DiscordTimeTagProperties, ElementTag>registerTag(ElementTag.class, "format_discord", (attribute, object) -> {
+        PropertyParser.registerTag(DiscordTimeTagProperties.class, ElementTag.class, "format_discord", (attribute, object) -> {
             long stamp = object.time.millis() / 1000;
             if (attribute.hasParam()) {
                 return new ElementTag("<t:" + stamp + ":" + attribute.getParam() + ">");

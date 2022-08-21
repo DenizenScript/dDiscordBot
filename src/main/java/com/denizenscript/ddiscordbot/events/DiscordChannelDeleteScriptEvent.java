@@ -57,9 +57,4 @@ public class DiscordChannelDeleteScriptEvent extends DiscordScriptEvent {
         }
         return super.getContext(name);
     }
-
-    @Override
-    public String getName() {
-        return "DiscordChannelDeleted";
-    }
 }

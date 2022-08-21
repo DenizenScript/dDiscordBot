@@ -454,11 +454,6 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
     }
 
     @Override
-    public String getObjectType() {
-        return "DiscordMessage";
-    }
-
-    @Override
     public String identify() {
         if (bot != null) {
             return "discordmessage@" + bot + "," + channel_id + "," + message_id;

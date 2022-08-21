@@ -200,11 +200,6 @@ public class DiscordButtonTag implements ObjectTag {
     }
 
     @Override
-    public String getObjectType() {
-        return "DiscordButton";
-    }
-
-    @Override
     public String identify() {
         return "discordbutton@" + buttonData.identify();
     }

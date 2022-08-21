@@ -292,11 +292,6 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
     }
 
     @Override
-    public String getObjectType() {
-        return "DiscordReaction";
-    }
-
-    @Override
     public String identify() {
         return "discordreaction@" + bot + "," + channel_id + "," + message_id + "," + (emote.isEmoji() ? emote.getEmoji() : emote.getEmote().getId());
     }

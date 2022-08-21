@@ -427,11 +427,6 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
     }
 
     @Override
-    public String getObjectType() {
-        return "DiscordGroup";
-    }
-
-    @Override
     public String identify() {
         if (bot != null) {
             return "discordgroup@" + bot + "," + guild_id;

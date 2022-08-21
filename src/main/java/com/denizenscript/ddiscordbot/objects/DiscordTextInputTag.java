@@ -227,11 +227,6 @@ public class DiscordTextInputTag implements ObjectTag {
     }
 
     @Override
-    public String getObjectType() {
-        return "DiscordTextInput";
-    }
-
-    @Override
     public String identify() {
         return "discordtextinput@" + textInputData.identify();
     }

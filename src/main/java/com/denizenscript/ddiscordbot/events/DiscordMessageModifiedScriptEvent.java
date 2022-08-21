@@ -114,9 +114,4 @@ public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {
         }
         return super.getContext(name);
     }
-
-    @Override
-    public String getName() {
-        return "DiscordModifiedMessage";
-    }
 }

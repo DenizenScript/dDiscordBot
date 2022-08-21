@@ -447,11 +447,6 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
     }
 
     @Override
-    public String getObjectType() {
-        return "DiscordUser";
-    }
-
-    @Override
     public String identify() {
         if (bot != null) {
             return "discorduser@" + bot + "," + user_id;

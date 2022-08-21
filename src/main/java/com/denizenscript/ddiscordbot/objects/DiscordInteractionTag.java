@@ -250,11 +250,6 @@ public class DiscordInteractionTag implements ObjectTag, FlaggableObject {
     }
 
     @Override
-    public String getObjectType() {
-        return "DiscordInteraction";
-    }
-
-    @Override
     public String identify() {
         return "discordinteraction@" + bot + "," + interaction_id;
     }

@@ -73,9 +73,4 @@ public class DiscordMessageReactionRemoveScriptEvent extends DiscordScriptEvent 
         }
         return super.getContext(name);
     }
-
-    @Override
-    public String getName() {
-        return "DiscordMessageReactionRemoved";
-    }
 }

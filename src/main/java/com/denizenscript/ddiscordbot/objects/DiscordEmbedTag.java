@@ -415,11 +415,6 @@ public class DiscordEmbedTag implements ObjectTag {
     }
 
     @Override
-    public String getObjectType() {
-        return "DiscordEmbed";
-    }
-
-    @Override
     public String identify() {
         return "discordembed@" + embedData.identify();
     }

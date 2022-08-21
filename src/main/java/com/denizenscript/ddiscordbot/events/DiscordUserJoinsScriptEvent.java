@@ -57,9 +57,4 @@ public class DiscordUserJoinsScriptEvent extends DiscordScriptEvent {
         }
         return super.getContext(name);
     }
-
-    @Override
-    public String getName() {
-        return "DiscordUserJoins";
-    }
 }
