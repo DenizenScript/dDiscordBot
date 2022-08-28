@@ -6,6 +6,7 @@ import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizen.Denizen;
 import com.denizenscript.denizen.utilities.Utilities;
 import com.denizenscript.denizencore.objects.Argument;
+import com.denizenscript.denizencore.utilities.CoreConfiguration;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
@@ -215,9 +216,9 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
         Supplier<Boolean> requireMessageId = () -> requireObject.apply(messageId, "message_id");
         DiscordInstruction instructionEnum = DiscordInstruction.valueOf(instruction.asString().toUpperCase());
         if (instructionEnum == DiscordInstruction.CONNECT) {
-            if (code != null && scriptEntry.dbCallShouldDebug() && com.denizenscript.denizen.utilities.debugging.Debug.record) {
+            if (code != null && scriptEntry.dbCallShouldDebug() && CoreConfiguration.shouldRecordDebug) {
                 handleError(scriptEntry, "You almost recorded debug of your Discord token - record automatically disabled to protect you.");
-                com.denizenscript.denizen.utilities.debugging.Debug.record = false;
+                Debug.startRecording();
             }
         }
         Runnable executeCore = () -> {
