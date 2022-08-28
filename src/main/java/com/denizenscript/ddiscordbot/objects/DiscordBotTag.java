@@ -273,6 +273,6 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
 
     @Override
     public void adjust(Mechanism mechanism) {
-        AbstractFlagTracker.tryFlagAdjusts(this, mechanism);
+        tagProcessor.processMechanism(this, mechanism);
     }
 }
