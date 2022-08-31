@@ -388,6 +388,17 @@ public class DiscordEmbedTag implements ObjectTag {
         tagProcessor.registerTag(ElementTag.class, "output_length", (attribute, object) -> {
             return new ElementTag(object.duplicate().build(attribute.context).length());
         });
+
+        // <--[tag]
+        // @attribute <DiscordEmbedTag.to_json>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the raw Discord-compatible JSON text of this embed.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "to_json", (attribute, object) -> {
+            return new ElementTag(object.duplicate().build(attribute.context).build().toData().toString());
+        });
     }
 
     public static ObjectTagProcessor<DiscordEmbedTag> tagProcessor = new ObjectTagProcessor<>();
