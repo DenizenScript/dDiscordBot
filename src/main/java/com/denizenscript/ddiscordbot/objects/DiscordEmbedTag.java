@@ -394,7 +394,7 @@ public class DiscordEmbedTag implements ObjectTag {
         // @returns ElementTag
         // @plugin dDiscordBot
         // @description
-        // Returns the raw Discord-compatible JSON text of this embed.
+        // Returns the raw Discord-API-compatible JSON text of this embed.
         // -->
         tagProcessor.registerTag(ElementTag.class, "to_json", (attribute, object) -> {
             return new ElementTag(object.duplicate().build(attribute.context).build().toData().toString());

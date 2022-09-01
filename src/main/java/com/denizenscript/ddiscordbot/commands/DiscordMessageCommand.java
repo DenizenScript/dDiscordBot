@@ -50,8 +50,11 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     //
     // Command may fail if the bot does not have permission within the Discord group to send a message in that channel.
     //
-    // You can send the message to: a channel or user, or optionally in reply to a previous message.
+    // You can send the message to: a channel, user, or in reply to a previous message.
     // If sending as a reply, optionally use "no_mention" to disable the default reply pinging the original user.
+    //
+    // Channels can be specified as either a copied ID, or using any tag that returns a valid DiscordChannelTag.
+    // To get IDs, enable "Developer Mode" in your Discord settings, then right click on the channel and press "Copy ID".
     //
     // You can edit an existing message by using "edit:<message>".
     //
@@ -63,10 +66,11 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     //
     // @Tags
     // <entry[saveName].message> returns the DiscordMessageTag of the sent message, when the command is ~waited for.
+    // <discord[mybot].group[Denizen].channel[bot-spam]> is an example of a tag that will return an appropriate channel object for a named channel in a named group.
     //
     // @Usage
-    // Use to message a Discord channel.
-    // - ~discordmessage id:mybot channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!"
+    // Use to message a Discord channel with a copied channel ID.
+    // - ~discordmessage id:mybot channel:1234 "Hello world!"
     //
     // @Usage
     // Use to reply to a message from a message received event.
@@ -74,11 +78,11 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     //
     // @Usage
     // Use to message an embed to a Discord channel.
-    // - ~discordmessage id:mybot channel:<discord[mybot].group[Denizen].channel[bot-spam]> "<discord_embed[title=hi;description=this is an embed!]>"
+    // - ~discordmessage id:mybot channel:1234 "<discord_embed[title=hi;description=this is an embed!]>"
     //
     // @Usage
-    // Use to message a Discord channel and record the ID.
-    // - ~discordmessage id:mybot channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!" save:sent
+    // Use to message a Discord channel and record the new message ID.
+    // - ~discordmessage id:mybot channel:1234 "Hello world!" save:sent
     // - announce "Sent as <entry[sent].message.id>"
     //
     // @Usage
@@ -92,11 +96,11 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     // @Usage
     // Use to send a message and attach a button to it.
     // - define my_button <discord_button.with[style].as[primary].with[id].as[my_button].with[label].as[Hello]>
-    // - ~discordmessage id:mybot channel:<discord[mybot].channel[testing]> rows:<[my_button]> "Hello world!"
+    // - ~discordmessage id:mybot channel:<[channel]> rows:<[my_button]> "Hello world!"
     //
     // @Usage
     // Use to send a message to a Discord channel, then edit it after 5 seconds.
-    // - ~discordmessage id:mybot channel:<discord[mybot].group[Denizen].channel[bot-spam]> "Hello world!" save:msg
+    // - ~discordmessage id:mybot channel:<[channel]> "Hello world!" save:msg
     // - wait 5s
     // - ~discordmessage id:mybot edit:<entry[msg].message> "Goodbye!"
     //
