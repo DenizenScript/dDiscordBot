@@ -9,7 +9,7 @@ import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
-import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
@@ -85,7 +85,7 @@ public class DiscordButtonTag implements ObjectTag {
         ElementTag emoji = buttonData.getElement("emoji");
         ElementTag style = buttonData.getElement("style", "PRIMARY");
         ButtonStyle styleData = style.asEnum(ButtonStyle.class);
-        return Button.of(styleData, id.toString(), label == null ? null : label.toString(), emoji == null ? null : Emoji.fromMarkdown(emoji.toString()));
+        return Button.of(styleData, id.toString(), label == null ? null : label.toString(), emoji == null ? null : Emoji.fromUnicode(emoji.toString()));
     }
 
     public MapTag buttonData;

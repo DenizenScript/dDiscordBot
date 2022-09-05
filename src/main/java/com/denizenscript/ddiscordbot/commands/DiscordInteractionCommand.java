@@ -10,15 +10,16 @@ import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.callbacks.IDeferrableCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
-import net.dv8tion.jda.api.requests.restaction.WebhookMessageUpdateAction;
+import net.dv8tion.jda.api.requests.restaction.WebhookMessageCreateAction;
+import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.bukkit.Bukkit;
 
 import java.nio.charset.StandardCharsets;
@@ -148,51 +149,33 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                         if (message.shouldBeType(DiscordEmbedTag.class)) {
                             embed = message.asType(DiscordEmbedTag.class, scriptEntry.context).build(scriptEntry.getContext()).build();
                         }
+                        MessageRequest<?> action;
+                        InteractionHook hook = ((IDeferrableCallback) interaction.interaction).getHook();
+                        FileUpload fileUpload = null;
+                        if (attachFileName != null) {
+                            if (attachFileText != null) {
+                                fileUpload = FileUpload.fromData(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
+                            }
+                            else {
+                                handleError(scriptEntry, "Failed to process attachment - missing content?");
+                            }
+                        }
                         if (instructionEnum == DiscordInteractionInstruction.EDIT) {
-                            WebhookMessageUpdateAction<Message> action;
-                            InteractionHook hook = ((IDeferrableCallback) interaction.interaction).getHook();
                             if (embed != null) {
                                 action = hook.editOriginalEmbeds(embed);
                             }
                             else {
                                 action = hook.editOriginal(message.toString());
                             }
-                            if (attachFileName != null) {
-                                if (attachFileText != null) {
-                                    action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
-                                }
-                                else {
-                                    handleError(scriptEntry, "Failed to send attachment - missing content?");
-                                }
-                            }
-                            if (actionRows != null) {
-                                action = action.setActionRows(actionRows);
-                            }
-                            action.complete();
                         }
                         else if (interaction.interaction.isAcknowledged()) {
-                            WebhookMessageAction<Message> action;
-                            InteractionHook hook = ((IDeferrableCallback) interaction.interaction).getHook();
                             if (embed != null) {
                                 action = hook.sendMessageEmbeds(embed);
                             }
                             else {
                                 action = hook.sendMessage(message.toString());
                             }
-                            if (attachFileName != null) {
-                                if (attachFileText != null) {
-                                    action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
-                                }
-                                else {
-                                    handleError(scriptEntry, "Failed to send attachment - missing content?");
-                                }
-                            }
-                            if (actionRows != null) {
-                                action = action.addActionRows(actionRows);
-                            }
-                            action.complete();
                         } else {
-                            ReplyCallbackAction action;
                             IReplyCallback replyTo = (IReplyCallback) interaction.interaction;
                             if (embed != null) {
                                 action = replyTo.replyEmbeds(embed);
@@ -200,19 +183,22 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                             else {
                                 action = replyTo.reply(message.toString());
                             }
-                            if (attachFileName != null) {
-                                if (attachFileText != null) {
-                                    action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
-                                }
-                                else {
-                                    handleError(scriptEntry, "Failed to send attachment - missing content?");
-                                }
-                            }
-                            if (actionRows != null) {
-                                action = action.addActionRows(actionRows);
-                            }
-                            action = action.setEphemeral(ephemeral);
-                            action.complete();
+                            action = ((ReplyCallbackAction) action).setEphemeral(ephemeral);
+                        }
+                        if (fileUpload != null) {
+                            action = action.setFiles(fileUpload);
+                        }
+                        if (actionRows != null) {
+                            action = action.setComponents(actionRows);
+                        }
+                        if (action instanceof WebhookMessageEditAction<?>) {
+                            ((WebhookMessageEditAction<?>) action).complete();
+                        }
+                        else if (action instanceof WebhookMessageCreateAction<?>) {
+                            ((WebhookMessageCreateAction<?>) action).complete();
+                        }
+                        else {
+                            ((ReplyCallbackAction) action).complete();
                         }
                         break;
                     }

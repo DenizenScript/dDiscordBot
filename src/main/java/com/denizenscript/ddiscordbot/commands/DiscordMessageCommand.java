@@ -16,7 +16,10 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.bukkit.Bukkit;
 
 import java.nio.charset.StandardCharsets;
@@ -214,18 +217,23 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                     return;
                 }
             }
-            MessageAction action = null;
-            boolean isFile = false;
+            MessageRequest<?> action = null;
+            FileUpload fileUpload = null;
+            if (attachFileName != null) {
+                if (attachFileText != null) {
+                    fileUpload = FileUpload.fromData(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
+                }
+                else {
+                    handleError(scriptEntry, "Failed to process attachment - missing content?");
+                }
+            }
             if (message == null || message.toString().length() == 0) {
-                if (attachFileName != null) {
-                    if (attachFileText != null) {
-                        if (reply != null) {
-                            action = replyTo.reply(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
-                        }
-                        else {
-                            action = toChannel.sendFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
-                        }
-                        isFile = true;
+                if (fileUpload != null) {
+                    if (reply != null) {
+                        action = replyTo.replyFiles(fileUpload);
+                    }
+                    else {
+                        action = toChannel.sendFiles(fileUpload);
                     }
                 }
             }
@@ -256,23 +264,18 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                 handleError(scriptEntry, "Failed to send message - missing content?");
                 return;
             }
-            if (!isFile && attachFileName != null) {
-                if (attachFileText != null) {
-                    action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
-                }
-                else {
-                    handleError(scriptEntry, "Failed to send attachment - missing content?");
-                }
+            if (fileUpload != null) {
+                action = action.setFiles(fileUpload);
             }
             List<ActionRow> actionRows = createRows(scriptEntry, rows);
             if (actionRows != null) {
-                action.setActionRows(actionRows);
+                action.setComponents(actionRows);
             }
             if (noMention) {
                 action = action.mentionRepliedUser(false);
             }
             try {
-                Message sentMessage = action.complete();
+                Message sentMessage = action instanceof MessageCreateAction ? ((MessageCreateAction) action).complete() : ((MessageEditAction) action).complete();
                 scriptEntry.addObject("message", new DiscordMessageTag(bot.bot, sentMessage));
             }
             catch (Throwable ex) {

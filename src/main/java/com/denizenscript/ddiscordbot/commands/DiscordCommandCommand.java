@@ -1,29 +1,28 @@
 package com.denizenscript.ddiscordbot.commands;
 
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
-import com.denizenscript.ddiscordbot.objects.*;
-import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
-import com.denizenscript.denizencore.objects.Argument;
+import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
+import com.denizenscript.ddiscordbot.objects.DiscordCommandTag;
+import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.*;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
 import org.bukkit.Bukkit;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +30,7 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
 
     public DiscordCommandCommand() {
         setName("discordcommand");
-        setSyntax("discordcommand [id:<id>] [create/perms/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>) (enabled:{true}/false) (enable_for:<list>) (disable_for:<list>)");
+        setSyntax("discordcommand [id:<id>] [create/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>)");
         setRequiredArguments(3, 10);
         setPrefixesHandled("id", "type");
         isProcedural = false;
@@ -39,9 +38,9 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
 
     // <--[command]
     // @Name discordcommand
-    // @Syntax discordcommand [id:<id>] [create/perms/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>) (enabled:{true}/false) (enable_for:<list>) (disable_for:<list>)
+    // @Syntax discordcommand [id:<id>] [create/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>)
     // @Required 3
-    // @Maximum 10
+    // @Maximum 7
     // @Short Manages Discord application commands.
     // @Plugin dDiscordBot
     // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
@@ -62,9 +61,8 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
     // All option MapTags must have "type", "name", and "description" keys, with an optional "required" key (defaulting to true). The "type" key can be one of: STRING, INTEGER, BOOLEAN, USER, CHANNEL, ROLE, MENTIONABLE, NUMBER, ATTACHMENT.
     // Additionally, the option map can include a "choices" key, which is a MapTag of ordered MapTags that have a "name" (what displays to the user) and a "value" (what gets passed to the client).
     //
-    // You can use the "enabled" argument to set whether the command should be enabled for everyone by default.
-    // To edit the permissions of a command (who can use it, and who can't), use the "perms" instruction. Permissions MUST be edited AFTER creation.
-    // Use the "enable_for" and "disable_for" arguments (ListTags of DiscordUserTags or DiscordRoleTags - note: actual objects not raw IDs) when editing permissions.
+    // Editing application command permissions has been moved to the "Integrations" section in the server settings.
+    // Read more about it here: <@link url https://discord.com/blog/slash-commands-permissions-discord-apps-bots>
     //
     // You DO NOT need to create a command on startup every time! Once a command is created, it will persist until you delete it.
     // Using the "create" instruction on an existing command will update it.
@@ -81,8 +79,8 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
     // <entry[saveName].command> returns the DiscordCommandTag of a command upon creation, when the command is ~waited for.
     //
     // @Usage
-    // Use to create a simple slash command without options, which is disabled by default, and save it.
-    // - ~discordcommand id:mybot create group:<discord[mybot].group[Denizen]> name:hello "description:Hello world!" enabled:false save:mycmd
+    // Use to create a simple slash command without options and save it.
+    // - ~discordcommand id:mybot create group:<discord[mybot].group[Denizen]> name:hello "description:Hello world!" save:mycmd
     // - debug log <entry[mycmd].command.name>
     //
     // @Usage
@@ -95,61 +93,11 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
     //       required: true
     // - ~discordcommand id:mybot create name:animal "description:Pick your favorite!" options:<[options]>
     //
-    // @Usage
-    // Use to edit the permissions of a command.
-    // - ~discordcommand id:mybot perms name:mycmd group:<discord[mybot].group[mygroup]> disable_for:<discord[mybot].group[mygroup].role[Muted]> enabled:true
-    //
     // -->
 
-    public enum DiscordCommandInstruction { CREATE, PERMS, DELETE }
+    public enum DiscordCommandInstruction { CREATE, DELETE, PERMS }
 
-    @Override
-    public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
-        for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("instruction")
-                    && arg.matchesEnum(DiscordCommandInstruction.class)) {
-                scriptEntry.addObject("instruction", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("group")
-                    && arg.matchesPrefix("group")
-                    && arg.matchesArgumentType(DiscordGroupTag.class)) {
-                scriptEntry.addObject("group", arg.asType(DiscordGroupTag.class));
-            }
-            else if (!scriptEntry.hasObject("name")
-                    && arg.matchesPrefix("name")) {
-                scriptEntry.addObject("name", new ElementTag(CoreUtilities.toLowerCase(arg.getValue())));
-            }
-            else if (!scriptEntry.hasObject("description")
-                    && arg.matchesPrefix("description")) {
-                scriptEntry.addObject("description", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("options")
-                    && arg.matchesPrefix("options")
-                    && arg.matchesArgumentType(MapTag.class)) {
-                scriptEntry.addObject("options", arg.asType(MapTag.class));
-            }
-            else if (!scriptEntry.hasObject("enabled")
-                    && arg.matchesPrefix("enabled")) {
-                scriptEntry.addObject("enabled", new ElementTag(arg.getValue()));
-            }
-            else if (!scriptEntry.hasObject("enable_for")
-                    && arg.matchesPrefix("enable_for")) {
-                scriptEntry.addObject("enable_for", arg.asType(ListTag.class));
-            }
-            else if (!scriptEntry.hasObject("disable_for")
-                    && arg.matchesPrefix("disable_for")) {
-                scriptEntry.addObject("disable_for", arg.asType(ListTag.class));
-            }
-            else {
-                arg.reportUnhandled();
-            }
-        }
-        if (!scriptEntry.hasObject("instruction")) {
-            throw new InvalidArgumentsException("Must have an instruction!");
-        }
-    }
-
-    public static Command matchCommandByName(ScriptEntry scriptEntry, ElementTag name, JDA client, DiscordGroupTag group) {
+    public static Command matchCommandByName(ScriptEntry scriptEntry, String name, JDA client, DiscordGroupTag group) {
         List<Command> retrievedCmds;
         if (group == null) {
             retrievedCmds = client.retrieveCommands().complete();
@@ -157,7 +105,7 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
         else {
             retrievedCmds = group.getGuild().retrieveCommands().complete();
         }
-        String matchString = CoreUtilities.toLowerCase(name.asString());
+        String matchString = CoreUtilities.toLowerCase(name);
         Command bestMatch = null;
         for (Command cmd : retrievedCmds) {
             String commandName = cmd.getName();
@@ -177,84 +125,52 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
         return bestMatch;
     }
 
-    void addPrivileges(ScriptEntry scriptEntry, boolean enable, ListTag actionFor, List<CommandPrivilege> privileges) {
-        for (String item : actionFor) {
-            CommandPrivilege result = null;
-            if (item.startsWith("discorduser@")) {
-                User user = DiscordUserTag.valueOf(item, scriptEntry.getContext()).getUser();
-                if (enable) {
-                    result = CommandPrivilege.enable(user);
-                }
-                else {
-                    result = CommandPrivilege.disable(user);
-                }
-            }
-            else if (item.startsWith("discordrole@")) {
-                Role role = DiscordRoleTag.valueOf(item, scriptEntry.getContext()).role;
-                if (enable) {
-                    result = CommandPrivilege.enable(role);
-                }
-            }
-            if (result != null) {
-                privileges.add(result);
-            }
-            else {
-                Debug.echoError("Privileged input must be a DiscordUserTag or DiscordRoleTag!");
-            }
-        }
-    }
-
-    @Override
-    public void execute(ScriptEntry scriptEntry) {
-        DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
-        ElementTag commandInstruction = scriptEntry.getElement("instruction");
-        DiscordGroupTag group = scriptEntry.getObjectTag("group");
-        ElementTag name = scriptEntry.getElement("name");
-        ElementTag description = scriptEntry.getElement("description");
-        MapTag options = scriptEntry.getObjectTag("options");
-        ElementTag enabled = scriptEntry.getElement("enabled");
-        ListTag enableFor = scriptEntry.getObjectTag("enable_for");
-        ListTag disableFor = scriptEntry.getObjectTag("disable_for");
-        ElementTag type = scriptEntry.argForPrefixAsElement("type", "slash");
-        if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), bot, commandInstruction, group, name, description, options, enabled, enableFor, disableFor, type);
-        }
+    public static void autoExecute(ScriptEntry scriptEntry,
+                        @ArgPrefixed @ArgName("id") DiscordBotTag bot,
+                        @ArgName("instruction") DiscordCommandInstruction instruction,
+                        @ArgPrefixed @ArgDefaultNull @ArgName("group") DiscordGroupTag group,
+                        @ArgPrefixed @ArgName("name") String name,
+                        @ArgPrefixed @ArgDefaultNull @ArgName("type") Command.Type type,
+                        @ArgPrefixed @ArgDefaultNull @ArgName("description") String description,
+                        @ArgPrefixed @ArgDefaultNull @ArgName("options") MapTag options,
+                        // Past-deprecated arguments
+                        @ArgPrefixed @ArgDefaultNull @ArgName("enabled") ElementTag enabled,
+                        @ArgPrefixed @ArgDefaultNull @ArgName("enable_for") ListTag enableFor,
+                        @ArgPrefixed @ArgDefaultNull @ArgName("disable_for") ListTag disableFor) {
         if (group != null && group.bot == null) {
             group.bot = bot.bot;
         }
         JDA client = bot.getConnection().client;
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             try {
-                if (commandInstruction == null) {
+                if (instruction == null) {
                     Debug.echoError(scriptEntry, "Must have a command instruction!");
                     scriptEntry.setFinished(true);
                     return;
+                }
+                if (enabled != null || enableFor != null || disableFor != null || instruction == DiscordCommandInstruction.PERMS) {
+                    DenizenDiscordBot.oldCommandPermissions.warn(scriptEntry);
                 }
                 else if (name == null) {
                     Debug.echoError(scriptEntry, "Must specify a name!");
                     scriptEntry.setFinished(true);
                     return;
                 }
-                DiscordCommandInstruction commandInstructionEnum = DiscordCommandInstruction.valueOf(commandInstruction.asString().toUpperCase());
-                boolean isEnabled = enabled == null || enabled.asBoolean();
-                switch (commandInstructionEnum) {
+                switch (instruction) {
                     case CREATE: {
-                        CommandData data;
-                        switch (CoreUtilities.toLowerCase(type.asString())) {
-                            case "message":
-                                data = Commands.message(name.asString());
-                                break;
-                            case "user":
-                                data = Commands.user(name.asString());
-                                break;
-                            default:
-                                if (description == null) {
-                                    Debug.echoError(scriptEntry, "Must specify a description!");
-                                    scriptEntry.setFinished(true);
-                                    return;
-                                }
-                                data = Commands.slash(name.asString(), description.asString());
-                                break;
+                        if (type == Command.Type.UNKNOWN) {
+                            Debug.echoError(scriptEntry, "Invalid command creation type!");
+                            scriptEntry.setFinished(true);
+                            return;
+                        }
+                        CommandData data = Commands.context(type, name);
+                        if (type == Command.Type.SLASH) {
+                            if (description == null) {
+                                Debug.echoError(scriptEntry, "Must specify a description!");
+                                scriptEntry.setFinished(true);
+                                return;
+                            }
+                            ((SlashCommandData) data).setDescription(description);
                         }
                         if (options != null) {
                             if (!(data instanceof SlashCommandData) && !options.map.isEmpty()) {
@@ -341,35 +257,8 @@ public class DiscordCommandCommand extends AbstractDiscordCommand implements Hol
                         else {
                             action = (CommandCreateAction) group.getGuild().upsertCommand(data);
                         }
-                        action.setDefaultEnabled(isEnabled);
                         Command slashCommand = action.complete();
                         scriptEntry.addObject("command", new DiscordCommandTag(bot.bot, group == null ? null : group.getGuild(), slashCommand));
-                        break;
-                    }
-                    case PERMS: {
-                        if (enableFor == null && disableFor == null) {
-                            Debug.echoError(scriptEntry, "Must specify privileges!");
-                            scriptEntry.setFinished(true);
-                            return;
-                        }
-                        else if (group == null) {
-                            Debug.echoError(scriptEntry, "Must specify a group!");
-                            scriptEntry.setFinished(true);
-                            return;
-                        }
-                        Command bestMatch = matchCommandByName(scriptEntry, name, client, group);
-                        if (bestMatch == null) {
-                            return;
-                        }
-                        List<CommandPrivilege> privileges = new ArrayList<>();
-                        if (enableFor != null) {
-                            addPrivileges(scriptEntry, true, enableFor, privileges);
-                        }
-                        if (disableFor != null) {
-                            addPrivileges(scriptEntry, false, disableFor, privileges);
-                        }
-                        bestMatch.editCommand().setDefaultEnabled(isEnabled).complete();
-                        group.guild.updateCommandPrivilegesById(bestMatch.getIdLong(), privileges).complete();
                         break;
                     }
                     case DELETE: {

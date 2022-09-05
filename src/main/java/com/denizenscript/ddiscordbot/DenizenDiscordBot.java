@@ -7,14 +7,11 @@ import com.denizenscript.ddiscordbot.properties.DiscordTimeTagProperties;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.core.TimeTag;
 import com.denizenscript.denizencore.objects.properties.PropertyParser;
-import com.denizenscript.denizencore.utilities.debugging.Debug;
+import com.denizenscript.denizencore.utilities.debugging.*;
 import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.events.ScriptEvent;
 import com.denizenscript.denizencore.objects.ObjectFetcher;
 import com.denizenscript.denizencore.tags.TagManager;
-import com.denizenscript.denizencore.utilities.debugging.FutureWarning;
-import com.denizenscript.denizencore.utilities.debugging.SlowWarning;
-import com.denizenscript.denizencore.utilities.debugging.Warning;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
@@ -32,6 +29,7 @@ public class DenizenDiscordBot extends JavaPlugin {
     public static Warning oldDeleteMessage = new FutureWarning("oldDeleteMessage", "dDiscordBot's 'discord delete_message' sub-command is deprecated in favor of 'adjust <[message]> delete'.");
     public static Warning oldEditMessage = new SlowWarning("oldEditMessage", "dDiscordBot's 'discord edit_message' sub-command has been moved to the 'discordmessage' command.");
     public static Warning oldTokenFile = new FutureWarning("oldTokenFile", "dDiscordBot used to recommend 'tokenfile' for 'discordconnect', however it is now recommended that you use a SecretTag and the 'secrets.secret' file for the token.");
+    public static Warning oldCommandPermissions = new StrongWarning("oldCommandPermissions", "dDiscordBot's 'discordcommand' command's 'enabled', 'enable_for', 'disable_for' arguments and its 'perms' instruction no longer function due to API changes; use the 'Integrations' panel in your server settings instead.");
 
     public static DenizenDiscordBot instance;
 

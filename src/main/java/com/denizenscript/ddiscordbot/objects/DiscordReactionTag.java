@@ -16,6 +16,9 @@ import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 
 import java.util.List;
 
@@ -98,16 +101,16 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         this.channel_id = channel_id;
         this.message_id = message_id;
         if (ArgumentHelper.matchesInteger(reaction)) {
-            this.emote = MessageReaction.ReactionEmote.fromCustom(getBot().client.getEmoteById(Long.parseLong(reaction)));
+            this.emoji = Emoji.fromCustom(getBot().client.getEmojiById(Long.parseLong(reaction)));
         }
         else {
-            this.emote = MessageReaction.ReactionEmote.fromUnicode(reaction, getBot().client);
+            this.emoji = Emoji.fromUnicode(reaction);
         }
     }
 
     public DiscordReactionTag(String bot, long channelId, long messageId, MessageReaction reaction) {
         this.bot = bot;
-        this.emote = reaction.getReactionEmote();
+        this.emoji = reaction.getEmoji();
         this.message_id = messageId;
         this.channel_id = channelId;
         this.reaction = reaction;
@@ -115,7 +118,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
 
     public DiscordReactionTag(String bot, Message message, MessageReaction reaction) {
         this.bot = bot;
-        this.emote = reaction.getReactionEmote();
+        this.emoji = reaction.getEmoji();
         this.message_id = message.getIdLong();
         this.message = message;
         this.channel = message.getChannel();
@@ -151,12 +154,19 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
             return reaction;
         }
         for (MessageReaction reaction : getMessage().getReactions()) {
-            if (reaction.getReactionEmote().equals(emote)) {
+            if (reaction.getEmoji().equals(emoji)) {
                 this.reaction = reaction;
                 return reaction;
             }
         }
         return null;
+    }
+
+    public String getId() {
+        if (emoji instanceof UnicodeEmoji) {
+            return ((UnicodeEmoji) emoji).getAsCodepoints();
+        }
+        return ((CustomEmoji) emoji).getId();
     }
 
     public String bot;
@@ -165,7 +175,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
 
     public Message message;
 
-    public MessageReaction.ReactionEmote emote;
+    public Emoji emoji;
 
     public long channel_id;
 
@@ -175,7 +185,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
 
     @Override
     public AbstractFlagTracker getFlagTracker() {
-        return new RedirectionFlagTracker(getBot().flags, "__reactions." + channel_id + "." + message_id + "." + (emote.isEmoji() ? emote.getEmoji() : emote.getEmote().getId()));
+        return new RedirectionFlagTracker(getBot().flags, "__reactions." + channel_id + "." + message_id + "." + getId());
     }
 
     @Override
@@ -196,7 +206,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         // For custom emoji, this is a numeric ID. For default emoji, this is the unicode symbol.
         // -->
         tagProcessor.registerTag(ElementTag.class, "id", (attribute, object) -> {
-            return new ElementTag(object.emote.isEmoji() ? object.emote.getEmoji() : object.emote.getEmote().getId());
+            return new ElementTag(object.getId());
         });
 
         // <--[tag]
@@ -237,7 +247,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         // Returns the name of the emoji.
         // -->
         tagProcessor.registerTag(ElementTag.class, "name", (attribute, object) -> {
-            return new ElementTag(object.emote.getName());
+            return new ElementTag(object.emoji.getName());
         });
 
         // <--[tag]
@@ -248,7 +258,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         // Returns whether the emote reacted is animated (an "animoji").
         // -->
         tagProcessor.registerTag(ElementTag.class, "is_animated", (attribute, object) -> {
-            return new ElementTag(object.emote.isEmote() && object.emote.getEmote().isAnimated());
+            return new ElementTag(object.emoji instanceof CustomEmoji && ((CustomEmoji) object.emoji).isAnimated());
         });
 
         // <--[tag]
@@ -283,7 +293,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
 
     @Override
     public String debuggable() {
-        return identify() + " <GR>(" + emote.getName() + ")";
+        return identify() + " <GR>(" + emoji.getName() + ")";
     }
 
     @Override
@@ -293,7 +303,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
 
     @Override
     public String identify() {
-        return "discordreaction@" + bot + "," + channel_id + "," + message_id + "," + (emote.isEmoji() ? emote.getEmoji() : emote.getEmote().getId());
+        return "discordreaction@" + bot + "," + channel_id + "," + message_id + "," + getId();
     }
 
     @Override

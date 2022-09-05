@@ -93,7 +93,7 @@ public class DiscordApplicationCommandScriptEvent extends DiscordScriptEvent {
                         case INTEGER: result = new ElementTag(mapping.getAsLong()); break;
                         case NUMBER: result = new ElementTag(mapping.getAsDouble()); break;
                         case ATTACHMENT: result = new ElementTag(mapping.getAsAttachment().getUrl()); break;
-                        case CHANNEL: result = new DiscordChannelTag(botID, mapping.getAsMessageChannel()); break;
+                        case CHANNEL: result = new DiscordChannelTag(botID, mapping.getAsChannel()); break;
                         case MENTIONABLE: {
                             String mention = mapping.getAsMentionable().getAsMention();
                             if (mention.startsWith("<@&")) {

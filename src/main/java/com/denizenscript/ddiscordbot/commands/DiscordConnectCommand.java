@@ -59,7 +59,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
     // Connects to Discord.
     //
     // The connection will automatically specify the following gateway intents:
-    // GUILD_MEMBERS, GUILD_EMOJIS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS, DIRECT_MESSAGES, DIRECT_MESSAGE_REACTIONS
+    // GUILD_MEMBERS, GUILD_EMOJIS_AND_STICKERS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS, DIRECT_MESSAGES, DIRECT_MESSAGE_REACTIONS
     // Optionally specify additional Gateway Intents to use as a list of any of:
     // GUILD_BANS, GUILD_WEBHOOKS, GUILD_INVITES, GUILD_VOICE_STATES, GUILD_PRESENCES, GUILD_MESSAGE_TYPING, DIRECT_MESSAGE_TYPING
     //
@@ -140,7 +140,7 @@ public class DiscordConnectCommand extends AbstractDiscordCommand implements Hol
 
         public ScriptEntry scriptEntry;
 
-        public HashSet<GatewayIntent> intents = new HashSet<>(Arrays.asList(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EMOJIS, GatewayIntent.GUILD_MESSAGE_REACTIONS,
+        public HashSet<GatewayIntent> intents = new HashSet<>(Arrays.asList(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EMOJIS_AND_STICKERS, GatewayIntent.GUILD_MESSAGE_REACTIONS,
                 GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGE_REACTIONS, GatewayIntent.DIRECT_MESSAGES));
 
         @Override

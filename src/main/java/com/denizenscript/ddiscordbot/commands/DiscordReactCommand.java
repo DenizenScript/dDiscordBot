@@ -10,9 +10,10 @@ import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.bukkit.Bukkit;
 
@@ -144,24 +145,33 @@ public class DiscordReactCommand extends AbstractDiscordCommand implements Holda
             scriptEntry.setFinished(true);
             return;
         }
-        Emote emote = null;
+        Emoji emoji;
+        boolean clearAll = false;
         if (reaction.isInt()) {
-            emote = client.getEmoteById(reaction.asLong());
+            emoji = client.getEmojiById(reaction.asLong());
         }
         else {
-            List<Emote> emotesPossible = client.getEmotesByName(reaction.asString(), true);
+            if (CoreUtilities.toLowerCase(reaction.asString()).equals("all")) {
+                clearAll = true;
+            }
+            List<RichCustomEmoji> emotesPossible = client.getEmojisByName(reaction.asString(), true);
             if (!emotesPossible.isEmpty()) {
-                emote = emotesPossible.get(0);
+                emoji = emotesPossible.get(0);
+            }
+            else {
+                emoji = Emoji.fromUnicode(reaction.asString());
             }
         }
-        RestAction<Void> action;
+        if (emoji == null && !clearAll) {
+            Debug.echoError("Invalid emoji!");
+            scriptEntry.setFinished(true);
+            return;
+        }
+        RestAction<Void> action = null;
         switch (DiscordReactInstruction.valueOf(instruction.asString().toUpperCase())) {
             case ADD: {
-                if (emote != null) {
-                    action = msg.addReaction(emote);
-                }
-                else {
-                    action = msg.addReaction(reaction.asString());
+                if (emoji != null) {
+                    action = msg.addReaction(emoji);
                 }
                 break;
             }
@@ -172,34 +182,23 @@ public class DiscordReactCommand extends AbstractDiscordCommand implements Holda
                         Debug.echoError("Cannot remove reaction from unknown user ID.");
                         return;
                     }
-                    if (emote != null) {
-                        action = msg.removeReaction(emote, userObj);
-                    }
-                    else {
-                        action = msg.removeReaction(reaction.asString(), userObj);
+                    if (emoji != null) {
+                        action = msg.removeReaction(emoji, userObj);
                     }
                 }
                 else {
-                    if (emote != null) {
-                        action = msg.removeReaction(emote);
-                    }
-                    else {
-                        action = msg.removeReaction(reaction.asString());
+                    if (emoji != null) {
+                        action = msg.removeReaction(emoji);
                     }
                 }
                 break;
             }
             case CLEAR: {
-                if (CoreUtilities.toLowerCase(reaction.asString()).equals("all")) {
+                if (clearAll) {
                     action = msg.clearReactions();
                 }
                 else {
-                    if (emote != null) {
-                        action = msg.clearReactions(emote);
-                    }
-                    else {
-                        action = msg.clearReactions(reaction.asString());
-                    }
+                    action = msg.clearReactions(emoji);
                 }
                 break;
             }

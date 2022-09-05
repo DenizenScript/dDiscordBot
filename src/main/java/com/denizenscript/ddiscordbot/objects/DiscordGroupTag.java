@@ -14,6 +14,8 @@ import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.commands.Command;
 
 import java.util.List;
@@ -344,7 +346,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         // -->
         tagProcessor.registerTag(ListTag.class, "emoji_names", (attribute, object) -> {
             ListTag result = new ListTag();
-            for (Emote emote : object.getGuild().getEmotes()) {
+            for (Emoji emote : object.getGuild().getEmojis()) {
                 result.add(emote.getName());
             }
             return result;
@@ -362,15 +364,15 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
                 return null;
             }
             String matchString = CoreUtilities.toLowerCase(attribute.getParam());
-            Emote bestMatch = null;
-            for (Emote emote : object.getGuild().getEmotes()) {
-                String emoteName = CoreUtilities.toLowerCase(emote.getName());
+            CustomEmoji bestMatch = null;
+            for (CustomEmoji emoji : object.getGuild().getEmojis()) {
+                String emoteName = CoreUtilities.toLowerCase(emoji.getName());
                 if (matchString.equals(emoteName)) {
-                    bestMatch = emote;
+                    bestMatch = emoji;
                     break;
                 }
                 if (emoteName.contains(matchString)) {
-                    bestMatch = emote;
+                    bestMatch = emoji;
                 }
             }
             if (bestMatch == null) {
