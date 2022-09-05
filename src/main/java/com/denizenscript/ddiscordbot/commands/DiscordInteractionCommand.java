@@ -8,6 +8,7 @@ import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -25,7 +26,7 @@ import org.bukkit.Bukkit;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class DiscordInteractionCommand extends AbstractDiscordCommand implements Holdable {
+public class DiscordInteractionCommand extends AbstractCommand implements Holdable {
 
     public DiscordInteractionCommand() {
         setName("discordinteraction");
@@ -120,20 +121,20 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                 switch (instructionEnum) {
                     case DEFER: {
                         if (interaction.interaction == null) {
-                            handleError(scriptEntry, "Invalid interaction! Has it expired?");
+                            Debug.echoError(scriptEntry, "Invalid interaction! Has it expired?");
                             return;
                         }
                         if (interaction.interaction instanceof IReplyCallback) {
                             ((IReplyCallback) interaction.interaction).deferReply(ephemeral).complete();
                         } else {
-                            handleError(scriptEntry, "Interaction is not a reply callback!");
+                            Debug.echoError(scriptEntry, "Interaction is not a reply callback!");
                         }
                         break;
                     }
                     case EDIT:
                     case REPLY: {
                         if (interaction.interaction == null) {
-                            handleError(scriptEntry, "Invalid interaction! Has it expired?");
+                            Debug.echoError(scriptEntry, "Invalid interaction! Has it expired?");
                             return;
                         }
                         /*
@@ -141,7 +142,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                          * Since you can't see if the acknowledged message is ephemeral or not, this is a requirement so we don't have to try/catch
                          */
                         else if (message == null) {
-                            handleError(scriptEntry, "Must have a message!");
+                            Debug.echoError(scriptEntry, "Must have a message!");
                             return;
                         }
                         MessageEmbed embed = null;
@@ -157,7 +158,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                                 fileUpload = FileUpload.fromData(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
                             }
                             else {
-                                handleError(scriptEntry, "Failed to process attachment - missing content?");
+                                Debug.echoError(scriptEntry, "Failed to process attachment - missing content?");
                             }
                         }
                         if (instructionEnum == DiscordInteractionInstruction.EDIT) {
@@ -204,7 +205,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                     }
                     case DELETE: {
                         if (interaction.interaction == null) {
-                            handleError(scriptEntry, "Invalid interaction! Has it expired?");
+                            Debug.echoError(scriptEntry, "Invalid interaction! Has it expired?");
                             return;
                         }
                         ((IDeferrableCallback) interaction.interaction).getHook().deleteOriginal().complete();
@@ -213,7 +214,7 @@ public class DiscordInteractionCommand extends AbstractDiscordCommand implements
                 }
             }
             catch (Exception ex) {
-                handleError(scriptEntry, ex);
+                Debug.echoError(scriptEntry, ex);
             }
         };
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {

@@ -5,6 +5,7 @@ import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DiscordModalCommand extends AbstractDiscordCommand implements Holdable {
+public class DiscordModalCommand extends AbstractCommand implements Holdable {
 
     public DiscordModalCommand() {
         setName("discordmodal");
@@ -76,12 +77,12 @@ public class DiscordModalCommand extends AbstractDiscordCommand implements Holda
         Runnable runner = () -> {
             try {
                 if (interaction.interaction == null) {
-                    handleError(scriptEntry, "Invalid interaction! Has it expired?");
+                    Debug.echoError(scriptEntry, "Invalid interaction! Has it expired?");
                     return;
                 }
                 List<ActionRow> actionRows = createRows(scriptEntry, rows);
                 if(actionRows == null || actionRows.isEmpty()) {
-                    handleError(scriptEntry, "Invalid action rows!");
+                    Debug.echoError(scriptEntry, "Invalid action rows!");
                     return;
                 }
                 if (!interaction.interaction.isAcknowledged()) {
@@ -91,12 +92,12 @@ public class DiscordModalCommand extends AbstractDiscordCommand implements Holda
                     action.complete();
                 }
                 else {
-                    handleError(scriptEntry, "Interaction already acknowledged!");
+                    Debug.echoError(scriptEntry, "Interaction already acknowledged!");
                     return;
                 }
             }
             catch (Exception ex) {
-                handleError(scriptEntry, ex);
+                Debug.echoError(scriptEntry, ex);
             }
         };
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {

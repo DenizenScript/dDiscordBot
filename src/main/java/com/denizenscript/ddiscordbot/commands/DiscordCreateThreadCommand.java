@@ -7,12 +7,13 @@ import com.denizenscript.ddiscordbot.objects.DiscordMessageTag;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.*;
 import org.bukkit.Bukkit;
 
-public class DiscordCreateThreadCommand extends AbstractDiscordCommand implements Holdable {
+public class DiscordCreateThreadCommand extends AbstractCommand implements Holdable {
 
     public DiscordCreateThreadCommand() {
         setName("discordcreatethread");
@@ -85,15 +86,15 @@ public class DiscordCreateThreadCommand extends AbstractDiscordCommand implement
                 }
                 Message actualMessage = forMessage.getMessage();
                 if (actualMessage == null) {
-                    handleError(scriptEntry, "Invalid message reference.");
+                    Debug.echoError(scriptEntry, "Invalid message reference.");
                     return;
                 }
                 if (!(actualMessage.getChannel() instanceof GuildChannel)) {
-                    handleError(scriptEntry, "Message referenced is not in a group (can't create threads in a DM).");
+                    Debug.echoError(scriptEntry, "Message referenced is not in a group (can't create threads in a DM).");
                     return;
                 }
                 if (actualMessage.getChannel() instanceof ThreadChannel) {
-                    handleError(scriptEntry, "Message referenced is in a thread - you can't have threads inside threads.");
+                    Debug.echoError(scriptEntry, "Message referenced is in a thread - you can't have threads inside threads.");
                     return;
                 }
                 try {
@@ -103,7 +104,7 @@ public class DiscordCreateThreadCommand extends AbstractDiscordCommand implement
                     }
                 }
                 catch (Throwable ex) {
-                    handleError(scriptEntry, ex);
+                    Debug.echoError(scriptEntry, ex);
                 }
             }
             else {
@@ -114,19 +115,19 @@ public class DiscordCreateThreadCommand extends AbstractDiscordCommand implement
                 }
                 Channel actualChannel = forChannel.getChannel();
                 if (actualChannel == null) {
-                    handleError(scriptEntry, "Invalid channel reference.");
+                    Debug.echoError(scriptEntry, "Invalid channel reference.");
                     return;
                 }
                 if (!(actualChannel instanceof GuildChannel)) {
-                    handleError(scriptEntry, "Channel referenced is not in a group (can't create threads in a DM).");
+                    Debug.echoError(scriptEntry, "Channel referenced is not in a group (can't create threads in a DM).");
                     return;
                 }
                 if (!(actualChannel instanceof TextChannel)) {
-                    handleError(scriptEntry, "Channel referenced is not a text channel (can't create threads in a voice channel).");
+                    Debug.echoError(scriptEntry, "Channel referenced is not a text channel (can't create threads in a voice channel).");
                     return;
                 }
                 if (actualChannel instanceof ThreadChannel) {
-                    handleError(scriptEntry, "Channel referenced is a thread - you can't have threads inside threads.");
+                    Debug.echoError(scriptEntry, "Channel referenced is a thread - you can't have threads inside threads.");
                     return;
                 }
                 try {
@@ -136,7 +137,7 @@ public class DiscordCreateThreadCommand extends AbstractDiscordCommand implement
                     }
                 }
                 catch (Throwable ex) {
-                    handleError(scriptEntry, ex);
+                    Debug.echoError(scriptEntry, ex);
                 }
             }
         };

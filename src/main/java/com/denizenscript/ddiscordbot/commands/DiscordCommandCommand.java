@@ -9,6 +9,7 @@ import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
 import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
@@ -26,7 +27,7 @@ import org.bukkit.Bukkit;
 import java.util.List;
 import java.util.Map;
 
-public class DiscordCommandCommand extends AbstractDiscordCommand implements Holdable {
+public class DiscordCommandCommand extends AbstractCommand implements Holdable {
 
     public DiscordCommandCommand() {
         setName("discordcommand");

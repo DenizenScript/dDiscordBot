@@ -6,6 +6,7 @@ import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -19,7 +20,7 @@ import org.bukkit.Bukkit;
 
 import java.util.List;
 
-public class DiscordReactCommand extends AbstractDiscordCommand implements Holdable {
+public class DiscordReactCommand extends AbstractCommand implements Holdable {
 
     public DiscordReactCommand() {
         setName("discordreact");
@@ -209,7 +210,7 @@ public class DiscordReactCommand extends AbstractDiscordCommand implements Holda
         final RestAction<Void> actWait = action;
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             actWait.onErrorMap(t -> {
-                handleError(scriptEntry, t);
+                Debug.echoError(scriptEntry, t);
                 return null;
             });
             actWait.complete();

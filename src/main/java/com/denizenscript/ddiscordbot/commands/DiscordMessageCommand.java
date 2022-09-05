@@ -9,6 +9,7 @@ import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -27,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DiscordMessageCommand extends AbstractDiscordCommand implements Holdable {
+public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
     public DiscordMessageCommand() {
         setName("discordmessage");
@@ -170,7 +171,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                     toChannel = (MessageChannel) result;
                 }
                 else {
-                    handleError(scriptEntry, "Invalid reply message channel ID given.");
+                    Debug.echoError(scriptEntry, "Invalid reply message channel ID given.");
                     return;
                 }
             }
@@ -180,7 +181,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                     toChannel = (MessageChannel) result;
                 }
                 else {
-                    handleError(scriptEntry, "Invalid edit message channel ID given.");
+                    Debug.echoError(scriptEntry, "Invalid edit message channel ID given.");
                     return;
                 }
             }
@@ -190,20 +191,20 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                     toChannel = (MessageChannel) result;
                 }
                 else {
-                    handleError(scriptEntry, "Invalid channel ID given.");
+                    Debug.echoError(scriptEntry, "Invalid channel ID given.");
                     return;
                 }
             }
             else if (user != null) {
                 User userObj = client.getUserById(user.user_id);
                 if (userObj == null) {
-                    handleError(scriptEntry, "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
+                    Debug.echoError(scriptEntry, "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
                     return;
                 }
                 toChannel = userObj.openPrivateChannel().complete();
             }
             if (toChannel == null) {
-                handleError(scriptEntry, "Failed to process DiscordMessage command: no channel given!");
+                Debug.echoError(scriptEntry, "Failed to process DiscordMessage command: no channel given!");
                 return;
             }
             Message replyTo = null;
@@ -213,7 +214,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                     replyTo = toChannel.retrieveMessageById(reply.message_id).complete();
                 }
                 if (replyTo == null) {
-                    handleError(scriptEntry, "Failed to process DiscordMessage reply: invalid message to reply to!");
+                    Debug.echoError(scriptEntry, "Failed to process DiscordMessage reply: invalid message to reply to!");
                     return;
                 }
             }
@@ -224,7 +225,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                     fileUpload = FileUpload.fromData(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
                 }
                 else {
-                    handleError(scriptEntry, "Failed to process attachment - missing content?");
+                    Debug.echoError(scriptEntry, "Failed to process attachment - missing content?");
                 }
             }
             if (message == null || message.toString().length() == 0) {
@@ -261,7 +262,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                 }
             }
             if (action == null) {
-                handleError(scriptEntry, "Failed to send message - missing content?");
+                Debug.echoError(scriptEntry, "Failed to send message - missing content?");
                 return;
             }
             if (fileUpload != null) {
@@ -279,7 +280,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                 scriptEntry.addObject("message", new DiscordMessageTag(bot.bot, sentMessage));
             }
             catch (Throwable ex) {
-                handleError(scriptEntry, ex);
+                Debug.echoError(scriptEntry, ex);
             }
         };
         if (scriptEntry.shouldWaitFor()) {
