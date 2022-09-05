@@ -37,6 +37,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         setPrefixesHandled("id", "reply", "edit", "channel", "user", "attach_file_name", "attach_file_text", "rows");
         setBooleansHandled("no_mention");
         isProcedural = false;
+        autoCompile();
     }
 
     // <--[command]

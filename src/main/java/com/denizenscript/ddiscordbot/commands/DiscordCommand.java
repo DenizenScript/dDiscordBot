@@ -34,6 +34,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
         setSyntax("discord [id:<id>] [disconnect/add_role/start_typing/remove_role/status (status:<status>) (activity:<activity>)/rename] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
         setRequiredArguments(2, 12);
         isProcedural = false;
+        autoCompile();
     }
 
     // <--[command]
@@ -95,76 +96,6 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // -->
 
     public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, ADD_ROLE, REMOVE_ROLE, STATUS, RENAME, START_TYPING, STOP_TYPING, EDIT_MESSAGE, DELETE_MESSAGE }
-
-    @Override
-    public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
-        for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("id")
-                    && arg.matchesPrefix("id")) {
-                scriptEntry.addObject("id", new ElementTag(CoreUtilities.toLowerCase(arg.getValue())));
-            }
-            else if (!scriptEntry.hasObject("instruction")
-                    && arg.matchesEnum(DiscordInstruction.class)) {
-                scriptEntry.addObject("instruction", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("code")
-                    && arg.matchesPrefix("code")) {
-                scriptEntry.addObject("code", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("tokenfile")
-                    && arg.matchesPrefix("tokenfile")) {
-                scriptEntry.addObject("tokenfile", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("channel")
-                    && arg.matchesPrefix("channel")
-                    && arg.matchesArgumentType(DiscordChannelTag.class)) {
-                scriptEntry.addObject("channel", arg.asType(DiscordChannelTag.class));
-            }
-            else if (!scriptEntry.hasObject("url")
-                    && arg.matchesPrefix("url")) {
-                scriptEntry.addObject("url", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("user")
-                    && arg.matchesPrefix("user")
-                    && arg.matchesArgumentType(DiscordUserTag.class)) {
-                scriptEntry.addObject("user", arg.asType(DiscordUserTag.class));
-            }
-            else if (!scriptEntry.hasObject("group")
-                    && arg.matchesPrefix("group")
-                    && arg.matchesArgumentType(DiscordGroupTag.class)) {
-                scriptEntry.addObject("group", arg.asType(DiscordGroupTag.class));
-            }
-            else if (!scriptEntry.hasObject("role")
-                    && arg.matchesPrefix("role")
-                    && arg.matchesArgumentType(DiscordRoleTag.class)) {
-                scriptEntry.addObject("role", arg.asType(DiscordRoleTag.class));
-            }
-            else if (!scriptEntry.hasObject("status")
-                    && arg.matchesPrefix("status")) {
-                scriptEntry.addObject("status", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("activity")
-                    && arg.matchesPrefix("activity")) {
-                scriptEntry.addObject("activity", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("message_id")
-                    && arg.matchesPrefix("message_id")) {
-                scriptEntry.addObject("message_id", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("message")) {
-                scriptEntry.addObject("message", arg.getRawElement());
-            }
-            else {
-                arg.reportUnhandled();
-            }
-        }
-        if (!scriptEntry.hasObject("id")) {
-            throw new InvalidArgumentsException("Must have an ID!");
-        }
-        if (!scriptEntry.hasObject("instruction")) {
-            throw new InvalidArgumentsException("Must have an instruction!");
-        }
-    }
 
     static {
         DiscordConnectCommand.fixJDALogger();

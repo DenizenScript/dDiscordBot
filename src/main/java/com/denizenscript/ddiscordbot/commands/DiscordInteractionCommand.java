@@ -35,6 +35,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         setPrefixesHandled("interaction", "rows", "attach_file_name", "attach_file_text");
         setBooleansHandled("ephemeral");
         isProcedural = false;
+        autoCompile();
     }
 
     // <--[command]

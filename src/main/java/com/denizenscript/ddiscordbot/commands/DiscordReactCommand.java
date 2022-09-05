@@ -28,6 +28,7 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
         setRequiredArguments(4, 6);
         setPrefixesHandled("id");
         isProcedural = false;
+        autoCompile();
     }
     // <--[command]
     // @Name discordreact

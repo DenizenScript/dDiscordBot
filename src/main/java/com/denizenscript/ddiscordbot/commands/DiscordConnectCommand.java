@@ -48,6 +48,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
         setRequiredArguments(2, 3);
         isProcedural = false;
         setPrefixesHandled("id", "tokenfile", "token", "intents");
+        autoCompile();
     }
 
     // <--[command]

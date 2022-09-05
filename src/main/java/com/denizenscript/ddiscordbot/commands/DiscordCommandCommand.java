@@ -35,6 +35,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
         setRequiredArguments(3, 10);
         setPrefixesHandled("id", "type");
         isProcedural = false;
+        autoCompile();
     }
 
     // <--[command]

@@ -30,6 +30,7 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
         setRequiredArguments(3, 9);
         isProcedural = false;
         setPrefixesHandled("id", "group", "name", "description", "type", "category", "position", "roles", "users");
+        autoCompile();
     }
     // <--[command]
     // @Name discordcreatechannel

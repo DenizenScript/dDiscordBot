@@ -22,6 +22,7 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
         setPrefixesHandled("id", "name", "message", "parent");
         setBooleansHandled("private");
         isProcedural = false;
+        autoCompile();
     }
     // <--[command]
     // @Name discordcreatethread
