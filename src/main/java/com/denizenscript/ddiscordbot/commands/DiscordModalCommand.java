@@ -7,6 +7,9 @@ import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
@@ -66,15 +69,11 @@ public class DiscordModalCommand extends AbstractCommand implements Holdable {
     //
     // -->
 
-    @Override
-    public void execute(ScriptEntry scriptEntry) {
-        DiscordInteractionTag interaction = scriptEntry.requiredArgForPrefix("interaction", DiscordInteractionTag.class);
-        ElementTag name = scriptEntry.requiredArgForPrefixAsElement("name");
-        ElementTag title = scriptEntry.argForPrefixAsElement("title", "");
-        ObjectTag rows = scriptEntry.requiredArgForPrefix("rows", ObjectTag.class);
-        if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), interaction, name, rows, title);
-        }
+    public static void autoExecute(ScriptEntry scriptEntry,
+                                   @ArgPrefixed @ArgName("interaction") DiscordInteractionTag interaction,
+                                   @ArgPrefixed @ArgName("name") String name,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("title") String title,
+                                   @ArgPrefixed @ArgName("rows") ObjectTag rows) {
         Runnable runner = () -> {
             try {
                 if (interaction.interaction == null) {
@@ -82,19 +81,18 @@ public class DiscordModalCommand extends AbstractCommand implements Holdable {
                     return;
                 }
                 List<ActionRow> actionRows = createRows(scriptEntry, rows);
-                if(actionRows == null || actionRows.isEmpty()) {
+                if (actionRows == null || actionRows.isEmpty()) {
                     Debug.echoError(scriptEntry, "Invalid action rows!");
                     return;
                 }
                 if (!interaction.interaction.isAcknowledged()) {
                     IModalCallback replyTo = (IModalCallback) interaction.interaction;
-                    Modal modal = Modal.create(name.toString(), title.toString()).addActionRows(actionRows).build();
+                    Modal modal = Modal.create(name, title).addActionRows(actionRows).build();
                     ModalCallbackAction action = replyTo.replyModal(modal);
                     action.complete();
                 }
                 else {
                     Debug.echoError(scriptEntry, "Interaction already acknowledged!");
-                    return;
                 }
             }
             catch (Exception ex) {

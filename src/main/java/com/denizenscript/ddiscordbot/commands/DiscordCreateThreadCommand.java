@@ -9,6 +9,10 @@ import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgLinear;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.*;
 import org.bukkit.Bukkit;
@@ -57,13 +61,12 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
     //
     // -->
 
-    @Override
-    public void execute(ScriptEntry scriptEntry) {
-        DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
-        ElementTag name = scriptEntry.requiredArgForPrefixAsElement("name");
-        DiscordMessageTag message = scriptEntry.argForPrefix("message", DiscordMessageTag.class, true);
-        DiscordChannelTag channel = scriptEntry.argForPrefix("parent", DiscordChannelTag.class, true);
-        boolean isPrivate = scriptEntry.argAsBoolean("private");
+    public static void autoExecute(ScriptEntry scriptEntry,
+                                   @ArgPrefixed @ArgName("id") DiscordBotTag bot,
+                                   @ArgPrefixed @ArgName("name") String name,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("message") DiscordMessageTag message,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("parent") DiscordChannelTag channel,
+                                   @ArgLinear @ArgName("private") boolean isPrivate) {
         if (message != null) {
             if (channel != null || isPrivate) {
                 throw new InvalidArgumentsRuntimeException("Cannot have both a 'message:' and channel/private");
@@ -74,9 +77,6 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
         }
         else if (channel == null) {
             throw new InvalidArgumentsRuntimeException("Missing message or channel argument!");
-        }
-        if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), bot, name, message, channel, isPrivate ? db("private", true) : "");
         }
         Runnable runner = () -> {
             if (message != null) {
@@ -99,7 +99,7 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
                     return;
                 }
                 try {
-                    ThreadChannel created = ((TextChannel) actualMessage.getChannel()).createThreadChannel(name.asString(), actualMessage.getIdLong()).complete();
+                    ThreadChannel created = ((TextChannel) actualMessage.getChannel()).createThreadChannel(name, actualMessage.getIdLong()).complete();
                     if (created != null) {
                         scriptEntry.addObject("created_thread", new DiscordChannelTag(bot.bot, created));
                     }
@@ -132,7 +132,7 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
                     return;
                 }
                 try {
-                    ThreadChannel created = ((TextChannel) actualChannel).createThreadChannel(name.asString(), isPrivate).complete();
+                    ThreadChannel created = ((TextChannel) actualChannel).createThreadChannel(name, isPrivate).complete();
                     if (created != null) {
                         scriptEntry.addObject("created_thread", new DiscordChannelTag(bot.bot, created));
                     }

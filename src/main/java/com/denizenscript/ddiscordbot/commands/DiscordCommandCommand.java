@@ -128,17 +128,17 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
     }
 
     public static void autoExecute(ScriptEntry scriptEntry,
-                        @ArgPrefixed @ArgName("id") DiscordBotTag bot,
-                        @ArgName("instruction") DiscordCommandInstruction instruction,
-                        @ArgPrefixed @ArgDefaultNull @ArgName("group") DiscordGroupTag group,
-                        @ArgPrefixed @ArgName("name") String name,
-                        @ArgPrefixed @ArgDefaultNull @ArgName("type") Command.Type type,
-                        @ArgPrefixed @ArgDefaultNull @ArgName("description") String description,
-                        @ArgPrefixed @ArgDefaultNull @ArgName("options") MapTag options,
-                        // Past-deprecated arguments
-                        @ArgPrefixed @ArgDefaultNull @ArgName("enabled") ElementTag enabled,
-                        @ArgPrefixed @ArgDefaultNull @ArgName("enable_for") ListTag enableFor,
-                        @ArgPrefixed @ArgDefaultNull @ArgName("disable_for") ListTag disableFor) {
+                                   @ArgPrefixed @ArgName("id") DiscordBotTag bot,
+                                   @ArgName("instruction") DiscordCommandInstruction instruction,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("group") DiscordGroupTag group,
+                                   @ArgPrefixed @ArgName("name") String name,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("type") Command.Type type,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("description") String description,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("options") MapTag options,
+                                   // Past-deprecated arguments
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("enabled") ElementTag enabled,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("enable_for") ListTag enableFor,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("disable_for") ListTag disableFor) {
         if (group != null && group.bot == null) {
             group.bot = bot.bot;
         }

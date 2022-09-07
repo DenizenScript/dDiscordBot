@@ -3,14 +3,15 @@ package com.denizenscript.ddiscordbot.commands;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
-import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
-import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgLinear;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
@@ -107,18 +108,6 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     //
     // -->
 
-    @Override
-    public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
-        for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("raw_message")) {
-                scriptEntry.addObject("raw_message", arg.getRawObject());
-            }
-            else {
-                arg.reportUnhandled();
-            }
-        }
-    }
-
     public static List<ActionRow> createRows(ScriptEntry scriptEntry, ObjectTag rowsObj) {
         if (rowsObj == null) {
             return null;
@@ -143,22 +132,17 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         return actionRows;
     }
 
-    @Override
-    public void execute(ScriptEntry scriptEntry) {
-        DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
-        DiscordChannelTag channel = scriptEntry.argForPrefix("channel", DiscordChannelTag.class, true);
-        ObjectTag message = scriptEntry.getObjectTag("raw_message");
-        DiscordUserTag user = scriptEntry.argForPrefix("user", DiscordUserTag.class, true);
-        DiscordMessageTag reply = scriptEntry.argForPrefix("reply", DiscordMessageTag.class, true);
-        DiscordMessageTag edit = scriptEntry.argForPrefix("edit", DiscordMessageTag.class, true);
-        boolean noMention = scriptEntry.argAsBoolean("no_mention");
-        ElementTag attachFileName = scriptEntry.argForPrefixAsElement("attach_file_name", null);
-        ElementTag attachFileText = scriptEntry.argForPrefixAsElement("attach_file_text", null);
-        ObjectTag rows = scriptEntry.argForPrefix("rows", ObjectTag.class, true);
-        if (scriptEntry.dbCallShouldDebug()) {
-            // Note: attachFileText intentionally at end
-            Debug.report(scriptEntry, getName(), bot, channel, message, user, reply, db("no_mention", noMention), rows, attachFileName, attachFileText);
-        }
+    public static void autoExecute(ScriptEntry scriptEntry,
+                                   @ArgPrefixed @ArgName("id") DiscordBotTag bot,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("channel") DiscordChannelTag channel,
+                                   @ArgLinear @ArgDefaultNull @ArgName("raw_message") ObjectTag message,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("user") DiscordUserTag user,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("reply") DiscordMessageTag reply,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("edit") DiscordMessageTag edit,
+                                   @ArgName("no_mention") boolean noMention,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows) {
         if (message == null && attachFileName == null) {
             throw new InvalidArgumentsRuntimeException("Must have a message!");
         }
@@ -223,7 +207,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             FileUpload fileUpload = null;
             if (attachFileName != null) {
                 if (attachFileText != null) {
-                    fileUpload = FileUpload.fromData(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
+                    fileUpload = FileUpload.fromData(attachFileText.getBytes(StandardCharsets.UTF_8), attachFileName);
                 }
                 else {
                     Debug.echoError(scriptEntry, "Failed to process attachment - missing content?");
