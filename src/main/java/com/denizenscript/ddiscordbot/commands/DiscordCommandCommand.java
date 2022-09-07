@@ -145,6 +145,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
         JDA client = bot.getConnection().client;
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             try {
+                Command.Type commandType = type != null ? type : Command.Type.SLASH;
                 if (instruction == null) {
                     Debug.echoError(scriptEntry, "Must have a command instruction!");
                     scriptEntry.setFinished(true);
@@ -160,13 +161,13 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                 }
                 switch (instruction) {
                     case CREATE: {
-                        if (type == Command.Type.UNKNOWN) {
+                        if (commandType == Command.Type.UNKNOWN) {
                             Debug.echoError(scriptEntry, "Invalid command creation type!");
                             scriptEntry.setFinished(true);
                             return;
                         }
-                        CommandData data = Commands.context(type, name);
-                        if (type == Command.Type.SLASH) {
+                        CommandData data = Commands.context(commandType, name);
+                        if (commandType == Command.Type.SLASH) {
                             if (description == null) {
                                 Debug.echoError(scriptEntry, "Must specify a description!");
                                 scriptEntry.setFinished(true);
