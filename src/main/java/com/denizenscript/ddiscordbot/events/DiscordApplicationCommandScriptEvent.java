@@ -24,7 +24,7 @@ public class DiscordApplicationCommandScriptEvent extends DiscordScriptEvent {
     // @Switch for:<bot> to only process the event for a specified Discord bot.
     // @Switch channel:<channel_id> to only process the event when it occurs in a specified Discord channel.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
-    // @Switch name:<command_name> to only process the event for a specified Discord slash command.
+    // @Switch name:<command_name> to only process the event for a specified Discord application command. Spaces are replaced with underscores.
     //
     // @Triggers when a Discord user uses an application command.
     //
@@ -66,7 +66,7 @@ public class DiscordApplicationCommandScriptEvent extends DiscordScriptEvent {
         if (!type.equals("application") && !CoreUtilities.equalsIgnoreCase(type, getEvent().getCommandType().name())) {
             return false;
         }
-        if (!runGenericSwitchCheck(path, "name", getEvent().getName())) {
+        if (!runGenericSwitchCheck(path, "name", CoreUtilities.replace(getEvent().getName(), " ", "_"))) {
             return false;
         }
         return super.matches(path);
