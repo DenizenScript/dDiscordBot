@@ -36,7 +36,6 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         setSyntax("discordmessage [id:<id>] [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>)");
         setRequiredArguments(3, 7);
         setPrefixesHandled("id", "reply", "edit", "channel", "user", "attach_file_name", "attach_file_text", "rows");
-        setBooleansHandled("no_mention");
         isProcedural = false;
         autoCompile();
     }
@@ -135,14 +134,14 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     public static void autoExecute(ScriptEntry scriptEntry,
                                    @ArgPrefixed @ArgName("id") DiscordBotTag bot,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("channel") DiscordChannelTag channel,
-                                   @ArgLinear @ArgDefaultNull @ArgName("raw_message") ObjectTag message,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("user") DiscordUserTag user,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("reply") DiscordMessageTag reply,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("edit") DiscordMessageTag edit,
                                    @ArgName("no_mention") boolean noMention,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows) {
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows,
+                                   @ArgLinear @ArgDefaultNull @ArgName("raw_message") ObjectTag message) {
         if (message == null && attachFileName == null) {
             throw new InvalidArgumentsRuntimeException("Must have a message!");
         }

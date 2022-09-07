@@ -34,7 +34,6 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         setSyntax("discordinteraction [defer/reply/edit/delete] [interaction:<interaction>] (ephemeral) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)");
         setRequiredArguments(2, 7);
         setPrefixesHandled("interaction", "rows", "attach_file_name", "attach_file_text");
-        setBooleansHandled("ephemeral");
         isProcedural = false;
         autoCompile();
     }
@@ -91,7 +90,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
     public static void autoExecute(ScriptEntry scriptEntry,
                                    @ArgName("instruction") DiscordInteractionInstruction instruction,
                                    @ArgPrefixed @ArgName("interaction") DiscordInteractionTag interaction,
-                                   @ArgPrefixed @ArgName("ephemeral") boolean ephemeral,
+                                   @ArgName("ephemeral") boolean ephemeral,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows,

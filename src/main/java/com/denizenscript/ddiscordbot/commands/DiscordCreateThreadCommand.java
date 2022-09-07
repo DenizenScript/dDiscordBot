@@ -24,7 +24,6 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
         setSyntax("discordcreatethread [id:<id>] [name:<name>] [message:<message>/parent:<channel> (private)]");
         setRequiredArguments(3, 4);
         setPrefixesHandled("id", "name", "message", "parent");
-        setBooleansHandled("private");
         isProcedural = false;
         autoCompile();
     }
@@ -66,7 +65,7 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
                                    @ArgPrefixed @ArgName("name") String name,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("message") DiscordMessageTag message,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("parent") DiscordChannelTag channel,
-                                   @ArgLinear @ArgName("private") boolean isPrivate) {
+                                   @ArgName("private") boolean isPrivate) {
         if (message != null) {
             if (channel != null || isPrivate) {
                 throw new InvalidArgumentsRuntimeException("Cannot have both a 'message:' and channel/private");
