@@ -166,14 +166,17 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                             scriptEntry.setFinished(true);
                             return;
                         }
-                        CommandData data = Commands.context(commandType, name);
+                        CommandData data;
                         if (commandType == Command.Type.SLASH) {
                             if (description == null) {
                                 Debug.echoError(scriptEntry, "Must specify a description!");
                                 scriptEntry.setFinished(true);
                                 return;
                             }
-                            ((SlashCommandData) data).setDescription(description);
+                            data = Commands.slash(name, description);
+                        }
+                        else {
+                            data = Commands.context(commandType, name);
                         }
                         if (options != null) {
                             if (!(data instanceof SlashCommandData) && !options.map.isEmpty()) {
