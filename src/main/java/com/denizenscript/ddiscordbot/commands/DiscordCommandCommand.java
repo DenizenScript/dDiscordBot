@@ -12,6 +12,7 @@ import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultText;
 import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
 import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
@@ -131,7 +132,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                                    @ArgName("instruction") DiscordCommandInstruction instruction,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("group") DiscordGroupTag group,
                                    @ArgPrefixed @ArgName("name") String name,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("type") Command.Type type,
+                                   @ArgPrefixed @ArgDefaultText("slash") @ArgName("type") Command.Type type,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("description") String description,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("options") MapTag options,
                                    // Past-deprecated arguments
@@ -144,7 +145,6 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
         JDA client = bot.getConnection().client;
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             try {
-                Command.Type commandType = type != null ? type : Command.Type.SLASH;
                 if (instruction == null) {
                     Debug.echoError(scriptEntry, "Must have a command instruction!");
                     scriptEntry.setFinished(true);
@@ -160,13 +160,13 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                 }
                 switch (instruction) {
                     case CREATE: {
-                        if (commandType == Command.Type.UNKNOWN) {
+                        if (type == Command.Type.UNKNOWN) {
                             Debug.echoError(scriptEntry, "Invalid command creation type!");
                             scriptEntry.setFinished(true);
                             return;
                         }
                         CommandData data;
-                        if (commandType == Command.Type.SLASH) {
+                        if (type == Command.Type.SLASH) {
                             if (description == null) {
                                 Debug.echoError(scriptEntry, "Must specify a description!");
                                 scriptEntry.setFinished(true);
@@ -175,7 +175,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                             data = Commands.slash(name, description);
                         }
                         else {
-                            data = Commands.context(commandType, name);
+                            data = Commands.context(type, name);
                         }
                         if (options != null) {
                             if (!(data instanceof SlashCommandData) && !options.map.isEmpty()) {

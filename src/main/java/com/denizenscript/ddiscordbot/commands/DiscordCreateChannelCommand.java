@@ -8,6 +8,7 @@ import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultText;
 import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
 import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
@@ -81,7 +82,7 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
                                    @ArgPrefixed @ArgName("group") DiscordGroupTag group,
                                    @ArgPrefixed @ArgName("name") String name,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("description") String description,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("type") ChannelType type,
+                                   @ArgPrefixed @ArgDefaultText("text") @ArgName("type") ChannelType type,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("category") String category,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("position") ElementTag position,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("roles") ListTag roles,
@@ -93,11 +94,10 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
         Runnable runner = () -> {
             try {
                 ChannelAction<? extends GuildChannel> action;
-                ChannelType channelType = type != null ? type : ChannelType.TEXT;
-                switch (channelType) {
+                switch (type) {
                     case NEWS:
                     case TEXT: {
-                        action = group.getGuild().createTextChannel(name).setType(channelType);
+                        action = group.getGuild().createTextChannel(name).setType(type);
                         break;
                     }
                     case CATEGORY: {
@@ -114,14 +114,14 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
                     }
                 }
                 if (description != null) {
-                    if (channelType != ChannelType.TEXT && channelType != ChannelType.NEWS) {
+                    if (type != ChannelType.TEXT && type != ChannelType.NEWS) {
                         Debug.echoError(scriptEntry, "Only text and news channels can have descriptions!");
                         return;
                     }
                     action = action.setTopic(description);
                 }
                 if (category != null) {
-                    if (channelType == ChannelType.CATEGORY) {
+                    if (type == ChannelType.CATEGORY) {
                         Debug.echoError(scriptEntry, "A category cannot have a parent category!");
                         return;
                     }
