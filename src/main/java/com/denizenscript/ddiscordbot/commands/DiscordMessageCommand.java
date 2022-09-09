@@ -136,7 +136,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                                    @ArgName("no_mention") boolean noMention,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows,
-                                   @ArgRaw @ArgDefaultNull @ArgName("raw_message") ObjectTag message,
+                                   @ArgRaw @ArgLinear @ArgDefaultNull @ArgName("raw_message") ObjectTag message,
                                    // Note: attachFileText intentionally at end
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText) {
         if (message == null && attachFileName == null) {

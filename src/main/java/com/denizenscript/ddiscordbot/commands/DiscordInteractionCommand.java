@@ -89,7 +89,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                    @ArgName("ephemeral") boolean ephemeral,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows,
-                                   @ArgRaw @ArgDefaultNull @ArgName("message") ObjectTag message,
+                                   @ArgRaw @ArgLinear @ArgDefaultNull @ArgName("message") ObjectTag message,
                                    // Note: attachFileText intentionally at end
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText) {
         Runnable runner = () -> {
