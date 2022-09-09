@@ -29,7 +29,6 @@ public class DiscordModalCommand extends AbstractCommand implements Holdable {
         setName("discordmodal");
         setSyntax("discordmodal [interaction:<interaction>] [name:<name>] [rows:<rows>] (title:<title>)");
         setRequiredArguments(3, 4);
-        setPrefixesHandled("interaction", "rows", "title", "name");
         isProcedural = false;
         autoCompile();
     }

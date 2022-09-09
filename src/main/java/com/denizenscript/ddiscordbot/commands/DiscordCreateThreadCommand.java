@@ -23,7 +23,6 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
         setName("discordcreatethread");
         setSyntax("discordcreatethread [id:<id>] [name:<name>] [message:<message>/parent:<channel> (private)]");
         setRequiredArguments(3, 4);
-        setPrefixesHandled("id", "name", "message", "parent");
         isProcedural = false;
         autoCompile();
     }

@@ -8,10 +8,7 @@ import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgLinear;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
+import com.denizenscript.denizencore.scripts.commands.generator.*;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
@@ -35,7 +32,6 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         setName("discordmessage");
         setSyntax("discordmessage [id:<id>] [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>)");
         setRequiredArguments(3, 7);
-        setPrefixesHandled("id", "reply", "edit", "channel", "user", "attach_file_name", "attach_file_text", "rows");
         isProcedural = false;
         autoCompile();
     }
@@ -139,9 +135,10 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgDefaultNull @ArgName("edit") DiscordMessageTag edit,
                                    @ArgName("no_mention") boolean noMention,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows,
-                                   @ArgLinear @ArgDefaultNull @ArgName("raw_message") ObjectTag message) {
+                                   @ArgRaw @ArgDefaultNull @ArgName("raw_message") ObjectTag message,
+                                   // Note: attachFileText intentionally at end
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText) {
         if (message == null && attachFileName == null) {
             throw new InvalidArgumentsRuntimeException("Must have a message!");
         }

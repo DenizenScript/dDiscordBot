@@ -103,7 +103,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     }
 
     public static void autoExecute(ScriptEntry scriptEntry,
-                                   @ArgPrefixed @ArgName("id") String id,
+                                   @ArgPrefixed @ArgName("id") String idString,
                                    @ArgName("instruction") DiscordInstruction instruction,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("code") String code,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("tokenfile") String tokenFile,
@@ -116,6 +116,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgDefaultNull @ArgName("role") DiscordRoleTag role,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("url") String url,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("message_id") ElementTag messageId) {
+        String id = CoreUtilities.toLowerCase(idString);
         Supplier<Boolean> requireClientID = () -> {
             if (!DenizenDiscordBot.instance.connections.containsKey(id)) {
                 Debug.echoError(scriptEntry, "Failed to process Discord " + instruction + " command: unknown ID!");

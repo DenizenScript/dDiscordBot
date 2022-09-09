@@ -29,7 +29,6 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
         setSyntax("discordcreatechannel [id:<id>] [group:<group>] [name:<name>] (description:<description>) (type:<type>) (category:<category_id>) (position:<#>) (roles:<list>) (users:<list>)");
         setRequiredArguments(3, 9);
         isProcedural = false;
-        setPrefixesHandled("id", "group", "name", "description", "type", "category", "position", "roles", "users");
         autoCompile();
     }
     // <--[command]

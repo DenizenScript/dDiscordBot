@@ -32,8 +32,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
     public DiscordCommandCommand() {
         setName("discordcommand");
         setSyntax("discordcommand [id:<id>] [create/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>)");
-        setRequiredArguments(3, 10);
-        setPrefixesHandled("id", "type");
+        setRequiredArguments(3, 7);
         isProcedural = false;
         autoCompile();
     }
@@ -154,7 +153,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                 if (enabled != null || enableFor != null || disableFor != null || instruction == DiscordCommandInstruction.PERMS) {
                     DenizenDiscordBot.oldCommandPermissions.warn(scriptEntry);
                 }
-                else if (name == null) {
+                if (name == null) {
                     Debug.echoError(scriptEntry, "Must specify a name!");
                     scriptEntry.setFinished(true);
                     return;

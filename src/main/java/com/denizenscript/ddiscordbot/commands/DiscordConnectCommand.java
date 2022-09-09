@@ -47,7 +47,6 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
         setSyntax("discordconnect [id:<id>] [token:<secret>] (intents:<intent>|...)");
         setRequiredArguments(2, 3);
         isProcedural = false;
-        setPrefixesHandled("id", "tokenfile", "token", "intents");
         autoCompile();
     }
 
@@ -199,13 +198,14 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
     }
 
     public static void autoExecute(ScriptEntry scriptEntry,
-                                   @ArgPrefixed @ArgName("id") String id,
+                                   @ArgPrefixed @ArgName("id") String idString,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("tokenfile") String tokenFile,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("token") SecretTag token,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("intents") ListTag intents) {
         if (tokenFile == null && token == null) {
             throw new InvalidArgumentsRuntimeException("Missing token SecretTag object!");
         }
+        String id = CoreUtilities.toLowerCase(idString);
         if (DenizenDiscordBot.instance.connections.containsKey(id)) {
             Debug.echoError("Failed to connect: duplicate ID!");
             return;

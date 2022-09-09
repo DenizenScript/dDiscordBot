@@ -7,10 +7,7 @@ import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgLinear;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
+import com.denizenscript.denizencore.scripts.commands.generator.*;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -33,7 +30,6 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
         setName("discordinteraction");
         setSyntax("discordinteraction [defer/reply/edit/delete] [interaction:<interaction>] (ephemeral) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)");
         setRequiredArguments(2, 7);
-        setPrefixesHandled("interaction", "rows", "attach_file_name", "attach_file_text");
         isProcedural = false;
         autoCompile();
     }
@@ -92,9 +88,10 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                    @ArgPrefixed @ArgName("interaction") DiscordInteractionTag interaction,
                                    @ArgName("ephemeral") boolean ephemeral,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows,
-                                   @ArgLinear @ArgDefaultNull @ArgName("message") ObjectTag message) {
+                                   @ArgRaw @ArgDefaultNull @ArgName("message") ObjectTag message,
+                                   // Note: attachFileText intentionally at end
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText) {
         Runnable runner = () -> {
             try {
                 switch (instruction) {
