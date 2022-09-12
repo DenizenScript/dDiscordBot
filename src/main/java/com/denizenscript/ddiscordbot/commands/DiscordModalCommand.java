@@ -3,7 +3,6 @@ package com.denizenscript.ddiscordbot.commands;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
@@ -84,15 +83,14 @@ public class DiscordModalCommand extends AbstractCommand implements Holdable {
                     Debug.echoError(scriptEntry, "Invalid action rows!");
                     return;
                 }
-                if (!interaction.interaction.isAcknowledged()) {
-                    IModalCallback replyTo = (IModalCallback) interaction.interaction;
-                    Modal modal = Modal.create(name, title).addActionRows(actionRows).build();
-                    ModalCallbackAction action = replyTo.replyModal(modal);
-                    action.complete();
-                }
-                else {
+                if (interaction.interaction.isAcknowledged()) {
                     Debug.echoError(scriptEntry, "Interaction already acknowledged!");
+                    return;
                 }
+                IModalCallback replyTo = (IModalCallback) interaction.interaction;
+                Modal modal = Modal.create(name, title).addActionRows(actionRows).build();
+                ModalCallbackAction action = replyTo.replyModal(modal);
+                action.complete();
             }
             catch (Exception ex) {
                 Debug.echoError(scriptEntry, ex);

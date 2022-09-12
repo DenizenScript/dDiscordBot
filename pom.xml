@@ -30,7 +30,7 @@
         </repository>
         <repository>
             <id>everything</id>
-            <url>https://maven.citizensnpcs.co</url>
+            <url>https://maven.citizensnpcs.co/repo</url>
         </repository>
 
         <repository>

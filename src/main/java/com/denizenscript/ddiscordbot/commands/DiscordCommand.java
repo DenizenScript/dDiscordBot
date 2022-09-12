@@ -5,15 +5,10 @@ import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizen.Denizen;
 import com.denizenscript.denizen.utilities.Utilities;
-import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgLinear;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
+import com.denizenscript.denizencore.scripts.commands.generator.*;
 import com.denizenscript.denizencore.utilities.CoreConfiguration;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
-import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
@@ -108,7 +103,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgDefaultNull @ArgName("code") String code,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("tokenfile") String tokenFile,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("channel") DiscordChannelTag channel,
-                                   @ArgLinear @ArgDefaultNull @ArgName("message") String message,
+                                   @ArgRaw @ArgLinear @ArgDefaultNull @ArgName("message") String message,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("status") String status,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("activity") String activity,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("user") DiscordUserTag user,

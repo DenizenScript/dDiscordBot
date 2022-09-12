@@ -142,22 +142,12 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
         if (group != null && group.bot == null) {
             group.bot = bot.bot;
         }
+        if (enabled != null || enableFor != null || disableFor != null || instruction == DiscordCommandInstruction.PERMS) {
+            DenizenDiscordBot.oldCommandPermissions.warn(scriptEntry);
+        }
         JDA client = bot.getConnection().client;
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             try {
-                if (instruction == null) {
-                    Debug.echoError(scriptEntry, "Must have a command instruction!");
-                    scriptEntry.setFinished(true);
-                    return;
-                }
-                if (enabled != null || enableFor != null || disableFor != null || instruction == DiscordCommandInstruction.PERMS) {
-                    DenizenDiscordBot.oldCommandPermissions.warn(scriptEntry);
-                }
-                if (name == null) {
-                    Debug.echoError(scriptEntry, "Must specify a name!");
-                    scriptEntry.setFinished(true);
-                    return;
-                }
                 switch (instruction) {
                     case CREATE: {
                         if (type == Command.Type.UNKNOWN) {

@@ -12,7 +12,6 @@ import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 public class DiscordApplicationCommandScriptEvent extends DiscordScriptEvent {
@@ -63,7 +62,7 @@ public class DiscordApplicationCommandScriptEvent extends DiscordScriptEvent {
             return false;
         }
         String type = path.eventArgLowerAt(1);
-        if (!type.equals("application") && !CoreUtilities.equalsIgnoreCase(type, getEvent().getCommandType().name())) {
+        if (!type.equals("application") && !runGenericCheck(type, getEvent().getCommandType().name())) {
             return false;
         }
         if (!runGenericSwitchCheck(path, "name", CoreUtilities.replace(getEvent().getName(), " ", "_"))) {

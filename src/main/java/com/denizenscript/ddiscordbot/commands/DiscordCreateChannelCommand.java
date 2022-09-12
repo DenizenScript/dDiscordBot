@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import org.bukkit.Bukkit;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 public class DiscordCreateChannelCommand extends AbstractCommand implements Holdable {
@@ -90,7 +89,6 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
         if (group != null && group.bot == null) {
             group.bot = bot.bot;
         }
-
         Runnable runner = () -> {
             try {
                 ChannelAction<? extends GuildChannel> action;

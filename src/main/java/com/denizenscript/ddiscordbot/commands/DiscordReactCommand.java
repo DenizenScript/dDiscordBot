@@ -2,8 +2,6 @@ package com.denizenscript.ddiscordbot.commands;
 
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.*;
-import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
-import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
@@ -22,6 +20,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 import org.bukkit.Bukkit;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DiscordReactCommand extends AbstractCommand implements Holdable {
 
@@ -126,11 +125,15 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
             scriptEntry.setFinished(true);
             return;
         }
-        RestAction<Void> action = null;
+        RestAction<Void> action;
         switch (instruction) {
             case ADD: {
                 if (emoji != null) {
                     action = msg.addReaction(emoji);
+                }
+                else {
+                    Debug.echoError("Cannot add reaction 'all' - not a real reaction.");
+                    return;
                 }
                 break;
             }
@@ -144,10 +147,18 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
                     if (emoji != null) {
                         action = msg.removeReaction(emoji, userObj);
                     }
+                    else {
+                        action = (RestAction) RestAction.allOf(msg.getReactions().stream()
+                                .filter(r -> r.retrieveUsers().stream().anyMatch(u -> u.getIdLong() == userObj.getIdLong()))
+                                .map(r -> r.removeReaction(userObj)).collect(Collectors.toSet()));
+                    }
                 }
                 else {
                     if (emoji != null) {
                         action = msg.removeReaction(emoji);
+                    }
+                    else {
+                        action = msg.clearReactions();
                     }
                 }
                 break;
@@ -160,6 +171,9 @@ public class DiscordReactCommand extends AbstractCommand implements Holdable {
                     action = msg.clearReactions(emoji);
                 }
                 break;
+            }
+            default: {
+                return; // Not possible, but required to prevent compiler error
             }
         }
         final RestAction<Void> actWait = action;
