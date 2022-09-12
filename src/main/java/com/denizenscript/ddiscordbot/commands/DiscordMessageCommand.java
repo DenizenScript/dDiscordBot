@@ -3,20 +3,22 @@ package com.denizenscript.ddiscordbot.commands;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
-import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
-import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.scripts.commands.generator.*;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.bukkit.Bukkit;
 
 import java.nio.charset.StandardCharsets;
@@ -24,15 +26,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DiscordMessageCommand extends AbstractDiscordCommand implements Holdable {
+public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
     public DiscordMessageCommand() {
         setName("discordmessage");
         setSyntax("discordmessage [id:<id>] [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>)");
         setRequiredArguments(3, 7);
-        setPrefixesHandled("id", "reply", "edit", "channel", "user", "attach_file_name", "attach_file_text", "rows");
-        setBooleansHandled("no_mention");
         isProcedural = false;
+        autoCompile();
     }
 
     // <--[command]
@@ -106,18 +107,6 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
     //
     // -->
 
-    @Override
-    public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
-        for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("raw_message")) {
-                scriptEntry.addObject("raw_message", arg.getRawObject());
-            }
-            else {
-                arg.reportUnhandled();
-            }
-        }
-    }
-
     public static List<ActionRow> createRows(ScriptEntry scriptEntry, ObjectTag rowsObj) {
         if (rowsObj == null) {
             return null;
@@ -142,22 +131,18 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
         return actionRows;
     }
 
-    @Override
-    public void execute(ScriptEntry scriptEntry) {
-        DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
-        DiscordChannelTag channel = scriptEntry.argForPrefix("channel", DiscordChannelTag.class, true);
-        ObjectTag message = scriptEntry.getObjectTag("raw_message");
-        DiscordUserTag user = scriptEntry.argForPrefix("user", DiscordUserTag.class, true);
-        DiscordMessageTag reply = scriptEntry.argForPrefix("reply", DiscordMessageTag.class, true);
-        DiscordMessageTag edit = scriptEntry.argForPrefix("edit", DiscordMessageTag.class, true);
-        boolean noMention = scriptEntry.argAsBoolean("no_mention");
-        ElementTag attachFileName = scriptEntry.argForPrefixAsElement("attach_file_name", null);
-        ElementTag attachFileText = scriptEntry.argForPrefixAsElement("attach_file_text", null);
-        ObjectTag rows = scriptEntry.argForPrefix("rows", ObjectTag.class, true);
-        if (scriptEntry.dbCallShouldDebug()) {
-            // Note: attachFileText intentionally at end
-            Debug.report(scriptEntry, getName(), bot, channel, message, user, reply, db("no_mention", noMention), rows, attachFileName, attachFileText);
-        }
+    public static void autoExecute(ScriptEntry scriptEntry,
+                                   @ArgPrefixed @ArgName("id") DiscordBotTag bot,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("channel") DiscordChannelTag channel,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("user") DiscordUserTag user,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("reply") DiscordMessageTag reply,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("edit") DiscordMessageTag edit,
+                                   @ArgName("no_mention") boolean noMention,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows,
+                                   @ArgRaw @ArgLinear @ArgDefaultNull @ArgName("raw_message") ObjectTag message,
+                                   // Note: attachFileText intentionally at end
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText) {
         if (message == null && attachFileName == null) {
             throw new InvalidArgumentsRuntimeException("Must have a message!");
         }
@@ -171,7 +156,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                     toChannel = (MessageChannel) result;
                 }
                 else {
-                    handleError(scriptEntry, "Invalid reply message channel ID given.");
+                    Debug.echoError(scriptEntry, "Invalid reply message channel ID given.");
                     return;
                 }
             }
@@ -181,7 +166,7 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                     toChannel = (MessageChannel) result;
                 }
                 else {
-                    handleError(scriptEntry, "Invalid edit message channel ID given.");
+                    Debug.echoError(scriptEntry, "Invalid edit message channel ID given.");
                     return;
                 }
             }
@@ -191,20 +176,20 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                     toChannel = (MessageChannel) result;
                 }
                 else {
-                    handleError(scriptEntry, "Invalid channel ID given.");
+                    Debug.echoError(scriptEntry, "Invalid channel ID given.");
                     return;
                 }
             }
             else if (user != null) {
                 User userObj = client.getUserById(user.user_id);
                 if (userObj == null) {
-                    handleError(scriptEntry, "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
+                    Debug.echoError(scriptEntry, "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
                     return;
                 }
                 toChannel = userObj.openPrivateChannel().complete();
             }
             if (toChannel == null) {
-                handleError(scriptEntry, "Failed to process DiscordMessage command: no channel given!");
+                Debug.echoError(scriptEntry, "Failed to process DiscordMessage command: no channel given!");
                 return;
             }
             Message replyTo = null;
@@ -214,22 +199,27 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                     replyTo = toChannel.retrieveMessageById(reply.message_id).complete();
                 }
                 if (replyTo == null) {
-                    handleError(scriptEntry, "Failed to process DiscordMessage reply: invalid message to reply to!");
+                    Debug.echoError(scriptEntry, "Failed to process DiscordMessage reply: invalid message to reply to!");
                     return;
                 }
             }
-            MessageAction action = null;
-            boolean isFile = false;
+            MessageRequest<?> action = null;
+            FileUpload fileUpload = null;
+            if (attachFileName != null) {
+                if (attachFileText != null) {
+                    fileUpload = FileUpload.fromData(attachFileText.getBytes(StandardCharsets.UTF_8), attachFileName);
+                }
+                else {
+                    Debug.echoError(scriptEntry, "Failed to process attachment - missing content?");
+                }
+            }
             if (message == null || message.toString().length() == 0) {
-                if (attachFileName != null) {
-                    if (attachFileText != null) {
-                        if (reply != null) {
-                            action = replyTo.reply(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
-                        }
-                        else {
-                            action = toChannel.sendFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
-                        }
-                        isFile = true;
+                if (fileUpload != null) {
+                    if (reply != null) {
+                        action = replyTo.replyFiles(fileUpload);
+                    }
+                    else {
+                        action = toChannel.sendFiles(fileUpload);
                     }
                 }
             }
@@ -257,30 +247,25 @@ public class DiscordMessageCommand extends AbstractDiscordCommand implements Hol
                 }
             }
             if (action == null) {
-                handleError(scriptEntry, "Failed to send message - missing content?");
+                Debug.echoError(scriptEntry, "Failed to send message - missing content?");
                 return;
             }
-            if (!isFile && attachFileName != null) {
-                if (attachFileText != null) {
-                    action = action.addFile(attachFileText.asString().getBytes(StandardCharsets.UTF_8), attachFileName.asString());
-                }
-                else {
-                    handleError(scriptEntry, "Failed to send attachment - missing content?");
-                }
+            if (fileUpload != null) {
+                action = action.setFiles(fileUpload);
             }
             List<ActionRow> actionRows = createRows(scriptEntry, rows);
             if (actionRows != null) {
-                action.setActionRows(actionRows);
+                action.setComponents(actionRows);
             }
             if (noMention) {
                 action = action.mentionRepliedUser(false);
             }
             try {
-                Message sentMessage = action.complete();
+                Message sentMessage = action instanceof MessageCreateAction ? ((MessageCreateAction) action).complete() : ((MessageEditAction) action).complete();
                 scriptEntry.addObject("message", new DiscordMessageTag(bot.bot, sentMessage));
             }
             catch (Throwable ex) {
-                handleError(scriptEntry, ex);
+                Debug.echoError(scriptEntry, ex);
             }
         };
         if (scriptEntry.shouldWaitFor()) {

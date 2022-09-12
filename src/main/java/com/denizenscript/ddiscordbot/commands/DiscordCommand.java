@@ -6,6 +6,11 @@ import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizen.Denizen;
 import com.denizenscript.denizen.utilities.Utilities;
 import com.denizenscript.denizencore.objects.Argument;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgLinear;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.CoreConfiguration;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
@@ -23,13 +28,14 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
+public class DiscordCommand extends AbstractCommand implements Holdable {
 
     public DiscordCommand() {
         setName("discord");
         setSyntax("discord [id:<id>] [disconnect/add_role/start_typing/remove_role/status (status:<status>) (activity:<activity>)/rename] (<value>) (message_id:<id>) (channel:<channel>) (user:<user>) (group:<group>) (role:<role>) (url:<url>)");
         setRequiredArguments(2, 12);
         isProcedural = false;
+        autoCompile();
     }
 
     // <--[command]
@@ -92,101 +98,28 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
 
     public enum DiscordInstruction { CONNECT, DISCONNECT, MESSAGE, ADD_ROLE, REMOVE_ROLE, STATUS, RENAME, START_TYPING, STOP_TYPING, EDIT_MESSAGE, DELETE_MESSAGE }
 
-    @Override
-    public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
-        for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("id")
-                    && arg.matchesPrefix("id")) {
-                scriptEntry.addObject("id", new ElementTag(CoreUtilities.toLowerCase(arg.getValue())));
-            }
-            else if (!scriptEntry.hasObject("instruction")
-                    && arg.matchesEnum(DiscordInstruction.class)) {
-                scriptEntry.addObject("instruction", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("code")
-                    && arg.matchesPrefix("code")) {
-                scriptEntry.addObject("code", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("tokenfile")
-                    && arg.matchesPrefix("tokenfile")) {
-                scriptEntry.addObject("tokenfile", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("channel")
-                    && arg.matchesPrefix("channel")
-                    && arg.matchesArgumentType(DiscordChannelTag.class)) {
-                scriptEntry.addObject("channel", arg.asType(DiscordChannelTag.class));
-            }
-            else if (!scriptEntry.hasObject("url")
-                    && arg.matchesPrefix("url")) {
-                scriptEntry.addObject("url", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("user")
-                    && arg.matchesPrefix("user")
-                    && arg.matchesArgumentType(DiscordUserTag.class)) {
-                scriptEntry.addObject("user", arg.asType(DiscordUserTag.class));
-            }
-            else if (!scriptEntry.hasObject("group")
-                    && arg.matchesPrefix("group")
-                    && arg.matchesArgumentType(DiscordGroupTag.class)) {
-                scriptEntry.addObject("group", arg.asType(DiscordGroupTag.class));
-            }
-            else if (!scriptEntry.hasObject("role")
-                    && arg.matchesPrefix("role")
-                    && arg.matchesArgumentType(DiscordRoleTag.class)) {
-                scriptEntry.addObject("role", arg.asType(DiscordRoleTag.class));
-            }
-            else if (!scriptEntry.hasObject("status")
-                    && arg.matchesPrefix("status")) {
-                scriptEntry.addObject("status", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("activity")
-                    && arg.matchesPrefix("activity")) {
-                scriptEntry.addObject("activity", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("message_id")
-                    && arg.matchesPrefix("message_id")) {
-                scriptEntry.addObject("message_id", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("message")) {
-                scriptEntry.addObject("message", arg.getRawElement());
-            }
-            else {
-                arg.reportUnhandled();
-            }
-        }
-        if (!scriptEntry.hasObject("id")) {
-            throw new InvalidArgumentsException("Must have an ID!");
-        }
-        if (!scriptEntry.hasObject("instruction")) {
-            throw new InvalidArgumentsException("Must have an instruction!");
-        }
-    }
-
     static {
         DiscordConnectCommand.fixJDALogger();
     }
 
-    @Override
-    public void execute(ScriptEntry scriptEntry) {
-        ElementTag id = scriptEntry.getElement("id");
-        ElementTag instruction = scriptEntry.getElement("instruction");
-        ElementTag code = scriptEntry.getElement("code"); // Intentionally do not debug this value.
-        ElementTag tokenFile = scriptEntry.getElement("tokenfile");
-        DiscordChannelTag channel = scriptEntry.getObjectTag("channel");
-        ElementTag message = scriptEntry.getElement("message");
-        ElementTag status = scriptEntry.getElement("status");
-        ElementTag activity = scriptEntry.getElement("activity");
-        DiscordUserTag user = scriptEntry.getObjectTag("user");
-        DiscordGroupTag guild = scriptEntry.getObjectTag("group");
-        DiscordRoleTag role = scriptEntry.getObjectTag("role");
-        ElementTag url = scriptEntry.getElement("url");
-        ElementTag messageId = scriptEntry.getElement("message_id");
-        if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), id, channel, instruction, message, user, guild, role, status, activity, url, tokenFile, messageId);
-        }
+    public static void autoExecute(ScriptEntry scriptEntry,
+                                   @ArgPrefixed @ArgName("id") String idString,
+                                   @ArgName("instruction") DiscordInstruction instruction,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("code") String code,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("tokenfile") String tokenFile,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("channel") DiscordChannelTag channel,
+                                   @ArgLinear @ArgDefaultNull @ArgName("message") String message,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("status") String status,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("activity") String activity,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("user") DiscordUserTag user,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("group") DiscordGroupTag guild,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("role") DiscordRoleTag role,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("url") String url,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("message_id") ElementTag messageId) {
+        String id = CoreUtilities.toLowerCase(idString);
         Supplier<Boolean> requireClientID = () -> {
-            if (!DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
-                handleError(scriptEntry, "Failed to process Discord " + instruction.asString() + " command: unknown ID!");
+            if (!DenizenDiscordBot.instance.connections.containsKey(id)) {
+                Debug.echoError(scriptEntry, "Failed to process Discord " + instruction + " command: unknown ID!");
                 scriptEntry.setFinished(true);
                 return true;
             }
@@ -194,7 +127,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
         };
         Function<JDA, Boolean> requireClientObject = (_client) -> {
             if (_client == null) {
-                handleError(scriptEntry, "The Discord bot '" + id.asString() + "'is not yet loaded.");
+                Debug.echoError(scriptEntry, "The Discord bot '" + id + "'is not yet loaded.");
                 scriptEntry.setFinished(true);
                 return true;
             }
@@ -202,7 +135,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
         };
         BiFunction<Object, String, Boolean> requireObject = (obj, name) -> {
             if (obj == null) {
-                handleError(scriptEntry, "Failed to process Discord " + instruction.asString() + " command: no " + name + " given!");
+                Debug.echoError(scriptEntry, "Failed to process Discord " + instruction + " command: no " + name + " given!");
                 scriptEntry.setFinished(true);
                 return true;
             }
@@ -214,53 +147,52 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
         Supplier<Boolean> requireGuild = () -> requireObject.apply(guild, "guild");
         Supplier<Boolean> requireRole = () -> requireObject.apply(role, "role");
         Supplier<Boolean> requireMessageId = () -> requireObject.apply(messageId, "message_id");
-        DiscordInstruction instructionEnum = DiscordInstruction.valueOf(instruction.asString().toUpperCase());
-        if (instructionEnum == DiscordInstruction.CONNECT) {
+        if (instruction == DiscordInstruction.CONNECT) {
             if (code != null && scriptEntry.dbCallShouldDebug() && CoreConfiguration.shouldRecordDebug) {
-                handleError(scriptEntry, "You almost recorded debug of your Discord token - record automatically disabled to protect you.");
+                Debug.echoError(scriptEntry, "You almost recorded debug of your Discord token - record automatically disabled to protect you.");
                 Debug.startRecording();
             }
         }
         Runnable executeCore = () -> {
             try {
-                switch (instructionEnum) {
+                switch (instruction) {
                     case CONNECT: {
                         DenizenDiscordBot.oldConnectCommand.warn(scriptEntry);
                         if (code == null && tokenFile == null) {
                             requireObject.apply(null, "tokenfile");
                             break;
                         }
-                        if (DenizenDiscordBot.instance.connections.containsKey(id.asString())) {
-                            handleError(scriptEntry, "Failed to connect: duplicate ID!");
+                        if (DenizenDiscordBot.instance.connections.containsKey(id)) {
+                            Debug.echoError(scriptEntry, "Failed to connect: duplicate ID!");
                             break;
                         }
                         String codeRaw;
                         if (code != null) {
-                            codeRaw = code.asString();
+                            codeRaw = code;
                         }
                         else {
-                            File f = new File(Denizen.getInstance().getDataFolder(), tokenFile.asString());
+                            File f = new File(Denizen.getInstance().getDataFolder(), tokenFile);
                             if (!Utilities.canReadFile(f)) {
-                                handleError(scriptEntry, "Cannot read from that token file path due to security settings in Denizen/config.yml.");
+                                Debug.echoError(scriptEntry, "Cannot read from that token file path due to security settings in Denizen/config.yml.");
                                 scriptEntry.setFinished(true);
                                 break;
                             }
                             if (!f.exists()) {
-                                handleError(scriptEntry, "Invalid tokenfile specified. File does not exist.");
+                                Debug.echoError(scriptEntry, "Invalid tokenfile specified. File does not exist.");
                                 scriptEntry.setFinished(true);
                                 break;
                             }
                             codeRaw = CoreUtilities.journallingLoadFile(f.getAbsolutePath());
                             if (codeRaw == null || codeRaw.length() < 5 || codeRaw.length() > 200) {
-                                handleError(scriptEntry, "Invalid tokenfile specified. File content doesn't look like a bot token.");
+                                Debug.echoError(scriptEntry, "Invalid tokenfile specified. File content doesn't look like a bot token.");
                                 scriptEntry.setFinished(true);
                                 break;
                             }
                             codeRaw = codeRaw.trim();
                         }
                         DiscordConnection dc = new DiscordConnection();
-                        dc.botID = id.asString();
-                        DenizenDiscordBot.instance.connections.put(id.asString(), dc);
+                        dc.botID = id;
+                        DenizenDiscordBot.instance.connections.put(id, dc);
                         DiscordConnectCommand.DiscordConnectThread dct = new DiscordConnectCommand.DiscordConnectThread();
                         dct.code = codeRaw;
                         dct.conn = dc;
@@ -272,9 +204,9 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         if (requireClientID.get()) {
                             return;
                         }
-                        DiscordConnection dc = DenizenDiscordBot.instance.connections.remove(id.asString());
+                        DiscordConnection dc = DenizenDiscordBot.instance.connections.remove(id);
                         if (dc.flags.modified) {
-                            dc.flags.saveToFile(DiscordConnectCommand.flagFilePathFor(id.asString()));
+                            dc.flags.saveToFile(DiscordConnectCommand.flagFilePathFor(id));
                         }
                         dc.client.shutdown();
                         scriptEntry.setFinished(true);
@@ -292,7 +224,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         if (requireClientID.get() || requireMessage.get()) {
                             return;
                         }
-                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        JDA client = DenizenDiscordBot.instance.connections.get(id).client;
                         if (requireClientObject.apply(client)) {
                             return;
                         }
@@ -300,7 +232,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         if (channel == null) {
                             User userObj = client.getUserById(user.user_id);
                             if (userObj == null) {
-                                handleError(scriptEntry, "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
+                                Debug.echoError(scriptEntry, "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
                                 scriptEntry.setFinished(true);
                                 return;
                             }
@@ -310,17 +242,17 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                             textChan = client.getTextChannelById(channel.channel_id);
                         }
                         if (textChan == null) {
-                            handleError(scriptEntry, "No channel to send message to (channel ID invalid, or not a text channel?).");
+                            Debug.echoError(scriptEntry, "No channel to send message to (channel ID invalid, or not a text channel?).");
                             scriptEntry.setFinished(true);
                             return;
                         }
                         Message sentMessage;
-                        if (message.asString().startsWith("discordembed@")) {
-                            MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
+                        if (message.startsWith("discordembed@")) {
+                            MessageEmbed embed = DiscordEmbedTag.valueOf(message, scriptEntry.context).build(scriptEntry.context).build();
                             sentMessage = textChan.sendMessageEmbeds(embed).complete();
                         }
                         else {
-                            sentMessage = textChan.sendMessage(message.asString()).complete();
+                            sentMessage = textChan.sendMessage(message).complete();
                         }
                         scriptEntry.addObject("message_id", new ElementTag(sentMessage.getId()));
                         scriptEntry.setFinished(true);
@@ -330,7 +262,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         if (requireClientID.get() || requireUser.get() || requireGuild.get() || requireRole.get()) {
                             return;
                         }
-                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        JDA client = DenizenDiscordBot.instance.connections.get(id).client;
                         if (requireClientObject.apply(client)) {
                             return;
                         }
@@ -344,7 +276,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         if (requireClientID.get() || requireUser.get() || requireRole.get() || requireGuild.get()) {
                             return;
                         }
-                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        JDA client = DenizenDiscordBot.instance.connections.get(id).client;
                         if (requireClientObject.apply(client)) {
                             return;
                         }
@@ -359,17 +291,17 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         if (requireClientID.get() || requireChannel.get() || requireMessage.get() || requireMessageId.get()) {
                             return;
                         }
-                        DiscordConnection connection = DenizenDiscordBot.instance.connections.get(id.asString());
+                        DiscordConnection connection = DenizenDiscordBot.instance.connections.get(id);
                         if (requireClientObject.apply(connection == null ? null : connection.client)) {
                             return;
                         }
                         MessageChannel textChannel = (MessageChannel) connection.getChannel(channel.channel_id);
-                        if (message.asString().startsWith("discordembed@")) {
-                            MessageEmbed embed = DiscordEmbedTag.valueOf(message.asString(), scriptEntry.context).build(scriptEntry.context).build();
+                        if (message.startsWith("discordembed@")) {
+                            MessageEmbed embed = DiscordEmbedTag.valueOf(message, scriptEntry.context).build(scriptEntry.context).build();
                             textChannel.editMessageEmbedsById(messageId.asLong(), embed).complete();
                         }
                         else {
-                            textChannel.editMessageById(messageId.asLong(), message.asString()).complete();
+                            textChannel.editMessageById(messageId.asLong(), message).complete();
                         }
                         scriptEntry.setFinished(true);
                         break;
@@ -379,7 +311,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         if (requireClientID.get() || requireChannel.get() || requireMessageId.get()) {
                             return;
                         }
-                        DiscordConnection connection = DenizenDiscordBot.instance.connections.get(id.asString());
+                        DiscordConnection connection = DenizenDiscordBot.instance.connections.get(id);
                         if (requireClientObject.apply(connection == null ? null : connection.client)) {
                             return;
                         }
@@ -391,7 +323,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         if (requireClientID.get() || requireChannel.get()) {
                             return;
                         }
-                        DiscordConnection connection = DenizenDiscordBot.instance.connections.get(id.asString());
+                        DiscordConnection connection = DenizenDiscordBot.instance.connections.get(id);
                         if (requireClientObject.apply(connection == null ? null : connection.client)) {
                             return;
                         }
@@ -405,7 +337,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         if (requireClientID.get() || requireChannel.get()) {
                             return;
                         }
-                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        JDA client = DenizenDiscordBot.instance.connections.get(id).client;
                         if (requireClientObject.apply(client)) {
                             return;
                         }
@@ -417,7 +349,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         if (requireClientID.get() || requireGuild.get() || requireMessage.get()) {
                             return;
                         }
-                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        JDA client = DenizenDiscordBot.instance.connections.get(id).client;
                         if (requireClientObject.apply(client)) {
                             return;
                         }
@@ -428,7 +360,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         else {
                             userId = user.user_id;
                         }
-                        client.getGuildById(guild.guild_id).getMemberById(userId).modifyNickname(message.asString()).complete();
+                        client.getGuildById(guild.guild_id).getMemberById(userId).modifyNickname(message).complete();
                         scriptEntry.setFinished(true);
                         break;
                     }
@@ -436,7 +368,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         if (requireClientID.get()) {
                             return;
                         }
-                        JDA client = DenizenDiscordBot.instance.connections.get(id.asString()).client;
+                        JDA client = DenizenDiscordBot.instance.connections.get(id).client;
                         if (requireClientObject.apply(client)) {
                             return;
                         }
@@ -444,19 +376,19 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                         String activityType = CoreUtilities.toLowerCase(activity.toString());
                         switch (activityType) {
                             case "watching":
-                                at = Activity.watching(message.asString());
+                                at = Activity.watching(message);
                                 break;
                             case "streaming":
-                                at = Activity.streaming(message.asString(), url.asString());
+                                at = Activity.streaming(message, url);
                                 break;
                             case "listening":
-                                at = Activity.listening(message.asString());
+                                at = Activity.listening(message);
                                 break;
                             default:
-                                at = Activity.playing(message.asString());
+                                at = Activity.playing(message);
                                 break;
                         }
-                        String statusLower = status == null ? "online" : CoreUtilities.toLowerCase(status.asString());
+                        String statusLower = status == null ? "online" : CoreUtilities.toLowerCase(status);
                         OnlineStatus statusType;
                         switch (statusLower) {
                             case "idle":
@@ -479,7 +411,7 @@ public class DiscordCommand extends AbstractDiscordCommand implements Holdable {
                 }
             }
             catch (Throwable ex) {
-                handleError(scriptEntry, ex);
+                Debug.echoError(scriptEntry, ex);
                 scriptEntry.setFinished(true);
             }
         };

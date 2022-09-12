@@ -6,26 +6,31 @@ import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.bukkit.Bukkit;
 
 import java.util.List;
 
-public class DiscordReactCommand extends AbstractDiscordCommand implements Holdable {
+public class DiscordReactCommand extends AbstractCommand implements Holdable {
 
     public DiscordReactCommand() {
         setName("discordreact");
         setSyntax("discordreact [id:<id>] [message:<message_id>] [add/remove/clear] [reaction:<reaction>/all] (user:<user>)");
         setRequiredArguments(4, 6);
-        setPrefixesHandled("id");
         isProcedural = false;
+        autoCompile();
     }
     // <--[command]
     // @Name discordreact
@@ -74,58 +79,13 @@ public class DiscordReactCommand extends AbstractDiscordCommand implements Holda
 
     public enum DiscordReactInstruction { ADD, REMOVE, CLEAR }
 
-    @Override
-    public void parseArgs(ScriptEntry scriptEntry) throws InvalidArgumentsException {
-        for (Argument arg : scriptEntry) {
-            if (!scriptEntry.hasObject("instruction")
-                    && arg.matchesEnum(DiscordReactInstruction.class)) {
-                scriptEntry.addObject("instruction", arg.asElement());
-            }
-            else if (!scriptEntry.hasObject("channel")
-                    && arg.matchesPrefix("channel")
-                    && arg.matchesArgumentType(DiscordChannelTag.class)) {
-                scriptEntry.addObject("channel", arg.asType(DiscordChannelTag.class));
-            }
-            else if (!scriptEntry.hasObject("message")
-                    && arg.matchesPrefix("message")
-                    && arg.matchesArgumentType(DiscordMessageTag.class)) {
-                scriptEntry.addObject("message", arg.asType(DiscordMessageTag.class));
-            }
-            else if (!scriptEntry.hasObject("user")
-                    && arg.matchesPrefix("user")
-                    && arg.matchesArgumentType(DiscordUserTag.class)) {
-                scriptEntry.addObject("user", arg.asType(DiscordUserTag.class));
-            }
-            else if (!scriptEntry.hasObject("reaction")
-                    && arg.matchesPrefix("reaction")) {
-                scriptEntry.addObject("reaction", arg.asElement());
-            }
-            else {
-                arg.reportUnhandled();
-            }
-        }
-        if (!scriptEntry.hasObject("instruction")) {
-            throw new InvalidArgumentsException("Must have an instruction!");
-        }
-        if (!scriptEntry.hasObject("message")) {
-            throw new InvalidArgumentsException("Must have a message!");
-        }
-        if (!scriptEntry.hasObject("reaction")) {
-            throw new InvalidArgumentsException("Must have a reaction!");
-        }
-    }
-
-    @Override
-    public void execute(ScriptEntry scriptEntry) {
-        DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
-        ElementTag instruction = scriptEntry.getElement("instruction");
-        DiscordChannelTag channel = scriptEntry.getObjectTag("channel");
-        DiscordMessageTag message = scriptEntry.getObjectTag("message");
-        DiscordUserTag user = scriptEntry.getObjectTag("user");
-        ElementTag reaction = scriptEntry.getElement("reaction");
-        if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), bot, instruction, channel, user, message, reaction);
-        }
+    public static void autoExecute(ScriptEntry scriptEntry,
+                                   @ArgPrefixed @ArgName("id") DiscordBotTag bot,
+                                   @ArgName("instruction") DiscordReactInstruction instruction,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("channel") DiscordChannelTag channel,
+                                   @ArgPrefixed @ArgName("message") DiscordMessageTag message,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("user") DiscordUserTag user,
+                                   @ArgPrefixed @ArgName("reaction") ElementTag reaction) {
         JDA client = bot.getConnection().client;
         if (message.channel_id == 0) {
             if (channel != null) {
@@ -144,24 +104,33 @@ public class DiscordReactCommand extends AbstractDiscordCommand implements Holda
             scriptEntry.setFinished(true);
             return;
         }
-        Emote emote = null;
+        Emoji emoji;
+        boolean clearAll = false;
         if (reaction.isInt()) {
-            emote = client.getEmoteById(reaction.asLong());
+            emoji = client.getEmojiById(reaction.asLong());
         }
         else {
-            List<Emote> emotesPossible = client.getEmotesByName(reaction.asString(), true);
+            if (CoreUtilities.toLowerCase(reaction.asString()).equals("all")) {
+                clearAll = true;
+            }
+            List<RichCustomEmoji> emotesPossible = client.getEmojisByName(reaction.asString(), true);
             if (!emotesPossible.isEmpty()) {
-                emote = emotesPossible.get(0);
+                emoji = emotesPossible.get(0);
+            }
+            else {
+                emoji = Emoji.fromUnicode(reaction.asString());
             }
         }
-        RestAction<Void> action;
-        switch (DiscordReactInstruction.valueOf(instruction.asString().toUpperCase())) {
+        if (emoji == null && !clearAll) {
+            Debug.echoError("Invalid emoji!");
+            scriptEntry.setFinished(true);
+            return;
+        }
+        RestAction<Void> action = null;
+        switch (instruction) {
             case ADD: {
-                if (emote != null) {
-                    action = msg.addReaction(emote);
-                }
-                else {
-                    action = msg.addReaction(reaction.asString());
+                if (emoji != null) {
+                    action = msg.addReaction(emoji);
                 }
                 break;
             }
@@ -172,45 +141,31 @@ public class DiscordReactCommand extends AbstractDiscordCommand implements Holda
                         Debug.echoError("Cannot remove reaction from unknown user ID.");
                         return;
                     }
-                    if (emote != null) {
-                        action = msg.removeReaction(emote, userObj);
-                    }
-                    else {
-                        action = msg.removeReaction(reaction.asString(), userObj);
+                    if (emoji != null) {
+                        action = msg.removeReaction(emoji, userObj);
                     }
                 }
                 else {
-                    if (emote != null) {
-                        action = msg.removeReaction(emote);
-                    }
-                    else {
-                        action = msg.removeReaction(reaction.asString());
+                    if (emoji != null) {
+                        action = msg.removeReaction(emoji);
                     }
                 }
                 break;
             }
             case CLEAR: {
-                if (CoreUtilities.toLowerCase(reaction.asString()).equals("all")) {
+                if (clearAll) {
                     action = msg.clearReactions();
                 }
                 else {
-                    if (emote != null) {
-                        action = msg.clearReactions(emote);
-                    }
-                    else {
-                        action = msg.clearReactions(reaction.asString());
-                    }
+                    action = msg.clearReactions(emoji);
                 }
                 break;
-            }
-            default: {
-                return; // Not possible, but required to prevent compiler error
             }
         }
         final RestAction<Void> actWait = action;
         Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
             actWait.onErrorMap(t -> {
-                handleError(scriptEntry, t);
+                Debug.echoError(scriptEntry, t);
                 return null;
             });
             actWait.complete();

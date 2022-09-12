@@ -7,20 +7,24 @@ import com.denizenscript.ddiscordbot.objects.DiscordMessageTag;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgLinear;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
+import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.*;
 import org.bukkit.Bukkit;
 
-public class DiscordCreateThreadCommand extends AbstractDiscordCommand implements Holdable {
+public class DiscordCreateThreadCommand extends AbstractCommand implements Holdable {
 
     public DiscordCreateThreadCommand() {
         setName("discordcreatethread");
         setSyntax("discordcreatethread [id:<id>] [name:<name>] [message:<message>/parent:<channel> (private)]");
         setRequiredArguments(3, 4);
-        setPrefixesHandled("id", "name", "message", "parent");
-        setBooleansHandled("private");
         isProcedural = false;
+        autoCompile();
     }
     // <--[command]
     // @Name discordcreatethread
@@ -55,13 +59,12 @@ public class DiscordCreateThreadCommand extends AbstractDiscordCommand implement
     //
     // -->
 
-    @Override
-    public void execute(ScriptEntry scriptEntry) {
-        DiscordBotTag bot = scriptEntry.requiredArgForPrefix("id", DiscordBotTag.class);
-        ElementTag name = scriptEntry.requiredArgForPrefixAsElement("name");
-        DiscordMessageTag message = scriptEntry.argForPrefix("message", DiscordMessageTag.class, true);
-        DiscordChannelTag channel = scriptEntry.argForPrefix("parent", DiscordChannelTag.class, true);
-        boolean isPrivate = scriptEntry.argAsBoolean("private");
+    public static void autoExecute(ScriptEntry scriptEntry,
+                                   @ArgPrefixed @ArgName("id") DiscordBotTag bot,
+                                   @ArgPrefixed @ArgName("name") String name,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("message") DiscordMessageTag message,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("parent") DiscordChannelTag channel,
+                                   @ArgName("private") boolean isPrivate) {
         if (message != null) {
             if (channel != null || isPrivate) {
                 throw new InvalidArgumentsRuntimeException("Cannot have both a 'message:' and channel/private");
@@ -73,9 +76,6 @@ public class DiscordCreateThreadCommand extends AbstractDiscordCommand implement
         else if (channel == null) {
             throw new InvalidArgumentsRuntimeException("Missing message or channel argument!");
         }
-        if (scriptEntry.dbCallShouldDebug()) {
-            Debug.report(scriptEntry, getName(), bot, name, message, channel, isPrivate ? db("private", true) : "");
-        }
         Runnable runner = () -> {
             if (message != null) {
                 DiscordMessageTag forMessage = message;
@@ -85,25 +85,25 @@ public class DiscordCreateThreadCommand extends AbstractDiscordCommand implement
                 }
                 Message actualMessage = forMessage.getMessage();
                 if (actualMessage == null) {
-                    handleError(scriptEntry, "Invalid message reference.");
+                    Debug.echoError(scriptEntry, "Invalid message reference.");
                     return;
                 }
                 if (!(actualMessage.getChannel() instanceof GuildChannel)) {
-                    handleError(scriptEntry, "Message referenced is not in a group (can't create threads in a DM).");
+                    Debug.echoError(scriptEntry, "Message referenced is not in a group (can't create threads in a DM).");
                     return;
                 }
                 if (actualMessage.getChannel() instanceof ThreadChannel) {
-                    handleError(scriptEntry, "Message referenced is in a thread - you can't have threads inside threads.");
+                    Debug.echoError(scriptEntry, "Message referenced is in a thread - you can't have threads inside threads.");
                     return;
                 }
                 try {
-                    ThreadChannel created = ((TextChannel) actualMessage.getChannel()).createThreadChannel(name.asString(), actualMessage.getIdLong()).complete();
+                    ThreadChannel created = ((TextChannel) actualMessage.getChannel()).createThreadChannel(name, actualMessage.getIdLong()).complete();
                     if (created != null) {
                         scriptEntry.addObject("created_thread", new DiscordChannelTag(bot.bot, created));
                     }
                 }
                 catch (Throwable ex) {
-                    handleError(scriptEntry, ex);
+                    Debug.echoError(scriptEntry, ex);
                 }
             }
             else {
@@ -114,29 +114,29 @@ public class DiscordCreateThreadCommand extends AbstractDiscordCommand implement
                 }
                 Channel actualChannel = forChannel.getChannel();
                 if (actualChannel == null) {
-                    handleError(scriptEntry, "Invalid channel reference.");
+                    Debug.echoError(scriptEntry, "Invalid channel reference.");
                     return;
                 }
                 if (!(actualChannel instanceof GuildChannel)) {
-                    handleError(scriptEntry, "Channel referenced is not in a group (can't create threads in a DM).");
+                    Debug.echoError(scriptEntry, "Channel referenced is not in a group (can't create threads in a DM).");
                     return;
                 }
                 if (!(actualChannel instanceof TextChannel)) {
-                    handleError(scriptEntry, "Channel referenced is not a text channel (can't create threads in a voice channel).");
+                    Debug.echoError(scriptEntry, "Channel referenced is not a text channel (can't create threads in a voice channel).");
                     return;
                 }
                 if (actualChannel instanceof ThreadChannel) {
-                    handleError(scriptEntry, "Channel referenced is a thread - you can't have threads inside threads.");
+                    Debug.echoError(scriptEntry, "Channel referenced is a thread - you can't have threads inside threads.");
                     return;
                 }
                 try {
-                    ThreadChannel created = ((TextChannel) actualChannel).createThreadChannel(name.asString(), isPrivate).complete();
+                    ThreadChannel created = ((TextChannel) actualChannel).createThreadChannel(name, isPrivate).complete();
                     if (created != null) {
                         scriptEntry.addObject("created_thread", new DiscordChannelTag(bot.bot, created));
                     }
                 }
                 catch (Throwable ex) {
-                    handleError(scriptEntry, ex);
+                    Debug.echoError(scriptEntry, ex);
                 }
             }
         };
