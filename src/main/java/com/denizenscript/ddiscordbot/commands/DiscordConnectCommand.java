@@ -61,9 +61,11 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
     // Connects to Discord.
     //
     // The connection will automatically specify the following gateway intents:
-    // GUILD_MEMBERS, GUILD_EMOJIS_AND_STICKERS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS, DIRECT_MESSAGES, DIRECT_MESSAGE_REACTIONS
+    // GUILD_MEMBERS, GUILD_EMOJIS_AND_STICKERS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS, DIRECT_MESSAGES, DIRECT_MESSAGE_REACTIONS, MESSAGE_CONTENT
     // Optionally specify additional Gateway Intents to use as a list of any of:
     // GUILD_BANS, GUILD_WEBHOOKS, GUILD_INVITES, GUILD_VOICE_STATES, GUILD_PRESENCES, GUILD_MESSAGE_TYPING, DIRECT_MESSAGE_TYPING
+    //
+    // use "intents:clear|SOME_INTENT|etc" (ie the first entry as "clear") to clear out default intents and use only your manually specified choices.
     //
     // Note that you need to enable the 'members' intent on your bot in Discord bot settings https://discord.com/developers/applications
     // And also may need to manually enable other intents if you specify any.
@@ -136,7 +138,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
         public ScriptEntry scriptEntry;
 
         public HashSet<GatewayIntent> intents = new HashSet<>(Arrays.asList(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EMOJIS_AND_STICKERS, GatewayIntent.GUILD_MESSAGE_REACTIONS,
-                GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGE_REACTIONS, GatewayIntent.DIRECT_MESSAGES));
+                GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGE_REACTIONS, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT));
 
         @Override
         public void run() {
@@ -247,7 +249,12 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
             if (intents != null) {
                 try {
                     for (String intent : intents) {
-                        dct.intents.add(GatewayIntent.valueOf(intent.toUpperCase()));
+                        if (CoreUtilities.equalsIgnoreCase(intent, "clear")) {
+                            dct.intents.clear();
+                        }
+                        else {
+                            dct.intents.add(GatewayIntent.valueOf(intent.toUpperCase()));
+                        }
                     }
                 }
                 catch (IllegalArgumentException ex) {
