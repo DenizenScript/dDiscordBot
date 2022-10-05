@@ -16,6 +16,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import org.bukkit.Bukkit;
 
 import java.io.File;

@@ -13,9 +13,9 @@ import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
 import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import org.bukkit.Bukkit;
 
@@ -93,9 +93,12 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
             try {
                 ChannelAction<? extends GuildChannel> action;
                 switch (type) {
-                    case NEWS:
+                    case NEWS: {
+                        action = group.getGuild().createNewsChannel(name);
+                        break;
+                    }
                     case TEXT: {
-                        action = group.getGuild().createTextChannel(name).setType(type);
+                        action = group.getGuild().createTextChannel(name);
                         break;
                     }
                     case CATEGORY: {
