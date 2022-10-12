@@ -35,6 +35,7 @@ public class DiscordModalSubmittedScriptEvent extends DiscordScriptEvent {
     // <context.channel> returns the DiscordChannelTag.
     // <context.group> returns the DiscordGroupTag.
     // <context.interaction> returns the DiscordInteractionTag.
+    // <context.name> returns the name of the modal.
     // <context.values> returns a MapTag of the values submitted by the user.
     //
     // -->
@@ -77,6 +78,8 @@ public class DiscordModalSubmittedScriptEvent extends DiscordScriptEvent {
                 break;
             case "interaction":
                 return DiscordInteractionTag.getOrCreate(botID, getEvent().getInteraction());
+            case "name":
+                return new ElementTag(getEvent().getModalId());
             case "values":
                 Map<StringHolder, ObjectTag> map = getEvent().getValues().stream()
                         .collect(Collectors.toMap(key -> new StringHolder(key.getId()), value -> new ElementTag(value.getAsString(), true)));
