@@ -13,6 +13,7 @@ import com.denizenscript.denizencore.tags.TagContext;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 
 public class DiscordMessageModifiedScriptEvent extends DiscordScriptEvent {

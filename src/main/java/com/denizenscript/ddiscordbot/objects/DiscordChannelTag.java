@@ -23,6 +23,14 @@ import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.IThreadContainerUnion;
 
 public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable {
 
@@ -188,7 +196,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
                 attribute.echoError("Cannot get 'parent' tag: this channel is not a thread.");
                 return null;
             }
-            GuildMessageChannel parent = ((ThreadChannel) channel).getParentMessageChannel();
+            IThreadContainerUnion parent = ((ThreadChannel) channel).getParentChannel();
             return new DiscordChannelTag(object.bot, parent);
         });
 
