@@ -88,7 +88,7 @@ public class DiscordForumPostTagsUpdatedScriptEvent extends DiscordScriptEvent {
             return true;
         }
         for (ForumTag tag : tags) {
-            if (tryForumsTag(path, tag, switchName)) {
+            if (tryForumTag(path, tag, switchName)) {
                 return true;
             }
         }

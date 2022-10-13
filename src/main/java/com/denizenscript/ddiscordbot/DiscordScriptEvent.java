@@ -94,7 +94,7 @@ public abstract class DiscordScriptEvent extends BukkitScriptEvent {
         return false;
     }
 
-    public static boolean tryForumsTag(ScriptPath path, ForumTag tag, String switchName) {
+    public static boolean tryForumTag(ScriptPath path, ForumTag tag, String switchName) {
         String rawMatcher = path.switches.get(switchName);
         if (rawMatcher == null) {
             return true;
