@@ -11,8 +11,8 @@ import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -113,7 +113,7 @@ public class DiscordSelectionTag implements ObjectTag {
                 ElementTag emoji = option.getElement("emoji");
                 Emoji emojiData = null;
                 if (emoji != null) {
-                    emojiData = Emoji.fromFormatted(emoji.toString());
+                    emojiData = Emoji.fromUnicode(emoji.toString());
                 }
                 if (label == null || value == null) {
                     return null;

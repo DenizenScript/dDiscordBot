@@ -85,7 +85,7 @@ public class DiscordButtonTag implements ObjectTag {
         ElementTag emoji = buttonData.getElement("emoji");
         ElementTag style = buttonData.getElement("style", "PRIMARY");
         ButtonStyle styleData = style.asEnum(ButtonStyle.class);
-        return Button.of(styleData, id.toString(), label == null ? null : label.toString(), emoji == null ? null : Emoji.fromFormatted(emoji.toString()));
+        return Button.of(styleData, id.toString(), label == null ? null : label.toString(), emoji == null ? null : Emoji.fromUnicode(emoji.toString()));
     }
 
     public MapTag buttonData;
