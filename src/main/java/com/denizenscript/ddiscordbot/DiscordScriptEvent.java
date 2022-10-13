@@ -3,9 +3,9 @@ package com.denizenscript.ddiscordbot;
 import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
 import com.denizenscript.denizen.events.BukkitScriptEvent;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import net.dv8tion.jda.api.events.Event;
 
 public abstract class DiscordScriptEvent extends BukkitScriptEvent {
@@ -92,5 +92,20 @@ public abstract class DiscordScriptEvent extends BukkitScriptEvent {
             return true;
         }
         return false;
+    }
+
+    public static boolean tryForumsTag(ScriptPath path, ForumTag tag, String switchName) {
+        String rawMatcher = path.switches.get(switchName);
+        if (rawMatcher == null) {
+            return true;
+        }
+        if (tag == null) {
+            return false;
+        }
+        MatchHelper matcher = createMatcher(rawMatcher);
+        if (matcher.doesMatch(tag.getId())) {
+            return true;
+        }
+        return matcher.doesMatch(tag.getName());
     }
 }

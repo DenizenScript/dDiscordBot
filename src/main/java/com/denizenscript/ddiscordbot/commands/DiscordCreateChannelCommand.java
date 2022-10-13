@@ -41,13 +41,13 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
     // @Group external
     //
     // @Description
-    // Creates text channels on Discord.
+    // Creates channels on Discord.
     //
     // This functionality requires the Manage Channels permission.
     //
-    // You can optionally specify the channel description (aka "topic") with the "description" argument.
+    // You can optionally specify the channel description (aka "topic", or "guidelines" for forum channels) with the "description" argument.
     //
-    // You can optionally specify the channel type. Valid types are TEXT, NEWS, CATEGORY, and VOICE.
+    // You can optionally specify the channel type. Valid types are TEXT, NEWS, CATEGORY, VOICE, and FORUM.
     // Only text and news channels can have a description.
     // Categories cannot have a parent category.
     //
@@ -109,14 +109,18 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
                         action = group.getGuild().createVoiceChannel(name);
                         break;
                     }
+                    case FORUM: {
+                        action = group.getGuild().createForumChannel(name);
+                        break;
+                    }
                     default: {
                         Debug.echoError(scriptEntry, "Invalid channel type!");
                         return;
                     }
                 }
                 if (description != null) {
-                    if (type != ChannelType.TEXT && type != ChannelType.NEWS) {
-                        Debug.echoError(scriptEntry, "Only text and news channels can have descriptions!");
+                    if (type != ChannelType.TEXT && type != ChannelType.NEWS && type != ChannelType.FORUM) {
+                        Debug.echoError(scriptEntry, "Only text, news, or forum channels can have descriptions!");
                         return;
                     }
                     action = action.setTopic(description);

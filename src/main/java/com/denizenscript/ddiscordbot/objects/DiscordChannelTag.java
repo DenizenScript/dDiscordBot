@@ -8,6 +8,7 @@ import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
+import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
@@ -17,20 +18,21 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.Channel;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.channel.unions.IThreadContainerUnion;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable {
 
@@ -166,7 +168,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @plugin dDiscordBot
         // @description
         // Returns the type of the channel.
-        // Will be any of: TEXT, PRIVATE, VOICE, GROUP, CATEGORY, NEWS, STORE, STAGE, GUILD_NEWS_THREAD, GUILD_PUBLIC_THREAD, GUILD_PRIVATE_THREAD, or UNKNOWN.
+        // Will be any of <@link url https://javadoc.io/doc/net.dv8tion/JDA/latest/net/dv8tion/jda/api/entities/channel/ChannelType.html>.
         // -->
         tagProcessor.registerTag(ElementTag.class, "channel_type", (attribute, object) -> {
             return new ElementTag(object.getChannel().getType().name());
@@ -436,6 +438,58 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
             }
             return result;
         });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.applied_tags>
+        // @returns ListTag(MapTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a forum post's applied tags, output is a list of maps with the following keys:
+        // - "name", the forum tag's name.
+        // - "id", the forum tag's ID.
+        // - "mod_only", weather the forum tag can only be applied by mods.
+        // - "emoji" (optional), the forum tag's emoji, if any.
+        // -->
+        tagProcessor.registerTag(ListTag.class, "applied_tags", (attribute, object) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                attribute.echoError("Cannot get 'applied_tags' tag: this channel is not a thread.");
+                return null;
+            }
+            return getListForForumTags(((ThreadChannel) channel).getAppliedTags(), object.getBot());
+        });
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name applied_tags
+        // @input ListTag
+        // @description
+        // Sets a forum post's applied tags, input is a list of forum tag IDs.
+        // @tags
+        // <DiscordChannelTag.applied_tags>
+        // -->
+        tagProcessor.registerMechanism("applied_tags", false, ListTag.class, (object, mechanism, input) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                mechanism.echoError("Cannot adjust 'applied_tags': this channel is not a thread.");
+                return;
+            }
+            ThreadChannel threadChannel = (ThreadChannel) channel;
+            if (!(threadChannel.getParentChannel() instanceof ForumChannel)) {
+                mechanism.echoError("Cannot adjust 'applied_tags': this thread is not a forum channel post.");
+                return;
+            }
+            List<ForumTagSnowflake> tags = new ArrayList<>();
+            for (String tagStr : input) {
+                ElementTag tagElement = new ElementTag(tagStr, true);
+                if (!tagElement.isInt()) {
+                    mechanism.echoError("Invalid forum tag '" + tagStr + "' specified: must be a valid ID.");
+                    continue;
+                }
+                tags.add(ForumTagSnowflake.fromId(tagElement.asLong()));
+            }
+            threadChannel.getManager().setAppliedTags(tags).submit();
+        });
     }
 
     public static ObjectTagProcessor<DiscordChannelTag> tagProcessor = new ObjectTagProcessor<>();
@@ -585,5 +639,34 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         if (mechanism.matches("delete")) {
             getChannel().delete().complete();
         }
+
+        tagProcessor.processMechanism(this, mechanism);
+    }
+
+    public static ListTag getListForForumTags(Collection<ForumTag> tags, DiscordConnection connection) {
+        ListTag result = new ListTag(tags.size());
+        for (ForumTag tag : tags) {
+            result.addObject(getMapForForumTag(tag, connection));
+        }
+        return result;
+    }
+
+    public static MapTag getMapForForumTag(ForumTag tag, DiscordConnection connection) {
+        MapTag result = new MapTag();
+        result.putObject("name", new ElementTag(tag.getName(), true));
+        result.putObject("id", new ElementTag(tag.getIdLong()));
+        result.putObject("mod_only", new ElementTag(tag.isModerated()));
+        Emoji emoji = tag.getEmoji();
+        if (emoji != null) {
+            // Work around Discord bug where custom emoji names are empty in ForumTag#getEmoji
+            if (emoji.getType() == Emoji.Type.CUSTOM && connection != null && emoji.getName().isEmpty()) {
+                Emoji customEmoji = connection.client.getEmojiById(((CustomEmoji) emoji).getIdLong());
+                if (customEmoji != null) {
+                    emoji = customEmoji;
+                }
+            }
+            result.putObject("emoji", new ElementTag(emoji.getFormatted(), true));
+        }
+        return result;
     }
 }

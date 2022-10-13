@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.channel.ChannelCreateEvent;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
+import net.dv8tion.jda.api.events.channel.update.ChannelUpdateAppliedTagsEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
@@ -177,6 +178,11 @@ public class DiscordConnection extends ListenerAdapter {
     @Override
     public void onThreadHidden(@Nonnull ThreadHiddenEvent event) { // TODO: Is 'hidden' the same as 'archived'?
         autoHandle(event, DiscordThreadArchivedScriptEvent.instance);
+    }
+
+    @Override
+    public void onChannelUpdateAppliedTags(ChannelUpdateAppliedTagsEvent event) {
+        autoHandle(event, DiscordForumPostTagsUpdatedScriptEvent.instance);
     }
 
     public void autoHandle(Event event, DiscordScriptEvent scriptEvent) {
