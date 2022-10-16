@@ -159,7 +159,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // Will be any of: TEXT, PRIVATE, VOICE, GROUP, CATEGORY, NEWS, STORE, STAGE, GUILD_NEWS_THREAD, GUILD_PUBLIC_THREAD, GUILD_PRIVATE_THREAD, or UNKNOWN.
         // -->
         tagProcessor.registerTag(ElementTag.class, "channel_type", (attribute, object) -> {
-            return new ElementTag(object.getChannel().getType().name());
+            return new ElementTag(object.getChannel().getType());
         }, "type");
 
         // <--[tag]
