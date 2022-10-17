@@ -4,6 +4,7 @@ import com.denizenscript.ddiscordbot.commands.*;
 import com.denizenscript.ddiscordbot.events.*;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.ddiscordbot.properties.DiscordTimeTagProperties;
+import com.denizenscript.denizen.Denizen;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.core.TimeTag;
 import com.denizenscript.denizencore.objects.properties.PropertyParser;
@@ -341,5 +342,7 @@ public class DenizenDiscordBot extends JavaPlugin {
         DiscordInteractionTag.interactionCache.clear();
         Bukkit.getServer().getScheduler().cancelTasks(this);
         HandlerList.unregisterAll(this);
+        // To prevent issue with onDisable order, tell Denizen to shutdown NOW (it won't repeat itself).
+        Denizen.getInstance().onDisable();
     }
 }
