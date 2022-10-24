@@ -65,7 +65,7 @@ public class DiscordTextInputTag implements ObjectTag {
 
     public DiscordTextInputTag(TextInput textInput) {
         textInputData = new MapTag();
-        textInputData.putObject("style", new ElementTag(textInput.getStyle().name()));
+        textInputData.putObject("style", new ElementTag(textInput.getStyle()));
         textInputData.putObject("label", new ElementTag(textInput.getLabel()));
         textInputData.putObject("id", new ElementTag(textInput.getId()));
         if (textInput.getMinLength() != -1) {

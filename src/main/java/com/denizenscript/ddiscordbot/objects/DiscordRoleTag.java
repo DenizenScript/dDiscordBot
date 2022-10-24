@@ -249,7 +249,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
         tagProcessor.registerTag(ListTag.class, "permissions", (attribute, object) -> {
             ListTag list = new ListTag();
             for (Permission perm : object.role.getPermissions()) {
-                list.addObject(new ElementTag(perm.name(), true));
+                list.addObject(new ElementTag(perm));
             }
             return list;
         });

@@ -66,7 +66,7 @@ public class DiscordButtonTag implements ObjectTag {
 
     public DiscordButtonTag(Button button) {
         buttonData = new MapTag();
-        buttonData.putObject("style", new ElementTag(button.getStyle().name()));
+        buttonData.putObject("style", new ElementTag(button.getStyle()));
         buttonData.putObject("label", new ElementTag(button.getLabel()));
         if (button.getId() != null) {
             buttonData.putObject("id", new ElementTag(button.getId()));

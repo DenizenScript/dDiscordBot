@@ -171,7 +171,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // Will be any of <@link url https://javadoc.io/doc/net.dv8tion/JDA/latest/net/dv8tion/jda/api/entities/channel/ChannelType.html>.
         // -->
         tagProcessor.registerTag(ElementTag.class, "channel_type", (attribute, object) -> {
-            return new ElementTag(object.getChannel().getType().name());
+            return new ElementTag(object.getChannel().getType());
         }, "type");
 
         // <--[tag]

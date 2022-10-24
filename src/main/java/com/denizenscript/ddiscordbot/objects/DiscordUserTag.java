@@ -313,7 +313,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
             if (activities.isEmpty()) {
                 return null;
             }
-            return new ElementTag(activities.get(0).getType().name());
+            return new ElementTag(activities.get(0).getType());
         });
 
         // <--[tag]
@@ -416,7 +416,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
             }
             ListTag list = new ListTag();
             for (Permission perm : group.getGuild().getMember(object.getUser()).getPermissions()) {
-                list.addObject(new ElementTag(perm.name(), true));
+                list.addObject(new ElementTag(perm));
             }
             return list;
         });
