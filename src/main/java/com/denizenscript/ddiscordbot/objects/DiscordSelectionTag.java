@@ -12,7 +12,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -78,7 +78,7 @@ public class DiscordSelectionTag implements ObjectTag {
         return options;
     }
 
-    public DiscordSelectionTag(SelectMenu menu) {
+    public DiscordSelectionTag(StringSelectMenu menu) {
         menuData = new MapTag();
         if (menu.getId() != null) {
             menuData.putObject("id", new ElementTag(menu.getId()));
@@ -93,13 +93,13 @@ public class DiscordSelectionTag implements ObjectTag {
         menuData.putObject("options", options);
     }
 
-    public SelectMenu.Builder build(TagContext context) {
+    public StringSelectMenu.Builder build(TagContext context) {
         ElementTag id = menuData.getElement("id");
         ElementTag placeholder = menuData.getElement("placeholder");
         if (id == null) {
             return null;
         }
-        SelectMenu.Builder menu = SelectMenu.create(id.toString());
+        StringSelectMenu.Builder menu = StringSelectMenu.create(id.asString());
         if (placeholder != null) {
             menu.setPlaceholder(placeholder.toString());
         }
