@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import net.dv8tion.jda.api.events.Event;
 
+import java.util.Collection;
+
 public abstract class DiscordScriptEvent extends BukkitScriptEvent {
 
     public DiscordScriptEvent() {
@@ -107,5 +109,22 @@ public abstract class DiscordScriptEvent extends BukkitScriptEvent {
             return true;
         }
         return matcher.doesMatch(tag.getName());
+    }
+
+
+
+    public static boolean tryForumTags(ScriptPath path, Collection<ForumTag> tags, String switchName) {
+        if (!path.switches.containsKey(switchName)) {
+            return true;
+        }
+        if (tags == null || tags.isEmpty()) {
+            return false;
+        }
+        for (ForumTag tag : tags) {
+            if (tryForumTag(path, tag, switchName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

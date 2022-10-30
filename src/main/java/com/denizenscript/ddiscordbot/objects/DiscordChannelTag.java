@@ -449,6 +449,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // - "id", the forum tag's ID.
         // - "mod_only", weather the forum tag can only be applied by mods.
         // - "emoji" (optional), the forum tag's emoji, if any.
+        // Note that tags in the list are ordered based on their order in the forum channel.
         // -->
         tagProcessor.registerTag(ListTag.class, "applied_tags", (attribute, object) -> {
             Channel channel = object.getChannel();

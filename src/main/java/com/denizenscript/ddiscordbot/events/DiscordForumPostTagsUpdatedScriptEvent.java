@@ -4,10 +4,7 @@ import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import net.dv8tion.jda.api.events.channel.update.ChannelUpdateAppliedTagsEvent;
-
-import java.util.List;
 
 public class DiscordForumPostTagsUpdatedScriptEvent extends DiscordScriptEvent {
 
@@ -52,10 +49,10 @@ public class DiscordForumPostTagsUpdatedScriptEvent extends DiscordScriptEvent {
 
     @Override
     public boolean matches(ScriptPath path) {
-        if (!matchTagsList(path, getEvent().getAddedTags(), "added")) {
+        if (!tryForumTags(path, getEvent().getAddedTags(), "added")) {
             return false;
         }
-        if (!matchTagsList(path, getEvent().getRemovedTags(), "removed")) {
+        if (!tryForumTags(path, getEvent().getRemovedTags(), "removed")) {
             return false;
         }
         if (!tryChannel(path, getEvent().getChannel(), "post")) {
@@ -81,17 +78,5 @@ public class DiscordForumPostTagsUpdatedScriptEvent extends DiscordScriptEvent {
             case "group": return new DiscordGroupTag(botID, getEvent().getGuild());
         }
         return super.getContext(name);
-    }
-
-    public boolean matchTagsList(ScriptPath path, List<ForumTag> tags, String switchName) {
-        if (tags.isEmpty() && !path.switches.containsKey(switchName)) {
-            return true;
-        }
-        for (ForumTag tag : tags) {
-            if (tryForumTag(path, tag, switchName)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
