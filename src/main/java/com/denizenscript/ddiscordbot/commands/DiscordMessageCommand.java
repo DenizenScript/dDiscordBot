@@ -272,7 +272,12 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         };
         if (scriptEntry.shouldWaitFor()) {
             Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
-                runner.run();
+                try {
+                    runner.run();
+                }
+                catch (Throwable ex) {
+                    Debug.echoError(ex);
+                }
                 scriptEntry.setFinished(true);
             });
         }
