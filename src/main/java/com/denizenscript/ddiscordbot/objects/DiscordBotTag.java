@@ -87,7 +87,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
         return DenizenDiscordBot.instance.connections.get(bot);
     }
 
-    public static void registerTags() {
+    public static void register() {
 
         AbstractFlagTracker.registerFlagHandlers(tagProcessor);
 

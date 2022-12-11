@@ -141,7 +141,7 @@ public class DiscordSelectionTag implements ObjectTag {
         "id", "options", "placeholder"
     ));
 
-    public static void registerTags() {
+    public static void register() {
 
         // <--[tag]
         // @attribute <DiscordSelectionTag.with_map[<map>]>

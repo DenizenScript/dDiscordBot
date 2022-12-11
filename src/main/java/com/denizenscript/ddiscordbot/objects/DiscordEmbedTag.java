@@ -210,7 +210,7 @@ public class DiscordEmbedTag implements ObjectTag {
             "footer", "footer_icon", "image", "thumbnail", "timestamp", "title", "title_url", "fields"
     ));
 
-    public static void registerTags() {
+    public static void register() {
 
         // <--[tag]
         // @attribute <DiscordEmbedTag.with_map[<map>]>

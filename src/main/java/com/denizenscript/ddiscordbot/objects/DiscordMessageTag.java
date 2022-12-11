@@ -196,7 +196,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         return output.toString();
     }
 
-    public static void registerTags() {
+    public static void register() {
 
         AbstractFlagTracker.registerFlagHandlers(tagProcessor);
 

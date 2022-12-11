@@ -156,7 +156,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         // Nothing to do.
     }
 
-    public static void registerTags() {
+    public static void register() {
 
         AbstractFlagTracker.registerFlagHandlers(tagProcessor);
 

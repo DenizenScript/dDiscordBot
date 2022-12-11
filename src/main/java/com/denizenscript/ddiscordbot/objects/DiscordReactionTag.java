@@ -195,7 +195,7 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
         // Nothing to do.
     }
 
-    public static void registerTags() {
+    public static void register() {
 
         AbstractFlagTracker.registerFlagHandlers(tagProcessor);
 

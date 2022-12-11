@@ -117,7 +117,7 @@ public class DiscordTextInputTag implements ObjectTag {
         "style", "id", "label", "min_length", "max_length", "is_required", "value", "placeholder"
     ));
 
-    public static void registerTags() {
+    public static void register() {
 
         // <--[tag]
         // @attribute <DiscordTextInputTag.with_map[<map>]>

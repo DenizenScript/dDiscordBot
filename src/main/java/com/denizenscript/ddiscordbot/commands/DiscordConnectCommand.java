@@ -67,7 +67,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
     //
     // use "intents:clear|SOME_INTENT|etc" (ie the first entry as "clear") to clear out default intents and use only your manually specified choices.
     //
-    // Note that you need to enable the 'members' intent on your bot in Discord bot settings https://discord.com/developers/applications
+    // Note that you need to enable the 'members' and 'message content' intent on your bot in Discord bot settings https://discord.com/developers/applications
     // And also may need to manually enable other intents if you specify any.
     // If the members intent is not enabled, a significant amount of dDiscordBot's functionality will not work.
     //
