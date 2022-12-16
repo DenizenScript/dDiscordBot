@@ -184,8 +184,12 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
                     Debug.echoError(ex);
                 });
             }
+            String file = flagFilePathFor(conn.botID);
+            if (!new File(file + ".dat").exists() && new File(file + ".dat.dat").exists()) { // Patch prior mistake of filename
+                new File(file + ".dat.dat").renameTo(new File(file + ".dat"));
+            }
             Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
-                conn.flags = SavableMapFlagTracker.loadFlagFile(flagFilePathFor(conn.botID), true);
+                conn.flags = SavableMapFlagTracker.loadFlagFile(file, true);
                 ender.run();
             });
         }
@@ -193,7 +197,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
 
 
     public static String flagFilePathFor(String bot) {
-        return DenizenDiscordBot.instance.getDataFolder().getPath() + "/flags/bot_" + Argument.prefixCharsAllowed.trimToMatches(CoreUtilities.toLowerCase(bot)) + ".dat";
+        return DenizenDiscordBot.instance.getDataFolder().getPath() + "/flags/bot_" + Argument.prefixCharsAllowed.trimToMatches(CoreUtilities.toLowerCase(bot));
     }
 
     public static void autoExecute(ScriptEntry scriptEntry,
