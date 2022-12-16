@@ -68,6 +68,7 @@ public class DiscordButtonTag implements ObjectTag {
         buttonData = new MapTag();
         buttonData.putObject("style", new ElementTag(button.getStyle()));
         buttonData.putObject("label", new ElementTag(button.getLabel()));
+        buttonData.putObject("disabled", new ElementTag(button.isDisabled()));
         if (button.getId() != null) {
             buttonData.putObject("id", new ElementTag(button.getId()));
         }
@@ -82,16 +83,17 @@ public class DiscordButtonTag implements ObjectTag {
             return null;
         }
         ElementTag label = buttonData.getElement("label");
+        ElementTag disabled = buttonData.getElement("disabled");
         ElementTag emoji = buttonData.getElement("emoji");
         ElementTag style = buttonData.getElement("style", "PRIMARY");
         ButtonStyle styleData = style.asEnum(ButtonStyle.class);
-        return Button.of(styleData, id.toString(), label == null ? null : label.toString(), emoji == null ? null : Emoji.fromUnicode(emoji.toString()));
+        return Button.of(styleData, id.toString(), label == null ? null : label.toString(), emoji == null ? null : Emoji.fromUnicode(emoji.toString())).withDisabled(disabled != null && disabled.asBoolean());
     }
 
     public MapTag buttonData;
 
     public static HashSet<String> acceptedWithKeys = new HashSet<>(Arrays.asList(
-        "style", "id", "label", "emoji"
+        "style", "id", "label", "emoji", "disabled"
     ));
 
     public static void register() {
@@ -137,6 +139,7 @@ public class DiscordButtonTag implements ObjectTag {
         // style: ElementTag of either primary, secondary, success, danger, or link
         // id: ElementTag, can be a URL
         // label: ElementTag
+        // disabled: ElementTag(Boolean)
         // emoji: ElementTag
         // -->
         tagProcessor.registerTag(DiscordButtonTag.class, "with", (attribute, object) -> {
