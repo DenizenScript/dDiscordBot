@@ -62,9 +62,11 @@ public class DenizenDiscordBot extends JavaPlugin {
             DenizenCore.commandRegistry.registerCommand(DiscordModalCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordReactCommand.class);
             // Events
+            ScriptEvent.registerScriptEvent(DiscordApplicationCommandScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordButtonClickedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordChannelCreateScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordChannelDeleteScriptEvent.class);
+            ScriptEvent.registerScriptEvent(DiscordCommandAutocompleteScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordMessageDeletedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordMessageModifiedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordMessageReactionAddScriptEvent.class);
@@ -72,7 +74,6 @@ public class DenizenDiscordBot extends JavaPlugin {
             ScriptEvent.registerScriptEvent(DiscordMessageReceivedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordModalSubmittedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordSelectionUsedScriptEvent.class);
-            ScriptEvent.registerScriptEvent(DiscordApplicationCommandScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordThreadArchivedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordThreadRevealedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordUserJoinsScriptEvent.class);

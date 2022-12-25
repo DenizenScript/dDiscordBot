@@ -62,6 +62,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
     // The "options" argument controls the command parameters. It is a MapTag of ordered MapTags that can sometimes hold ordered MapTags. It is recommended to use <@link command definemap> or a data script key when creating commands.
     // All option MapTags must have "type", "name", and "description" keys, with an optional "required" key (defaulting to true). The "type" key can be one of: STRING, INTEGER, BOOLEAN, USER, CHANNEL, ROLE, MENTIONABLE, NUMBER, ATTACHMENT.
     // Additionally, the option map can include a "choices" key, which is a MapTag of ordered MapTags that have a "name" (what displays to the user) and a "value" (what gets passed to the client).
+    // Instead of choices, the option map can also include an "autocomplete" key controlling whether dynamic suggestions can be provided to the client (defaulting to false). See <@link event on discord command autocomplete>.
     //
     // Editing application command permissions has been moved to the "Integrations" section in the server settings.
     // Read more about it here: <@link url https://discord.com/blog/slash-commands-permissions-discord-apps-bots>
@@ -185,6 +186,8 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                                 ElementTag optionName = option.getElement("name");
                                 ElementTag optionDescription = option.getElement("description");
                                 ElementTag optionIsRequired = option.getElement("required");
+                                ElementTag optionIsAutocomplete = option.getElement("autocomplete");
+                                boolean isAutocomplete = optionIsAutocomplete != null && optionIsAutocomplete.asBoolean();
                                 MapTag optionChoices = option.getObjectAs("choices", MapTag.class, scriptEntry.context);
                                 if (optionName == null) {
                                     Debug.echoError(scriptEntry, "Command options must specify a name!");
@@ -193,6 +196,11 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                                 }
                                 else if (optionDescription == null) {
                                     Debug.echoError(scriptEntry, "Command options must specify a description!");
+                                    scriptEntry.setFinished(true);
+                                    return;
+                                }
+                                if (isAutocomplete && optionChoices != null) {
+                                    Debug.echoError(scriptEntry, "Command options cannot be autocompletable and have choices!");
                                     scriptEntry.setFinished(true);
                                     return;
                                 }
@@ -208,7 +216,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                                         }
                                         */
                                 else {
-                                    OptionData optionData = new OptionData(optionType, optionName.asString(), optionDescription.asString(), optionIsRequired == null || optionIsRequired.asBoolean());
+                                    OptionData optionData = new OptionData(optionType, optionName.asString(), optionDescription.asString(), optionIsRequired == null || optionIsRequired.asBoolean(), isAutocomplete);
                                     if (optionChoices != null) {
                                         if (!optionType.canSupportChoices()) {
                                             Debug.echoError(scriptEntry, "Command options with choices must be STRING, INTEGER, or NUMBER!");
