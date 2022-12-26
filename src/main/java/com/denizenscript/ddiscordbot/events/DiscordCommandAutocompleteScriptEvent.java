@@ -4,6 +4,7 @@ import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
+import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -103,8 +104,8 @@ public class DiscordCommandAutocompleteScriptEvent extends DiscordCommandInterac
     @Override
     public boolean applyDetermination(ScriptPath path, ObjectTag determinationObj) {
         if (determinationObj instanceof ElementTag) {
-            String determination = ((ElementTag) determinationObj).asLowerString();
-            if (determination.startsWith("choices:")) {
+            String determination = ((ElementTag) determinationObj).asString();
+            if (CoreUtilities.toLowerCase(determination).startsWith("choices:")) {
                 ListTag list = ListTag.valueOf(determination.substring("choices:".length()), getTagContext(path));
                 if (list.size() > 25) {
                     Debug.echoError("Cannot suggest more than 25 choices!");
