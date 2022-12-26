@@ -40,7 +40,18 @@ public class DiscordCommandAutocompleteScriptEvent extends DiscordCommandInterac
     // <context.focused_option> returns the name of the focused option.
     //
     // @Determine
-    // ListTag to suggest values to the Discord client. Each entry can be an ElementTag which controls both the value and display of the choice or a MapTag with "name" and "value" keys to control both separately.
+    // "CHOICES:" + ListTag to suggest values to the Discord client. Up to 25 suggestions are allowed to be sent. Each entry can be an ElementTag which controls both the value and display of the choice or a MapTag with "name" and "value" keys to control both separately.
+    //
+    // @Example
+    // # Suggests three random fruits for the "fruit" option.
+    // on discord command autocomplete name:eat option:fruit:
+    // - determine choices:<list[apple|orange|lemon|banana|grape].random[3]>
+    //
+    // @Example
+    // # Suggests no more than 25 selections from some dataset that begin with the current input.
+    // on discord command autocomplete:
+    // - define value <context.options.get[<context.focused_option>]>
+    // - determine choices:<server.flag[dataset].filter_tag[<[filter_value].starts_with[<[value]>]>].random[25]>
     //
     // -->
 
@@ -78,32 +89,35 @@ public class DiscordCommandAutocompleteScriptEvent extends DiscordCommandInterac
         return super.getContext(name);
     }
 
+    public Command.Choice getChoiceSuggestion(ObjectTag objectTag, ScriptPath path) {
+        if (objectTag.canBeType(MapTag.class)) {
+            MapTag map = objectTag.asType(MapTag.class, getTagContext(path));
+            String name = map.getElement("name").asString();
+            String value = map.getElement("value").asString();
+            return new Command.Choice(name, value);
+        }
+        String value = objectTag.toString();
+        return new Command.Choice(value, value);
+    }
+
     @Override
-    public boolean applyDetermination(ScriptPath path, ObjectTag determination) {
-        if (!determination.canBeType(ListTag.class)) {
-            return super.applyDetermination(path, determination);
-        }
-        ListTag list = determination.asType(ListTag.class, getTagContext(path));
-        if (list.size() > 25) {
-            Debug.echoError("Cannot suggest more than 25 choices!");
-            return false;
-        }
-        List<Command.Choice> choices = new ArrayList<>();
-        for (ObjectTag objectTag : list.objectForms) {
-            Command.Choice choice;
-            if (MapTag.matches(objectTag.toString())) {
-                MapTag map = MapTag.valueOf(objectTag.toString(), getTagContext(path));
-                String name = map.getElement("name").asString();
-                String value = map.getElement("value").asString();
-                choice = new Command.Choice(name, value);
+    public boolean applyDetermination(ScriptPath path, ObjectTag determinationObj) {
+        if (determinationObj instanceof ElementTag) {
+            String determination = ((ElementTag) determinationObj).asLowerString();
+            if (determination.startsWith("choices:")) {
+                ListTag list = ListTag.valueOf(determination.substring("choices:".length()), getTagContext(path));
+                if (list.size() > 25) {
+                    Debug.echoError("Cannot suggest more than 25 choices!");
+                    return false;
+                }
+                List<Command.Choice> choices = new ArrayList<>();
+                for (ObjectTag objectTag : list.objectForms) {
+                    choices.add(getChoiceSuggestion(objectTag, path));
+                }
+                getAutocompleteEvent().replyChoices(choices).queue();
+                return true;
             }
-            else {
-                String value = objectTag.toString();
-                choice = new Command.Choice(value, value);
-            }
-            choices.add(choice);
         }
-        getAutocompleteEvent().replyChoices(choices).queue();
-        return true;
+        return super.applyDetermination(path, determinationObj);
     }
 }
