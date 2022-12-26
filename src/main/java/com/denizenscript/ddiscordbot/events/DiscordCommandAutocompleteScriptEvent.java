@@ -44,15 +44,17 @@ public class DiscordCommandAutocompleteScriptEvent extends DiscordCommandInterac
     // "CHOICES:" + ListTag to suggest values to the Discord client. Up to 25 suggestions are allowed to be sent. Each entry can be an ElementTag which controls both the value and display of the choice or a MapTag with "name" and "value" keys to control both separately.
     //
     // @Example
-    // # Suggests three random fruits for the "fruit" option.
+    // # Suggests fruits that are only longer in length than the current input.
     // on discord command autocomplete name:eat option:fruit:
-    // - determine choices:<list[apple|orange|lemon|banana|grape].random[3]>
+    // - define length <context.options.get[fruit].length>
+    // - define fruits <list[lime|apple|orange|blueberry|dragonfruit]>
+    // - determine choices:<[fruits].filter_tag[<[filter_value].length.is_more_than[<[length]>]>]>
     //
     // @Example
-    // # Suggests no more than 25 selections from some dataset that begin with the current input.
+    // # Suggests the 25 best-matching selections from some dataset against the current input.
     // on discord command autocomplete:
     // - define value <context.options.get[<context.focused_option>]>
-    // - determine choices:<server.flag[dataset].filter_tag[<[filter_value].starts_with[<[value]>]>].random[25]>
+    // - determine choices:<server.flag[dataset].sort_by_number[difference[<[value]>]].first[25].if_null[<list>]>
     //
     // -->
 
