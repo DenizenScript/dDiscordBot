@@ -100,6 +100,4 @@ public class DiscordCreateForumThreadCommand extends AbstractCommand implements 
             scriptEntry.setFinished(true);
         });
     }
-
-
 }
