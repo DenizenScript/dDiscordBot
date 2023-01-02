@@ -3,14 +3,10 @@ package com.denizenscript.ddiscordbot.commands;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
-import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultNull;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgDefaultText;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
-import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
+import com.denizenscript.denizencore.scripts.commands.generator.*;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -20,6 +16,7 @@ import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import org.bukkit.Bukkit;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 public class DiscordCreateChannelCommand extends AbstractCommand implements Holdable {
@@ -84,8 +81,8 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
                                    @ArgPrefixed @ArgDefaultText("text") @ArgName("type") ChannelType type,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("category") String category,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("position") ElementTag position,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("roles") ListTag roles,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("users") ListTag users) {
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("roles") @ArgSubType(DiscordRoleTag.class) List<DiscordRoleTag> roles,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("users") @ArgSubType(DiscordUserTag.class) List<DiscordUserTag> users) {
         if (group != null && group.bot == null) {
             group.bot = bot.bot;
         }
@@ -141,12 +138,12 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
                     action = action.addRolePermissionOverride(group.guild_id, null, permissions);
                 }
                 if (roles != null) {
-                    for (DiscordRoleTag role : roles.filter(DiscordRoleTag.class, scriptEntry)) {
+                    for (DiscordRoleTag role : roles) {
                         action = action.addRolePermissionOverride(role.role_id, permissions, null);
                     }
                 }
                 if (users != null) {
-                    for (DiscordUserTag user : users.filter(DiscordUserTag.class, scriptEntry)) {
+                    for (DiscordUserTag user : users) {
                         action = action.addMemberPermissionOverride(user.user_id, permissions, null);
                     }
                 }
