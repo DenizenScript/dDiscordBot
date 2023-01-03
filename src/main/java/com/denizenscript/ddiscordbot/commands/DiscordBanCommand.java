@@ -51,7 +51,6 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
     // @Tags
-    // <entry[saveName].user> returns the DiscordUserTag of the user being banned or unbanned.
     // <DiscordUserTag.is_banned[<group>]> returns if the user is banned from a certain group.
     // <DiscordGroupTag.banned_members> returns a list of all banned members in a group.
     //
@@ -74,23 +73,20 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgName("id") DiscordBotTag bot,
                                    @ArgName("instruction") DiscordBanInstruction instruction,
                                    @ArgPrefixed @ArgName("user") DiscordUserTag user,
-                                   @ArgPrefixed @ArgName("group") DiscordGroupTag group,
+                                   @ArgPrefixed @ArgName("group") DiscordGroupTag rawGroup,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("reason") String reason,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("deletion_timeframe") DurationTag deletionTimeframe) {
-        if (group != null && group.bot == null) {
-            group.bot = bot.bot;
+                                   @ArgPrefixed @ArgDefaultText("0s") @ArgName("deletion_timeframe") DurationTag deletionTimeframe) {
+        if (rawGroup != null && rawGroup.bot == null) {
+            rawGroup = new DiscordGroupTag(bot.bot, rawGroup.guild_id);
         }
+        final DiscordGroupTag group = rawGroup;
         Guild guild = group.getGuild();
         UserSnowflake userObj = UserSnowflake.fromId(user.user_id);
         Runnable runnable = () -> {
             try {
                 switch (instruction) {
                     case ADD: {
-                        int deletionSeconds = 0;
-                        if (deletionTimeframe != null) {
-                            deletionSeconds = deletionTimeframe.getSecondsAsInt();
-                        }
-                        AuditableRestAction<Void> banAction = guild.ban(userObj, deletionSeconds, TimeUnit.SECONDS);
+                        AuditableRestAction<Void> banAction = guild.ban(userObj, deletionTimeframe.getSecondsAsInt(), TimeUnit.SECONDS);
                         if (reason != null) {
                             banAction.reason(reason);
                         }
@@ -102,7 +98,6 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
                         break;
                     }
                 }
-                scriptEntry.addObject("user", new DiscordUserTag(bot.bot, user.user_id));
             }
             catch (Exception ex) {
                 Debug.echoError(scriptEntry, ex);
