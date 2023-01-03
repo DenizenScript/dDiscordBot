@@ -75,7 +75,7 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
 
     public static void autoExecute(ScriptEntry scriptEntry,
                                    @ArgPrefixed @ArgName("id") DiscordBotTag bot,
-                                   @ArgPrefixed @ArgName("group") DiscordGroupTag group,
+                                   @ArgPrefixed @ArgName("group") DiscordGroupTag rawGroup,
                                    @ArgPrefixed @ArgName("name") String name,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("description") String description,
                                    @ArgPrefixed @ArgDefaultText("text") @ArgName("type") ChannelType type,
@@ -83,9 +83,10 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
                                    @ArgPrefixed @ArgDefaultNull @ArgName("position") ElementTag position,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("roles") @ArgSubType(DiscordRoleTag.class) List<DiscordRoleTag> roles,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("users") @ArgSubType(DiscordUserTag.class) List<DiscordUserTag> users) {
-        if (group != null && group.bot == null) {
-            group.bot = bot.bot;
+        if (rawGroup != null && rawGroup.bot == null) {
+            rawGroup = new DiscordGroupTag(bot.bot, rawGroup.guild_id);
         }
+        final DiscordGroupTag group = rawGroup;
         Runnable runner = () -> {
             try {
                 ChannelAction<? extends GuildChannel> action;

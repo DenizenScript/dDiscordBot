@@ -131,7 +131,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
     public static void autoExecute(ScriptEntry scriptEntry,
                                    @ArgPrefixed @ArgName("id") DiscordBotTag bot,
                                    @ArgName("instruction") DiscordCommandInstruction instruction,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("group") DiscordGroupTag group,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("group") DiscordGroupTag rawGroup,
                                    @ArgPrefixed @ArgName("name") String name,
                                    @ArgPrefixed @ArgDefaultText("slash") @ArgName("type") Command.Type type,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("description") String description,
@@ -140,9 +140,10 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgDefaultNull @ArgName("enabled") ElementTag enabled,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("enable_for") ListTag enableFor,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("disable_for") ListTag disableFor) {
-        if (group != null && group.bot == null) {
-            group.bot = bot.bot;
+        if (rawGroup != null && rawGroup.bot == null) {
+            rawGroup = new DiscordGroupTag(bot.bot, rawGroup.guild_id);
         }
+        final DiscordGroupTag group = rawGroup;
         if (enabled != null || enableFor != null || disableFor != null || instruction == DiscordCommandInstruction.PERMS) {
             DenizenDiscordBot.oldCommandPermissions.warn(scriptEntry);
         }

@@ -504,7 +504,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
             }
             DiscordUserTag user = mechanism.valueAsType(DiscordUserTag.class);
             if (user.bot == null) {
-                user.bot = bot;
+                user = new DiscordUserTag(bot, user.user_id);
             }
             ((ThreadChannel) channel).addThreadMember(user.getUser()).submit();
         }
@@ -524,7 +524,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
             }
             DiscordUserTag user = mechanism.valueAsType(DiscordUserTag.class);
             if (user.bot == null) {
-                user.bot = bot;
+                user = new DiscordUserTag(bot, user.user_id);
             }
             ((ThreadChannel) channel).removeThreadMember(user.getUser()).submit();
         }
