@@ -46,11 +46,12 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
     //
     // The "deletion_timeframe" argument will, if set, delete all messages sent by the user being banned within the timeframe given.
     // The timeframe defaults to 0 seconds, which will not delete any messages. The timeframe cannot be greater than 7 days.
-    // This argument can only be used with the "remove" argument, although it is not required.
+    // This argument can only be used when adding a ban using the "add" argument, although it is not required.
     //
     // The command should usually be ~waited for. See <@link language ~waitable>.
     //
     // @Tags
+    // <entry[saveName].user> returns the DiscordUserTag of the user being banned or unbanned.
     // <DiscordUserTag.is_banned[<group>]> returns if the user is banned from a certain group.
     // <DiscordGroupTag.banned_members> returns a list of all banned members in a group.
     //
@@ -101,6 +102,7 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
                         break;
                     }
                 }
+                scriptEntry.addObject("user", new DiscordUserTag(bot.bot, user.user_id));
             }
             catch (Exception ex) {
                 Debug.echoError(scriptEntry, ex);
