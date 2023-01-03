@@ -22,7 +22,7 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
     public DiscordBanCommand() {
         setName("discordban");
         setSyntax("discordban [id:<id>] ({add}/remove) [user:<user>] (reason:<reason>) (deletion_timeframe:<time>)");
-        setRequiredArguments(3, 6);
+        setRequiredArguments(3, 5);
         isProcedural = false;
         autoCompile();
     }
@@ -31,7 +31,7 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
     // @Name discordban
     // @Syntax discordban [id:<id>] ({add}/remove) [user:<user>] [group:<group>] (reason:<reason>) (deletion_timeframe:<time>/{0s})
     // @Required 3
-    // @Maximum 6
+    // @Maximum 5
     // @Short Bans or unbans a member from a group.
     // @Plugin dDiscordBot
     // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
