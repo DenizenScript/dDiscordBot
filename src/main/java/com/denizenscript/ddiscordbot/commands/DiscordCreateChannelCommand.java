@@ -83,7 +83,7 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
                                    @ArgPrefixed @ArgDefaultNull @ArgName("position") ElementTag position,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("roles") @ArgSubType(DiscordRoleTag.class) List<DiscordRoleTag> roles,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("users") @ArgSubType(DiscordUserTag.class) List<DiscordUserTag> users) {
-        if (rawGroup != null && rawGroup.bot == null) {
+        if (rawGroup.bot == null) {
             rawGroup = new DiscordGroupTag(bot.bot, rawGroup.guild_id);
         }
         final DiscordGroupTag group = rawGroup;

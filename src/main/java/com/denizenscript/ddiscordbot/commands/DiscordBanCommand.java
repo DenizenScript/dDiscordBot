@@ -73,13 +73,12 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgName("id") DiscordBotTag bot,
                                    @ArgName("instruction") DiscordBanInstruction instruction,
                                    @ArgPrefixed @ArgName("user") DiscordUserTag user,
-                                   @ArgPrefixed @ArgName("group") DiscordGroupTag rawGroup,
+                                   @ArgPrefixed @ArgName("group") DiscordGroupTag group,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("reason") String reason,
                                    @ArgPrefixed @ArgDefaultText("0s") @ArgName("deletion_timeframe") DurationTag deletionTimeframe) {
-        if (rawGroup != null && rawGroup.bot == null) {
-            rawGroup = new DiscordGroupTag(bot.bot, rawGroup.guild_id);
+        if (group.bot == null) {
+            group = new DiscordGroupTag(bot.bot, group.guild_id);
         }
-        final DiscordGroupTag group = rawGroup;
         Guild guild = group.getGuild();
         UserSnowflake userObj = UserSnowflake.fromId(user.user_id);
         Runnable runnable = () -> {
