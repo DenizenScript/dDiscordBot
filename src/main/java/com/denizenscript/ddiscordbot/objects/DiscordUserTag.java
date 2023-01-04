@@ -18,6 +18,8 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 import java.util.List;
 
@@ -419,6 +421,28 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
                 list.addObject(new ElementTag(perm));
             }
             return list;
+        });
+
+        // <--[tag]
+        // @attribute <DiscordUserTag.is_banned[<group>]>
+        // @returns ElementTag(boolean)
+        // @plugin dDiscordBot
+        // @description
+        // Returns whether the user is banned from a certain group.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, DiscordGroupTag.class, "is_banned", (attribute, object, group) -> {
+            UserSnowflake user = UserSnowflake.fromId(object.user_id);
+            try {
+                group.getGuild().retrieveBan(user).complete();
+            }
+            catch (ErrorResponseException ex) {
+                if (ex.getErrorResponse() == ErrorResponse.UNKNOWN_BAN) {
+                    return new ElementTag(false);
+                }
+                Debug.echoError(ex);
+                return null;
+            }
+            return new ElementTag(true);
         });
     }
 

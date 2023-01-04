@@ -52,6 +52,7 @@ public class DenizenDiscordBot extends JavaPlugin {
         }
         try {
             // Commands
+            DenizenCore.commandRegistry.registerCommand(DiscordBanCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordCommandCommand.class);
             DenizenCore.commandRegistry.registerCommand(DiscordConnectCommand.class);

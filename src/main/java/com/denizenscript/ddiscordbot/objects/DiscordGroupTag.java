@@ -190,6 +190,21 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
         });
 
         // <--[tag]
+        // @attribute <DiscordGroupTag.banned_members>
+        // @returns ListTag(DiscordUserTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of all banned users in the group.
+        // -->
+        tagProcessor.registerTag(ListTag.class, "banned_members", (attribute, object) -> {
+            ListTag list = new ListTag();
+            for (Guild.Ban ban : object.getGuild().retrieveBanList().complete()) {
+                list.addObject(new DiscordUserTag(object.bot, ban.getUser()));
+            }
+            return list;
+        });
+
+        // <--[tag]
         // @attribute <DiscordGroupTag.roles>
         // @returns ListTag(DiscordRoleTag)
         // @plugin dDiscordBot
