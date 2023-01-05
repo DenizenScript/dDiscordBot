@@ -3,7 +3,7 @@ package com.denizenscript.ddiscordbot.events;
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 
 public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
 
@@ -41,8 +41,8 @@ public class DiscordSelectionUsedScriptEvent extends DiscordScriptEvent {
         registerSwitches("channel", "group", "id");
     }
 
-    public SelectMenuInteractionEvent getEvent() {
-        return (SelectMenuInteractionEvent) event;
+    public StringSelectInteractionEvent getEvent() {
+        return (StringSelectInteractionEvent) event;
     }
 
     @Override
