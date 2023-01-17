@@ -35,13 +35,13 @@ public class DiscordTimeoutCommand extends AbstractCommand implements Holdable {
     // @Syntax discordtimeout [id:<id>] ({add}/remove) [user:<user>] [group:<group>] (reason:<reason>) (duration:<time>/{60s})
     // @Required 3
     // @Maximum 6
-    // @Short Put a user in timeout.
+    // @Short Puts a user in timeout.
     // @Plugin dDiscordBot
     // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
     //
     // @Description
-    // Put a user in timeout.
+    // Puts a user in timeout.
     //
     // To put a user in timeout, use the "add" argument. To remove the timeout, use the "remove" argument.
     // The group is required for both "add" and "remove" arguments, but "reason" can only be used with "add".
