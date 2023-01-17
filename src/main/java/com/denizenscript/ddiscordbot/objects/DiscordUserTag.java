@@ -454,7 +454,11 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         // -->
         tagProcessor.registerTag(ElementTag.class, DiscordGroupTag.class, "is_timed_out", (attribute, object, group) -> {
             Guild guild = group.getGuild();
-            return new ElementTag(guild.getMemberById(object.user_id).isTimedOut());
+            Member member = guild.getMemberById(object.user_id);
+            if (member == null) {
+                Debug.echoError("Invalid user! Are they in the Discord Group?");
+            }
+            return new ElementTag(member.isTimedOut());
         });
     }
 
