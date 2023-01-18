@@ -91,9 +91,7 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
                         }
                         banAction.queue();
                     }
-                    case REMOVE -> {
-                        guild.unban(userObj).queue();
-                    }
+                    case REMOVE -> guild.unban(userObj).queue();
                 }
             }
             catch (Exception ex) {

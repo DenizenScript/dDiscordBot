@@ -24,7 +24,7 @@ public class DiscordTimeoutCommand extends AbstractCommand implements Holdable {
 
     public DiscordTimeoutCommand() {
         setName("discordtimeout");
-        setSyntax("discordtimeout [id:<id>] ({add}/remove) [user:<user>] [group:<group>] (reason:<reason>) (duration:<time>)");
+        setSyntax("discordtimeout [id:<id>] ({add}/remove) [user:<user>] [group:<group>] (reason:<reason>) (duration:<duration>/{60s})");
         setRequiredArguments(3, 6);
         isProcedural = false;
         autoCompile();
@@ -32,7 +32,7 @@ public class DiscordTimeoutCommand extends AbstractCommand implements Holdable {
 
     // <--[command]
     // @Name discordtimeout
-    // @Syntax discordtimeout [id:<id>] ({add}/remove) [user:<user>] [group:<group>] (reason:<reason>) (duration:<time>/{60s})
+    // @Syntax discordtimeout [id:<id>] ({add}/remove) [user:<user>] [group:<group>] (reason:<reason>) (duration:<duration>/{60s})
     // @Required 3
     // @Maximum 6
     // @Short Puts a user in timeout.
