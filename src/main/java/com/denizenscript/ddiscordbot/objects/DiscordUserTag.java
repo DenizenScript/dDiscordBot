@@ -444,6 +444,22 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
             }
             return new ElementTag(true);
         });
+
+        // <--[tag]
+        // @attribute <DiscordUserTag.is_timed_out[<group>]>
+        // @returns ElementTag(boolean)
+        // @plugin dDiscordBot
+        // @description
+        // Returns whether the user is timed out in a certain group.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, DiscordGroupTag.class, "is_timed_out", (attribute, object, group) -> {
+            Guild guild = group.getGuild();
+            Member member = guild.getMemberById(object.user_id);
+            if (member == null) {
+                Debug.echoError("Invalid user! Are they in the Discord Group?");
+            }
+            return new ElementTag(member.isTimedOut());
+        });
     }
 
     public static ObjectTagProcessor<DiscordUserTag> tagProcessor = new ObjectTagProcessor<>();

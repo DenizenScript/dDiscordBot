@@ -71,7 +71,7 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
 
     public static void autoExecute(ScriptEntry scriptEntry,
                                    @ArgPrefixed @ArgName("id") DiscordBotTag bot,
-                                   @ArgName("instruction") DiscordBanInstruction instruction,
+                                   @ArgName("instruction") @ArgDefaultText("add") DiscordBanInstruction instruction,
                                    @ArgPrefixed @ArgName("user") DiscordUserTag user,
                                    @ArgPrefixed @ArgName("group") DiscordGroupTag group,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("reason") String reason,
@@ -84,18 +84,14 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
         Runnable runnable = () -> {
             try {
                 switch (instruction) {
-                    case ADD: {
+                    case ADD -> {
                         AuditableRestAction<Void> banAction = guild.ban(userObj, deletionTimeframe.getSecondsAsInt(), TimeUnit.SECONDS);
                         if (reason != null) {
                             banAction.reason(reason);
                         }
                         banAction.queue();
-                        break;
                     }
-                    case REMOVE: {
-                        guild.unban(userObj).queue();
-                        break;
-                    }
+                    case REMOVE -> guild.unban(userObj).queue();
                 }
             }
             catch (Exception ex) {
