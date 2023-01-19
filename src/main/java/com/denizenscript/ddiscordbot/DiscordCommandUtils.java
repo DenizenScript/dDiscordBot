@@ -7,8 +7,7 @@ import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.concurrent.CompletableFuture;
 
 public class DiscordCommandUtils {
 
@@ -49,12 +48,20 @@ public class DiscordCommandUtils {
         return null;
     }
 
-    public static void cleanWait(ScriptEntry scriptEntry, ActionOrValue<?> action) {
-        action.onErrorFlatMap(t -> {
+    public static <T> RestAction<T> mapError(ScriptEntry scriptEntry, RestAction<T> action) {
+        return action.onErrorMap(t -> {
             Debug.echoError(scriptEntry, t);
             scriptEntry.setFinished(true);
             return null;
-        }).onSuccess((t) -> scriptEntry.setFinished(true)).queue();
+        });
+    }
+
+    public static void cleanWait(ScriptEntry scriptEntry, CompletableFuture<?> action) {
+        action.exceptionally(t -> {
+            Debug.echoError(scriptEntry, t);
+            scriptEntry.setFinished(true);
+            return null;
+        }).thenAccept((t) -> scriptEntry.setFinished(true));
     }
 
     public static void cleanWait(ScriptEntry scriptEntry, RestAction<?> action) {
@@ -62,46 +69,6 @@ public class DiscordCommandUtils {
             scriptEntry.setFinished(true);
             return;
         }
-        cleanWait(scriptEntry, new ActionOrValue<>(action));
-    }
-
-    public static class ActionOrValue<T> {
-        public T raw;
-        public RestAction<T> action;
-        public ActionOrValue(T raw) {
-            this.raw = raw;
-        }
-        public ActionOrValue(RestAction<T> action) {
-            this.action = action;
-        }
-        public ActionOrValue<T> onErrorFlatMap(Function<Throwable, RestAction<T>> function) {
-            if (action != null) {
-                return new ActionOrValue<T>(action.onErrorFlatMap(function));
-            }
-            if (raw == null) {
-                return new ActionOrValue<T>(function.apply(null));
-            }
-            return this;
-        }
-        public <O> ActionOrValue<O> flatMap(Function<T, RestAction<O>> function) {
-            if (raw != null) {
-                return new ActionOrValue<>(function.apply(raw));
-            }
-            else {
-                return new ActionOrValue<>(action.flatMap(function));
-            }
-        }
-        public ActionOrValue<T> onSuccess(Consumer<T> success) {
-            if (action != null) {
-                return new ActionOrValue<>(action.onSuccess(success));
-            }
-            success.accept(raw);
-            return this;
-        }
-        public void queue() {
-            if (action != null) {
-                action.queue();
-            }
-        }
+        cleanWait(scriptEntry, mapError(scriptEntry, action).submit());
     }
 }

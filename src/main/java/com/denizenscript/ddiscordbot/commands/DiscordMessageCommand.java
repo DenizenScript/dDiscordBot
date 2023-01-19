@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.*;
 
@@ -25,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
@@ -131,11 +131,11 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         return actionRows;
     }
 
-    private static DiscordCommandUtils.ActionOrValue requireChannel(Channel channel) {
-        if (!(channel instanceof MessageChannel)) {
+    private static CompletableFuture<MessageChannel> requireChannel(Channel channel) {
+        if (!(channel instanceof MessageChannel messageChannel)) {
             throw new InvalidArgumentsRuntimeException("Invalid message channel ID given.");
         }
-        return new DiscordCommandUtils.ActionOrValue<>((MessageChannel) channel);
+        return CompletableFuture.completedFuture(messageChannel);
     }
 
     public static void autoExecute(ScriptEntry scriptEntry,
@@ -161,7 +161,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         }
         DiscordConnection connection = bot.getConnection();
         JDA client = connection.client;
-        DiscordCommandUtils.ActionOrValue<MessageChannel> toChannel = null;
+        CompletableFuture<? extends MessageChannel> toChannel = null;
         if (reply != null && reply.channel_id != 0) {
             toChannel = requireChannel(connection.getChannel(reply.channel_id));
         }
@@ -176,7 +176,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             if (userObj == null) {
                 throw new InvalidArgumentsRuntimeException("Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
             }
-            toChannel = new DiscordCommandUtils.ActionOrValue<>((RestAction) userObj.openPrivateChannel());
+            toChannel = userObj.openPrivateChannel().submit();
         }
         else {
             throw new InvalidArgumentsRuntimeException("Missing channel!");
@@ -205,7 +205,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         }
         final AbstractMessageBuilder<?, ?> finalBuilder = builder;
         final DiscordBotTag finalBot = bot;
-        DiscordCommandUtils.cleanWait(scriptEntry, toChannel.flatMap(c -> {
+        DiscordCommandUtils.cleanWait(scriptEntry, toChannel.thenApply(c -> {
             if (reply != null) {
                 return c.retrieveMessageById(reply.message_id).flatMap(m -> m.reply((MessageCreateData) finalBuilder.build()));
             }
@@ -215,6 +215,6 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             else {
                 return c.sendMessage((MessageCreateData) finalBuilder.build());
             }
-        }).onSuccess(m -> scriptEntry.addObject("message", new DiscordMessageTag(finalBot.bot, m))));
+        }).thenAccept(r -> DiscordCommandUtils.mapError(scriptEntry, r).onSuccess((m -> scriptEntry.addObject("message", new DiscordMessageTag(finalBot.bot, m))))));
     }
 }
