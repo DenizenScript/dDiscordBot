@@ -1,6 +1,6 @@
 package com.denizenscript.ddiscordbot.commands;
 
-import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.ddiscordbot.DiscordCommandUtils;
 import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
@@ -9,11 +9,8 @@ import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.scripts.commands.generator.*;
-import com.denizenscript.denizencore.utilities.debugging.Debug;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
-import org.bukkit.Bukkit;
 
 import java.util.concurrent.TimeUnit;
 
@@ -21,16 +18,16 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
 
     public DiscordBanCommand() {
         setName("discordban");
-        setSyntax("discordban [id:<id>] ({add}/remove) [user:<user>] [group:<group>] (reason:<reason>) (deletion_timeframe:<time>/{0s})");
-        setRequiredArguments(3, 6);
+        setSyntax("discordban (id:<bot>) ({add}/remove) [user:<user>] [group:<group>] (reason:<reason>) (deletion_timeframe:<time>/{0s})");
+        setRequiredArguments(2, 6);
         isProcedural = false;
         autoCompile();
     }
 
     // <--[command]
     // @Name discordban
-    // @Syntax discordban [id:<id>] ({add}/remove) [user:<user>] [group:<group>] (reason:<reason>) (deletion_timeframe:<time>/{0s})
-    // @Required 3
+    // @Syntax discordban (id:<bot>) ({add}/remove) [user:<user>] [group:<group>] (reason:<reason>) (deletion_timeframe:<time>/{0s})
+    // @Required 2
     // @Maximum 6
     // @Short Bans or unbans a member from a group.
     // @Plugin dDiscordBot
@@ -70,37 +67,26 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
     public enum DiscordBanInstruction { ADD, REMOVE }
 
     public static void autoExecute(ScriptEntry scriptEntry,
-                                   @ArgPrefixed @ArgName("id") DiscordBotTag bot,
+                                   @ArgPrefixed @ArgName("id") @ArgDefaultNull DiscordBotTag bot,
                                    @ArgName("instruction") @ArgDefaultText("add") DiscordBanInstruction instruction,
                                    @ArgPrefixed @ArgName("user") DiscordUserTag user,
                                    @ArgPrefixed @ArgName("group") DiscordGroupTag group,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("reason") String reason,
                                    @ArgPrefixed @ArgDefaultText("0s") @ArgName("deletion_timeframe") DurationTag deletionTimeframe) {
+        bot = DiscordCommandUtils.inferBot(bot, group, user);
         if (group.bot == null) {
             group = new DiscordGroupTag(bot.bot, group.guild_id);
         }
-        Guild guild = group.getGuild();
         UserSnowflake userObj = UserSnowflake.fromId(user.user_id);
-        Runnable runnable = () -> {
-            try {
-                switch (instruction) {
-                    case ADD -> {
-                        AuditableRestAction<Void> banAction = guild.ban(userObj, deletionTimeframe.getSecondsAsInt(), TimeUnit.SECONDS);
-                        if (reason != null) {
-                            banAction.reason(reason);
-                        }
-                        banAction.queue();
-                    }
-                    case REMOVE -> guild.unban(userObj).queue();
+        DiscordCommandUtils.cleanWait(scriptEntry, switch (instruction) {
+            case ADD -> {
+                AuditableRestAction<Void> banAction = group.getGuild().ban(userObj, deletionTimeframe.getSecondsAsInt(), TimeUnit.SECONDS);
+                if (reason != null) {
+                    banAction = banAction.reason(reason);
                 }
+                yield banAction;
             }
-            catch (Exception ex) {
-                Debug.echoError(scriptEntry, ex);
-            }
-        };
-        Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
-            runnable.run();
-            scriptEntry.setFinished(true);
+            case REMOVE -> group.getGuild().unban(userObj);
         });
     }
 }

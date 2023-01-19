@@ -439,7 +439,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
                 if (ex.getErrorResponse() == ErrorResponse.UNKNOWN_BAN) {
                     return new ElementTag(false);
                 }
-                Debug.echoError(ex);
+                attribute.echoError(ex);
                 return null;
             }
             return new ElementTag(true);
@@ -456,7 +456,8 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
             Guild guild = group.getGuild();
             Member member = guild.getMemberById(object.user_id);
             if (member == null) {
-                Debug.echoError("Invalid user! Are they in the Discord Group?");
+                attribute.echoError("Invalid user! Are they in the Discord Group?");
+                return null;
             }
             return new ElementTag(member.isTimedOut());
         });

@@ -1,7 +1,8 @@
 package com.denizenscript.ddiscordbot.commands;
 
-import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.ddiscordbot.DiscordCommandUtils;
 import com.denizenscript.ddiscordbot.objects.*;
+import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
@@ -15,8 +16,6 @@ import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.Modal;
-import net.dv8tion.jda.api.requests.restaction.interactions.ModalCallbackAction;
-import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,16 +53,16 @@ public class DiscordModalCommand extends AbstractCommand implements Holdable {
     //
     // You cannot defer an interaction before using a modal. It must be sent immediately.
     //
-    // The command should usually be ~waited for. See <@link language ~waitable>.
-    //
     // Note that the interaction can be any button or application command, but cannot be a modal submission - you cannot reply to a modal submit with a second modal.
+    //
+    // The command can be ~waited for. See <@link language ~waitable>.
     //
     // @Usage
     // Use to create a modal that only requests one single direct text input.
     // - definemap rows:
     //      1:
     //          1: <discord_text_input.with[id].as[textinput].with[label].as[Type here!].with[style].as[short]>
-    // - ~discordmodal interaction:<context.interaction> name:example_modal title:Modal! rows:<[rows]>
+    // - discordmodal interaction:<context.interaction> name:example_modal title:Modal! rows:<[rows]>
     //
     // -->
 
@@ -72,34 +71,19 @@ public class DiscordModalCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgName("name") String name,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("title") String title,
                                    @ArgPrefixed @ArgName("rows") ObjectTag rows) {
-        Runnable runner = () -> {
-            try {
-                if (interaction.interaction == null) {
-                    Debug.echoError(scriptEntry, "Invalid interaction! Has it expired?");
-                    return;
-                }
-                List<ActionRow> actionRows = createRows(scriptEntry, rows);
-                if (actionRows == null || actionRows.isEmpty()) {
-                    Debug.echoError(scriptEntry, "Invalid action rows!");
-                    return;
-                }
-                if (interaction.interaction.isAcknowledged()) {
-                    Debug.echoError(scriptEntry, "Interaction already acknowledged!");
-                    return;
-                }
-                IModalCallback replyTo = (IModalCallback) interaction.interaction;
-                Modal modal = Modal.create(name, title).addActionRows(actionRows).build();
-                ModalCallbackAction action = replyTo.replyModal(modal);
-                action.complete();
-            }
-            catch (Exception ex) {
-                Debug.echoError(scriptEntry, ex);
-            }
-        };
-        Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
-            runner.run();
-            scriptEntry.setFinished(true);
-        });
+        if (interaction.interaction == null) {
+            throw new InvalidArgumentsRuntimeException("Invalid interaction! Has it expired?");
+        }
+        List<ActionRow> actionRows = createRows(scriptEntry, rows);
+        if (actionRows == null || actionRows.isEmpty()) {
+            throw new InvalidArgumentsRuntimeException("Invalid action rows!");
+        }
+        if (interaction.interaction.isAcknowledged()) {
+            throw new InvalidArgumentsRuntimeException("Interaction already acknowledged!");
+        }
+        IModalCallback replyTo = (IModalCallback) interaction.interaction;
+        Modal modal = Modal.create(name, title).addActionRows(actionRows).build();
+        DiscordCommandUtils.cleanWait(scriptEntry, replyTo.replyModal(modal));
     }
 
     public static List<ActionRow> createRows(ScriptEntry scriptEntry, ObjectTag rowsObj) {

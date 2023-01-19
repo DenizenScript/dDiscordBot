@@ -1,9 +1,11 @@
 package com.denizenscript.ddiscordbot.commands;
 
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.ddiscordbot.DiscordCommandUtils;
 import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
 import com.denizenscript.ddiscordbot.objects.DiscordCommandTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
+import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
@@ -23,7 +25,6 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.*;
 import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
-import org.bukkit.Bukkit;
 
 import java.util.List;
 import java.util.Map;
@@ -32,16 +33,16 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
 
     public DiscordCommandCommand() {
         setName("discordcommand");
-        setSyntax("discordcommand [id:<id>] [create/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>)");
-        setRequiredArguments(3, 7);
+        setSyntax("discordcommand (id:<bot>) [create/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>)");
+        setRequiredArguments(2, 7);
         isProcedural = false;
         autoCompile();
     }
 
     // <--[command]
     // @Name discordcommand
-    // @Syntax discordcommand [id:<id>] [create/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>)
-    // @Required 3
+    // @Syntax discordcommand (id:<bot) [create/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>)
+    // @Required 2
     // @Maximum 7
     // @Short Manages Discord application commands.
     // @Plugin dDiscordBot
@@ -83,7 +84,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to create a simple slash command without options and save it.
-    // - ~discordcommand id:mybot create group:<discord[mybot].group[Denizen]> name:hello "description:Hello world!" save:mycmd
+    // - ~discordcommand create group:<discord[mybot].group[Denizen]> name:hello "description:Hello world!" save:mycmd
     // - debug log <entry[mycmd].command.name>
     //
     // @Usage
@@ -129,7 +130,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
     }
 
     public static void autoExecute(ScriptEntry scriptEntry,
-                                   @ArgPrefixed @ArgName("id") DiscordBotTag bot,
+                                   @ArgPrefixed @ArgName("id") @ArgDefaultNull DiscordBotTag rawBot,
                                    @ArgName("instruction") DiscordCommandInstruction instruction,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("group") DiscordGroupTag rawGroup,
                                    @ArgPrefixed @ArgName("name") String name,
@@ -140,6 +141,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgDefaultNull @ArgName("enabled") ElementTag enabled,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("enable_for") ListTag enableFor,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("disable_for") ListTag disableFor) {
+        final DiscordBotTag bot = DiscordCommandUtils.inferBot(rawBot, rawGroup);
         if (rawGroup != null && rawGroup.bot == null) {
             rawGroup = new DiscordGroupTag(bot.bot, rawGroup.guild_id);
         }
@@ -148,142 +150,110 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
             DenizenDiscordBot.oldCommandPermissions.warn(scriptEntry);
         }
         JDA client = bot.getConnection().client;
-        Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
-            try {
-                switch (instruction) {
-                    case CREATE: {
-                        if (type == Command.Type.UNKNOWN) {
-                            Debug.echoError(scriptEntry, "Invalid command creation type!");
-                            scriptEntry.setFinished(true);
-                            return;
-                        }
-                        CommandData data;
-                        if (type == Command.Type.SLASH) {
-                            if (description == null) {
-                                Debug.echoError(scriptEntry, "Must specify a description!");
-                                scriptEntry.setFinished(true);
-                                return;
-                            }
-                            data = Commands.slash(name, description);
-                        }
-                        else {
-                            data = Commands.context(type, name);
-                        }
-                        if (options != null) {
-                            if (!(data instanceof SlashCommandData) && !options.map.isEmpty()) {
-                                Debug.echoError(scriptEntry, "Command options are only valid for SLASH commands.");
-                                scriptEntry.setFinished(true);
-                                return;
-                            }
-                            for (ObjectTag optionObj : options.map.values()) {
-                                MapTag option = optionObj.asType(MapTag.class, scriptEntry.getContext());
-                                ElementTag typeStr = option.getElement("type");
-                                if (typeStr == null) {
-                                    Debug.echoError(scriptEntry, "Command options must specify a type!");
-                                    scriptEntry.setFinished(true);
-                                    return;
-                                }
-                                OptionType optionType = typeStr.asEnum(OptionType.class);
-                                ElementTag optionName = option.getElement("name");
-                                ElementTag optionDescription = option.getElement("description");
-                                ElementTag optionIsRequired = option.getElement("required");
-                                ElementTag optionIsAutocomplete = option.getElement("autocomplete");
-                                boolean isAutocomplete = optionIsAutocomplete != null && optionIsAutocomplete.asBoolean();
-                                MapTag optionChoices = option.getObjectAs("choices", MapTag.class, scriptEntry.context);
-                                if (optionName == null) {
-                                    Debug.echoError(scriptEntry, "Command options must specify a name!");
-                                    scriptEntry.setFinished(true);
-                                    return;
-                                }
-                                else if (optionDescription == null) {
-                                    Debug.echoError(scriptEntry, "Command options must specify a description!");
-                                    scriptEntry.setFinished(true);
-                                    return;
-                                }
-                                if (isAutocomplete && optionChoices != null) {
-                                    Debug.echoError(scriptEntry, "Command options cannot be autocompletable and have choices!");
-                                    scriptEntry.setFinished(true);
-                                    return;
-                                }
-                                if (optionType == OptionType.SUB_COMMAND) {
-                                    ((SlashCommandData) data).addSubcommands(new SubcommandData(optionName.asString(), optionDescription.asString()));
-                                }
-                                        /*
-                                        support these later
-                                        needs recursive logic
-
-                                        else if (optionType == OptionType.SUB_COMMAND_GROUP) {
-                                            data.addSubcommandGroups(new SubcommandGroupData(optionName.asString(), optionDescription.asString()));
-                                        }
-                                        */
-                                else {
-                                    OptionData optionData = new OptionData(optionType, optionName.asString(), optionDescription.asString(), optionIsRequired == null || optionIsRequired.asBoolean(), isAutocomplete);
-                                    if (optionChoices != null) {
-                                        if (!optionType.canSupportChoices()) {
-                                            Debug.echoError(scriptEntry, "Command options with choices must be STRING, INTEGER, or NUMBER!");
-                                            scriptEntry.setFinished(true);
-                                            return;
-                                        }
-                                        for (Map.Entry<StringHolder, ObjectTag> subChoiceValue : optionChoices.map.entrySet()) {
-                                            MapTag choice = subChoiceValue.getValue().asType(MapTag.class, scriptEntry.getContext());
-                                            ElementTag choiceName = choice.getElement("name");
-                                            ElementTag choiceValue = choice.getElement("value");
-                                            if (choiceName == null) {
-                                                Debug.echoError(scriptEntry, "Command option choices must specify a name!");
-                                                scriptEntry.setFinished(true);
-                                                return;
-                                            }
-                                            else if (choiceValue == null) {
-                                                Debug.echoError(scriptEntry, "Command option choices must specify a value!");
-                                                scriptEntry.setFinished(true);
-                                                return;
-                                            }
-                                            if (optionType == OptionType.INTEGER) {
-                                                optionData.addChoice(choiceName.asString(), choiceValue.asInt());
-                                            }
-                                            else if (optionType == OptionType.NUMBER) {
-                                                optionData.addChoice(choiceName.asString(), choiceValue.asDouble());
-                                            }
-                                            else {
-                                                optionData.addChoice(choiceName.asString(), choiceValue.asString());
-                                            }
-                                        }
-                                    }
-                                    ((SlashCommandData) data).addOptions(optionData);
-                                }
-                            }
-                        }
-                        CommandCreateAction action;
-                        if (group == null) {
-                            Debug.log("Registering a slash command globally may take up to an hour.");
-                            action = (CommandCreateAction) client.upsertCommand(data);
-                        }
-                        else {
-                            action = (CommandCreateAction) group.getGuild().upsertCommand(data);
-                        }
-                        Command slashCommand = action.complete();
-                        scriptEntry.addObject("command", new DiscordCommandTag(bot.bot, group == null ? null : group.getGuild(), slashCommand));
-                        break;
+        DiscordCommandUtils.cleanWait(scriptEntry, switch (instruction) {
+            case CREATE -> {
+                if (type == Command.Type.UNKNOWN) {
+                    throw new InvalidArgumentsRuntimeException("Invalid command creation type!");
+                }
+                CommandData data;
+                if (type == Command.Type.SLASH) {
+                    if (description == null) {
+                        throw new InvalidArgumentsRuntimeException("Must specify a description!");
                     }
-                    case DELETE: {
-                        Command bestMatch = matchCommandByName(scriptEntry, name, client, group);
-                        if (bestMatch == null) {
-                            return;
+                    data = Commands.slash(name, description);
+                }
+                else {
+                    data = Commands.context(type, name);
+                }
+                if (options != null) {
+                    if (!(data instanceof SlashCommandData) && !options.map.isEmpty()) {
+                        throw new InvalidArgumentsRuntimeException("Command options are only valid for SLASH commands.");
+                    }
+                    for (ObjectTag optionObj : options.map.values()) {
+                        MapTag option = optionObj.asType(MapTag.class, scriptEntry.getContext());
+                        ElementTag typeStr = option.getElement("type");
+                        if (typeStr == null) {
+                            throw new InvalidArgumentsRuntimeException("Command options must specify a type!");
                         }
-                        if (group == null) {
-                            client.deleteCommandById(bestMatch.getIdLong()).complete();
+                        OptionType optionType = typeStr.asEnum(OptionType.class);
+                        ElementTag optionName = option.getElement("name");
+                        ElementTag optionDescription = option.getElement("description");
+                        ElementTag optionIsRequired = option.getElement("required");
+                        ElementTag optionIsAutocomplete = option.getElement("autocomplete");
+                        boolean isAutocomplete = optionIsAutocomplete != null && optionIsAutocomplete.asBoolean();
+                        MapTag optionChoices = option.getObjectAs("choices", MapTag.class, scriptEntry.context);
+                        if (optionName == null) {
+                            throw new InvalidArgumentsRuntimeException("Command options must specify a name!");
                         }
+                        else if (optionDescription == null) {
+                            throw new InvalidArgumentsRuntimeException("Command options must specify a description!");
+                        }
+                        if (isAutocomplete && optionChoices != null) {
+                            throw new InvalidArgumentsRuntimeException("Command options cannot be autocompletable and have choices!");
+                        }
+                        if (optionType == OptionType.SUB_COMMAND) {
+                            ((SlashCommandData) data).addSubcommands(new SubcommandData(optionName.asString(), optionDescription.asString()));
+                        }
+                        // TODO: support these later, needs recursive logic
+                        /*
+                        else if (optionType == OptionType.SUB_COMMAND_GROUP) {
+                            data.addSubcommandGroups(new SubcommandGroupData(optionName.asString(), optionDescription.asString()));
+                        }
+                        */
                         else {
-                            group.getGuild().deleteCommandById(bestMatch.getIdLong()).complete();
+                            OptionData optionData = new OptionData(optionType, optionName.asString(), optionDescription.asString(), optionIsRequired == null || optionIsRequired.asBoolean(), isAutocomplete);
+                            if (optionChoices != null) {
+                                if (!optionType.canSupportChoices()) {
+                                    throw new InvalidArgumentsRuntimeException("Command options with choices must be STRING, INTEGER, or NUMBER!");
+                                }
+                                for (Map.Entry<StringHolder, ObjectTag> subChoiceValue : optionChoices.map.entrySet()) {
+                                    MapTag choice = subChoiceValue.getValue().asType(MapTag.class, scriptEntry.getContext());
+                                    ElementTag choiceName = choice.getElement("name");
+                                    ElementTag choiceValue = choice.getElement("value");
+                                    if (choiceName == null) {
+                                        throw new InvalidArgumentsRuntimeException("Command option choices must specify a name!");
+                                    }
+                                    else if (choiceValue == null) {
+                                        throw new InvalidArgumentsRuntimeException("Command option choices must specify a value!");
+                                    }
+                                    if (optionType == OptionType.INTEGER) {
+                                        optionData.addChoice(choiceName.asString(), choiceValue.asInt());
+                                    }
+                                    else if (optionType == OptionType.NUMBER) {
+                                        optionData.addChoice(choiceName.asString(), choiceValue.asDouble());
+                                    }
+                                    else {
+                                        optionData.addChoice(choiceName.asString(), choiceValue.asString());
+                                    }
+                                }
+                            }
+                            ((SlashCommandData) data).addOptions(optionData);
                         }
-                        break;
                     }
                 }
+                CommandCreateAction createAction;
+                if (group == null) {
+                    Debug.log("Registering a slash command globally may take up to an hour.");
+                    createAction = (CommandCreateAction) client.upsertCommand(data);
+                }
+                else {
+                    createAction = (CommandCreateAction) group.getGuild().upsertCommand(data);
+                }
+                yield createAction.onSuccess(s -> scriptEntry.addObject("command", new DiscordCommandTag(bot.bot, group == null ? null : group.getGuild(), s)));
             }
-            catch (Exception e) {
-                Debug.echoError(e);
+            case DELETE -> {
+                Command bestMatch = matchCommandByName(scriptEntry, name, client, group);
+                if (bestMatch == null) {
+                    yield null;
+                }
+                if (group == null) {
+                    yield client.deleteCommandById(bestMatch.getIdLong());
+                }
+                else {
+                    yield group.getGuild().deleteCommandById(bestMatch.getIdLong());
+                }
             }
-            scriptEntry.setFinished(true);
+            case PERMS -> null;
         });
     }
 }

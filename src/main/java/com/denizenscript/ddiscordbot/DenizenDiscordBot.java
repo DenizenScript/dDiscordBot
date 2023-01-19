@@ -29,7 +29,7 @@ public class DenizenDiscordBot extends JavaPlugin {
     public static Warning oldStopTyping = new FutureWarning("oldStopTyping", "dDiscordBot's 'discord stop_typing' sub-command is deprecated as it does nothing.");
     public static Warning oldDeleteMessage = new FutureWarning("oldDeleteMessage", "dDiscordBot's 'discord delete_message' sub-command is deprecated in favor of 'adjust <[message]> delete'.");
     public static Warning oldEditMessage = new SlowWarning("oldEditMessage", "dDiscordBot's 'discord edit_message' sub-command has been moved to the 'discordmessage' command.");
-    public static Warning oldTokenFile = new FutureWarning("oldTokenFile", "dDiscordBot used to recommend 'tokenfile' for 'discordconnect', however it is now recommended that you use a SecretTag and the 'secrets.secret' file for the token.");
+    public static Warning oldTokenFile = new SlowWarning("oldTokenFile", "dDiscordBot used to recommend 'tokenfile' for 'discordconnect', however it is now recommended that you use a SecretTag and the 'secrets.secret' file for the token.");
     public static Warning oldCommandPermissions = new StrongWarning("oldCommandPermissions", "dDiscordBot's 'discordcommand' command's 'enabled', 'enable_for', 'disable_for' arguments and its 'perms' instruction no longer function due to API changes; use the 'Integrations' panel in your server settings instead.");
 
     public static DenizenDiscordBot instance;

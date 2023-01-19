@@ -5,6 +5,7 @@ import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizen.Denizen;
 import com.denizenscript.denizen.utilities.Utilities;
+import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.generator.*;
 import com.denizenscript.denizencore.utilities.CoreConfiguration;
@@ -189,11 +190,8 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         DiscordConnection dc = new DiscordConnection();
                         dc.botID = id;
                         DenizenDiscordBot.instance.connections.put(id, dc);
-                        DiscordConnectCommand.DiscordConnectThread dct = new DiscordConnectCommand.DiscordConnectThread();
-                        dct.code = codeRaw;
-                        dct.conn = dc;
-                        dct.ender = () -> scriptEntry.setFinished(true);
-                        dct.start();
+                        final String finalCode = codeRaw;
+                        DenizenCore.runAsync(() -> DiscordConnectCommand.runConnect(finalCode, dc, scriptEntry, DiscordConnectCommand.defaultIntents));
                         break;
                     }
                     case DISCONNECT: {

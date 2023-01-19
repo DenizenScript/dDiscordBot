@@ -1,6 +1,6 @@
 package com.denizenscript.ddiscordbot.commands;
 
-import com.denizenscript.ddiscordbot.DenizenDiscordBot;
+import com.denizenscript.ddiscordbot.DiscordCommandUtils;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
@@ -17,11 +17,9 @@ import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
-import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.FileUpload;
-import net.dv8tion.jda.api.utils.messages.MessageRequest;
-import org.bukkit.Bukkit;
+import net.dv8tion.jda.api.utils.messages.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -32,16 +30,16 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
     public DiscordMessageCommand() {
         setName("discordmessage");
-        setSyntax("discordmessage [id:<id>] [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>)");
-        setRequiredArguments(3, 7);
+        setSyntax("discordmessage (id:<id>) [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>)");
+        setRequiredArguments(2, 7);
         isProcedural = false;
         autoCompile();
     }
 
     // <--[command]
     // @Name discordmessage
-    // @Syntax discordmessage [id:<id>] (reply:<message>/edit:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>)
-    // @Required 3
+    // @Syntax discordmessage (id:<id>) (reply:<message>/edit:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>)
+    // @Required 2
     // @Maximum 7
     // @Short Sends a message to a Discord channel.
     // @Plugin dDiscordBot
@@ -65,7 +63,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     //
     // You can use "rows" to attach action rows of components, such as buttons to the message, using <@link objecttype DiscordButtonTag>, and <@link objecttype DiscordSelectionTag>.
     //
-    // The command should usually be ~waited for. See <@link language ~waitable>.
+    // The command can be ~waited for. See <@link language ~waitable>.
     //
     // @Tags
     // <entry[saveName].message> returns the DiscordMessageTag of the sent message, when the command is ~waited for.
@@ -73,15 +71,15 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to message a Discord channel with a copied channel ID.
-    // - ~discordmessage id:mybot channel:1234 "Hello world!"
+    // - discordmessage id:mybot channel:1234 "Hello world!"
     //
     // @Usage
     // Use to reply to a message from a message received event.
-    // - ~discordmessage id:mybot reply:<context.message> "Hello world!"
+    // - discordmessage id:mybot reply:<context.message> "Hello world!"
     //
     // @Usage
     // Use to message an embed to a Discord channel.
-    // - ~discordmessage id:mybot channel:1234 "<discord_embed[title=hi;description=this is an embed!]>"
+    // - discordmessage id:mybot channel:1234 "<discord_embed[title=hi;description=this is an embed!]>"
     //
     // @Usage
     // Use to message a Discord channel and record the new message ID.
@@ -90,22 +88,22 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to send a message to a user through a private channel.
-    // - ~discordmessage id:mybot user:<[user]> "Hello world!"
+    // - discordmessage id:mybot user:<[user]> "Hello world!"
     //
     // @Usage
     // Use to send a text-file message to a channel.
-    // - ~discordmessage id:mybot channel:<[channel]> attach_file_name:quote.xml "attach_file_text:<&lt>mcmonkey<&gt> haha text files amirite<n>gotta abuse em"
+    // - discordmessage id:mybot channel:<[channel]> attach_file_name:quote.xml "attach_file_text:<&lt>mcmonkey<&gt> haha text files amirite<n>gotta abuse em"
     //
     // @Usage
     // Use to send a message and attach a button to it.
     // - define my_button <discord_button.with[style].as[primary].with[id].as[my_button].with[label].as[Hello]>
-    // - ~discordmessage id:mybot channel:<[channel]> rows:<[my_button]> "Hello world!"
+    // - discordmessage id:mybot channel:<[channel]> rows:<[my_button]> "Hello world!"
     //
     // @Usage
     // Use to send a message to a Discord channel, then edit it after 5 seconds.
     // - ~discordmessage id:mybot channel:<[channel]> "Hello world!" save:msg
     // - wait 5s
-    // - ~discordmessage id:mybot edit:<entry[msg].message> "Goodbye!"
+    // - discordmessage id:mybot edit:<entry[msg].message> "Goodbye!"
     //
     // -->
 
@@ -133,8 +131,17 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         return actionRows;
     }
 
+    private static DiscordCommandUtils.ActionOrValue requireChannel(Channel channel) {
+        if (!(channel instanceof MessageChannel)) {
+            throw new InvalidArgumentsRuntimeException("Invalid message channel ID given.");
+        }
+        return new DiscordCommandUtils.ActionOrValue<>((MessageChannel) channel);
+    }
+
     public static void autoExecute(ScriptEntry scriptEntry,
-                                   @ArgPrefixed @ArgName("id") DiscordBotTag bot,
+                                   // TODO: "embed:" as List<DiscordEmbedTag>
+                                   // TODO: "attach_files:" as MapTag of name to BinaryTag or text
+                                   @ArgPrefixed @ArgName("id") @ArgDefaultNull DiscordBotTag bot,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("channel") DiscordChannelTag channel,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("user") DiscordUserTag user,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("reply") DiscordMessageTag reply,
@@ -145,145 +152,69 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                                    @ArgRaw @ArgLinear @ArgDefaultNull @ArgName("raw_message") ObjectTag message,
                                    // Note: attachFileText intentionally at end
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText) {
-        if (message == null && attachFileName == null) {
+        bot = DiscordCommandUtils.inferBot(bot, channel, user, reply, edit);
+        if ((message == null || message.toString().length() == 0) && attachFileName == null) {
             throw new InvalidArgumentsRuntimeException("Must have a message!");
         }
-        Runnable runner = () -> {
-            DiscordConnection connection = bot.getConnection();
-            JDA client = connection.client;
-            MessageChannel toChannel = null;
-            if (reply != null && reply.channel_id != 0) {
-                Channel result = connection.getChannel(reply.channel_id);
-                if (result instanceof MessageChannel) {
-                    toChannel = (MessageChannel) result;
-                }
-                else {
-                    Debug.echoError(scriptEntry, "Invalid reply message channel ID given.");
-                    return;
-                }
+        if ((attachFileName == null) != (attachFileText == null)) {
+            throw new InvalidArgumentsRuntimeException("Must specify both attach file name and text, or neither");
+        }
+        DiscordConnection connection = bot.getConnection();
+        JDA client = connection.client;
+        DiscordCommandUtils.ActionOrValue<MessageChannel> toChannel = null;
+        if (reply != null && reply.channel_id != 0) {
+            toChannel = requireChannel(connection.getChannel(reply.channel_id));
+        }
+        else if (edit != null && edit.channel_id != 0) {
+            toChannel = requireChannel(connection.getChannel(edit.channel_id));
+        }
+        else if (channel != null) {
+            toChannel = requireChannel(connection.getChannel(channel.channel_id));
+        }
+        else if (user != null) {
+            User userObj = client.getUserById(user.user_id);
+            if (userObj == null) {
+                throw new InvalidArgumentsRuntimeException("Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
             }
-            else if (edit != null && edit.channel_id != 0) {
-                Channel result = connection.getChannel(edit.channel_id);
-                if (result instanceof MessageChannel) {
-                    toChannel = (MessageChannel) result;
-                }
-                else {
-                    Debug.echoError(scriptEntry, "Invalid edit message channel ID given.");
-                    return;
-                }
-            }
-            else if (channel != null) {
-                Channel result = connection.getChannel(channel.channel_id);
-                if (result instanceof MessageChannel) {
-                    toChannel = (MessageChannel) result;
-                }
-                else {
-                    Debug.echoError(scriptEntry, "Invalid channel ID given.");
-                    return;
-                }
-            }
-            else if (user != null) {
-                User userObj = client.getUserById(user.user_id);
-                if (userObj == null) {
-                    Debug.echoError(scriptEntry, "Invalid or unrecognized user (given user ID not valid? Have you enabled the 'members' intent?).");
-                    return;
-                }
-                toChannel = userObj.openPrivateChannel().complete();
-            }
-            if (toChannel == null) {
-                Debug.echoError(scriptEntry, "Failed to process DiscordMessage command: no channel given!");
-                return;
-            }
-            Message replyTo = null;
-            if (reply != null) {
-                replyTo = reply.bot != null ? reply.getMessage() : null;
-                if (replyTo == null) {
-                    replyTo = toChannel.retrieveMessageById(reply.message_id).complete();
-                }
-                if (replyTo == null) {
-                    Debug.echoError(scriptEntry, "Failed to process DiscordMessage reply: invalid message to reply to!");
-                    return;
-                }
-            }
-            MessageRequest<?> action = null;
-            FileUpload fileUpload = null;
-            if (attachFileName != null) {
-                if (attachFileText != null) {
-                    fileUpload = FileUpload.fromData(attachFileText.getBytes(StandardCharsets.UTF_8), attachFileName);
-                }
-                else {
-                    Debug.echoError(scriptEntry, "Failed to process attachment - missing content?");
-                }
-            }
-            if (message == null || message.toString().length() == 0) {
-                if (fileUpload != null) {
-                    if (reply != null) {
-                        action = replyTo.replyFiles(fileUpload);
-                    }
-                    else {
-                        action = toChannel.sendFiles(fileUpload);
-                    }
-                }
-            }
-            else if (message.shouldBeType(DiscordEmbedTag.class)) {
-                MessageEmbed embed = message.asType(DiscordEmbedTag.class, scriptEntry.context).build(scriptEntry.context).build();
-                if (reply != null) {
-                    action = replyTo.replyEmbeds(embed);
-                }
-                else if (edit != null) {
-                    action = toChannel.editMessageEmbedsById(edit.message_id, embed);
-                }
-                else {
-                    action = toChannel.sendMessageEmbeds(embed);
-                }
-            }
-            else {
-                if (reply != null) {
-                    action = replyTo.reply(message.toString());
-                }
-                else if (edit != null) {
-                    action = toChannel.editMessageById(edit.message_id, message.toString());
-                }
-                else {
-                    action = toChannel.sendMessage(message.toString());
-                }
-            }
-            if (action == null) {
-                Debug.echoError(scriptEntry, "Failed to send message - missing content?");
-                return;
-            }
-            if (fileUpload != null) {
-                action = action.setFiles(fileUpload);
-            }
-            List<ActionRow> actionRows = createRows(scriptEntry, rows);
-            if (actionRows != null) {
-                action.setComponents(actionRows);
-            }
-            if (noMention) {
-                action = action.mentionRepliedUser(false);
-            }
-            try {
-                Message sentMessage = action instanceof MessageCreateAction ? ((MessageCreateAction) action).complete() : ((MessageEditAction) action).complete();
-                scriptEntry.addObject("message", new DiscordMessageTag(bot.bot, sentMessage));
-            }
-            catch (Throwable ex) {
-                Debug.echoError(scriptEntry, ex);
-            }
-        };
-        if (scriptEntry.shouldWaitFor()) {
-            Bukkit.getScheduler().runTaskAsynchronously(DenizenDiscordBot.instance, () -> {
-                try {
-                    runner.run();
-                }
-                catch (Throwable ex) {
-                    Debug.echoError(ex);
-                }
-                scriptEntry.setFinished(true);
-            });
+            toChannel = new DiscordCommandUtils.ActionOrValue<>((RestAction) userObj.openPrivateChannel());
         }
         else {
-            Debug.echoError("DiscordMessage command ran without ~waitable. This will freeze the server. If you wanted your server to freeze, ignore this message.");
-            runner.run();
+            throw new InvalidArgumentsRuntimeException("Missing channel!");
         }
+        AbstractMessageBuilder<?, ?> builder = edit != null ? new MessageEditBuilder() : new MessageCreateBuilder();
+        if (attachFileText != null) {
+            builder = builder.setFiles(FileUpload.fromData(attachFileText.getBytes(StandardCharsets.UTF_8), attachFileName));
+        }
+        if (message != null) {
+            if (message.shouldBeType(DiscordEmbedTag.class)) {
+                MessageEmbed embed = message.asType(DiscordEmbedTag.class, scriptEntry.context).build(scriptEntry.context).build();
+                builder = builder.setEmbeds(embed);
+            }
+            else {
+                builder = builder.setContent(message.toString());
+            }
+        }
+        List<ActionRow> actionRows = createRows(scriptEntry, rows);
+        if (actionRows != null) {
+            for (ActionRow row : actionRows) {
+                builder = builder.setActionRow(row.getComponents());
+            }
+        }
+        if (noMention) {
+            builder = builder.mentionRepliedUser(false);
+        }
+        final AbstractMessageBuilder<?, ?> finalBuilder = builder;
+        final DiscordBotTag finalBot = bot;
+        DiscordCommandUtils.cleanWait(scriptEntry, toChannel.flatMap(c -> {
+            if (reply != null) {
+                return c.retrieveMessageById(reply.message_id).flatMap(m -> m.reply((MessageCreateData) finalBuilder.build()));
+            }
+            else if (edit != null) {
+                return c.editMessageById(edit.message_id, (MessageEditData) finalBuilder.build());
+            }
+            else {
+                return c.sendMessage((MessageCreateData) finalBuilder.build());
+            }
+        }).onSuccess(m -> scriptEntry.addObject("message", new DiscordMessageTag(finalBot.bot, m))));
     }
 }
