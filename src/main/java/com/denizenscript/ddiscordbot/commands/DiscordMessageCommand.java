@@ -161,7 +161,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         }
         DiscordConnection connection = bot.getConnection();
         JDA client = connection.client;
-        CompletableFuture<? extends MessageChannel> toChannel = null;
+        CompletableFuture<? extends MessageChannel> toChannel;
         if (reply != null && reply.channel_id != 0) {
             toChannel = requireChannel(connection.getChannel(reply.channel_id));
         }
@@ -215,6 +215,6 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             else {
                 return c.sendMessage((MessageCreateData) finalBuilder.build());
             }
-        }).thenAccept(r -> DiscordCommandUtils.mapError(scriptEntry, r).onSuccess((m -> scriptEntry.addObject("message", new DiscordMessageTag(finalBot.bot, m))))));
+        }).thenApply(r -> DiscordCommandUtils.mapError(scriptEntry, r).onSuccess(m -> scriptEntry.addObject("message", new DiscordMessageTag(finalBot.bot, m))).submit()));
     }
 }
