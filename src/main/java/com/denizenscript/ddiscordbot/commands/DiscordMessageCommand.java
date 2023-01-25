@@ -196,7 +196,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         }
         List<ActionRow> actionRows = createRows(scriptEntry, rows);
         if (actionRows != null) {
-            builder = builder.setActionRow((List) actionRows);
+            builder = builder.setComponents(actionRows);
         }
         if (noMention) {
             builder = builder.mentionRepliedUser(false);
