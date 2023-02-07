@@ -15,6 +15,7 @@ import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.attribute.IThreadContainer;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
@@ -156,7 +157,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @plugin dDiscordBot
         // @description
         // Returns the type of the channel.
-        // Will be any of: TEXT, PRIVATE, VOICE, GROUP, CATEGORY, NEWS, STORE, STAGE, GUILD_NEWS_THREAD, GUILD_PUBLIC_THREAD, GUILD_PRIVATE_THREAD, or UNKNOWN.
+        // Will be any of: TEXT, PRIVATE, VOICE, GROUP, CATEGORY, NEWS, STAGE, GUILD_NEWS_THREAD, GUILD_PUBLIC_THREAD, GUILD_PRIVATE_THREAD, FORUM, or UNKNOWN.
         // -->
         tagProcessor.registerTag(ElementTag.class, "channel_type", (attribute, object) -> {
             return new ElementTag(object.getChannel().getType());
@@ -266,12 +267,12 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // -->
         tagProcessor.registerTag(ListTag.class, "threads", (attribute, object) -> {
             Channel channel = object.getChannel();
-            if (!(channel instanceof TextChannel)) {
-                attribute.echoError("Cannot get 'threads' tag: this channel is not a text channel.");
+            if (!(channel instanceof IThreadContainer)) {
+                attribute.echoError("Cannot get 'threads' tag: this channel is not a thread-containing channel.");
                 return null;
             }
             ListTag result = new ListTag();
-            for (ThreadChannel thread : ((TextChannel) channel).getThreadChannels()) {
+            for (ThreadChannel thread : ((IThreadContainer) channel).getThreadChannels()) {
                 result.addObject(new DiscordChannelTag(object.bot, thread));
             }
             return result;
@@ -286,12 +287,12 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // -->
         tagProcessor.registerTag(ListTag.class, "active_threads", (attribute, object) -> {
             Channel channel = object.getChannel();
-            if (!(channel instanceof TextChannel)) {
-                attribute.echoError("Cannot get 'active_threads' tag: this channel is not a text channel.");
+            if (!(channel instanceof IThreadContainer)) {
+                attribute.echoError("Cannot get 'active_threads' tag: this channel is not a thread-containing channel.");
                 return null;
             }
             ListTag result = new ListTag();
-            for (ThreadChannel thread : ((TextChannel) channel).getThreadChannels()) {
+            for (ThreadChannel thread : ((IThreadContainer) channel).getThreadChannels()) {
                 if (!thread.isArchived()) {
                     result.addObject(new DiscordChannelTag(object.bot, thread));
                 }
@@ -308,12 +309,12 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // -->
         tagProcessor.registerTag(ListTag.class, "archived_threads", (attribute, object) -> {
             Channel channel = object.getChannel();
-            if (!(channel instanceof TextChannel)) {
-                attribute.echoError("Cannot get 'archived_threads' tag: this channel is not a text channel.");
+            if (!(channel instanceof IThreadContainer)) {
+                attribute.echoError("Cannot get 'archived_threads' tag: this channel is not a thread-containing channel.");
                 return null;
             }
             ListTag result = new ListTag();
-            for (ThreadChannel thread : ((TextChannel) channel).getThreadChannels()) {
+            for (ThreadChannel thread : ((IThreadContainer) channel).getThreadChannels()) {
                 if (thread.isArchived()) {
                     result.addObject(new DiscordChannelTag(object.bot, thread));
                 }
