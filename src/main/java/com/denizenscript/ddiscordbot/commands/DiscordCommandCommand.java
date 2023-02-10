@@ -41,7 +41,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
 
     // <--[command]
     // @Name discordcommand
-    // @Syntax discordcommand (id:<bot) [create/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>)
+    // @Syntax discordcommand (id:<bot>) [create/delete] (group:<group>) (name:<name>) (type:{slash}/user/message) (description:<description>) (options:<options>)
     // @Required 2
     // @Maximum 7
     // @Short Manages Discord application commands.
@@ -112,7 +112,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
         String matchString = CoreUtilities.toLowerCase(name);
         Command bestMatch = null;
         for (Command cmd : retrievedCmds) {
-            String commandName = cmd.getName();
+            String commandName = CoreUtilities.toLowerCase(cmd.getName());
             if (matchString.equals(commandName)) {
                 bestMatch = cmd;
                 break;
