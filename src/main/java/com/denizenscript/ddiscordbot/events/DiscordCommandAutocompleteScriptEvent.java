@@ -105,8 +105,8 @@ public class DiscordCommandAutocompleteScriptEvent extends DiscordCommandInterac
 
     @Override
     public boolean applyDetermination(ScriptPath path, ObjectTag determinationObj) {
-        if (determinationObj instanceof ElementTag) {
-            String determination = ((ElementTag) determinationObj).asString();
+        if (determinationObj instanceof ElementTag element) {
+            String determination = element.asString();
             if (CoreUtilities.toLowerCase(determination).startsWith("choices:")) {
                 ListTag list = ListTag.valueOf(determination.substring("choices:".length()), getTagContext(path));
                 if (list.size() > 25) {

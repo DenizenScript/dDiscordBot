@@ -15,7 +15,7 @@ import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.Modal;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 
 import java.util.ArrayList;
 import java.util.Collection;
