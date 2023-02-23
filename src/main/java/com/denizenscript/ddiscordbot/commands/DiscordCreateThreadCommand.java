@@ -108,7 +108,7 @@ public class DiscordCreateThreadCommand extends AbstractCommand implements Holda
             action = ((TextChannel) actualChannel).createThreadChannel(name, isPrivate);
         }
         final DiscordBotTag finalBot = bot;
-        DiscordCommandUtils.cleanWait(scriptEntry, action.onSuccess(created -> scriptEntry.addObject("created_thread", new DiscordChannelTag(finalBot.bot, created))));
+        DiscordCommandUtils.cleanWait(scriptEntry, action.onSuccess(created -> scriptEntry.saveObject("created_thread", new DiscordChannelTag(finalBot.bot, created))));
     }
 
     static void checkChannel(Channel actualChannel) {

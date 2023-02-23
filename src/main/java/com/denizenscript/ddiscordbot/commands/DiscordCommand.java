@@ -248,7 +248,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         else {
                             sentMessage = textChan.sendMessage(message).complete();
                         }
-                        scriptEntry.addObject("message_id", new ElementTag(sentMessage.getId()));
+                        scriptEntry.saveObject("message_id", new ElementTag(sentMessage.getId()));
                         scriptEntry.setFinished(true);
                         break;
                     }

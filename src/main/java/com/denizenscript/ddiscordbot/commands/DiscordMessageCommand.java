@@ -213,6 +213,6 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             else {
                 return c.sendMessage((MessageCreateData) finalBuilder.build());
             }
-        }).thenCompose(r -> DiscordCommandUtils.mapError(scriptEntry, r).map(m -> scriptEntry.addObject("message", new DiscordMessageTag(finalBot.bot, m))).submit()));
+        }).thenCompose(r -> DiscordCommandUtils.mapError(scriptEntry, r).map(m -> scriptEntry.saveObject("message", new DiscordMessageTag(finalBot.bot, m))).submit()));
     }
 }

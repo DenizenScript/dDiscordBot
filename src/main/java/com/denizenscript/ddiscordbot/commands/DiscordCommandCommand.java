@@ -239,7 +239,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                 else {
                     createAction = (CommandCreateAction) group.getGuild().upsertCommand(data);
                 }
-                yield createAction.onSuccess(s -> scriptEntry.addObject("command", new DiscordCommandTag(bot.bot, group == null ? null : group.getGuild(), s)));
+                yield createAction.onSuccess(s -> scriptEntry.saveObject("command", new DiscordCommandTag(bot.bot, group == null ? null : group.getGuild(), s)));
             }
             case DELETE -> {
                 Command bestMatch = matchCommandByName(scriptEntry, name, client, group);

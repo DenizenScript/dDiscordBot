@@ -146,6 +146,6 @@ public class DiscordCreateChannelCommand extends AbstractCommand implements Hold
             }
         }
         final DiscordBotTag finalBot = bot;
-        DiscordCommandUtils.cleanWait(scriptEntry, action.onSuccess(resultChannel -> scriptEntry.addObject("channel", new DiscordChannelTag(finalBot.bot, resultChannel))));
+        DiscordCommandUtils.cleanWait(scriptEntry, action.onSuccess(resultChannel -> scriptEntry.saveObject("channel", new DiscordChannelTag(finalBot.bot, resultChannel))));
     }
 }
