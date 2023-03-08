@@ -1,5 +1,6 @@
 package com.denizenscript.ddiscordbot.commands;
 
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordCommandUtils;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
@@ -31,17 +32,17 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
     public DiscordMessageCommand() {
         setName("discordmessage");
-        setSyntax("discordmessage (id:<id>) [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>) (embed:<embed>|...) (attach_files:<map>)");
-        setRequiredArguments(2, 9);
+        setSyntax("discordmessage (id:<id>) [reply:<message>/edit:<message>/channel:<channel>/user:<user>] (<message>) (no_mention) (rows:<rows>) (embed:<embed>|...) (attach_files:<map>)");
+        setRequiredArguments(2, 7);
         isProcedural = false;
         autoCompile();
     }
 
     // <--[command]
     // @Name discordmessage
-    // @Syntax discordmessage (id:<id>) (reply:<message>/edit:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>) (embed:<embed>|...) (attach_files:<map>)
+    // @Syntax discordmessage (id:<id>) [reply:<message>/edit:<message>/channel:<channel>/user:<user>] (<message>) (no_mention) (rows:<rows>) (embed:<embed>|...) (attach_files:<map>)
     // @Required 2
-    // @Maximum 9
+    // @Maximum 7
     // @Short Sends a message to a Discord channel.
     // @Plugin dDiscordBot
     // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
@@ -83,7 +84,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to message an embed to a Discord channel.
-    // - discordmessage id:mybot channel:1234 "<discord_embed[title=hi;description=this is an embed!]>"
+    // - discordmessage id:mybot channel:1234 embed:<discord_embed[title=hi;description=this is an embed!]>
     //
     // @Usage
     // Use to message a Discord channel and record the new message ID.
@@ -95,12 +96,12 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // - discordmessage id:mybot user:<[user]> "Hello world!"
     //
     // @Usage
-    // Use to send a text-file message to a channel.
-    // - discordmessage id:mybot channel:<[channel]> attach_file_name:quote.xml "attach_file_text:<&lt>mcmonkey<&gt> haha text files amirite<n>gotta abuse em"
+    // Use to send a short and simple text-file message to a channel.
+    // - discordmessage id:mybot channel:<[channel]> attach_files:<map[quote.xml=<&lt>mcmonkey<&gt> haha text files amirite<n>gotta abuse em]>
     //
     // @Usage
     // Use to send a message and attach a button to it.
-    // - define my_button <discord_button.with[style].as[primary].with[id].as[my_button].with[label].as[Hello]>
+    // - define my_button <discord_button.with_map[style=primary;id=my_button;label=Hello]>
     // - discordmessage id:mybot channel:<[channel]> rows:<[my_button]> "Hello world!"
     //
     // @Usage
@@ -162,19 +163,16 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgDefaultNull @ArgName("reply") DiscordMessageTag reply,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("edit") DiscordMessageTag edit,
                                    @ArgName("no_mention") boolean noMention,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows,
                                    @ArgRaw @ArgLinear @ArgDefaultNull @ArgName("raw_message") ObjectTag message,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("embed") @ArgSubType(DiscordEmbedTag.class) List<DiscordEmbedTag> embeds,
+                                   // Note: attachFiles intentionally at end
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_files") MapTag attachFilesMap,
-                                   // Note: attachFileText intentionally at end
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText) {
         bot = DiscordCommandUtils.inferBot(bot, channel, user, reply, edit);
         if ((message == null || message.toString().length() == 0) && attachFileName == null && attachFilesMap == null && embeds == null) {
             throw new InvalidArgumentsRuntimeException("Must have a message!");
-        }
-        if ((attachFileName == null) != (attachFileText == null)) {
-            throw new InvalidArgumentsRuntimeException("Must specify both attach file name and text, or neither");
         }
         DiscordConnection connection = bot.getConnection();
         JDA client = connection.client;
@@ -199,17 +197,19 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             throw new InvalidArgumentsRuntimeException("Missing channel!");
         }
         AbstractMessageBuilder<?, ?> builder = edit != null ? new MessageEditBuilder() : new MessageCreateBuilder();
+        if ((attachFileName == null) != (attachFileText == null)) {
+            throw new InvalidArgumentsRuntimeException("Must specify both attach file name and text, or neither");
+        }
         if (attachFileText != null) {
+            DenizenDiscordBot.discordMessageAttachFile.warn(scriptEntry);
             builder = builder.setFiles(FileUpload.fromData(attachFileText.getBytes(StandardCharsets.UTF_8), attachFileName));
         }
         if (attachFilesMap != null) {
             List<FileUpload> fileUploads = new LinkedList<>();
             for (Map.Entry<StringHolder, ObjectTag> fileSet : attachFilesMap.map.entrySet()) {
-                if (fileSet.getValue().shouldBeType(BinaryTag.class)) {
-                    fileUploads.add(FileUpload.fromData(((BinaryTag) fileSet.getValue()).data, fileSet.getKey().toString()));
-                    continue;
-                }
-                fileUploads.add(FileUpload.fromData(fileSet.getValue().toString().getBytes(StandardCharsets.UTF_8), fileSet.getKey().toString()));
+                ObjectTag val = fileSet.getValue();
+                byte[] data = val.shouldBeType(BinaryTag.class) ? val.asType(BinaryTag.class, scriptEntry.context).data : val.toString().getBytes(StandardCharsets.UTF_8);
+                fileUploads.add(FileUpload.fromData(data, fileSet.getKey().str));
             }
             builder = builder.setFiles(fileUploads);
         }

@@ -31,6 +31,7 @@ public class DenizenDiscordBot extends JavaPlugin {
     public static Warning oldEditMessage = new SlowWarning("oldEditMessage", "dDiscordBot's 'discord edit_message' sub-command has been moved to the 'discordmessage' command.");
     public static Warning oldTokenFile = new SlowWarning("oldTokenFile", "dDiscordBot used to recommend 'tokenfile' for 'discordconnect', however it is now recommended that you use a SecretTag and the 'secrets.secret' file for the token.");
     public static Warning oldCommandPermissions = new StrongWarning("oldCommandPermissions", "dDiscordBot's 'discordcommand' command's 'enabled', 'enable_for', 'disable_for' arguments and its 'perms' instruction no longer function due to API changes; use the 'Integrations' panel in your server settings instead.");
+    public static Warning discordMessageAttachFile = new FutureWarning("discordMessageAttachFile", "'discordmessage' previously used 'attach_file_name' and 'attach_file_text': it is now 'attach_files' as a MapTag");
 
     public static DenizenDiscordBot instance;
 
