@@ -5,12 +5,15 @@ import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
 import com.denizenscript.denizencore.objects.ObjectTag;
+import com.denizenscript.denizencore.objects.core.BinaryTag;
+import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.scripts.commands.generator.*;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
+import com.denizenscript.denizencore.utilities.text.StringHolder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
@@ -21,26 +24,24 @@ import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.*;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
     public DiscordMessageCommand() {
         setName("discordmessage");
-        setSyntax("discordmessage (id:<id>) [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>)");
-        setRequiredArguments(2, 7);
+        setSyntax("discordmessage (id:<id>) [reply:<message>/edit:<message>/channel:<channel>/user:<user>] [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>) (embed:<embed>|...) (attach_files:<map>)");
+        setRequiredArguments(2, 9);
         isProcedural = false;
         autoCompile();
     }
 
     // <--[command]
     // @Name discordmessage
-    // @Syntax discordmessage (id:<id>) (reply:<message>/edit:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>)
+    // @Syntax discordmessage (id:<id>) (reply:<message>/edit:<message>/channel:<channel>/user:<user>) [<message>] (no_mention) (rows:<rows>) (attach_file_name:<name> attach_file_text:<text>) (embed:<embed>|...) (attach_files:<map>)
     // @Required 2
-    // @Maximum 7
+    // @Maximum 9
     // @Short Sends a message to a Discord channel.
     // @Plugin dDiscordBot
     // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
@@ -60,6 +61,9 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // You can edit an existing message by using "edit:<message>".
     //
     // You can use "attach_file_name:<name>" and "attach_file_text:<text>" to attach a text file with longer content than a normal message allows.
+    // Alternatively, you can use "attach_files:<map>" to attach files as a MapTag of the name of the file to the text or a BinaryTag.
+    //
+    // To send embeds, use "embed:<embed>|...".
     //
     // You can use "rows" to attach action rows of components, such as buttons to the message, using <@link objecttype DiscordButtonTag>, and <@link objecttype DiscordSelectionTag>.
     //
@@ -105,6 +109,19 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // - wait 5s
     // - discordmessage id:mybot edit:<entry[msg].message> "Goodbye!"
     //
+    // @Usage
+    // Use to send multiple embeds in a single message
+    // - ~discordmessage id:mybot channel:<[channel]> embed:<discord_embed[title=embed 1]>|<discord_embed[title=embed 2]>
+    //
+    // @Usage
+    // Use to send files in a single message, including an image file, using a MapTag.
+    // - ~fileread path:my_information.yml save:info
+    // - ~fileread path:my_image.png save:image
+    // - definemap files:
+    //     text.txt: Wow! Denizen is so cool!
+    //     info.yml: <entry[info].data>
+    //     my_image.png: <entry[image].data>
+    // - ~discordmessage id:mybot channel:<[channel]> attach_files:<[files]>
     // -->
 
     public static List<ActionRow> createRows(ScriptEntry scriptEntry, ObjectTag rowsObj) {
@@ -139,8 +156,6 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     }
 
     public static void autoExecute(ScriptEntry scriptEntry,
-                                   // TODO: "embed:" as List<DiscordEmbedTag>
-                                   // TODO: "attach_files:" as MapTag of name to BinaryTag or text
                                    @ArgPrefixed @ArgName("id") @ArgDefaultNull DiscordBotTag bot,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("channel") DiscordChannelTag channel,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("user") DiscordUserTag user,
@@ -150,10 +165,12 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows,
                                    @ArgRaw @ArgLinear @ArgDefaultNull @ArgName("raw_message") ObjectTag message,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("embed") @ArgSubType(DiscordEmbedTag.class) List<DiscordEmbedTag> embeds,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_files") MapTag attachFilesMap,
                                    // Note: attachFileText intentionally at end
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText) {
         bot = DiscordCommandUtils.inferBot(bot, channel, user, reply, edit);
-        if ((message == null || message.toString().length() == 0) && attachFileName == null) {
+        if ((message == null || message.toString().length() == 0) && attachFileName == null && attachFilesMap == null && embeds == null) {
             throw new InvalidArgumentsRuntimeException("Must have a message!");
         }
         if ((attachFileName == null) != (attachFileText == null)) {
@@ -185,6 +202,17 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         if (attachFileText != null) {
             builder = builder.setFiles(FileUpload.fromData(attachFileText.getBytes(StandardCharsets.UTF_8), attachFileName));
         }
+        if (attachFilesMap != null) {
+            List<FileUpload> fileUploads = new LinkedList<>();
+            for (Map.Entry<StringHolder, ObjectTag> fileSet : attachFilesMap.map.entrySet()) {
+                if (fileSet.getValue().shouldBeType(BinaryTag.class)) {
+                    fileUploads.add(FileUpload.fromData(((BinaryTag) fileSet.getValue()).data, fileSet.getKey().toString()));
+                    continue;
+                }
+                fileUploads.add(FileUpload.fromData(fileSet.getValue().toString().getBytes(StandardCharsets.UTF_8), fileSet.getKey().toString()));
+            }
+            builder = builder.setFiles(fileUploads);
+        }
         if (message != null) {
             if (message.shouldBeType(DiscordEmbedTag.class)) {
                 MessageEmbed embed = message.asType(DiscordEmbedTag.class, scriptEntry.context).build(scriptEntry.context).build();
@@ -193,6 +221,13 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
             else {
                 builder = builder.setContent(message.toString());
             }
+        }
+        if (embeds != null) {
+            List<MessageEmbed> embedList = new LinkedList<>();
+            for (DiscordEmbedTag embed : embeds) {
+                embedList.add(embed.build(scriptEntry.context).build());
+            }
+            builder = builder.setEmbeds(embedList);
         }
         List<ActionRow> actionRows = createRows(scriptEntry, rows);
         if (actionRows != null) {
