@@ -575,5 +575,16 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         if (mechanism.matches("delete")) {
             getChannel().delete().complete();
         }
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name channel_name
+        // @input ElementTag
+        // @description
+        // Renames this channel
+        // -->
+        if (mechanism.matches("channel_name")) {
+            ((GuildChannel) getChannel()).getManager().setName(mechanism.getValue().asString()).submit();
+        }
     }
 }
