@@ -149,6 +149,11 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
     public long user_id;
 
     @Override
+    public boolean isTruthy() {
+        return getUser() != null;
+    }
+
+    @Override
     public AbstractFlagTracker getFlagTracker() {
         return new RedirectionFlagTracker(getBot().flags, "__users." + user_id);
     }
@@ -174,6 +179,40 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
                 return null;
             }
             return new ElementTag(object.getUser().getName());
+        });
+
+        // <--[tag]
+        // @attribute <DiscordUserTag.is_valid>
+        // @returns ElementTag(Boolean)
+        // @plugin dDiscordBot
+        // @description
+        // Returns true if the user exists and is recognized, or false if it can't be seen.
+        // If this returns false, some usages of the object may still be valid.
+        // It may return false due to caching issues or because the user doesn't share a guild with the bot.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "is_valid", (attribute, object) -> {
+            return new ElementTag(object.getUser() != null);
+        });
+
+        // <--[tag]
+        // @attribute <DiscordUserTag.is_in_group[<group>]>
+        // @returns ElementTag(Boolean)
+        // @plugin dDiscordBot
+        // @description
+        // Returns true if the user exists and is recognized, or false if it can't be seen.
+        // If this returns false, some usages of the object may still be valid.
+        // It may return false due to caching issues or because the user doesn't share a guild with the bot.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, DiscordGroupTag.class, "is_valid", (attribute, object, group) -> {
+            if (object.getUser() == null) {
+                return new ElementTag(false);
+            }
+            group = new DiscordGroupTag(object.bot, group.guild_id);
+            Member member = group.getGuild().getMember(object.getUser());
+            if (member == null) {
+                return new ElementTag(false);
+            }
+            return new ElementTag(true);
         });
 
         // <--[tag]
@@ -384,19 +423,17 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         // @description
         // Returns a list of all roles the user has in the given group.
         // -->
-        tagProcessor.registerTag(ListTag.class, "roles", (attribute, object) -> {
-            if (!attribute.hasParam()) {
-                return null;
-            }
-            DiscordGroupTag group = attribute.paramAsType(DiscordGroupTag.class);
-            if (group == null) {
-                return null;
-            }
+        tagProcessor.registerTag(ListTag.class, DiscordGroupTag.class, "roles", (attribute, object, group) -> {
             if (object.getUserForTag(attribute) == null) {
                 return null;
             }
+            group = new DiscordGroupTag(object.bot, group.guild_id);
             ListTag list = new ListTag();
-            for (Role role : group.getGuild().getMember(object.getUser()).getRoles()) {
+            Member member = group.getGuild().getMember(object.getUser());
+            if (member == null) {
+                return null;
+            }
+            for (Role role : member.getRoles()) {
                 list.addObject(new DiscordRoleTag(object.bot, role));
             }
             return list;
