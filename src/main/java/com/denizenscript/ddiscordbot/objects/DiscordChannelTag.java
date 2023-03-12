@@ -578,12 +578,12 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
 
         // <--[mechanism]
         // @object DiscordChannelTag
-        // @name channel_name
+        // @name name
         // @input ElementTag
         // @description
-        // Renames this channel
+        // Renames this channel.
         // -->
-        if (mechanism.matches("channel_name")) {
+        if (mechanism.matches("name") && mechanism.requireObject(ElementTag.class)) {
             ((GuildChannel) getChannel()).getManager().setName(mechanism.getValue().asString()).submit();
         }
     }
