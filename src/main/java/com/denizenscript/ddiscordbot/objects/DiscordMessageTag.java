@@ -435,6 +435,23 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
             }
             return result;
         });
+
+        // <--[mechanism]
+        // @object DiscordMessageTag
+        // @name delete
+        // @input None
+        // @description
+        // Deletes the message.
+        // -->
+        tagProcessor.registerMechanism("delete", false, (object, mechanism) -> {
+            Message message = object.getMessage();
+            try {
+                message.delete().submit();
+            }
+            catch (Throwable ex) {
+                mechanism.echoError("Failed to delete message: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
+            }
+        });
     }
 
     public static ObjectTagProcessor<DiscordMessageTag> tagProcessor = new ObjectTagProcessor<>();
@@ -485,7 +502,6 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         return this;
     }
 
-
     @Override
     public void applyProperty(Mechanism mechanism) {
         mechanism.echoError("Cannot apply properties to a DiscordMessageTag!");
@@ -493,22 +509,6 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
 
     @Override
     public void adjust(Mechanism mechanism) {
-
-        // <--[mechanism]
-        // @object DiscordMessageTag
-        // @name delete
-        // @input None
-        // @description
-        // Deletes the message.
-        // -->
-        if (mechanism.matches("delete")) {
-            Message message = getMessage();
-            try {
-                message.delete().submit();
-            }
-            catch (Throwable ex) {
-                mechanism.echoError("Failed to delete message: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
-            }
-        }
+        tagProcessor.processMechanism(this, mechanism);
     }
 }

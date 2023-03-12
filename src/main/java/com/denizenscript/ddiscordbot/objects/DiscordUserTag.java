@@ -502,6 +502,38 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
             }
             return new ElementTag(member.isTimedOut());
         });
+
+        // <--[mechanism]
+        // @object DiscordUserTag
+        // @name move
+        // @input DiscordChannelTag
+        // @description
+        // If this user is connected to a voice channel, moves them to the specified voice channel.
+        // -->
+        tagProcessor.registerMechanism("move", false, DiscordChannelTag.class, (object, mechanism, channel) -> {
+            GuildChannel guildChannel;
+            if (channel.getChannel() instanceof GuildChannel) {
+                guildChannel = (GuildChannel) channel.getChannel();
+            }
+            else {
+                mechanism.echoError("Invalid channel!");
+                return;
+            }
+            if (guildChannel.getType() != ChannelType.VOICE) {
+                mechanism.echoError("Input must be a voice channel!");
+                return;
+            }
+            Member member = guildChannel.getGuild().getMember(object.getUser());
+            if (member == null) {
+                mechanism.echoError("Invalid group member!");
+                return;
+            }
+            if (member.getVoiceState() == null || !member.getVoiceState().inAudioChannel()) {
+                mechanism.echoError("User isn't in a voice channel!");
+                return;
+            }
+            guildChannel.getGuild().moveVoiceMember(member, (AudioChannel) channel.getChannel()).complete();
+        });
     }
 
     public static ObjectTagProcessor<DiscordUserTag> tagProcessor = new ObjectTagProcessor<>();
@@ -564,38 +596,6 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
 
     @Override
     public void adjust(Mechanism mechanism) {
-
-        // <--[mechanism]
-        // @object DiscordUserTag
-        // @name move
-        // @input DiscordChannelTag
-        // @description
-        // If this user is connected to a voice channel, moves them to the specified voice channel.
-        // -->
-        if (mechanism.matches("move") && mechanism.requireObject(DiscordChannelTag.class)) {
-            DiscordChannelTag channel = mechanism.valueAsType(DiscordChannelTag.class);
-            GuildChannel guildChannel;
-            if (channel.getChannel() instanceof GuildChannel) {
-                guildChannel = (GuildChannel) channel.getChannel();
-            }
-            else {
-                mechanism.echoError("Invalid channel!");
-                return;
-            }
-            if (guildChannel.getType() != ChannelType.VOICE) {
-                mechanism.echoError("Input must be a voice channel!");
-                return;
-            }
-            Member member = guildChannel.getGuild().getMember(getUser());
-            if (member == null) {
-                mechanism.echoError("Invalid group member!");
-                return;
-            }
-            if (member.getVoiceState() == null || !member.getVoiceState().inAudioChannel()) {
-                mechanism.echoError("User isn't in a voice channel!");
-                return;
-            }
-            guildChannel.getGuild().moveVoiceMember(member, (AudioChannel) channel.getChannel()).complete();
-        }
+        tagProcessor.processMechanism(this, mechanism);
     }
 }

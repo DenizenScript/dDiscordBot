@@ -6,9 +6,7 @@ import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.flags.AbstractFlagTracker;
 import com.denizenscript.denizencore.flags.FlaggableObject;
 import com.denizenscript.denizencore.flags.SavableMapFlagTracker;
-import com.denizenscript.denizencore.objects.ArgumentHelper;
-import com.denizenscript.denizencore.objects.Fetchable;
-import com.denizenscript.denizencore.objects.ObjectTag;
+import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
@@ -25,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DiscordInteractionTag implements ObjectTag, FlaggableObject {
+public class DiscordInteractionTag implements ObjectTag, FlaggableObject, Adjustable {
 
     // <--[ObjectType]
     // @name DiscordInteractionTag
@@ -270,5 +268,15 @@ public class DiscordInteractionTag implements ObjectTag, FlaggableObject {
             this.prefix = prefix;
         }
         return this;
+    }
+
+    @Override
+    public void applyProperty(Mechanism mechanism) {
+        mechanism.echoError("Cannot apply properties to Discord interactions.");
+    }
+
+    @Override
+    public void adjust(Mechanism mechanism) {
+        tagProcessor.processMechanism(this, mechanism);
     }
 }

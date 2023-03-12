@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.Permission;
 import java.awt.Color;
 import java.util.List;
 
-public class DiscordRoleTag implements ObjectTag, FlaggableObject {
+public class DiscordRoleTag implements ObjectTag, FlaggableObject, Adjustable {
 
     // <--[ObjectType]
     // @name DiscordRoleTag
@@ -309,5 +309,15 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject {
             this.prefix = prefix;
         }
         return this;
+    }
+
+    @Override
+    public void applyProperty(Mechanism mechanism) {
+        mechanism.echoError("Cannot apply properties to Discord roles.");
+    }
+
+    @Override
+    public void adjust(Mechanism mechanism) {
+        tagProcessor.processMechanism(this, mechanism);
     }
 }

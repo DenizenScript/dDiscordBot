@@ -267,6 +267,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
         return this;
     }
 
+    @Override
     public void applyProperty(Mechanism mechanism) {
         mechanism.echoError("Cannot apply properties to Discord bots.");
     }

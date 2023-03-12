@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DiscordGroupTag implements ObjectTag, FlaggableObject {
+public class DiscordGroupTag implements ObjectTag, FlaggableObject, Adjustable {
 
     // <--[ObjectType]
     // @name DiscordGroupTag
@@ -468,5 +468,15 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject {
             this.prefix = prefix;
         }
         return this;
+    }
+
+    @Override
+    public void applyProperty(Mechanism mechanism) {
+        mechanism.echoError("Cannot apply properties to Discord groups.");
+    }
+
+    @Override
+    public void adjust(Mechanism mechanism) {
+        tagProcessor.processMechanism(this, mechanism);
     }
 }

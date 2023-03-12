@@ -2,13 +2,11 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordConnection;
+import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.flags.AbstractFlagTracker;
 import com.denizenscript.denizencore.flags.FlaggableObject;
 import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
-import com.denizenscript.denizencore.objects.ArgumentHelper;
-import com.denizenscript.denizencore.objects.Fetchable;
-import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.tags.Attribute;
@@ -24,7 +22,7 @@ import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 
 import java.util.List;
 
-public class DiscordReactionTag implements ObjectTag, FlaggableObject {
+public class DiscordReactionTag implements ObjectTag, FlaggableObject, Adjustable {
 
     // <--[ObjectType]
     // @name DiscordReactionTag
@@ -324,5 +322,15 @@ public class DiscordReactionTag implements ObjectTag, FlaggableObject {
             this.prefix = prefix;
         }
         return this;
+    }
+
+    @Override
+    public void applyProperty(Mechanism mechanism) {
+        mechanism.echoError("Cannot apply properties to Discord reactions.");
+    }
+
+    @Override
+    public void adjust(Mechanism mechanism) {
+        tagProcessor.processMechanism(this, mechanism);
     }
 }

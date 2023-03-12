@@ -426,6 +426,98 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
             }
             return result;
         });
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name add_thread_member
+        // @input DiscordUserTag
+        // @description
+        // Adds the specified user to this thread.
+        // -->
+        tagProcessor.registerMechanism("add_thread_member", false, DiscordUserTag.class, (object, mechanism, user) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                mechanism.echoError("Cannot adjust 'add_thread_member': this channel is not a thread.");
+                return;
+            }
+            user = new DiscordUserTag(object.bot, user.user_id);
+            ((ThreadChannel) channel).addThreadMember(user.getUser()).submit();
+        });
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name remove_thread_member
+        // @input DiscordUserTag
+        // @description
+        // Removes the specified user from this thread.
+        // -->
+        tagProcessor.registerMechanism("remove_thread_member", false, DiscordUserTag.class, (object, mechanism, user) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                mechanism.echoError("Cannot adjust 'remove_thread_member': this channel is not a thread.");
+                return;
+            }
+            user = new DiscordUserTag(object.bot, user.user_id);
+            ((ThreadChannel) channel).removeThreadMember(user.getUser()).submit();
+        });
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name is_thread_archived
+        // @input ElementTag(Boolean)
+        // @description
+        // Changes whether this thread is archived.
+        // @tags
+        // <DiscordChannelTag.is_thread_archived>
+        // -->
+        tagProcessor.registerMechanism("is_thread_archived", false, ElementTag.class, (object, mechanism, param) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                mechanism.echoError("Cannot adjust 'thread_archived': this channel is not a thread.");
+                return;
+            }
+            ((ThreadChannel) channel).getManager().setArchived(param.asBoolean()).submit();
+        });
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name is_thread_locked
+        // @input ElementTag(Boolean)
+        // @description
+        // Changes whether this thread is locked (can't be pulled from archive by non-moderators).
+        // @tags
+        // <DiscordChannelTag.is_thread_locked>
+        // -->
+        tagProcessor.registerMechanism("is_thread_locked", false, ElementTag.class, (object, mechanism, param) -> {
+            Channel channel = object.getChannel();
+            if (!(channel instanceof ThreadChannel)) {
+                mechanism.echoError("Cannot adjust 'is_thread_locked': this channel is not a thread.");
+                return;
+            }
+            ((ThreadChannel) channel).getManager().setLocked(param.asBoolean()).submit();
+        });
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name delete
+        // @input None
+        // @description
+        // Deletes this channel.
+        // -->
+        tagProcessor.registerMechanism("delete", false, (object, mechanism) -> {
+            object.getChannel().delete().complete();
+        });
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name name
+        // @input ElementTag
+        // @description
+        // Renames this channel.
+        // -->
+        tagProcessor.registerMechanism("name", false, ElementTag.class, (object, mechanism, param) -> {
+            ((GuildChannel) object.getChannel()).getManager().setName(param.asString()).submit();
+        });
     }
 
     public static ObjectTagProcessor<DiscordChannelTag> tagProcessor = new ObjectTagProcessor<>();
@@ -488,103 +580,6 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
 
     @Override
     public void adjust(Mechanism mechanism) {
-
-        // <--[mechanism]
-        // @object DiscordChannelTag
-        // @name add_thread_member
-        // @input DiscordUserTag
-        // @description
-        // Adds the specified user to this thread.
-        // -->
-        if (mechanism.matches("add_thread_member") && mechanism.requireObject(DiscordUserTag.class)) {
-            Channel channel = getChannel();
-            if (!(channel instanceof ThreadChannel)) {
-                mechanism.echoError("Cannot adjust 'add_thread_member': this channel is not a thread.");
-                return;
-            }
-            DiscordUserTag user = mechanism.valueAsType(DiscordUserTag.class);
-            if (user.bot == null) {
-                user = new DiscordUserTag(bot, user.user_id);
-            }
-            ((ThreadChannel) channel).addThreadMember(user.getUser()).submit();
-        }
-
-        // <--[mechanism]
-        // @object DiscordChannelTag
-        // @name remove_thread_member
-        // @input DiscordUserTag
-        // @description
-        // Removes the specified user from this thread.
-        // -->
-        if (mechanism.matches("remove_thread_member") && mechanism.requireObject(DiscordUserTag.class)) {
-            Channel channel = getChannel();
-            if (!(channel instanceof ThreadChannel)) {
-                mechanism.echoError("Cannot adjust 'remove_thread_member': this channel is not a thread.");
-                return;
-            }
-            DiscordUserTag user = mechanism.valueAsType(DiscordUserTag.class);
-            if (user.bot == null) {
-                user = new DiscordUserTag(bot, user.user_id);
-            }
-            ((ThreadChannel) channel).removeThreadMember(user.getUser()).submit();
-        }
-
-        // <--[mechanism]
-        // @object DiscordChannelTag
-        // @name is_thread_archived
-        // @input ElementTag(Boolean)
-        // @description
-        // Changes whether this thread is archived.
-        // @tags
-        // <DiscordChannelTag.is_thread_archived>
-        // -->
-        if (mechanism.matches("is_thread_archived") && mechanism.requireBoolean()) {
-            Channel channel = getChannel();
-            if (!(channel instanceof ThreadChannel)) {
-                mechanism.echoError("Cannot adjust 'thread_archived': this channel is not a thread.");
-                return;
-            }
-            ((ThreadChannel) channel).getManager().setArchived(mechanism.getValue().asBoolean()).submit();
-        }
-
-        // <--[mechanism]
-        // @object DiscordChannelTag
-        // @name is_thread_locked
-        // @input ElementTag(Boolean)
-        // @description
-        // Changes whether this thread is locked (can't be pulled from archive by non-moderators).
-        // @tags
-        // <DiscordChannelTag.is_thread_locked>
-        // -->
-        if (mechanism.matches("is_thread_locked") && mechanism.requireBoolean()) {
-            Channel channel = getChannel();
-            if (!(channel instanceof ThreadChannel)) {
-                mechanism.echoError("Cannot adjust 'is_thread_locked': this channel is not a thread.");
-                return;
-            }
-            ((ThreadChannel) channel).getManager().setLocked(mechanism.getValue().asBoolean()).submit();
-        }
-
-        // <--[mechanism]
-        // @object DiscordChannelTag
-        // @name delete
-        // @input None
-        // @description
-        // Deletes this channel.
-        // -->
-        if (mechanism.matches("delete")) {
-            getChannel().delete().complete();
-        }
-
-        // <--[mechanism]
-        // @object DiscordChannelTag
-        // @name name
-        // @input ElementTag
-        // @description
-        // Renames this channel.
-        // -->
-        if (mechanism.matches("name") && mechanism.requireObject(ElementTag.class)) {
-            ((GuildChannel) getChannel()).getManager().setName(mechanism.getValue().asString()).submit();
-        }
+        tagProcessor.processMechanism(this, mechanism);
     }
 }
