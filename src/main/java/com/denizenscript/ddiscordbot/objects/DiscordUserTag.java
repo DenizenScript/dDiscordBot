@@ -203,16 +203,13 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         // If this returns false, some usages of the object may still be valid.
         // It may return false due to caching issues or because the user doesn't share a guild with the bot.
         // -->
-        tagProcessor.registerTag(ElementTag.class, DiscordGroupTag.class, "is_valid", (attribute, object, group) -> {
+        tagProcessor.registerTag(ElementTag.class, DiscordGroupTag.class, "is_in_group", (attribute, object, group) -> {
             if (object.getUser() == null) {
                 return new ElementTag(false);
             }
             group = new DiscordGroupTag(object.bot, group.guild_id);
             Member member = group.getGuild().getMember(object.getUser());
-            if (member == null) {
-                return new ElementTag(false);
-            }
-            return new ElementTag(true);
+            return new ElementTag(member != null);
         });
 
         // <--[tag]
