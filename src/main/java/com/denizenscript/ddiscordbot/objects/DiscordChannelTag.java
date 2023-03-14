@@ -16,6 +16,7 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.attribute.IThreadContainer;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
@@ -517,6 +518,30 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // -->
         tagProcessor.registerMechanism("name", false, ElementTag.class, (object, mechanism, param) -> {
             ((GuildChannel) object.getChannel()).getManager().setName(param.asString()).submit();
+        });
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name topic
+        // @input ElementTag
+        // @description
+        // Changes the topic for this channel. The topic can only be 1024 characters or fewer.
+        // Does not work for thread or forum channels. Provide no input to reset the topic.
+        // -->
+        tagProcessor.registerMechanism("topic", false, (object, mechanism) -> {
+            if (mechanism.hasValue()) {
+                if (mechanism.requireObject(ElementTag.class)) {
+                    if (mechanism.getValue().asString().length() > 1024) {
+                        mechanism.echoError("Channel topic is too long! Channel topics can only be 1024 characters or fewer.");
+                        return;
+                    }
+                    // TODO: Add ability to change forum channel topics (guidelines)
+                    ((TextChannel) object.getChannel()).getManager().setTopic(mechanism.getValue().asString()).submit();
+                }
+            }
+            else {
+                ((TextChannel) object.getChannel()).getManager().setTopic(null).submit();
+            }
         });
     }
 
