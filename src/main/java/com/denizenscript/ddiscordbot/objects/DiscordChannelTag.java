@@ -529,19 +529,16 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // Does not work for thread or forum channels. Provide no input to reset the topic.
         // -->
         tagProcessor.registerMechanism("topic", false, (object, mechanism) -> {
-            if (mechanism.hasValue()) {
-                if (mechanism.requireObject(ElementTag.class)) {
-                    if (mechanism.getValue().asString().length() > 1024) {
-                        mechanism.echoError("Channel topic is too long! Channel topics can only be 1024 characters or fewer.");
-                        return;
-                    }
-                    // TODO: Add ability to change forum channel topics (guidelines)
-                    ((TextChannel) object.getChannel()).getManager().setTopic(mechanism.getValue().asString()).submit();
-                }
-            }
-            else {
+            if (!mechanism.hasValue()) {
                 ((TextChannel) object.getChannel()).getManager().setTopic(null).submit();
+                return;
             }
+            if (mechanism.getValue().asString().length() > 1024) {
+                mechanism.echoError("Channel topic is too long! Channel topics can only be 1024 characters or fewer.");
+                return;
+            }
+            // TODO: Add ability to change forum channel topics (guidelines)
+            ((TextChannel) object.getChannel()).getManager().setTopic(mechanism.getValue().asString()).submit();
         });
     }
 
