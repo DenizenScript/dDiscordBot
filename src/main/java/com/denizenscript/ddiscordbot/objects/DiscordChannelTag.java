@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.unions.IThreadContainerUnion;
 
 public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable {
@@ -427,6 +428,18 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
             return result;
         });
 
+        // <--[tag]
+        // @attribute <DiscordChannelTag.topic>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @mechanism DiscordChannelTag.topic
+        // @description
+        // Returns the topic for this channel.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "topic", (attribute, object) -> {
+            return new ElementTag(((StandardGuildMessageChannel) object.getChannel()).getTopic());
+        });
+
         // <--[mechanism]
         // @object DiscordChannelTag
         // @name add_thread_member
@@ -517,6 +530,28 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // -->
         tagProcessor.registerMechanism("name", false, ElementTag.class, (object, mechanism, param) -> {
             ((GuildChannel) object.getChannel()).getManager().setName(param.asString()).submit();
+        });
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name topic
+        // @input ElementTag
+        // @description
+        // Changes the topic for this channel. The topic can only be 1024 characters or fewer.
+        // Does not work for thread or forum channels. Provide no input to reset the topic.
+        // @tags
+        // <DiscordChannelTag.topic>
+        // -->
+        tagProcessor.registerMechanism("topic", false, (object, mechanism) -> {
+            if (!mechanism.hasValue()) {
+                ((StandardGuildMessageChannel) object.getChannel()).getManager().setTopic(null).submit();
+                return;
+            }
+            if (mechanism.getValue().asString().length() > 1024) {
+                mechanism.echoError("Channel topic is too long! Channel topics can only be 1024 characters or fewer.");
+                return;
+            }
+            ((StandardGuildMessageChannel) object.getChannel()).getManager().setTopic(mechanism.getValue().asString()).submit();
         });
     }
 
