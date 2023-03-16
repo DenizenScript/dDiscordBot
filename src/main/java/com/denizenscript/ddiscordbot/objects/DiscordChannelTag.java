@@ -432,6 +432,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @attribute <DiscordChannelTag.topic>
         // @returns ElementTag
         // @plugin dDiscordBot
+        // @mechanism DiscordChannelTag.topic
         // @description
         // Returns the topic for this channel.
         // -->
@@ -538,6 +539,8 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @description
         // Changes the topic for this channel. The topic can only be 1024 characters or fewer.
         // Does not work for thread or forum channels. Provide no input to reset the topic.
+        // @tags
+        // <DiscordChannelTag.topic>
         // -->
         tagProcessor.registerMechanism("topic", false, (object, mechanism) -> {
             if (!mechanism.hasValue()) {
