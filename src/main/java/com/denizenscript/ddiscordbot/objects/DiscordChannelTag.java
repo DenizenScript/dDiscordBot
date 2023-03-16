@@ -16,11 +16,11 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.attribute.IThreadContainer;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.unions.IThreadContainerUnion;
 
 public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable {
@@ -428,6 +428,17 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
             return result;
         });
 
+        // <--[tag]
+        // @attribute <DiscordChannelTag.topic>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the topic for this channel.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "topic", (attribute, object) -> {
+            return new ElementTag(((StandardGuildMessageChannel) object.getChannel()).getTopic());
+        });
+
         // <--[mechanism]
         // @object DiscordChannelTag
         // @name add_thread_member
@@ -530,15 +541,14 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // -->
         tagProcessor.registerMechanism("topic", false, (object, mechanism) -> {
             if (!mechanism.hasValue()) {
-                ((TextChannel) object.getChannel()).getManager().setTopic(null).submit();
+                ((StandardGuildMessageChannel) object.getChannel()).getManager().setTopic(null).submit();
                 return;
             }
             if (mechanism.getValue().asString().length() > 1024) {
                 mechanism.echoError("Channel topic is too long! Channel topics can only be 1024 characters or fewer.");
                 return;
             }
-            // TODO: Add ability to change forum channel topics (guidelines)
-            ((TextChannel) object.getChannel()).getManager().setTopic(mechanism.getValue().asString()).submit();
+            ((StandardGuildMessageChannel) object.getChannel()).getManager().setTopic(mechanism.getValue().asString()).submit();
         });
     }
 
