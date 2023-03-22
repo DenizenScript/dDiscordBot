@@ -1,12 +1,8 @@
 package com.denizenscript.ddiscordbot.objects;
 
-import com.denizenscript.denizen.objects.ColorTag;
 import com.denizenscript.denizencore.objects.Fetchable;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import com.denizenscript.denizencore.objects.core.ElementTag;
-import com.denizenscript.denizencore.objects.core.ListTag;
-import com.denizenscript.denizencore.objects.core.MapTag;
-import com.denizenscript.denizencore.objects.core.TimeTag;
+import com.denizenscript.denizencore.objects.core.*;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
@@ -14,7 +10,6 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import org.bukkit.Color;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -81,7 +76,7 @@ public class DiscordEmbedTag implements ObjectTag {
             embedData.putObject("author_icon_url", new ElementTag(embed.getAuthor().getIconUrl()));
         }
         if (embed.getColor() != null) {
-            embedData.putObject("color", new ColorTag(Color.fromRGB(embed.getColorRaw())));
+            embedData.putObject("color", ColorTag.fromRGB(embed.getColorRaw()));
         }
         if (embed.getDescription() != null) {
             embedData.putObject("description", new ElementTag(embed.getDescription()));
@@ -158,7 +153,7 @@ public class DiscordEmbedTag implements ObjectTag {
             }
         }
         if (color != null) {
-            builder.setColor(color.getColor().asRGB());
+            builder.setColor(color.asRGB());
         }
         if (description != null) {
             builder.setDescription(description.toString());

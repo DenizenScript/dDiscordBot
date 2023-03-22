@@ -11,14 +11,30 @@ import java.util.concurrent.CompletableFuture;
 
 public class DiscordCommandUtils {
 
+    public static String inferBotNameNullable(Object... options) {
+        DiscordBotTag bot = inferBotNullable(options);
+        if (bot == null) {
+            return null;
+        }
+        return bot.bot;
+    }
+
     public static DiscordBotTag inferBot(Object... options) {
+        DiscordBotTag bot = inferBotNullable(options);
+        if (bot != null) {
+            return bot;
+        }
+        throw new InvalidArgumentsRuntimeException("Unknown bot to use! Must specify 'id:' argument!");
+    }
+
+    public static DiscordBotTag inferBotNullable(Object[] options) {
         for (Object obj : options) {
             DiscordBotTag result = inferBotInternal(obj);
             if (result != null) {
                 return result;
             }
         }
-        throw new InvalidArgumentsRuntimeException("Unknown bot to use! Must specify 'id:' argument!");
+        return null;
     }
 
     public static DiscordBotTag inferBotInternal(Object obj) {

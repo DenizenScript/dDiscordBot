@@ -2,7 +2,7 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
-import com.denizenscript.denizen.objects.ColorTag;
+import com.denizenscript.denizencore.objects.core.ColorTag;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.flags.AbstractFlagTracker;
 import com.denizenscript.denizencore.flags.FlaggableObject;

@@ -144,6 +144,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @attribute <DiscordChannelTag.name>
         // @returns ElementTag
         // @plugin dDiscordBot
+        // @mechanism DiscordChannelTag.name
         // @description
         // Returns the name of the channel.
         // -->
@@ -527,6 +528,8 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @input ElementTag
         // @description
         // Renames this channel.
+        // @tags
+        // <DiscordChannelTag.name>
         // -->
         tagProcessor.registerMechanism("name", false, ElementTag.class, (object, mechanism, param) -> {
             ((GuildChannel) object.getChannel()).getManager().setName(param.asString()).submit();
