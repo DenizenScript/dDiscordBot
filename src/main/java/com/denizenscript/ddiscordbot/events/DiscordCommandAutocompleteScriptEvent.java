@@ -41,7 +41,7 @@ public class DiscordCommandAutocompleteScriptEvent extends DiscordCommandInterac
     // <context.focused_option> returns the name of the focused option.
     //
     // @Determine
-    // "CHOICES:" + ListTag to suggest values to the Discord client. Up to 25 suggestions are allowed to be sent. Each entry can be an ElementTag which controls both the value and display of the choice or a MapTag with "name" and "value" keys to control both separately.
+    // "CHOICES:<ListTag>" to suggest values to the Discord client. Up to 25 suggestions are allowed to be sent. Each entry can be an ElementTag which controls both the value and display of the choice or a MapTag with "name" and "value" keys to control both separately.
     //
     // @Example
     // # Suggests fruits that are only longer in length than the current input.
