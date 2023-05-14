@@ -196,7 +196,24 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         else {
             throw new InvalidArgumentsRuntimeException("Missing channel!");
         }
-        AbstractMessageBuilder<?, ?> builder = edit != null ? new MessageEditBuilder() : new MessageCreateBuilder();
+        final AbstractMessageBuilder<?, ?> finalBuilder = createMessageBuilder(scriptEntry, edit != null, noMention, rows, message, embeds, attachFileName, attachFileText, attachFilesMap);
+        final DiscordBotTag finalBot = bot;
+        DiscordCommandUtils.cleanWait(scriptEntry, toChannel.thenApply(c -> {
+            if (reply != null) {
+                return c.retrieveMessageById(reply.message_id).flatMap(m -> m.reply((MessageCreateData) finalBuilder.build()));
+            }
+            else if (edit != null) {
+                return c.editMessageById(edit.message_id, (MessageEditData) finalBuilder.build());
+            }
+            else {
+                return c.sendMessage((MessageCreateData) finalBuilder.build());
+            }
+        }).thenCompose(r -> DiscordCommandUtils.mapError(scriptEntry, r).map(m -> scriptEntry.saveObject("message", new DiscordMessageTag(finalBot.bot, m))).submit()));
+    }
+
+    public static AbstractMessageBuilder<?, ?> createMessageBuilder(ScriptEntry scriptEntry, boolean isEdit, boolean noMention, ObjectTag rows, ObjectTag message,
+                                                                    List<DiscordEmbedTag> embeds, String attachFileName, String attachFileText, MapTag attachFilesMap) {
+        AbstractMessageBuilder<?, ?> builder = isEdit ? new MessageEditBuilder() : new MessageCreateBuilder();
         if ((attachFileName == null) != (attachFileText == null)) {
             throw new InvalidArgumentsRuntimeException("Must specify both attach file name and text, or neither");
         }
@@ -236,18 +253,6 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         if (noMention) {
             builder = builder.mentionRepliedUser(false);
         }
-        final AbstractMessageBuilder<?, ?> finalBuilder = builder;
-        final DiscordBotTag finalBot = bot;
-        DiscordCommandUtils.cleanWait(scriptEntry, toChannel.thenApply(c -> {
-            if (reply != null) {
-                return c.retrieveMessageById(reply.message_id).flatMap(m -> m.reply((MessageCreateData) finalBuilder.build()));
-            }
-            else if (edit != null) {
-                return c.editMessageById(edit.message_id, (MessageEditData) finalBuilder.build());
-            }
-            else {
-                return c.sendMessage((MessageCreateData) finalBuilder.build());
-            }
-        }).thenCompose(r -> DiscordCommandUtils.mapError(scriptEntry, r).map(m -> scriptEntry.saveObject("message", new DiscordMessageTag(finalBot.bot, m))).submit()));
+        return builder;
     }
 }

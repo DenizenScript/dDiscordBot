@@ -5,39 +5,34 @@ import com.denizenscript.ddiscordbot.objects.DiscordEmbedTag;
 import com.denizenscript.ddiscordbot.objects.DiscordInteractionTag;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
 import com.denizenscript.denizencore.objects.ObjectTag;
+import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
 import com.denizenscript.denizencore.scripts.commands.generator.*;
-import com.denizenscript.denizencore.utilities.debugging.Debug;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.callbacks.IDeferrableCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
-import net.dv8tion.jda.api.utils.FileUpload;
-import net.dv8tion.jda.api.utils.messages.MessageRequest;
+import net.dv8tion.jda.api.utils.messages.*;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class DiscordInteractionCommand extends AbstractCommand implements Holdable {
 
     public DiscordInteractionCommand() {
         setName("discordinteraction");
-        setSyntax("discordinteraction [defer/reply/edit/delete] [interaction:<interaction>] (ephemeral) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)");
-        setRequiredArguments(2, 7);
+        setSyntax("discordinteraction [defer/reply/edit/delete] [interaction:<interaction>] (ephemeral) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>) (embed:<embed>|...) (attach_files:<map>)");
+        setRequiredArguments(2, 9);
         isProcedural = false;
         autoCompile();
     }
 
     // <--[command]
     // @Name discordinteraction
-    // @Syntax discordinteraction [defer/reply/delete] [interaction:<interaction>] (ephemeral) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>)
+    // @Syntax discordinteraction [defer/reply/delete] [interaction:<interaction>] (ephemeral) (attach_file_name:<name>) (attach_file_text:<text>) (rows:<rows>) (<message>) (embed:<embed>|...) (attach_files:<map>)
     // @Required 2
-    // @Maximum 7
+    // @Maximum 9
     // @Short Manages Discord interactions.
     // @Plugin dDiscordBot
     // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
@@ -54,6 +49,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
     // If you defer, the 'ephemeral' option can only be set by the defer - you cannot change it with the later reply.
     // Replying to an interaction uses similar logic to normal messaging. See <@link command discordmessage>.
     // If you deferred without using 'ephemeral', the 'delete' option will delete the "Thinking..." message.
+    // Ephemeral replies cannot have files.
     //
     // Slash commands, and replies to interactions, have limitations. See <@link url https://gist.github.com/MinnDevelopment/b883b078fdb69d0e568249cc8bf37fe9>.
     //
@@ -86,83 +82,40 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                                    @ArgName("instruction") DiscordInteractionInstruction instruction,
                                    @ArgPrefixed @ArgName("interaction") DiscordInteractionTag interaction,
                                    @ArgName("ephemeral") boolean ephemeral,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows,
                                    @ArgRaw @ArgLinear @ArgDefaultNull @ArgName("message") ObjectTag message,
-                                   // Note: attachFileText intentionally at end
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("embed") @ArgSubType(DiscordEmbedTag.class) List<DiscordEmbedTag> embeds,
+                                   // Note: attachFiles intentionally at end
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_files") MapTag attachFilesMap,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_text") String attachFileText) {
+        if (interaction.interaction == null) {
+            throw new InvalidArgumentsRuntimeException("Invalid interaction! Has it expired?");
+        }
         DiscordCommandUtils.cleanWait(scriptEntry, switch (instruction) {
             case DEFER -> {
-                if (interaction.interaction == null) {
-                    throw new InvalidArgumentsRuntimeException("Invalid interaction! Has it expired?");
-                }
                 if (!(interaction.interaction instanceof IReplyCallback)) {
                     throw new InvalidArgumentsRuntimeException("Interaction is not a reply callback!");
                 }
                 yield ((IReplyCallback) interaction.interaction).deferReply(ephemeral);
             }
-            case EDIT, REPLY -> {
-                if (interaction.interaction == null) {
-                    throw new InvalidArgumentsRuntimeException("Invalid interaction! Has it expired?");
-                }
-                // Messages aren't allowed to have attachments in ephemeral messages
-                // Since you can't see if the acknowledged message is ephemeral or not, this is a requirement, so we don't have to try/catch
-                else if (message == null) {
-                    throw new InvalidArgumentsRuntimeException("Must have a message!");
-                }
-                MessageEmbed embed = null;
-                List<ActionRow> actionRows = DiscordMessageCommand.createRows(scriptEntry, rows);
-                if (message.shouldBeType(DiscordEmbedTag.class)) {
-                    embed = message.asType(DiscordEmbedTag.class, scriptEntry.context).build(scriptEntry.getContext()).build();
-                }
-                MessageRequest<?> request;
+            case EDIT -> {
+                AbstractMessageBuilder<?, ?> messageBuilder = DiscordMessageCommand.createMessageBuilder(scriptEntry, true, false, rows, message, embeds, attachFileName, attachFileText, attachFilesMap);
                 InteractionHook hook = ((IDeferrableCallback) interaction.interaction).getHook();
-                FileUpload fileUpload = null;
-                if (attachFileName != null) {
-                    if (attachFileText != null) {
-                        fileUpload = FileUpload.fromData(attachFileText.getBytes(StandardCharsets.UTF_8), attachFileName);
-                    }
-                    else {
-                        Debug.echoError(scriptEntry, "Failed to process attachment - missing content?");
-                    }
+                yield (RestAction<?>) hook.editOriginal((MessageEditData) messageBuilder.build());
+            }
+            case REPLY -> {
+                MessageCreateBuilder messageBuilder = (MessageCreateBuilder) DiscordMessageCommand.createMessageBuilder(scriptEntry, false, false, rows, message, embeds, attachFileName, attachFileText, attachFilesMap);
+                if (interaction.interaction.isAcknowledged()) {
+                    InteractionHook hook = ((IDeferrableCallback) interaction.interaction).getHook();
+                    yield hook.sendMessage(messageBuilder.build());
                 }
-                if (instruction == DiscordInteractionInstruction.EDIT) {
-                    if (embed != null) {
-                        request = hook.editOriginalEmbeds(embed);
-                    }
-                    else {
-                        request = hook.editOriginal(message.toString());
-                    }
-                }
-                else if (interaction.interaction.isAcknowledged()) {
-                    if (embed != null) {
-                        request = hook.sendMessageEmbeds(embed);
-                    }
-                    else {
-                        request = hook.sendMessage(message.toString());
-                    }
-                } else {
+                else {
                     IReplyCallback replyTo = (IReplyCallback) interaction.interaction;
-                    if (embed != null) {
-                        request = replyTo.replyEmbeds(embed);
-                    }
-                    else {
-                        request = replyTo.reply(message.toString());
-                    }
-                    request = ((ReplyCallbackAction) request).setEphemeral(ephemeral);
+                    yield replyTo.reply(messageBuilder.build()).setEphemeral(ephemeral);
                 }
-                if (fileUpload != null) {
-                    request = request.setFiles(fileUpload);
-                }
-                if (actionRows != null) {
-                    request = request.setComponents(actionRows);
-                }
-                yield (RestAction<?>) request;
             }
             case DELETE -> {
-                if (interaction.interaction == null) {
-                    throw new InvalidArgumentsRuntimeException("Invalid interaction! Has it expired?");
-                }
                 yield ((IDeferrableCallback) interaction.interaction).getHook().deleteOriginal();
             }
         });
