@@ -452,6 +452,24 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
                 mechanism.echoError("Failed to delete message: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
             }
         });
+
+        // <--[mechanism]
+        // @object DiscordMessageTag
+        // @name crosspost
+        // @synonyms DiscordMessageTag.publish
+        // @input None
+        // @description
+        // Crossposts the message, ie publishes a message in an announcement channel.
+        // -->
+        tagProcessor.registerMechanism("crosspost", false, (object, mechanism) -> {
+            Message message = object.getMessage();
+            try {
+                message.crosspost().submit();
+            }
+            catch (Throwable ex) {
+                mechanism.echoError("Failed to crosspost message: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
+            }
+        });
     }
 
     public static ObjectTagProcessor<DiscordMessageTag> tagProcessor = new ObjectTagProcessor<>();
