@@ -415,6 +415,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         tagProcessor.registerTag(DiscordMessageTag.class, "replied_to", (attribute, object) -> {
             Message message = object.getMessage().getReferencedMessage();
             if (message == null) {
+                attribute.echoError("Message object was valid, but wasn't a reply to anything.");
                 return null;
             }
             return new DiscordMessageTag(object.bot, message);
