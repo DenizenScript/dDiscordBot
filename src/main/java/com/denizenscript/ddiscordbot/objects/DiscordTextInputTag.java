@@ -134,7 +134,7 @@ public class DiscordTextInputTag implements ObjectTag {
                 return null;
             }
             MapTag map = MapTag.getMapFor(attribute.getParamObject(), attribute.context);
-            for (Map.Entry<StringHolder, ObjectTag> entry : map.map.entrySet()) {
+            for (Map.Entry<StringHolder, ObjectTag> entry : map.entrySet()) {
                 String key = entry.getKey().low;
                 if (!acceptedWithKeys.contains(key)) {
                     attribute.echoError("Invalid text_input.with_map[...] tag: unknown key '" + key + "' given.");

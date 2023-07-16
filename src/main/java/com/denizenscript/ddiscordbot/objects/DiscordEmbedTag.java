@@ -222,7 +222,7 @@ public class DiscordEmbedTag implements ObjectTag {
                 return null;
             }
             MapTag map = MapTag.getMapFor(attribute.getParamObject(), attribute.context);
-            for (Map.Entry<StringHolder, ObjectTag> entry : map.map.entrySet()) {
+            for (Map.Entry<StringHolder, ObjectTag> entry : map.entrySet()) {
                 String key = entry.getKey().low;
                 if (!acceptedWithKeys.contains(key)) {
                     attribute.echoError("Invalid embed.with_map[...] tag: unknown key '" + key + "' given.");

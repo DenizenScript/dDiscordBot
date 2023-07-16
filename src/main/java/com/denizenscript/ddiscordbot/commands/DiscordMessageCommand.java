@@ -223,7 +223,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         }
         if (attachFilesMap != null) {
             List<FileUpload> fileUploads = new LinkedList<>();
-            for (Map.Entry<StringHolder, ObjectTag> fileSet : attachFilesMap.map.entrySet()) {
+            for (Map.Entry<StringHolder, ObjectTag> fileSet : attachFilesMap.entrySet()) {
                 ObjectTag val = fileSet.getValue();
                 byte[] data = val.shouldBeType(BinaryTag.class) ? val.asType(BinaryTag.class, scriptEntry.context).data : val.toString().getBytes(StandardCharsets.UTF_8);
                 fileUploads.add(FileUpload.fromData(data, fileSet.getKey().str));

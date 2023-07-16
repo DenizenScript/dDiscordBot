@@ -166,10 +166,10 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                     data = Commands.context(type, name);
                 }
                 if (options != null) {
-                    if (!(data instanceof SlashCommandData) && !options.map.isEmpty()) {
+                    if (!(data instanceof SlashCommandData) && !options.isEmpty()) {
                         throw new InvalidArgumentsRuntimeException("Command options are only valid for SLASH commands.");
                     }
-                    for (ObjectTag optionObj : options.map.values()) {
+                    for (ObjectTag optionObj : options.values()) {
                         MapTag option = optionObj.asType(MapTag.class, scriptEntry.getContext());
                         ElementTag typeStr = option.getElement("type");
                         if (typeStr == null) {
@@ -206,7 +206,7 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                                 if (!optionType.canSupportChoices()) {
                                     throw new InvalidArgumentsRuntimeException("Command options with choices must be STRING, INTEGER, or NUMBER!");
                                 }
-                                for (Map.Entry<StringHolder, ObjectTag> subChoiceValue : optionChoices.map.entrySet()) {
+                                for (Map.Entry<StringHolder, ObjectTag> subChoiceValue : optionChoices.entrySet()) {
                                     MapTag choice = subChoiceValue.getValue().asType(MapTag.class, scriptEntry.getContext());
                                     ElementTag choiceName = choice.getElement("name");
                                     ElementTag choiceValue = choice.getElement("value");

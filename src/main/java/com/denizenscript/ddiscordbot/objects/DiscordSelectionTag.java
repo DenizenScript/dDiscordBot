@@ -111,7 +111,7 @@ public class DiscordSelectionTag implements ObjectTag {
         }
         MapTag options = menuData.getObjectAs("options", MapTag.class, context);
         if (options != null) {
-            for (ObjectTag optionObj : options.map.values()) {
+            for (ObjectTag optionObj : options.values()) {
                 MapTag option = optionObj.asType(MapTag.class, context);
                 ElementTag label = option.getElement("label");
                 ElementTag value = option.getElement("value");
@@ -164,7 +164,7 @@ public class DiscordSelectionTag implements ObjectTag {
                 return null;
             }
             MapTag map = MapTag.getMapFor(attribute.getParamObject(), attribute.context);
-            for (Map.Entry<StringHolder, ObjectTag> entry : map.map.entrySet()) {
+            for (Map.Entry<StringHolder, ObjectTag> entry : map.entrySet()) {
                 String key = entry.getKey().low;
                 if (!acceptedWithKeys.contains(key)) {
                     attribute.echoError("Invalid selection.with_map[...] tag: unknown key '" + key + "' given.");
