@@ -213,6 +213,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject, Adjustable {
         // @attribute <DiscordRoleTag.color>
         // @returns ColorTag
         // @plugin dDiscordBot
+        // @mechanism DiscordRoleTag.color
         // @description
         // Returns the display color of the role, if any.
         // -->
@@ -260,6 +261,8 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject, Adjustable {
         // @input ColorTag
         // @description
         // Adjusts the specified role's color to the given <@link objecttype ColorTag>.
+        // @tags
+        // <DiscordRoleTag.color>
         // -->
         tagProcessor.registerMechanism("color", false, ColorTag.class, (object, mechanism, color) -> {
             object.role.getManager().setColor(color.asRGB()).queue();
@@ -270,7 +273,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject, Adjustable {
         // @name mentionable
         // @input ElementTag(Boolean)
         // @description
-        // Adjusts the specified role's mentionable status.
+        // Adjusts whether the specified role is mentionable by anyone (if not, can only be mentioned by users with mention-everyone permission).
         // -->
         tagProcessor.registerMechanism("mentionable", false, ElementTag.class, (object, mechanism, input) -> {
             if (mechanism.requireBoolean()) {
