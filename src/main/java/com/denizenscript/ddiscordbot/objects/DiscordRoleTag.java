@@ -3,6 +3,7 @@ package com.denizenscript.ddiscordbot.objects;
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.denizencore.objects.core.ColorTag;
+import com.denizenscript.denizencore.objects.properties.PropertyParser;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.flags.AbstractFlagTracker;
 import com.denizenscript.denizencore.flags.FlaggableObject;
@@ -17,6 +18,8 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.managers.RoleManager;
 
 import java.awt.Color;
 import java.util.List;
@@ -252,6 +255,30 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject, Adjustable {
                 list.addObject(new ElementTag(perm));
             }
             return list;
+        });
+
+        // <--[mechanism]
+        // @object DiscordRoleTag
+        // @name color
+        // @input ColorTag
+        // @description
+        // Adjusts the specified role's color to the given <@link objecttype ColorTag>.
+        // -->
+        tagProcessor.registerMechanism("color", false, ColorTag.class, (object, mechanism, color) -> {
+            object.role.getManager().setColor(color.asRGB()).queue();
+        });
+
+        // <--[mechanism]
+        // @object DiscordRoleTag
+        // @name mentionable
+        // @input ElementTag(Boolean)
+        // @description
+        // Adjusts the specified role's mentionable status.
+        // -->
+        tagProcessor.registerMechanism("mentionable", false, ElementTag.class, (object, mechanism, input) -> {
+            if (mechanism.requireBoolean()) {
+                object.role.getManager().setMentionable(input.asBoolean()).queue();
+            }
         });
     }
 
