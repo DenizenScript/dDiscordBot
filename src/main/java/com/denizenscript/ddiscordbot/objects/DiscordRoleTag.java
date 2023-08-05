@@ -265,7 +265,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject, Adjustable {
         // <DiscordRoleTag.color>
         // -->
         tagProcessor.registerMechanism("color", false, ColorTag.class, (object, mechanism, color) -> {
-            object.role.getManager().setColor(color.asRGB()).queue();
+            object.role.getManager().setColor(color.asRGB()).submit();
         });
 
         // <--[mechanism]
@@ -277,7 +277,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject, Adjustable {
         // -->
         tagProcessor.registerMechanism("mentionable", false, ElementTag.class, (object, mechanism, input) -> {
             if (mechanism.requireBoolean()) {
-                object.role.getManager().setMentionable(input.asBoolean()).queue();
+                object.role.getManager().setMentionable(input.asBoolean()).submit();
             }
         });
     }
