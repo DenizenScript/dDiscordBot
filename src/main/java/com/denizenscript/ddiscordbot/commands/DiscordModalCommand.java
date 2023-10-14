@@ -41,6 +41,9 @@ public class DiscordModalCommand extends AbstractCommand implements Holdable {
     // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
     // @Group external
     //
+    // @Tags
+    // None
+    //
     // @Description
     // With this command you can respond to an interaction using a modal.
     // A "modal" is a popup window that presents the user with a form to fill out.
