@@ -18,6 +18,8 @@ import com.denizenscript.denizencore.utilities.text.StringHolder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.forums.ForumPost;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
@@ -32,17 +34,17 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
 
     public DiscordMessageCommand() {
         setName("discordmessage");
-        setSyntax("discordmessage (id:<id>) [reply:<message>/edit:<message>/channel:<channel>/user:<user>] (<message>) (no_mention) (rows:<rows>) (embed:<embed>|...) (attach_files:<map>)");
-        setRequiredArguments(2, 7);
+        setSyntax("discordmessage (id:<id>) [reply:<message>/edit:<message>/channel:<channel>/user:<user>] (<message>) (no_mention) (rows:<rows>) (embed:<embed>|...) (attach_files:<map>) (post_title:<name>)");
+        setRequiredArguments(2, 8);
         isProcedural = false;
         autoCompile();
     }
 
     // <--[command]
     // @Name discordmessage
-    // @Syntax discordmessage (id:<id>) [reply:<message>/edit:<message>/channel:<channel>/user:<user>] (<message>) (no_mention) (rows:<rows>) (embed:<embed>|...) (attach_files:<map>)
+    // @Syntax discordmessage (id:<id>) [reply:<message>/edit:<message>/channel:<channel>/user:<user>] (<message>) (no_mention) (rows:<rows>) (embed:<embed>|...) (attach_files:<map>) (post_title:<name>)
     // @Required 2
-    // @Maximum 7
+    // @Maximum 8
     // @Short Sends a message to a Discord channel.
     // @Plugin dDiscordBot
     // @Guide https://guide.denizenscript.com/guides/expanding/ddiscordbot.html
@@ -67,6 +69,8 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
     // To send embeds, use "embed:<embed>|...".
     //
     // You can use "rows" to attach action rows of components, such as buttons to the message, using <@link objecttype DiscordButtonTag>, and <@link objecttype DiscordSelectionTag>.
+    //
+    // You can send a message into a Forum Channel with "post_title" specified to create a post in that forum.
     //
     // The command can be ~waited for. See <@link language ~waitable>.
     //
@@ -149,11 +153,11 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         return actionRows;
     }
 
-    private static CompletableFuture<MessageChannel> requireChannel(Channel channel) {
-        if (!(channel instanceof MessageChannel messageChannel)) {
+    private static CompletableFuture<Channel> requireChannel(Channel channel) {
+        if (!(channel instanceof MessageChannel) && !(channel instanceof ForumChannel)) {
             throw new InvalidArgumentsRuntimeException("Invalid message channel ID given.");
         }
-        return CompletableFuture.completedFuture(messageChannel);
+        return CompletableFuture.completedFuture(channel);
     }
 
     public static void autoExecute(ScriptEntry scriptEntry,
@@ -166,6 +170,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgDefaultNull @ArgName("rows") ObjectTag rows,
                                    @ArgRaw @ArgLinear @ArgDefaultNull @ArgName("raw_message") ObjectTag message,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("embed") @ArgSubType(DiscordEmbedTag.class) List<DiscordEmbedTag> embeds,
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("post_title") String postTitle,
                                    // Note: attachFiles intentionally at end
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_files") MapTag attachFilesMap,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("attach_file_name") String attachFileName,
@@ -176,7 +181,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         }
         DiscordConnection connection = bot.getConnection();
         JDA client = connection.client;
-        CompletableFuture<? extends MessageChannel> toChannel;
+        CompletableFuture<? extends Channel> toChannel;
         if (reply != null && reply.channel_id != 0) {
             toChannel = requireChannel(connection.getChannel(reply.channel_id));
         }
@@ -199,14 +204,22 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         final AbstractMessageBuilder<?, ?> finalBuilder = createMessageBuilder(scriptEntry, edit != null, noMention, rows, message, embeds, attachFileName, attachFileText, attachFilesMap);
         final DiscordBotTag finalBot = bot;
         DiscordCommandUtils.cleanWait(scriptEntry, toChannel.thenApply(c -> {
+            if (c instanceof ForumChannel forumChannel) {
+                if (postTitle == null) {
+                    Debug.echoError("Missing post_title parameter");
+                    return null;
+                }
+                return forumChannel.createForumPost(postTitle, (MessageCreateData) finalBuilder.build()).map(ForumPost::getMessage);
+            }
+            MessageChannel mc = (MessageChannel) c;
             if (reply != null) {
-                return c.retrieveMessageById(reply.message_id).flatMap(m -> m.reply((MessageCreateData) finalBuilder.build()));
+                return mc.retrieveMessageById(reply.message_id).flatMap(m -> m.reply((MessageCreateData) finalBuilder.build()));
             }
             else if (edit != null) {
-                return c.editMessageById(edit.message_id, (MessageEditData) finalBuilder.build());
+                return mc.editMessageById(edit.message_id, (MessageEditData) finalBuilder.build());
             }
             else {
-                return c.sendMessage((MessageCreateData) finalBuilder.build());
+                return mc.sendMessage((MessageCreateData) finalBuilder.build());
             }
         }).thenCompose(r -> DiscordCommandUtils.mapError(scriptEntry, r).map(m -> scriptEntry.saveObject("message", new DiscordMessageTag(finalBot.bot, m))).submit()));
     }
