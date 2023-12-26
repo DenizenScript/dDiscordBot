@@ -3,6 +3,7 @@ package com.denizenscript.ddiscordbot;
 import com.denizenscript.ddiscordbot.commands.*;
 import com.denizenscript.ddiscordbot.events.*;
 import com.denizenscript.ddiscordbot.objects.*;
+import com.denizenscript.ddiscordbot.properties.DiscordElementTagExtensions;
 import com.denizenscript.ddiscordbot.properties.DiscordTimeTagExtensions;
 import com.denizenscript.denizen.Denizen;
 import com.denizenscript.denizencore.objects.core.ListTag;
@@ -97,6 +98,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             ObjectFetcher.registerWithObjectFetcher(DiscordUserTag.class, DiscordUserTag.tagProcessor);
             // Extensions
             DiscordTimeTagExtensions.register();
+            DiscordElementTagExtensions.register();
 
             // <--[tag]
             // @attribute <discord_bots>
