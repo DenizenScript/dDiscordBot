@@ -41,18 +41,6 @@ public abstract class DiscordScriptEvent extends BukkitScriptEvent {
         return super.getContext(name);
     }
 
-    public boolean enabled = false;
-
-    @Override
-    public void init() {
-        enabled = true;
-    }
-
-    @Override
-    public void destroy() {
-        enabled = false;
-    }
-
     public static boolean tryChannel(ScriptPath path, Channel channel) {
         return tryChannel(path, channel, "channel");
     }

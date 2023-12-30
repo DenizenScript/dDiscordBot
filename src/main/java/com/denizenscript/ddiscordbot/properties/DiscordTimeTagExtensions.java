@@ -10,7 +10,7 @@ public class DiscordTimeTagExtensions {
         // <--[tag]
         // @attribute <TimeTag.format_discord[(<style>)]>
         // @returns ElementTag
-        // @group properties
+        // @group extensions
         // @Plugin dDiscordBot
         // @description
         // Returns the time formatted for display on Discord, optionally using the specified style from <@link url https://discord.com/developers/docs/reference#message-formatting-timestamp-styles>.

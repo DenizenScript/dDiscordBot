@@ -191,7 +191,7 @@ public class DiscordConnection extends ListenerAdapter {
 
     public <T extends DiscordScriptEvent> void autoHandle(Event event, T scriptEvent, Consumer<T> configure) {
         Bukkit.getScheduler().runTask(DenizenDiscordBot.instance, () -> {
-            if (!scriptEvent.enabled) {
+            if (!scriptEvent.eventData.isEnabled) {
                 return;
             }
             if (configure != null) {

@@ -172,7 +172,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         // @returns ElementTag
         // @plugin dDiscordBot
         // @description
-        // Returns the user name of the user.
+        // Returns the base username of the user.
         // -->
         tagProcessor.registerTag(ElementTag.class, "name", (attribute, object) -> {
             if (object.getUserForTag(attribute) == null) {
