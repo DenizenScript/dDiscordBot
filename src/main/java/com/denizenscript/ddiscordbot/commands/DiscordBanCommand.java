@@ -52,15 +52,15 @@ public class DiscordBanCommand extends AbstractCommand implements Holdable {
     // <DiscordGroupTag.banned_members> returns a list of all banned members in a group.
     //
     // @Usage
-    // # Bans a user with a reason and deletes all messages sent by the user in the past 2 hours.
+    // Bans a user with a reason and deletes all messages sent by the user in the past 2 hours.
     // - ~discordban id:mybot add user:<[user]> group:<[group]> "reason:Was being mean!" deletion_timeframe:2h
     //
     // @Usage
-    // # Bans a user with but does not delete any messages sent and does not have a reason.
+    // Bans a user with but does not delete any messages sent and does not have a reason.
     // - ~discordban id:mybot add user:<[user]> group:<[group]>
     //
     // @Usage
-    // # Unbans a user.
+    // Unbans a user.
     // - ~discordban id:mybot remove user:<[user]> group:<[group]>
     // -->
 

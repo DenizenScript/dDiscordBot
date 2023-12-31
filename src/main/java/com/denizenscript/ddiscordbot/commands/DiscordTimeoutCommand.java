@@ -54,15 +54,15 @@ public class DiscordTimeoutCommand extends AbstractCommand implements Holdable {
     // <DiscordUserTag.is_timed_out[<group>]> returns if the user is timed out in a certain group.
     //
     // @Usage
-    // # Put a user in timeout.
+    // Put a user in timeout.
     // - discordtimeout id:my_bot add user:<[user]> group:<[group]>
     //
     // @Usage
-    // # Put a user in timeout for a duration of 3 hours with a reason.
+    // Put a user in timeout for a duration of 3 hours with a reason.
     // - discordtimeout id:my_bot add user:<[user]> group:<[group]> "reason:Was being troublesome!" duration:3h
     //
     // @Usage
-    // # Remove a user from timeout.
+    // Remove a user from timeout.
     // - discordtimeout id:my_bot remove user:<[user]> group:<[group]>
     // -->
 
