@@ -1,6 +1,5 @@
 package com.denizenscript.ddiscordbot.commands;
 
-import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordCommandUtils;
 import com.denizenscript.ddiscordbot.objects.DiscordBotTag;
 import com.denizenscript.ddiscordbot.objects.DiscordCommandTag;
@@ -8,7 +7,6 @@ import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.denizencore.exceptions.InvalidArgumentsRuntimeException;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
-import com.denizenscript.denizencore.objects.core.ListTag;
 import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
@@ -136,19 +134,12 @@ public class DiscordCommandCommand extends AbstractCommand implements Holdable {
                                    @ArgPrefixed @ArgName("name") String name,
                                    @ArgPrefixed @ArgDefaultText("slash") @ArgName("type") Command.Type type,
                                    @ArgPrefixed @ArgDefaultNull @ArgName("description") String description,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("options") MapTag options,
-                                   // Past-deprecated arguments
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("enabled") ElementTag enabled,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("enable_for") ListTag enableFor,
-                                   @ArgPrefixed @ArgDefaultNull @ArgName("disable_for") ListTag disableFor) {
+                                   @ArgPrefixed @ArgDefaultNull @ArgName("options") MapTag options) {
         final DiscordBotTag bot = DiscordCommandUtils.inferBot(rawBot, rawGroup);
         if (rawGroup != null && rawGroup.bot == null) {
             rawGroup = new DiscordGroupTag(bot.bot, rawGroup.guild_id);
         }
         final DiscordGroupTag group = rawGroup;
-        if (enabled != null || enableFor != null || disableFor != null || instruction == DiscordCommandInstruction.PERMS) {
-            DenizenDiscordBot.oldCommandPermissions.warn(scriptEntry);
-        }
         JDA client = bot.getConnection().client;
         DiscordCommandUtils.cleanWait(scriptEntry, switch (instruction) {
             case CREATE -> {

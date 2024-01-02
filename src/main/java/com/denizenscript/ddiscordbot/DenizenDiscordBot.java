@@ -22,15 +22,14 @@ import java.util.Map;
 
 public class DenizenDiscordBot extends JavaPlugin {
 
-    public static Warning oldMessageContexts = new SlowWarning("oldMessageContexts", "dDiscordBot contexts relating to message data are now provided by DiscordMessageTag.");
-    public static Warning oldMessageCommand = new SlowWarning("oldMessageCommand", "dDiscordBot's 'discord message' sub-command has been moved to a base 'discordmessage' command.");
-    public static Warning oldConnectCommand = new FutureWarning("oldConnectCommand", "dDiscordBot's 'discord connect' sub-command has been moved to a base 'discordconnect' command.");
-    public static Warning oldStopTyping = new FutureWarning("oldStopTyping", "dDiscordBot's 'discord stop_typing' sub-command is deprecated as it does nothing.");
-    public static Warning oldDeleteMessage = new FutureWarning("oldDeleteMessage", "dDiscordBot's 'discord delete_message' sub-command is deprecated in favor of 'adjust <[message]> delete'.");
-    public static Warning oldEditMessage = new SlowWarning("oldEditMessage", "dDiscordBot's 'discord edit_message' sub-command has been moved to the 'discordmessage' command.");
-    public static Warning oldTokenFile = new SlowWarning("oldTokenFile", "dDiscordBot used to recommend 'tokenfile' for 'discordconnect', however it is now recommended that you use a SecretTag and the 'secrets.secret' file for the token.");
-    public static Warning oldCommandPermissions = new StrongWarning("oldCommandPermissions", "dDiscordBot's 'discordcommand' command's 'enabled', 'enable_for', 'disable_for' arguments and its 'perms' instruction no longer function due to API changes; use the 'Integrations' panel in your server settings instead.");
-    public static Warning discordMessageAttachFile = new FutureWarning("discordMessageAttachFile", "'discordmessage' previously used 'attach_file_name' and 'attach_file_text': it is now 'attach_files' as a MapTag");
+    public static Warning oldMessageContexts = new Warning("oldMessageContexts", "dDiscordBot contexts relating to message data are now provided by DiscordMessageTag.");
+    public static Warning oldMessageCommand = new Warning("oldMessageCommand", "dDiscordBot's 'discord message' sub-command has been moved to a base 'discordmessage' command.");
+    public static Warning oldConnectCommand = new SlowWarning("oldConnectCommand", "dDiscordBot's 'discord connect' sub-command has been moved to a base 'discordconnect' command.");
+    public static Warning oldStopTyping = new SlowWarning("oldStopTyping", "dDiscordBot's 'discord stop_typing' sub-command is deprecated as it does nothing.");
+    public static Warning oldDeleteMessage = new SlowWarning("oldDeleteMessage", "dDiscordBot's 'discord delete_message' sub-command is deprecated in favor of 'adjust <[message]> delete'.");
+    public static Warning oldEditMessage = new Warning("oldEditMessage", "dDiscordBot's 'discord edit_message' sub-command has been moved to the 'discordmessage' command.");
+    public static Warning oldTokenFile = new Warning("oldTokenFile", "dDiscordBot used to recommend 'tokenfile' for 'discordconnect', however it is now recommended that you use a SecretTag and the 'secrets.secret' file for the token.");
+    public static Warning discordMessageAttachFile = new SlowWarning("discordMessageAttachFile", "'discordmessage' previously used 'attach_file_name' and 'attach_file_text': it is now 'attach_files' as a MapTag");
 
     public static DenizenDiscordBot instance;
 
