@@ -414,6 +414,17 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         });
 
         // <--[tag]
+        // @attribute <DiscordUserTag.display_name>
+        // @returns ElementTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the global display name of the user.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "display_name", (attribute, object) -> {
+            return new ElementTag(object.getUser().getGlobalName());
+        });
+
+        // <--[tag]
         // @attribute <DiscordUserTag.roles[<group>]>
         // @returns ListTag(DiscordRoleTag)
         // @plugin dDiscordBot
