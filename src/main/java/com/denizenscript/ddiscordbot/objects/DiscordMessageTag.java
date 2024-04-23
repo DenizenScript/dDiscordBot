@@ -439,6 +439,24 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
 
         // <--[mechanism]
         // @object DiscordMessageTag
+        // @name crosspost
+        // @synonyms DiscordMessageTag.publish
+        // @input None
+        // @description
+        // Crossposts the message, ie publishes a message in an announcement channel.
+        // -->
+        tagProcessor.registerMechanism("crosspost", false, (object, mechanism) -> {
+            Message message = object.getMessage();
+            try {
+                message.crosspost().submit();
+            }
+            catch (Throwable ex) {
+                mechanism.echoError("Failed to crosspost message: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
+            }
+        });
+
+        // <--[mechanism]
+        // @object DiscordMessageTag
         // @name delete
         // @input None
         // @description
@@ -456,19 +474,25 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
 
         // <--[mechanism]
         // @object DiscordMessageTag
-        // @name crosspost
-        // @synonyms DiscordMessageTag.publish
-        // @input None
+        // @name is_pinned
+        // @input ElementTag(Boolean)
         // @description
-        // Crossposts the message, ie publishes a message in an announcement channel.
+        // Sets whether the message is pinned.
+        // @tags
+        // <DiscordMessageTag.is_pinned>
         // -->
-        tagProcessor.registerMechanism("crosspost", false, (object, mechanism) -> {
+        tagProcessor.registerMechanism("is_pinned", false, ElementTag.class, (object, mechanism, input) -> {
+            boolean pinned = input.asBoolean();
             Message message = object.getMessage();
             try {
-                message.crosspost().submit();
+                if (pinned) {
+                    message.pin().submit();
+                } else {
+                    message.unpin().submit();
+                }
             }
             catch (Throwable ex) {
-                mechanism.echoError("Failed to crosspost message: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
+                mechanism.echoError("Failed to pin message: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
             }
         });
     }
