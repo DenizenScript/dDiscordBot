@@ -306,6 +306,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         // @attribute <DiscordMessageTag.is_pinned>
         // @returns ElementTag(Boolean)
         // @plugin dDiscordBot
+        // @mechanism DiscordMessageTag.is_pinned
         // @description
         // Returns whether this message is pinned.
         // -->
