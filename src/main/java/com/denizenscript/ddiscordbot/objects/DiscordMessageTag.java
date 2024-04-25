@@ -488,7 +488,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
             try {
                 if (pinned) {
                     message.pin().submit();
-                } 
+                }
                 else {
                     message.unpin().submit();
                 }
