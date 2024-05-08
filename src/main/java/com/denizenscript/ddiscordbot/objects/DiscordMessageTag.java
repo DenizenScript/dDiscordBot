@@ -485,6 +485,9 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         tagProcessor.registerMechanism("is_pinned", false, ElementTag.class, (object, mechanism, input) -> {
             boolean pinned = input.asBoolean();
             Message message = object.getMessage();
+            if (!mechanism.requireBoolean()) {
+                return;
+            }
             try {
                 if (pinned) {
                     message.pin().submit();
