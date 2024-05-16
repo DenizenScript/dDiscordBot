@@ -306,6 +306,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         // @attribute <DiscordMessageTag.is_pinned>
         // @returns ElementTag(Boolean)
         // @plugin dDiscordBot
+        // @mechanism DiscordMessageTag.is_pinned
         // @description
         // Returns whether this message is pinned.
         // -->
@@ -469,6 +470,34 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
             }
             catch (Throwable ex) {
                 mechanism.echoError("Failed to crosspost message: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
+            }
+        });
+        
+        // <--[mechanism]
+        // @object DiscordMessageTag
+        // @name is_pinned
+        // @input ElementTag(Boolean)
+        // @description
+        // Sets whether the message is pinned.
+        // @tags
+        // <DiscordMessageTag.is_pinned>
+        // -->
+        tagProcessor.registerMechanism("is_pinned", false, ElementTag.class, (object, mechanism, input) -> {
+            if (!mechanism.requireBoolean()) {
+                return;
+            }
+            boolean pinned = input.asBoolean();
+            Message message = object.getMessage();
+            try {
+                if (pinned) {
+                    message.pin().submit();
+                }
+                else {
+                    message.unpin().submit();
+                }
+            }
+            catch (Throwable ex) {
+                mechanism.echoError("Failed to pin message: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
             }
         });
     }
