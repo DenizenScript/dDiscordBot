@@ -259,6 +259,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject, Adjustable {
         // @object DiscordRoleTag
         // @name color
         // @input ColorTag
+        // @plugin dDiscordBot
         // @description
         // Adjusts the specified role's color to the given <@link objecttype ColorTag>.
         // @tags
@@ -272,6 +273,7 @@ public class DiscordRoleTag implements ObjectTag, FlaggableObject, Adjustable {
         // @object DiscordRoleTag
         // @name mentionable
         // @input ElementTag(Boolean)
+        // @plugin dDiscordBot
         // @description
         // Adjusts whether the specified role is mentionable by anyone (if not, can only be mentioned by users with mention-everyone permission).
         // -->

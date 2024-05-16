@@ -442,6 +442,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         // @object DiscordMessageTag
         // @name delete
         // @input None
+        // @plugin dDiscordBot
         // @description
         // Deletes the message.
         // -->
@@ -460,6 +461,7 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
         // @name crosspost
         // @synonyms DiscordMessageTag.publish
         // @input None
+        // @plugin dDiscordBot
         // @description
         // Crossposts the message, ie publishes a message in an announcement channel.
         // -->
@@ -472,11 +474,12 @@ public class DiscordMessageTag implements ObjectTag, FlaggableObject, Adjustable
                 mechanism.echoError("Failed to crosspost message: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
             }
         });
-        
+
         // <--[mechanism]
         // @object DiscordMessageTag
         // @name is_pinned
         // @input ElementTag(Boolean)
+        // @plugin dDiscordBot
         // @description
         // Sets whether the message is pinned.
         // @tags

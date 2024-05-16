@@ -445,6 +445,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @object DiscordChannelTag
         // @name add_thread_member
         // @input DiscordUserTag
+        // @plugin dDiscordBot
         // @description
         // Adds the specified user to this thread.
         // -->
@@ -462,6 +463,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @object DiscordChannelTag
         // @name remove_thread_member
         // @input DiscordUserTag
+        // @plugin dDiscordBot
         // @description
         // Removes the specified user from this thread.
         // -->
@@ -479,6 +481,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @object DiscordChannelTag
         // @name is_thread_archived
         // @input ElementTag(Boolean)
+        // @plugin dDiscordBot
         // @description
         // Changes whether this thread is archived.
         // @tags
@@ -497,6 +500,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @object DiscordChannelTag
         // @name is_thread_locked
         // @input ElementTag(Boolean)
+        // @plugin dDiscordBot
         // @description
         // Changes whether this thread is locked (can't be pulled from archive by non-moderators).
         // @tags
@@ -515,6 +519,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @object DiscordChannelTag
         // @name delete
         // @input None
+        // @plugin dDiscordBot
         // @description
         // Deletes this channel.
         // -->
@@ -526,6 +531,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @object DiscordChannelTag
         // @name name
         // @input ElementTag
+        // @plugin dDiscordBot
         // @description
         // Renames this channel.
         // @tags
@@ -539,6 +545,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // @object DiscordChannelTag
         // @name topic
         // @input ElementTag
+        // @plugin dDiscordBot
         // @description
         // Changes the topic for this channel. The topic can only be 1024 characters or fewer.
         // Does not work for thread or forum channels. Provide no input to reset the topic.

@@ -520,6 +520,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         // @object DiscordUserTag
         // @name move
         // @input DiscordChannelTag
+        // @plugin dDiscordBot
         // @description
         // If this user is connected to a voice channel, moves them to the specified voice channel.
         // -->
