@@ -200,7 +200,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                         }
                         DiscordConnection dc = DenizenDiscordBot.instance.connections.remove(id);
                         if (dc.flags.modified) {
-                            dc.flags.saveToFile(DiscordConnectCommand.flagFilePathFor(id));
+                            dc.flags.saveToFile(DiscordConnectCommand.flagFilePathFor(id), true);
                         }
                         dc.client.shutdown();
                         scriptEntry.setFinished(true);

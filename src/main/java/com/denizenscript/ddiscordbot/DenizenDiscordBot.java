@@ -332,7 +332,7 @@ public class DenizenDiscordBot extends JavaPlugin {
             try {
                 if (connection.getValue().client != null) {
                     if (connection.getValue().flags.modified) {
-                        connection.getValue().flags.saveToFile(DiscordConnectCommand.flagFilePathFor(connection.getKey()));
+                        connection.getValue().flags.saveToFile(DiscordConnectCommand.flagFilePathFor(connection.getKey()), true);
                     }
                     connection.getValue().client.shutdownNow();
                 }
