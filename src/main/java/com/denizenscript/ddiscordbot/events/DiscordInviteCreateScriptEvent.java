@@ -7,7 +7,6 @@ import com.denizenscript.ddiscordbot.objects.DiscordUserTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
 public class DiscordInviteCreateScriptEvent extends DiscordScriptEvent {
 
