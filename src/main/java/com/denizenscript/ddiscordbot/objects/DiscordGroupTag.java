@@ -190,6 +190,43 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject, Adjustable {
         });
 
         // <--[tag]
+        // @attribute <DiscordGroupTag.boosters>
+        // @returns ListTag(DiscordUserTag)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a list of all users in the group that currently boosts the server.
+        // -->
+        tagProcessor.registerTag(ListTag.class, "boosters", (attribute, object) -> {
+            ListTag list = new ListTag();
+            for (Member member : object.getGuild().getBoosters()) {
+                list.addObject(new DiscordUserTag(object.bot, member.getUser()));
+            }
+            return list;
+        });
+
+        // <--[tag]
+        // @attribute <DiscordGroupTag.boosts_count>
+        // @returns ElementTag(Number)
+        // @plugin dDiscordBot
+        // @description
+        // Returns the amount of boosts the group currently has.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "boosts_count", (attribute, object) -> {
+            return new ElementTag(object.getGuild().getBoostCount());
+        });
+
+        // <--[tag]
+        // @attribute <DiscordGroupTag.tier>
+        // @returns ElementTag(Number)
+        // @plugin dDiscordBot
+        // @description
+        // Returns the tier (0 to 3) of the group currently set by its boosts.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "tier", (attribute, object) -> {
+            return new ElementTag(object.getGuild().getBoostTier());
+        });
+
+        // <--[tag]
         // @attribute <DiscordGroupTag.banned_members>
         // @returns ListTag(DiscordUserTag)
         // @plugin dDiscordBot
