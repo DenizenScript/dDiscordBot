@@ -241,6 +241,31 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         });
 
         // <--[tag]
+        // @attribute <DiscordUserTag.is_boosting[<group>]>
+        // @returns ElementTag(Boolean)
+        // @plugin dDiscordBot
+        // @description
+        // Returns a boolean indicating whether the user is boosting the specified server or not.
+        // -->
+        tagProcessor.registerTag(ElementTag.class, "is_boosting", (attribute, object) -> {
+            if (!attribute.hasParam()) {
+                return null;
+            }
+            DiscordGroupTag group = attribute.paramAsType(DiscordGroupTag.class);
+            if (group == null) {
+                return null;
+            }
+            if (object.getUserForTag(attribute) == null) {
+                return null;
+            }
+            Member member = group.getGuild().getMember(object.getUser());
+            if (member == null) {
+                return null;
+            }
+            return new ElementTag(member.isBoosting());
+        });
+
+        // <--[tag]
         // @attribute <DiscordUserTag.avatar_url>
         // @returns ElementTag
         // @plugin dDiscordBot
