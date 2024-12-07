@@ -70,3 +70,4 @@ public class DiscordInviteCreateScriptEvent extends DiscordScriptEvent {
         return super.getContext(name);
     }
 }
+
