@@ -46,6 +46,9 @@ public class DiscordInviteCreateScriptEvent extends DiscordScriptEvent {
 
     @Override
     public boolean matches(ScriptPath path) {
+        if (!tryChannel(path, getEvent().getChannel())) {
+            return false;
+        }
         if (!tryGuild(path, getEvent().getGuild())) {
             return false;
         }
