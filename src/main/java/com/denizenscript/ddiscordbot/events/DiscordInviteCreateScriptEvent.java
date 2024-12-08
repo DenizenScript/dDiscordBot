@@ -15,6 +15,7 @@ public class DiscordInviteCreateScriptEvent extends DiscordScriptEvent {
     // discord invitation created
     //
     // @Switch for:<bot> to only process the event for a specified Discord bot.
+    // @Switch channel:<channel_id> to only process the event for a specified Discord channel.
     // @Switch group:<group_id> to only process the event for a specified Discord group.
     //
     // @Triggers when a Discord user creates an invitation.
@@ -28,8 +29,8 @@ public class DiscordInviteCreateScriptEvent extends DiscordScriptEvent {
     // <context.group> returns the DiscordGroupTag.
     // <context.channel> returns the DiscordChannelTag.
     // <context.user> returns the DiscordUserTag of the invitation creator.
-    // <context.code> returns the ElementTag of the invitation code (after the "/" in the URL.
-    // <context.url> returns the ElementTag of the invitation URL
+    // <context.code> returns the invitation code (after the latest "/" in the URL).
+    // <context.url> returns the invitation URL.
     // -->
 
     public static DiscordInviteCreateScriptEvent instance;
@@ -57,19 +58,14 @@ public class DiscordInviteCreateScriptEvent extends DiscordScriptEvent {
 
     @Override
     public ObjectTag getContext(String name) {
-        switch (name) {
-            case "channel":
-                return new DiscordChannelTag(botID, getEvent().getChannel());
-            case "group":
-                return new DiscordGroupTag(botID, getEvent().getGuild());
-            case "user":
-                return new DiscordUserTag(botID, getEvent().getInvite().getInviter());
-            case "code":
-                return new ElementTag(getEvent().getInvite().getCode());
-            case "url":
-                return new ElementTag(getEvent().getInvite().getUrl());
-        }
-        return super.getContext(name);
+        return switch (name) {
+            case "channel" -> new DiscordChannelTag(botID, getEvent().getChannel());
+            case "group" -> new DiscordGroupTag(botID, getEvent().getGuild());
+            case "user" -> new DiscordUserTag(botID, getEvent().getInvite().getInviter());
+            case "code" -> new ElementTag(getEvent().getInvite().getCode(), true);
+            case "url" -> new ElementTag(getEvent().getInvite().getUrl(), true);
+            default -> super.getContext(name);
+        };
     }
 }
 
