@@ -26,8 +26,8 @@ public class DiscordInviteCreateScriptEvent extends DiscordScriptEvent {
     //
     // @Context
     // <context.bot> returns the relevant DiscordBotTag.
-    // <context.group> returns the DiscordGroupTag.
-    // <context.channel> returns the DiscordChannelTag.
+    // <context.group> returns the DiscordGroupTag of the created invitation.
+    // <context.channel> returns the DiscordChannelTag of the created invitation.
     // <context.user> returns the DiscordUserTag of the invitation creator.
     // <context.code> returns the invitation code (after the last "/" in the URL).
     // <context.url> returns the invitation URL.
