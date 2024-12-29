@@ -135,7 +135,7 @@ public class DiscordConnection extends ListenerAdapter {
     public void onGuildUpdateBoostCount(GuildUpdateBoostCountEvent event) {
         autoHandle(event, DiscordUpdateBoostCountEvent.instance);
     }
-    
+
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         autoHandle(event, DiscordApplicationCommandScriptEvent.instance);
