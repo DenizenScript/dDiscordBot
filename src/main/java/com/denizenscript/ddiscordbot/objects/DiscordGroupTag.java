@@ -220,7 +220,8 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject, Adjustable {
         // @returns ElementTag(Number)
         // @plugin dDiscordBot
         // @description
-        // Returns the tier (0 to 3) of the group currently set by its boosts.
+        // Returns the tier of the group currently set by its boosts.
+        // You can get a list of possible outputs here: <@link url https://docs.jda.wiki/net/dv8tion/jda/api/entities/Guild.BoostTier.html>
         // -->
         tagProcessor.registerTag(ElementTag.class, "tier", (attribute, object) -> {
             return new ElementTag(object.getGuild().getBoostTier());
