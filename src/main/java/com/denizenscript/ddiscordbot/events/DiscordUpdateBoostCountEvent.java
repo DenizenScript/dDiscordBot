@@ -52,7 +52,7 @@ public class DiscordUpdateBoostCountEvent extends DiscordScriptEvent {
     public ObjectTag getContext(String name) {
         return switch (name) {
             case "new_count" -> new DiscordGroupTag(botID, getEvent().getNewBoostCount());
-            case "old_count" -> new DiscordUserTag(botID, getEvent().getOldBoostCount());
+            case "old_count" -> new DiscordGroupTag(botID, getEvent().getOldBoostCount());
             default -> super.getContext(name);
         };
     }
