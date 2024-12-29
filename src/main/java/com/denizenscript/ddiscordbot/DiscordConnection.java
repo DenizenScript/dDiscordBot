@@ -117,11 +117,6 @@ public class DiscordConnection extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildUpdateBoostCount(GuildUpdateBoostCountEvent event) {
-        autoHandle(event, DiscordUpdateBoostCountEvent.instance);
-    }
-
-    @Override
     public void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
         autoHandle(event, DiscordUserRoleChangeScriptEvent.instance);
     }
@@ -136,6 +131,11 @@ public class DiscordConnection extends ListenerAdapter {
         autoHandle(event, DiscordUserNicknameChangeScriptEvent.instance);
     }
 
+    @Override
+    public void onGuildUpdateBoostCount(GuildUpdateBoostCountEvent event) {
+        autoHandle(event, DiscordUpdateBoostCountEvent.instance);
+    }
+    
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         autoHandle(event, DiscordApplicationCommandScriptEvent.instance);
