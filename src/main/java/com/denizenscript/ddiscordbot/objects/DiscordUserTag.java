@@ -247,21 +247,11 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         // @description
         // Returns a boolean indicating whether the user is boosting the specified group or not.
         // -->
-        tagProcessor.registerTag(ElementTag.class, "is_boosting", (attribute, object) -> {
-            if (!attribute.hasParam()) {
-                return null;
-            }
-            DiscordGroupTag group = attribute.paramAsType(DiscordGroupTag.class);
-            if (group == null) {
-                return null;
-            }
-            if (object.getUserForTag(attribute) == null) {
-                return null;
+        tagProcessor.registerTag(ElementTag.class, DiscordGroupTag.class, "is_boosting", (attribute, object, group) -> {
+            if (object.getUser() == null) {
+                return new ElementTag(false);
             }
             Member member = group.getGuild().getMember(object.getUser());
-            if (member == null) {
-                return null;
-            }
             return new ElementTag(member.isBoosting());
         });
 
