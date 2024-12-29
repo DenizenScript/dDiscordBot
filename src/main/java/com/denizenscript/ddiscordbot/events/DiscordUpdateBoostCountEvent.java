@@ -24,8 +24,8 @@ public class DiscordUpdateBoostCountEvent extends DiscordScriptEvent {
     // @Context
     // <context.bot> returns the relevant DiscordBotTag.
     // <context.group> returns the DiscordGroupTag.
-    // <context.new_count> returns the new count of the group's boosts.
-    // <context.old_count> returns the old count of the group's boosts.
+    // <context.new_count> returns the new amount of boosts of the group.
+    // <context.old_count> returns the old amount of boosts of the group.
     // -->
 
     public static DiscordUpdateBoostCountEvent instance;

@@ -194,7 +194,7 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject, Adjustable {
         // @returns ListTag(DiscordUserTag)
         // @plugin dDiscordBot
         // @description
-        // Returns a list of all users in the group that currently boosts the server.
+        // Returns a list of all users in the group that currently boosts the group.
         // -->
         tagProcessor.registerTag(ListTag.class, "boosters", (attribute, object) -> {
             ListTag list = new ListTag();

@@ -245,7 +245,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         // @returns ElementTag(Boolean)
         // @plugin dDiscordBot
         // @description
-        // Returns a boolean indicating whether the user is boosting the specified server or not.
+        // Returns a boolean indicating whether the user is boosting the specified group or not.
         // -->
         tagProcessor.registerTag(ElementTag.class, "is_boosting", (attribute, object) -> {
             if (!attribute.hasParam()) {
