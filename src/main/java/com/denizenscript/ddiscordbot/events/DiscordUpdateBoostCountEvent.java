@@ -23,9 +23,9 @@ public class DiscordUpdateBoostCountEvent extends DiscordScriptEvent {
     //
     // @Context
     // <context.bot> returns the relevant DiscordBotTag.
-    // <context.group> returns the DiscordGroupTag.
-    // <context.new_count> returns the new amount of boosts of the group.
-    // <context.old_count> returns the old amount of boosts of the group.
+    // <context.group> returns the DiscordGroupTag whose boost count changed.
+    // <context.new_count> returns the group's new new amount of boosts.
+    // <context.old_count> returns the group's old amount of boosts.
     // -->
 
     public static DiscordUpdateBoostCountEvent instance;
@@ -51,6 +51,7 @@ public class DiscordUpdateBoostCountEvent extends DiscordScriptEvent {
     @Override
     public ObjectTag getContext(String name) {
         return switch (name) {
+            case "group" -> new DiscordGroupTag(botID, getEvent().getGuild());
             case "new_count" -> new DiscordGroupTag(botID, getEvent().getNewBoostCount());
             case "old_count" -> new DiscordGroupTag(botID, getEvent().getOldBoostCount());
             default -> super.getContext(name);

@@ -194,14 +194,11 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject, Adjustable {
         // @returns ListTag(DiscordUserTag)
         // @plugin dDiscordBot
         // @description
-        // Returns a list of all users in the group that currently boosts the group.
+        // Returns a list of all users in the group that currently boosts it.
         // -->
         tagProcessor.registerTag(ListTag.class, "boosters", (attribute, object) -> {
-            ListTag list = new ListTag();
-            for (Member member : object.getGuild().getBoosters()) {
-                list.addObject(new DiscordUserTag(object.bot, member.getUser()));
-            }
-            return list;
+            List<Member> boosters = object.getGuild().getBoosters();
+            return new ListTag(boosters, member -> new DiscordUserTag(object.bot, member.getUser()));
         });
 
         // <--[tag]
@@ -216,14 +213,14 @@ public class DiscordGroupTag implements ObjectTag, FlaggableObject, Adjustable {
         });
 
         // <--[tag]
-        // @attribute <DiscordGroupTag.tier>
-        // @returns ElementTag(Number)
+        // @attribute <DiscordGroupTag.boost_tier>
+        // @returns ElementTag
         // @plugin dDiscordBot
         // @description
         // Returns the tier of the group currently set by its boosts.
         // You can get a list of possible outputs here: <@link url https://docs.jda.wiki/net/dv8tion/jda/api/entities/Guild.BoostTier.html>
         // -->
-        tagProcessor.registerTag(ElementTag.class, "tier", (attribute, object) -> {
+        tagProcessor.registerTag(ElementTag.class, "boost_tier", (attribute, object) -> {
             return new ElementTag(object.getGuild().getBoostTier());
         });
 

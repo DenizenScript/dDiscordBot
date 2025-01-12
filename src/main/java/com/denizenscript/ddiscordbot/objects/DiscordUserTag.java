@@ -231,7 +231,7 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         // @returns ElementTag(Boolean)
         // @plugin dDiscordBot
         // @description
-        // Returns a boolean indicating whether the user is a bot.
+        // Returns whether the user is a bot or not.
         // -->
         tagProcessor.registerTag(ElementTag.class, "is_bot", (attribute, object) -> {
             if (object.getUserForTag(attribute) == null) {
@@ -245,10 +245,10 @@ public class DiscordUserTag implements ObjectTag, FlaggableObject, Adjustable {
         // @returns ElementTag(Boolean)
         // @plugin dDiscordBot
         // @description
-        // Returns a boolean indicating whether the user is boosting the specified group or not.
+        // Return whether the user is boosting the specified group or not.
         // -->
         tagProcessor.registerTag(ElementTag.class, DiscordGroupTag.class, "is_boosting", (attribute, object, group) -> {
-            if (object.getUser() == null) {
+            if (object.getUserForTag(attribute) == null) {
                 return new ElementTag(false);
             }
             Member member = group.getGuild().getMember(object.getUser());
