@@ -9,11 +9,13 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.channel.ChannelCreateEvent;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
+import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateBoostCountEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
@@ -131,6 +133,11 @@ public class DiscordConnection extends ListenerAdapter {
     }
 
     @Override
+    public void onGuildUpdateBoostCount(GuildUpdateBoostCountEvent event) {
+        autoHandle(event, DiscordUpdateBoostCountEvent.instance);
+    }
+
+    @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         autoHandle(event, DiscordApplicationCommandScriptEvent.instance);
     }
@@ -163,6 +170,11 @@ public class DiscordConnection extends ListenerAdapter {
     @Override
     public void onGenericSelectMenuInteraction(GenericSelectMenuInteractionEvent event) {
         autoHandle(event, DiscordSelectionUsedScriptEvent.instance);
+    }
+
+    @Override
+    public void onGuildInviteCreate(GuildInviteCreateEvent event) {
+        autoHandle(event, DiscordInviteCreateScriptEvent.instance);
     }
 
     @Override
