@@ -31,7 +31,6 @@ import net.dv8tion.jda.api.events.thread.ThreadRevealedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 
-import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public class DiscordConnection extends ListenerAdapter {
@@ -166,22 +165,22 @@ public class DiscordConnection extends ListenerAdapter {
     }
 
     @Override
-    public void onChannelCreate(@Nonnull ChannelCreateEvent event) {
+    public void onChannelCreate(ChannelCreateEvent event) {
         autoHandle(event, DiscordChannelCreateScriptEvent.instance);
     }
 
     @Override
-    public void onChannelDelete(@Nonnull ChannelDeleteEvent event) {
+    public void onChannelDelete(ChannelDeleteEvent event) {
         autoHandle(event, DiscordChannelDeleteScriptEvent.instance);
     }
 
     @Override
-    public void onThreadRevealed(@Nonnull ThreadRevealedEvent event) {
+    public void onThreadRevealed(ThreadRevealedEvent event) {
         autoHandle(event, DiscordThreadRevealedScriptEvent.instance);
     }
 
     @Override
-    public void onThreadHidden(@Nonnull ThreadHiddenEvent event) { // TODO: Is 'hidden' the same as 'archived'?
+    public void onThreadHidden(ThreadHiddenEvent event) { // TODO: Is 'hidden' the same as 'archived'?
         autoHandle(event, DiscordThreadArchivedScriptEvent.instance);
     }
 
