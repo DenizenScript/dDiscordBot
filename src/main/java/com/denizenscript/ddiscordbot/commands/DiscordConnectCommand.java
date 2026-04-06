@@ -19,7 +19,6 @@ import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
 import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.CoreConfiguration;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import com.denizenscript.denizencore.utilities.ReflectionHelper;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -29,10 +28,8 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.bukkit.Bukkit;
-import org.slf4j.Logger;
 
 import java.io.*;
-import java.lang.invoke.MethodHandle;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -107,22 +104,11 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
         // Dirty hack step 1: break System.err so Paper won't complain when JDALogger's static init whines into System.err
         PrintStream currentErr = System.err;
         System.setErr(altLogger);
-        Logger defaultLogger = null;
         try {
-            // Force JDALogger to init now, which will do that spam, and get a SimpleLogger instance while we're at it.
-            defaultLogger = JDALogger.getLog(DiscordConnectCommand.class);
+            JDALogger.getLog(DiscordConnectCommand.class);
         }
         finally {
-            // Fix the logger back, with a try/finally to avoid breaking it.
             System.setErr(currentErr);
-        }
-        try {
-            // Dirty hack step 2: use that SimpleLogger instance to modify the class and redirect its log path to one that won't get complained about by Paper.
-            MethodHandle streamSetter = ReflectionHelper.getFinalSetter(defaultLogger.getClass(), "TARGET_STREAM");
-            streamSetter.invoke(altLogger);
-        }
-        catch (Throwable ex) {
-            Debug.echoError(ex);
         }
     }
 
@@ -130,7 +116,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
         fixJDALogger();
     }
 
-    public static HashSet<GatewayIntent> defaultIntents = new HashSet<>(Arrays.asList(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EMOJIS_AND_STICKERS, GatewayIntent.GUILD_MESSAGE_REACTIONS,
+    public static HashSet<GatewayIntent> defaultIntents = new HashSet<>(Arrays.asList(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EXPRESSIONS, GatewayIntent.GUILD_MESSAGE_REACTIONS,
             GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGE_REACTIONS, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT));
 
     public static void runConnect(String code, DiscordConnection conn, ScriptEntry scriptEntry, HashSet<GatewayIntent> intents) {

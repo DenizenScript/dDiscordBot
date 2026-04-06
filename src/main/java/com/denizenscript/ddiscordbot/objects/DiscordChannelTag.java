@@ -2,7 +2,6 @@ package com.denizenscript.ddiscordbot.objects;
 
 import com.denizenscript.ddiscordbot.DiscordConnection;
 import com.denizenscript.ddiscordbot.DenizenDiscordBot;
-import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.flags.AbstractFlagTracker;
 import com.denizenscript.denizencore.flags.FlaggableObject;
 import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
@@ -13,14 +12,12 @@ import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
+import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.attribute.IThreadContainer;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.*;
 import net.dv8tion.jda.api.entities.channel.unions.IThreadContainerUnion;
 
 public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable {
@@ -361,15 +358,11 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // Returns a list of the messages that are pinned in the channel.
         // -->
         tagProcessor.registerTag(ListTag.class, "pinned_messages", (attribute, object) -> {
-            ListTag list = new ListTag();
             MessageChannel channel = (MessageChannel) object.getChannel();
             if (channel == null) {
                 return null;
             }
-            for (Message message : channel.retrievePinnedMessages().complete()) {
-                list.addObject(new DiscordMessageTag(object.bot, message));
-            }
-            return list;
+            return new ListTag(channel.retrievePinnedMessages().complete(), message -> new DiscordMessageTag(object.bot, message.getMessage()));
         });
 
         // <--[tag]

@@ -10,10 +10,10 @@ import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
+import net.dv8tion.jda.api.components.selections.SelectMenu;
+import net.dv8tion.jda.api.components.selections.SelectOption;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -85,9 +85,7 @@ public class DiscordSelectionTag implements ObjectTag {
             throw new UnsupportedOperationException();
         }
         menuData = new MapTag();
-        if (menu.getId() != null) {
-            menuData.putObject("id", new ElementTag(menu.getId()));
-        }
+        menuData.putObject("id", new ElementTag(menu.getCustomId()));
         if (menu.getPlaceholder() != null) {
             menuData.putObject("placeholder", new ElementTag(menu.getPlaceholder()));
         }
