@@ -16,13 +16,13 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumPost;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.*;
 
@@ -136,7 +136,7 @@ public class DiscordMessageCommand extends AbstractCommand implements Holdable {
         Collection<ObjectTag> rows = CoreUtilities.objectToList(rowsObj, scriptEntry.getContext());
         List<ActionRow> actionRows = new ArrayList<>();
         for (ObjectTag row : rows) {
-            List<ItemComponent> components = new ArrayList<>();
+            List<ActionRowChildComponent> components = new ArrayList<>();
             for (ObjectTag component : CoreUtilities.objectToList(row, scriptEntry.getContext())) {
                 if (component.canBeType(DiscordButtonTag.class)) {
                     components.add(component.asType(DiscordButtonTag.class, scriptEntry.getContext()).build());

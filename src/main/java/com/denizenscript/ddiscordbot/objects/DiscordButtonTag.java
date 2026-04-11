@@ -9,9 +9,9 @@ import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -69,8 +69,8 @@ public class DiscordButtonTag implements ObjectTag {
         buttonData.putObject("style", new ElementTag(button.getStyle()));
         buttonData.putObject("label", new ElementTag(button.getLabel()));
         buttonData.putObject("disabled", new ElementTag(button.isDisabled()));
-        if (button.getId() != null) {
-            buttonData.putObject("id", new ElementTag(button.getId()));
+        if (button.getCustomId() != null) {
+            buttonData.putObject("id", new ElementTag(button.getCustomId()));
         }
         if (button.getEmoji() != null) {
             buttonData.putObject("emoji", new ElementTag(button.getEmoji().getName()));

@@ -82,7 +82,7 @@ public class DiscordModalSubmittedScriptEvent extends DiscordScriptEvent {
                 return new ElementTag(getEvent().getModalId());
             case "values":
                 Map<StringHolder, ObjectTag> map = getEvent().getValues().stream()
-                        .collect(Collectors.toMap(key -> new StringHolder(key.getId()), value -> new ElementTag(value.getAsString(), true)));
+                        .collect(Collectors.toMap(key -> new StringHolder(key.getCustomId()), value -> new ElementTag(value.getAsString(), true)));
                 return new MapTag(map);
         }
         return super.getContext(name);

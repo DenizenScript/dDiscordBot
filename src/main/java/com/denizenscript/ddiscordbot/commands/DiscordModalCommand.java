@@ -12,14 +12,12 @@ import com.denizenscript.denizencore.scripts.commands.generator.ArgName;
 import com.denizenscript.denizencore.scripts.commands.generator.ArgPrefixed;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
+import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class DiscordModalCommand extends AbstractCommand implements Holdable {
 
@@ -77,36 +75,36 @@ public class DiscordModalCommand extends AbstractCommand implements Holdable {
         if (interaction.interaction == null) {
             throw new InvalidArgumentsRuntimeException("Invalid interaction! Has it expired?");
         }
-        List<ActionRow> actionRows = createRows(scriptEntry, rows);
-        if (actionRows == null || actionRows.isEmpty()) {
+        Collection<Label> modalRows = createRows(scriptEntry, rows);
+        if (modalRows == null || modalRows.isEmpty()) {
             throw new InvalidArgumentsRuntimeException("Invalid action rows!");
         }
         if (interaction.interaction.isAcknowledged()) {
             throw new InvalidArgumentsRuntimeException("Interaction already acknowledged!");
         }
         IModalCallback replyTo = (IModalCallback) interaction.interaction;
-        Modal modal = Modal.create(name, title).addActionRows(actionRows).build();
+        Modal modal = Modal.create(name, title).addComponents(modalRows).build();
         DiscordCommandUtils.cleanWait(scriptEntry, replyTo.replyModal(modal));
     }
 
-    public static List<ActionRow> createRows(ScriptEntry scriptEntry, ObjectTag rowsObj) {
+    public static Collection<Label> createRows(ScriptEntry scriptEntry, ObjectTag rowsObj) {
         if (rowsObj == null) {
             return null;
         }
         Collection<ObjectTag> rows = CoreUtilities.objectToList(rowsObj, scriptEntry.getContext());
-        List<ActionRow> actionRows = new ArrayList<>();
+        Collection<Label> modalRows = new ArrayList<>();
         for (ObjectTag row : rows) {
-            List<ItemComponent> components = new ArrayList<>();
             for (ObjectTag component : CoreUtilities.objectToList(row, scriptEntry.getContext())) {
                 if (component.canBeType(DiscordTextInputTag.class)) {
-                    components.add(component.asType(DiscordTextInputTag.class, scriptEntry.getContext()).build());
+                    DiscordTextInputTag textInput = component.asType(DiscordTextInputTag.class, scriptEntry.getContext());
+                    Label label = Label.of(textInput.textInputData.getElement("label").asString(), textInput.build());
+                    modalRows.add(label);
                 }
                 else {
                     Debug.echoError("Unsupported modal component list entry '" + component + "'");
                 }
             }
-            actionRows.add(ActionRow.of(components));
         }
-        return actionRows;
+        return modalRows;
     }
 }

@@ -9,8 +9,8 @@ import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -66,8 +66,7 @@ public class DiscordTextInputTag implements ObjectTag {
     public DiscordTextInputTag(TextInput textInput) {
         textInputData = new MapTag();
         textInputData.putObject("style", new ElementTag(textInput.getStyle()));
-        textInputData.putObject("label", new ElementTag(textInput.getLabel()));
-        textInputData.putObject("id", new ElementTag(textInput.getId()));
+        textInputData.putObject("id", new ElementTag(textInput.getCustomId()));
         if (textInput.getMinLength() != -1) {
             textInputData.putObject("min_length", new ElementTag(textInput.getMinLength()));
         }
@@ -88,10 +87,9 @@ public class DiscordTextInputTag implements ObjectTag {
         if (id == null) {
             return null;
         }
-        ElementTag label = textInputData.getElement("label");
         ElementTag style = textInputData.getElement("style", "SHORT");
         TextInputStyle textInputStyle = style.asEnum(TextInputStyle.class);
-        TextInput.Builder textInput = TextInput.create(id.toString(), label.toString(), textInputStyle);
+        TextInput.Builder textInput = TextInput.create(id.toString(), textInputStyle);
         ElementTag minLength = textInputData.getElement("min_length");
         if (minLength != null) {
             textInput.setMinLength(minLength.asInt());
