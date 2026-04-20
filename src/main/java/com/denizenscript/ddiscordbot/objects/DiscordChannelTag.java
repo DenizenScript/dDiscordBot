@@ -450,7 +450,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // -->
         tagProcessor.registerTag(ListTag.class, "forum_channel_tags", (attribute, object) -> {
             if (!(object.getChannel() instanceof ForumChannel forumChannel)) {
-                attribute.echoError("Cannot get 'forum_channel_tags' tag: this is not a forum channel.");
+                attribute.echoError("This is not a forum channel.");
                 return null;
             }
             return new ListTag(forumChannel.getAvailableTags(), tag -> new ElementTag(tag.getIdLong()));
@@ -467,7 +467,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // -->
         tagProcessor.registerTag(ListTag.class, "forum_post_tags", (attribute, object) -> {
             if (!(object.getChannel() instanceof ThreadChannel threadChannel)) {
-                attribute.echoError("Cannot get 'forum_post_tags' tag: this channel is not a forum post.");
+                attribute.echoError("This channel is not a forum post.");
                 return null;
             }
             return new ListTag(threadChannel.getAppliedTags(), tag -> new ElementTag(tag.getIdLong()));
@@ -487,7 +487,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // -->
         tagProcessor.registerMechanism("forum_post_tags", false, (object, mechanism) -> {
             if (!(object.getChannel() instanceof ThreadChannel threadChannel)) {
-                mechanism.echoError("Cannot adjust 'forum_post_tags' tag: this channel is not a forum post.");
+                mechanism.echoError("This channel is not a forum post.");
                 return;
             }
             if (!mechanism.hasValue()) {
@@ -497,7 +497,7 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
             ListTag input = mechanism.valueAsType(ListTag.class);
             int size;
             if (input.size() > 5) {
-                mechanism.echoError("The 'DiscordChannelTag.forum_post_tags' mechanism has a maximum input of 5 tag ids.");
+                mechanism.echoError("Mechanism has a maximum input of 5 tag ids.");
                 size = 5;
             }
             else {
@@ -505,7 +505,12 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
             }
             Collection<ForumTagSnowflake> forumTags = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
-                forumTags.add(ForumTagSnowflake.fromId(input.get(i)));
+                try {
+                    forumTags.add(ForumTagSnowflake.fromId(Long.parseLong(input.get(i))));
+                }
+                catch (NumberFormatException e) {
+                    mechanism.echoError("Invalid forum tag id '" + input.get(i) + "'.");
+                }
             }
             threadChannel.getManager().setAppliedTags(forumTags).submit();
         });
