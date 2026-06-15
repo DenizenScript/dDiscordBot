@@ -1,17 +1,16 @@
 package com.denizenscript.ddiscordbot.objects;
 
-import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.ddiscordbot.DiscordConnection;
+import com.denizenscript.ddiscordbot.DenizenDiscordBot;
 import com.denizenscript.denizencore.flags.AbstractFlagTracker;
 import com.denizenscript.denizencore.flags.FlaggableObject;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
-import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
+import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.Command;
 
@@ -100,7 +99,8 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
         // Returns the name of the bot.
         // -->
         tagProcessor.registerTag(ElementTag.class, "name", (attribute, object) -> {
-            return new ElementTag(object.bot, true);
+            return new ElementTag(object.bot);
+
         });
 
         // <--[tag]
@@ -116,6 +116,7 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
                 return null;
             }
             return new DiscordUserTag(object.bot, connection.client.getSelfUser());
+
         });
 
         // <--[tag]
@@ -130,7 +131,11 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
             if (connection == null) {
                 return null;
             }
-            return new ListTag(connection.client.getGuilds(), guild -> new DiscordGroupTag(object.bot, guild));
+            ListTag list = new ListTag();
+            for (Guild guild : connection.client.getGuilds()) {
+                list.addObject(new DiscordGroupTag(object.bot, guild));
+            }
+            return list;
         });
 
         // <--[tag]
@@ -145,7 +150,11 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
             if (connection == null) {
                 return null;
             }
-            return new ListTag(connection.client.retrieveCommands().complete(), command -> new DiscordCommandTag(object.bot, null, command));
+            ListTag list = new ListTag();
+            for (Command command : connection.client.retrieveCommands().complete()) {
+                list.addObject(new DiscordCommandTag(object.bot, null, command));
+            }
+            return list;
         });
 
         // <--[tag]
@@ -155,12 +164,15 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
         // @description
         // Returns the Discord group (aka 'guild' or 'server') that best matches the input name, or null if there's no match.
         // -->
-        tagProcessor.registerTag(DiscordGroupTag.class, ElementTag.class, "group", (attribute, object, param) -> {
+        tagProcessor.registerTag(DiscordGroupTag.class, "group", (attribute, object) -> {
+            if (!attribute.hasParam()) {
+                return null;
+            }
             DiscordConnection connection = object.getConnection();
             if (connection == null) {
                 return null;
             }
-            String matchString = param.asLowerString();
+            String matchString = CoreUtilities.toLowerCase(attribute.getParam());
             Guild bestMatch = null;
             for (Guild guild : connection.client.getGuilds()) {
                 String guildName = CoreUtilities.toLowerCase(guild.getName());
@@ -186,12 +198,15 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
         // @description
         // Returns the application command that best matches the input name, or null if there's no match.
         // -->
-        tagProcessor.registerTag(DiscordCommandTag.class, ElementTag.class, "command", (attribute, object, param) -> {
+        tagProcessor.registerTag(DiscordCommandTag.class, "command", (attribute, object) -> {
+            if (!attribute.hasParam()) {
+                return null;
+            }
             DiscordConnection connection = object.getConnection();
             if (connection == null) {
                 return null;
             }
-            String matchString = param.asLowerString();
+            String matchString = CoreUtilities.toLowerCase(attribute.getParam());
             Command bestMatch = null;
             for (Command command : connection.client.retrieveCommands().complete()) {
                 String commandName = CoreUtilities.toLowerCase(command.getName());
@@ -207,40 +222,6 @@ public class DiscordBotTag implements ObjectTag, FlaggableObject, Adjustable {
                 return null;
             }
             return new DiscordCommandTag(object.bot, null, bestMatch);
-        });
-
-        // <--[tag]
-        // @attribute <DiscordBotTag.custom_status>
-        // @returns ElementTag
-        // @mechanism DiscordBotTag.custom_status
-        // @plugin dDiscordBot
-        // @description
-        // Returns the custom status of a discord bot, if there is one.
-        // -->
-        tagProcessor.registerTag(ElementTag.class, "custom_status", (attribute, object) -> {
-            DiscordConnection connection = object.getConnection();
-            if (connection == null) {
-                return null;
-            }
-            Activity activity = connection.client.getPresence().getActivity();
-            if (activity == null) {
-                return null;
-            }
-            return new ElementTag(activity.getName(), true);
-        });
-
-        // <--[mechanism]
-        // @object DiscordBotTag
-        // @name custom_status
-        // @input ElementTag
-        // @plugin dDiscordBot
-        // @description
-        // Sets the bot's custom status. Leave blank to unset.
-        // @tags
-        // <DiscordBotTag.custom_status>
-        // -->
-        tagProcessor.registerMechanism("custom_status", false, (object, mechanism) -> {
-            object.getConnection().client.getPresence().setActivity(mechanism.hasValue() ? Activity.of(Activity.ActivityType.CUSTOM_STATUS, mechanism.getValue().asString()) : null);
         });
     }
 
