@@ -30,6 +30,7 @@ public class DenizenDiscordBot extends JavaPlugin {
     public static Warning oldEditMessage = new Warning("oldEditMessage", "dDiscordBot's 'discord edit_message' sub-command has been moved to the 'discordmessage' command.");
     public static Warning oldTokenFile = new Warning("oldTokenFile", "dDiscordBot used to recommend 'tokenfile' for 'discordconnect', however it is now recommended that you use a SecretTag and the 'secrets.secret' file for the token.");
     public static Warning discordMessageAttachFile = new SlowWarning("discordMessageAttachFile", "'discordmessage' previously used 'attach_file_name' and 'attach_file_text': it is now 'attach_files' as a MapTag");
+    public static Warning threadArchiveEvent = new SlowWarning("discordThreadArchiveEvent", "The 'discord thread archived' and 'discord thread revealed' events have been merged together into the 'discord thread archive status changes' event.");
 
     public static DenizenDiscordBot instance;
 
@@ -76,7 +77,6 @@ public class DenizenDiscordBot extends JavaPlugin {
             ScriptEvent.registerScriptEvent(DiscordModalSubmittedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordSelectionUsedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordThreadArchivedScriptEvent.class);
-            ScriptEvent.registerScriptEvent(DiscordThreadRevealedScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordUserJoinsScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordUserLeavesScriptEvent.class);
             ScriptEvent.registerScriptEvent(DiscordUserNicknameChangeScriptEvent.class);
