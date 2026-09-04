@@ -51,7 +51,8 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
     // 'defer_update' acknowledges a component interaction without a loading state, allowing its original message to be edited later.
     // 'reply' provides the initial interaction response, or sends a followup after the interaction has been acknowledged. It uses similar logic to normal messaging. See <@link command discordmessage>.
     // 'update' immediately updates the message associated with a component interaction as its initial response.
-    // 'edit' edits the interaction's original response through its interaction hook, and 'delete' deletes that original response.
+    // 'edit' edits the interaction's original response through its interaction hook.
+    // 'delete' deletes the interaction's original response through its interaction hook.
     // If you deferred without using 'ephemeral', the 'delete' option will delete the 'Thinking...' message.
     // Ephemeral replies cannot have files.
     //
@@ -77,6 +78,16 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
     // Use to defer and reply to an interaction ephemerally.
     // - ~discordinteraction defer interaction:<context.interaction> ephemeral:true
     // - discordinteraction reply interaction:<context.interaction> "Shh, don't tell anyone!"
+    //
+    // @Usage
+    // Use to immediately update the message associated with a component interaction.
+    // - discordinteraction update interaction:<context.interaction> Updated!
+    //
+    // @Usage
+    // Use to silently acknowledge a component interaction, then update its original message later.
+    // - ~discordinteraction defer_update interaction:<context.interaction>
+    // - wait 2s
+    // - discordinteraction edit interaction:<context.interaction> Updated after processing.
     //
     // -->
 
@@ -104,10 +115,10 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                 yield ((IReplyCallback) interaction.interaction).deferReply(ephemeral);
             }
             case DEFER_UPDATE -> {
-                if (!(interaction.interaction instanceof IMessageEditCallback)) {
+                if (!(interaction.interaction instanceof IMessageEditCallback editCallback)) {
                     throw new InvalidArgumentsRuntimeException("Interaction is not a message edit callback!");
                 }
-                yield ((IMessageEditCallback) interaction.interaction).deferEdit();
+                yield editCallback.deferEdit();
             }
             case EDIT -> {
                 AbstractMessageBuilder<?, ?> messageBuilder = DiscordMessageCommand.createMessageBuilder(scriptEntry, true, false, rows, message, embeds, attachFileName, attachFileText, attachFilesMap);
@@ -126,11 +137,11 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
                 }
             }
             case UPDATE -> {
-                if (!(interaction.interaction instanceof IMessageEditCallback)) {
+                if (!(interaction.interaction instanceof IMessageEditCallback editCallback)) {
                     throw new InvalidArgumentsRuntimeException("Interaction is not a message edit callback!");
                 }
                 AbstractMessageBuilder<?, ?> messageBuilder = DiscordMessageCommand.createMessageBuilder(scriptEntry, true, false, rows, message, embeds, attachFileName, attachFileText, attachFilesMap);
-                yield ((IMessageEditCallback) interaction.interaction).editMessage((MessageEditData) messageBuilder.build());
+                yield editCallback.editMessage((MessageEditData) messageBuilder.build());
             }
             case DELETE -> {
                 yield ((IDeferrableCallback) interaction.interaction).getHook().deleteOriginal();
