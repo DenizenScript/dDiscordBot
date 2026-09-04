@@ -87,7 +87,7 @@ public class DiscordInteractionCommand extends AbstractCommand implements Holdab
     // Use to silently acknowledge a component interaction, then update its original message later.
     // - ~discordinteraction defer_update interaction:<context.interaction>
     // - wait 2s
-    // - discordinteraction edit interaction:<context.interaction> Updated after processing.
+    // - discordinteraction edit interaction:<context.interaction> "Updated after processing."
     //
     // -->
 
