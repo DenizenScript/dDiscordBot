@@ -60,7 +60,7 @@ public class DiscordConnectCommand extends AbstractCommand implements Holdable {
     // Connects to Discord.
     //
     // The connection will automatically specify the following gateway intents:
-    // GUILD_MEMBERS, GUILD_EMOJIS_AND_STICKERS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS, DIRECT_MESSAGES, DIRECT_MESSAGE_REACTIONS, MESSAGE_CONTENT
+    // GUILD_MEMBERS, GUILD_EXPRESSIONS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS, DIRECT_MESSAGES, DIRECT_MESSAGE_REACTIONS, MESSAGE_CONTENT
     // Optionally specify additional Gateway Intents to use as a list of any of:
     // GUILD_BANS, GUILD_WEBHOOKS, GUILD_INVITES, GUILD_VOICE_STATES, GUILD_PRESENCES, GUILD_MESSAGE_TYPING, DIRECT_MESSAGE_TYPING
     //

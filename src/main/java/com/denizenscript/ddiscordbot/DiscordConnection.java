@@ -169,7 +169,7 @@ public class DiscordConnection extends ListenerAdapter {
 
     @Override
     public void onChannelUpdateArchived(ChannelUpdateArchivedEvent event) {
-        autoHandle(event, DiscordThreadArchivedScriptEvent.instance);
+        autoHandle(event, event.getNewValue() ? DiscordThreadArchivedScriptEvent.instance : DiscordThreadRevealedScriptEvent.instance);
     }
 
     public void autoHandle(Event event, DiscordScriptEvent scriptEvent) {
