@@ -4,7 +4,8 @@ import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
 import com.denizenscript.denizencore.objects.ObjectTag;
-import net.dv8tion.jda.api.events.thread.ThreadRevealedEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.events.channel.update.ChannelUpdateArchivedEvent;
 
 public class DiscordThreadRevealedScriptEvent extends DiscordScriptEvent {
 
@@ -17,8 +18,6 @@ public class DiscordThreadRevealedScriptEvent extends DiscordScriptEvent {
     // @Switch parent:<channel_id> to only process the event for a specific parent channel ID.
     //
     // @Triggers when a Discord thread is pulled out of archive.
-    //
-    // @Warning Not currently function. Will likely function in the future.
     //
     // @Plugin dDiscordBot
     //
@@ -38,8 +37,8 @@ public class DiscordThreadRevealedScriptEvent extends DiscordScriptEvent {
         registerSwitches("group", "parent");
     }
 
-    public ThreadRevealedEvent getEvent() {
-        return (ThreadRevealedEvent) event;
+    public ChannelUpdateArchivedEvent getEvent() {
+        return (ChannelUpdateArchivedEvent) event;
     }
 
     @Override
@@ -47,7 +46,7 @@ public class DiscordThreadRevealedScriptEvent extends DiscordScriptEvent {
         if (!tryGuild(path, getEvent().getGuild())) {
             return false;
         }
-        if (!tryChannel(path, getEvent().getThread().getParentChannel(), "parent")) {
+        if (!tryChannel(path, ((ThreadChannel) getEvent().getChannel()).getParentChannel(), "parent")) {
             return false;
         }
         return super.matches(path);
@@ -55,12 +54,10 @@ public class DiscordThreadRevealedScriptEvent extends DiscordScriptEvent {
 
     @Override
     public ObjectTag getContext(String name) {
-        switch (name) {
-            case "group":
-                return new DiscordGroupTag(botID, getEvent().getGuild());
-            case "thread":
-                return new DiscordChannelTag(botID, getEvent().getThread());
-        }
-        return super.getContext(name);
+        return switch (name) {
+            case "group" -> new DiscordGroupTag(botID, getEvent().getGuild());
+            case "thread" -> new DiscordChannelTag(botID, getEvent().getChannel());
+            default -> super.getContext(name);
+        };
     }
 }
