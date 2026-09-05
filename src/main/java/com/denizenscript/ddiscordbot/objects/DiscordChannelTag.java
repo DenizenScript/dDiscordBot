@@ -8,17 +8,22 @@ import com.denizenscript.denizencore.flags.RedirectionFlagTracker;
 import com.denizenscript.denizencore.objects.*;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.objects.core.ListTag;
-import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.Attribute;
+import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.attribute.IThreadContainer;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.entities.channel.middleman.*;
 import net.dv8tion.jda.api.entities.channel.unions.IThreadContainerUnion;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable {
 
@@ -432,6 +437,82 @@ public class DiscordChannelTag implements ObjectTag, FlaggableObject, Adjustable
         // -->
         tagProcessor.registerTag(ElementTag.class, "topic", (attribute, object) -> {
             return new ElementTag(((StandardGuildMessageChannel) object.getChannel()).getTopic());
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.forum_channel_tags>
+        // @returns ListTag
+        // @plugin dDiscordBot
+        // @description
+        // Returns the ids of possible tags for a forum post.
+        // Only applicable to forum channels.
+        // See also <@link tag DiscordChannelTag.forum_post_tags> and <@link mechanism DiscordChannelTag.forum_post_tags>.
+        // -->
+        tagProcessor.registerTag(ListTag.class, "forum_channel_tags", (attribute, object) -> {
+            if (!(object.getChannel() instanceof ForumChannel forumChannel)) {
+                attribute.echoError("This is not a forum channel.");
+                return null;
+            }
+            return new ListTag(forumChannel.getAvailableTags(), tag -> new ElementTag(tag.getIdLong()));
+        });
+
+        // <--[tag]
+        // @attribute <DiscordChannelTag.forum_post_tags>
+        // @returns ListTag
+        // @plugin dDiscordBot
+        // @mechanism DiscordChannelTag.forum_post_tags
+        // @description
+        // Returns the ids of tags on a forum post.
+        // See also <@link tag DiscordChannelTag.forum_channel_tags>.
+        // -->
+        tagProcessor.registerTag(ListTag.class, "forum_post_tags", (attribute, object) -> {
+            if (!(object.getChannel() instanceof ThreadChannel threadChannel)) {
+                attribute.echoError("This channel is not a forum post.");
+                return null;
+            }
+            return new ListTag(threadChannel.getAppliedTags(), tag -> new ElementTag(tag.getIdLong()));
+        });
+
+        // <--[mechanism]
+        // @object DiscordChannelTag
+        // @name forum_post_tags
+        // @input ListTag
+        // @plugin dDiscordBot
+        // @description
+        // Sets the tags on a forum post. A post can have a maximum of 5 tags.
+        // Entries are the ids of the tags. Provide no input to remove all tags.
+        // @tags
+        // <DiscordChannelTag.forum_channel_tags>
+        // <DiscordChannelTag.forum_post_tags>
+        // -->
+        tagProcessor.registerMechanism("forum_post_tags", false, (object, mechanism) -> {
+            if (!(object.getChannel() instanceof ThreadChannel threadChannel)) {
+                mechanism.echoError("This channel is not a forum post.");
+                return;
+            }
+            if (!mechanism.hasValue()) {
+                threadChannel.getManager().setAppliedTags().submit();
+                return;
+            }
+            ListTag input = mechanism.valueAsType(ListTag.class);
+            int size;
+            if (input.size() > 5) {
+                mechanism.echoError("Mechanism has a maximum input of 5 tag ids.");
+                size = 5;
+            }
+            else {
+                size = input.size();
+            }
+            Collection<ForumTagSnowflake> forumTags = new ArrayList<>(size);
+            for (int i = 0; i < size; i++) {
+                try {
+                    forumTags.add(ForumTagSnowflake.fromId(Long.parseLong(input.get(i))));
+                }
+                catch (NumberFormatException e) {
+                    mechanism.echoError("Invalid forum tag id '" + input.get(i) + "'.");
+                }
+            }
+            threadChannel.getManager().setAppliedTags(forumTags).submit();
         });
 
         // <--[mechanism]
