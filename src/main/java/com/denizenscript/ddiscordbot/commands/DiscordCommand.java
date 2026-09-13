@@ -6,14 +6,14 @@ import com.denizenscript.ddiscordbot.objects.*;
 import com.denizenscript.denizen.Denizen;
 import com.denizenscript.denizen.utilities.Utilities;
 import com.denizenscript.denizencore.DenizenCore;
-import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
-import com.denizenscript.denizencore.scripts.commands.generator.*;
-import com.denizenscript.denizencore.utilities.CoreConfiguration;
-import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
+import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
 import com.denizenscript.denizencore.scripts.commands.Holdable;
+import com.denizenscript.denizencore.scripts.commands.generator.*;
+import com.denizenscript.denizencore.utilities.CoreConfiguration;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
+import com.denizenscript.denizencore.utilities.debugging.Debug;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
@@ -51,7 +51,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     // Commands may fail if the bot does not have permission within the Discord group to perform them.
     //
     // When setting the status of the Discord bot, the status argument can be: ONLINE, DND, IDLE, or INVISIBLE,
-    // and the activity argument can be: PLAYING, STREAMING, LISTENING, or WATCHING.
+    // and the activity argument can be: PLAYING, STREAMING, LISTENING, WATCHING, or CUSTOM.
     // Streaming activity requires a 'url:' input.
     //
     // The command should always be ~waited for. See <@link language ~waitable>.
@@ -73,19 +73,19 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
     //
     // @Usage
     // Use to set the online status of the bot, and clear the game status.
-    // - ~discord id:mybot status "Minecraft" "status:ONLINE"
+    // - ~discord id:mybot status Minecraft status:ONLINE
     //
     // @Usage
     // Use to set the game status of the bot.
-    // - ~discord id:mybot status "Minecraft" "status:ONLINE" "activity:PLAYING"
+    // - ~discord id:mybot status Minecraft status:ONLINE activity:PLAYING
     //
     // @Usage
     // Use to change the bot's nickname.
-    // - ~discord id:mybot rename "<[nickname]>" group:<[group]>
+    // - ~discord id:mybot rename <[nickname]> group:<[group]>
     //
     // @Usage
     // Use to give a user a new nickname.
-    // - ~discord id:mybot rename "<[nickname]>" user:<[user]> group:<[group]>
+    // - ~discord id:mybot rename <[nickname]> user:<[user]> group:<[group]>
     //
     // @Usage
     // Use to start typing in a specific channel.
@@ -367,7 +367,7 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                             return;
                         }
                         Activity at;
-                        String activityType = CoreUtilities.toLowerCase(activity.toString());
+                        String activityType = CoreUtilities.toLowerCase(activity);
                         switch (activityType) {
                             case "watching":
                                 at = Activity.watching(message);
@@ -377,6 +377,9 @@ public class DiscordCommand extends AbstractCommand implements Holdable {
                                 break;
                             case "listening":
                                 at = Activity.listening(message);
+                                break;
+                            case "custom":
+                                at = Activity.of(Activity.ActivityType.CUSTOM_STATUS, message);
                                 break;
                             default:
                                 at = Activity.playing(message);
