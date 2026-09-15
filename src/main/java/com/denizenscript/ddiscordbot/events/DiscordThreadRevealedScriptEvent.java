@@ -1,3 +1,5 @@
+package com.denizenscript.ddiscordbot.events;
+
 import com.denizenscript.ddiscordbot.DiscordScriptEvent;
 import com.denizenscript.ddiscordbot.objects.DiscordChannelTag;
 import com.denizenscript.ddiscordbot.objects.DiscordGroupTag;
